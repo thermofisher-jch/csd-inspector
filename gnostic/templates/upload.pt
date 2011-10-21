@@ -14,7 +14,7 @@
     <!-- Le styles -->
     <link href="${request.static_url('gnostic:static/bootstrap.css')}" rel="stylesheet">
     <style type="text/css">
-      body { "${request.static_url('gnostic:static/bootstrap.css')}"
+      body {
         padding-top: 60px;
       }
     </style>
