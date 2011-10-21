@@ -11,8 +11,6 @@ def main(global_config, **settings):
     config = Configurator(settings=settings)
     config.add_static_view('static', 'gnostic:static', cache_max_age=3600)
     config.add_route('home', '/')
-    config.add_view('gnostic.views.my_view',
-                    route_name='home',
-                    renderer='templates/index.pt')
+    config.scan()
     return config.make_wsgi_app()
 

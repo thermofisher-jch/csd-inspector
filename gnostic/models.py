@@ -12,8 +12,10 @@ from sqlalchemy.orm import sessionmaker
 
 from zope.sqlalchemy import ZopeTransactionExtension
 
+
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 Base = declarative_base()
+
 
 class MyModel(Base):
     __tablename__ = 'models'
@@ -25,12 +27,14 @@ class MyModel(Base):
         self.name = name
         self.value = value
 
+
 def populate():
     session = DBSession()
     model = MyModel(name=u'root', value=55)
     session.add(model)
     session.flush()
     transaction.commit()
+
 
 def initialize_sql(engine):
     DBSession.configure(bind=engine)
