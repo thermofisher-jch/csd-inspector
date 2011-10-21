@@ -47,7 +47,7 @@
         <div class="span8">
           <h2>Technical</h2>
           <p>Upload a system log archive.</p>
-          <form action="/upload" method="post" accept-charset="UTF-8" enctype="multipart/form-data">
+          <form action="/upload/technical" method="post" accept-charset="UTF-8" enctype="multipart/form-data">
             <fieldset>
               <div class="clearfix">
                 <label for="label">Report Label</label>
@@ -70,7 +70,7 @@
         <div class="span8">
           <h2>Experimental</h2>
           <p>Upload a customer support archive.</p>
-          <form>
+          <form action="/upload/experimental" method="post" accept-charset="UTF-8" enctype="multipart/form-data">
             <fieldset>
               <div class="clearfix">
                 <label for="label">Report Label</label>

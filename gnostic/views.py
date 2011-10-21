@@ -142,7 +142,11 @@ def upload(request):
     save a copy of the archive to the folder, and extract it's contents there.
     This displays the extracted files relative paths and file sizes.
     """
-    upload_root = request.registry.settings["upload_root"]
+    upload_type = request.matchdict["type"]
+    if upload_type == "technical":
+        upload_root = request.registry.settings["technical_upload_root"]
+    elif upload_type == "experimental":
+        upload_root = request.registry.settings["experimental_upload_root"]
     label, folder, data = make_report(request)
     destination = os.path.join(upload_root, folder)
     # if the user's label produces a destination path that already exists,
