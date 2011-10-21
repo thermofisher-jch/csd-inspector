@@ -166,4 +166,5 @@ def upload(request):
         full_path = os.path.join(destination, target)
         return natural_size(os.stat(full_path).st_size, gnu=True)
     file_info = [(f, sizer(f)) for f in files]
+    file_info.sort()
     return {"archive_path": destination, "archive_contents": file_info}
