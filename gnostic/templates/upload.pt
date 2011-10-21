@@ -38,9 +38,23 @@
       <!-- Main hero unit for a primary marketing message or call to action -->
       <div class="hero-unit">
         <h1>Upload Success!</h1>
-        <p>Your support archive is in ${archive_path} and is ${archive_size}B</p>
+        <p>Your support archive is in ${archive_path} and contains ${len(archive_contents)} items.</p>
       </div>
-
+      <div>
+          <table>
+              <thead>
+                <tr>
+                    <th>File path</th>
+                    <th>Size</th>
+                </tr>
+              </thead>
+              <tbody>
+                  <tr tal:repeat="info archive_contents">
+                      <td tal:content="info[0]"></td><td tal:content="info[1]"></td>
+                  </tr>
+              </tbody>
+          </table>
+      </div>
       <footer>
         <p>&copy; Ion Torrent 2011</p>
       </footer>
