@@ -15,10 +15,11 @@ def main(global_config, **settings):
                         os.path.abspath(settings["experimental_upload_root"])
     config = Configurator(settings=settings)
     config.add_static_view('static', 'gnostic:static', cache_max_age=3600)
-    config.add_static_view('tech', settings["technical_upload_root"])
-    config.add_static_view('exp', settings["experimental_upload_root"])
+    config.add_static_view('/tech', settings["technical_upload_root"])
+    config.add_static_view('/exp', settings["experimental_upload_root"])
     config.add_route('index', '/')
     config.add_route('upload', '/upload/{type}')
+    config.add_route('check', '/check/{label}')
     config.scan()
     return config.make_wsgi_app()
 
