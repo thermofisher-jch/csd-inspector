@@ -1,21 +1,12 @@
 __author__ = 'bakennedy'
 
-import io
+
 import os
 import os.path
 import zipfile
-from multiprocessing import Pool
-
+from celery.task import task
 
 result_pool = dict()
-
-
-def list_zip_dirs(self, zip_file):
-    """ Grabs all the directories in the zip structure
-    This is necessary to create the structure before trying
-    to extract the file to it.
-    """
-    return [n for n in zip_file.namelist() if name.endswith('/')]
 
 
 def get_common_prefix(files):
@@ -119,16 +110,24 @@ def sizer(destination, target):
     return natural_size(os.stat(full_path).st_size, gnu=True)
 
 
-def process_archive(destination, data):
-    """Designed to run in a multiprocess external process, this unzips the
-    file, writes it to disk inside a folder in which the zip file's contents
-    are extracted.
+@task
+def process_archive(destination, archive_name):
+    """This is an external, celery task which unzips the file, restructures
+    it's into a folder hierarchy relative to destination, and writes the
+    archive's contents into that restructured hierarchy.
     """
-    # if the user's label produces a destination path that already exists,
-    # _derp the folder name until it's unique.
-    print("Starting")
+    logger = process_archive.get_logger()
+    logger.info("Processing archive in %s" % destination)
+    # Finally read the data from the uploaded zip file
+    archive = open(os.path.join(destination, archive_name), 'rb')
+    data = archive.read()
+    archive.close()
+    files = unzip_archive(destination, data)
+
+
+def queue_archive(label, destination, data):
+    print("Queuing")
     os.mkdir(destination)
-    # Finally write the data to the output file
     output_file = open(os.path.join(destination, "archive.zip"), 'wb')
     data.seek(0)
     while 1:
@@ -137,23 +136,7 @@ def process_archive(destination, data):
             break
         output_file.write(buffer)
     output_file.close()
-    data.seek(0)
-    print("Unzipping")
-    files = unzip_archive(destination, data)
-    print("Unzipped!")
-    file_info = [(f, sizer(destination, f)) for f in files]
-    file_info.sort()
-    print("Success!")
-    return file_info
-
-
-work_pool = Pool(2)
-
-def queue_archive(label, destination, data):
-    print("Queuing")
-    serial = io.BytesIO()
-    serial.write(data.read())
-    async_out = work_pool.apply_async(process_archive, [destination, serial])
+    async_out = process_archive.delay(destination, "archive.zip")
     result_pool[label] = async_out
     return async_out
 

@@ -53,6 +53,8 @@ def upload_file(request):
     """
     label, upload_root, folder, data = make_report(request)
     destination = os.path.join(upload_root, folder)
+    # if the user's label produces a destination path that already exists,
+    # _derp the folder name until it's unique.
     while os.path.exists(destination):
         destination += "_derp"
     upload.queue_archive(label, destination, data)
