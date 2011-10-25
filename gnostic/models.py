@@ -27,7 +27,7 @@ class Archive(Base):
     time = Column(DateTime)
 
     def __init__(self, label, path):
-        self.name = label
+        self.label = label
         self.path = path
         self.time = datetime.datetime.now()
 

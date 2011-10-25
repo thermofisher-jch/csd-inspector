@@ -1,3 +1,4 @@
+import transaction
 import datetime
 import re
 import unicodedata
@@ -40,7 +41,7 @@ def make_report(request):
     else:
         upload_root = request.registry.settings["experimental_upload_root"]
     data = get_uploaded_file(request)
-    label = request.POST["label"]
+    label = unicode(request.POST["label"])
     folder = slugify(label)
     return label, upload_root, folder, data
 
@@ -57,5 +58,11 @@ def upload_file(request):
     # _derp the folder name until it's unique.
     while os.path.exists(destination):
         destination += "_derp"
+    print(label)
+    print(folder)
     upload.queue_archive(label, destination, data)
+    session = DBSession()
+    session.add(Archive(label, destination))
+    session.flush()
+    transaction.commit()
     return {"archive_path": destination, "folder": folder, "label": label}
