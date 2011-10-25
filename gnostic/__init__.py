@@ -19,7 +19,7 @@ def main(global_config, **settings):
     config.add_static_view('/exp', settings["experimental_upload_root"])
     config.add_route('index', '/')
     config.add_route('upload', '/upload/{type}')
-    config.add_route('check', '/check/{label}')
+    config.add_route('check', '/check/{archive_id}')
     config.scan()
     return config.make_wsgi_app()
 

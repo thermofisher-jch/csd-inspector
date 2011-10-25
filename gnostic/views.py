@@ -62,7 +62,18 @@ def upload_file(request):
     print(folder)
     upload.queue_archive(label, destination, data)
     session = DBSession()
-    session.add(Archive(label, destination))
+    archive = Archive(label, destination)
+    session.add(archive)
     session.flush()
+    archive_id = archive.id
     transaction.commit()
-    return {"archive_path": destination, "folder": folder, "label": label}
+    return {"archive_path": destination, "folder": folder, "archive_id": archive_id}
+
+
+@view_config(route_name="check", renderer="templates/check.pt")
+def check_archive(request):
+    """Show the status of an archive given it's ID."""
+    session = DBSession()
+    archive_id = int(request.matchdict["archive_id"])
+    archive = session.query(Archive).filter(Archive.id==archive_id).first()
+    return {"archive_label": archive.label, "time": archive.time, "path": archive.path}
