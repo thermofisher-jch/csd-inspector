@@ -7,7 +7,14 @@ import os.path
 from gnostic.models import DBSession
 from gnostic.models import Archive
 from pyramid.view import view_config
+from pyramid.renderers import get_renderer
 import upload
+
+
+def add_base_template(event):
+    """Use layout.pt as a common frame for every other renderer."""
+    layout = get_renderer("templates/layout.pt").implementation()
+    event.update({"layout": layout})
 
 
 @view_config(route_name="index", renderer="templates/index.pt")

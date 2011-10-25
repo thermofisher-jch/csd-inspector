@@ -20,6 +20,9 @@ def main(global_config, **settings):
     config.add_route('index', '/')
     config.add_route('upload', '/upload/{type}')
     config.add_route('check', '/check/{archive_id}')
+
+    config.add_subscriber('gnostic.views.add_base_template',
+                      'pyramid.events.BeforeRender')
     config.scan()
     return config.make_wsgi_app()
 
