@@ -5,12 +5,16 @@ from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import Unicode
 from sqlalchemy import DateTime
+from sqlalchemy import Text
+from sqlalchemy import ForeignKey
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
 
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import relationship
+from sqlalchemy.orm import backref
 
 from zope.sqlalchemy import ZopeTransactionExtension
 
@@ -26,15 +30,40 @@ class Archive(Base):
     path = Column(Unicode(255))
     time = Column(DateTime)
 
+    diagnostics = relationship("Diagnostic", order_by='Diagnostic.id')
+
     def __init__(self, label, path):
         self.label = label
         self.path = path
         self.time = datetime.datetime.now()
 
 
+class Diagnostic(Base):
+    __tablename__ = 'diagnostics'
+    id = Column(Integer, primary_key=True)
+    name = Column(Unicode(255))
+    status = Column(Unicode(255))
+    priority = Column(Integer)
+    details = Column(Text)
+    archive_id = Column(Integer, ForeignKey('archives.id'))
+
+    archive = relationship("Archive")
+
+    def __init__(self, name, archive=None):
+        self.name = name
+        self.archive = archive
+        if archive is not None:
+            self.archive.diagnostics.append(self)
+        self.status = "Running"
+        self.priority = 0
+        self.details = ""
+
+
 def populate():
     session = DBSession()
     model = Archive(label=u'example_label', path=u"/home/bakennedy/Projects/gnostic_env/files/example")
+    test1 = Diagnostic("Test One", model)
+    test2 = Diagnostic("Test Two", model)
     session.add(model)
     session.flush()
     transaction.commit()
