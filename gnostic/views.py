@@ -58,5 +58,4 @@ def upload_file(request):
     while os.path.exists(destination):
         destination += "_derp"
     upload.queue_archive(label, destination, data)
-    print("Returned!")
     return {"archive_path": destination, "folder": folder, "label": label}

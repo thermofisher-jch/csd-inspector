@@ -6,8 +6,6 @@ import os.path
 import zipfile
 from celery.task import task
 
-result_pool = dict()
-
 
 def get_common_prefix(files):
     """For a list of files, a common path prefix and a list file names with
@@ -45,20 +43,13 @@ def make_relative_directories(root, files):
 
 
 def unzip_archive(root, data):
-    print("Zero")
     zip_file = zipfile.ZipFile(data, 'r')
-    print("One")
     namelist = zip_file.namelist()
-    print("One")
     prefix, files = get_common_prefix(namelist)
-    print("One")
     validate_files(files)
-    print("One")
     make_relative_directories(root, files)
-    print("One")
     out_names = [(n, f) for n, f in zip(namelist, files) if
                                                     os.path.basename(f) != '']
-    print("One")
     for key, out_name in out_names:
         if os.path.basename(out_name) != "":
             full_path = os.path.join(root, out_name)
@@ -66,7 +57,6 @@ def unzip_archive(root, data):
             output_file = open(full_path, 'wb')
             output_file.write(contents.read())
             output_file.close()
-    print("One")
     return [f for n, f in out_names]
 
 
@@ -120,13 +110,10 @@ def process_archive(destination, archive_name):
     logger.info("Processing archive in %s" % destination)
     # Finally read the data from the uploaded zip file
     archive = open(os.path.join(destination, archive_name), 'rb')
-    data = archive.read()
-    archive.close()
-    files = unzip_archive(destination, data)
+    unzip_archive(destination, archive)
 
 
 def queue_archive(label, destination, data):
-    print("Queuing")
     os.mkdir(destination)
     output_file = open(os.path.join(destination, "archive.zip"), 'wb')
     data.seek(0)
@@ -136,7 +123,4 @@ def queue_archive(label, destination, data):
             break
         output_file.write(buffer)
     output_file.close()
-    async_out = process_archive.delay(destination, "archive.zip")
-    result_pool[label] = async_out
-    return async_out
-
+    return process_archive.delay(destination, "archive.zip")
