@@ -4,7 +4,7 @@ import unicodedata
 import os
 import os.path
 from gnostic.models import DBSession
-from gnostic.models import MyModel
+from gnostic.models import Archive
 from pyramid.view import view_config
 import upload
 

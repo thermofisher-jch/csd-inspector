@@ -1,8 +1,10 @@
+import datetime
 import transaction
 
 from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import Unicode
+from sqlalchemy import DateTime
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
@@ -17,20 +19,22 @@ DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 Base = declarative_base()
 
 
-class MyModel(Base):
-    __tablename__ = 'models'
+class Archive(Base):
+    __tablename__ = 'archives'
     id = Column(Integer, primary_key=True)
-    name = Column(Unicode(255), unique=True)
-    value = Column(Integer)
+    label = Column(Unicode(255))
+    path = Column(Unicode(255))
+    time = Column(DateTime)
 
-    def __init__(self, name, value):
-        self.name = name
-        self.value = value
+    def __init__(self, label, path):
+        self.name = label
+        self.path = path
+        self.time = datetime.datetime.now()
 
 
 def populate():
     session = DBSession()
-    model = MyModel(name=u'root', value=55)
+    model = Archive(label=u'example_label', path=u"/home/bakennedy/Projects/gnostic_env/files/example")
     session.add(model)
     session.flush()
     transaction.commit()
