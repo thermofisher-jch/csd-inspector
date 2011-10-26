@@ -3,10 +3,11 @@
       xmlns:tal="http://xml.zope.org/namespaces/tal"
       xmlns:metal="http://xml.zope.org/namespaces/metal"
       metal:use-macro="layout">
-<!-- Main hero unit for a primary marketing message or call to action -->
-<div class="hero-unit" metal:fill-slot="main">
-    <h1>${archive_label}</h1>
-    <i>Uploaded ${time.strftime("%c")}</i>
-    <p>This archive is being unpacked in <pre>${path}</pre></p>
-</div>
+    <!-- Main hero unit for a primary marketing message or call to action -->
+    <div class="hero-unit" metal:fill-slot="main">
+        <h1>${archive_label}</h1>
+        <i>Uploaded ${time.strftime("%c")}</i>
+        <p>Status: ${status}</p>
+        <p>This archive is stored in <pre>${path}</pre></p>
+    </div>
 </html>

@@ -1,10 +1,16 @@
 __author__ = 'bakennedy'
 
-
+import transaction
 import os
 import os.path
 import zipfile
 from celery.task import task
+
+from sqlalchemy import engine_from_config
+
+from gnostic.models import DBSession
+from gnostic.models import Archive
+from gnostic.models import initialize_sql
 
 
 def get_common_prefix(files):
@@ -101,19 +107,26 @@ def sizer(destination, target):
 
 
 @task
-def process_archive(destination, archive_name):
+def process_archive(settings, archive_id, destination, archive_name):
     """This is an external, celery task which unzips the file, restructures
     it's into a folder hierarchy relative to destination, and writes the
     archive's contents into that restructured hierarchy.
     """
     logger = process_archive.get_logger()
     logger.info("Processing archive in %s" % destination)
+    engine = engine_from_config(settings)
+    initialize_sql(engine)
     # Finally read the data from the uploaded zip file
-    archive = open(os.path.join(destination, archive_name), 'rb')
-    unzip_archive(destination, archive)
+    archive_file = open(os.path.join(destination, archive_name), 'rb')
+    unzip_archive(destination, archive_file)
+    session = DBSession()
+    archive = session.query(Archive).get(archive_id)
+    logger.info("Archive is %s" % str(archive))
+    archive.status = "Archive decompressed successfully. Starting diagnostics."
+    transaction.commit()
 
 
-def queue_archive(label, destination, data):
+def queue_archive(settings, archive_id, destination, data):
     os.mkdir(destination)
     output_file = open(os.path.join(destination, "archive.zip"), 'wb')
     data.seek(0)
@@ -123,4 +136,4 @@ def queue_archive(label, destination, data):
             break
         output_file.write(buffer)
     output_file.close()
-    return process_archive.delay(destination, "archive.zip")
+    return process_archive.delay(settings, archive_id, destination, "archive.zip")

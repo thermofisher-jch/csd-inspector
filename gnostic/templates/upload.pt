@@ -3,12 +3,10 @@
       xmlns:tal="http://xml.zope.org/namespaces/tal"
       xmlns:metal="http://xml.zope.org/namespaces/metal"
       metal:use-macro="layout">
-      <tal:block metal:fill-slot="main">
       <!-- Main hero unit for a primary marketing message or call to action -->
-      <div class="hero-unit">
+      <div class="hero-unit" metal:fill-slot="main">
         <h1>Upload Success!</h1>
         <p>Your support archive is being processed is in ${archive_path}.</p>
         <p>You may check it's status at <a href="${request.route_url('check', archive_id=archive_id)}">${request.route_url('check', archive_id=archive_id)}</a></p>
       </div>
-      </tal:block>
 </html>

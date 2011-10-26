@@ -6,6 +6,7 @@ import os
 import os.path
 from gnostic.models import DBSession
 from gnostic.models import Archive
+from gnostic.models import current_engine
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
 import upload
@@ -67,14 +68,15 @@ def upload_file(request):
         destination += "_derp"
     print(label)
     print(folder)
-    upload.queue_archive(label, destination, data)
     session = DBSession()
     archive = Archive(label, destination)
     session.add(archive)
     session.flush()
     archive_id = archive.id
+    upload.queue_archive(request.registry.settings, archive_id, destination, data)
     transaction.commit()
-    return {"archive_path": destination, "folder": folder, "archive_id": archive_id}
+    return {"archive_path": destination, "folder": folder,
+            "archive_id": archive_id}
 
 
 @view_config(route_name="check", renderer="templates/check.pt")
@@ -83,4 +85,5 @@ def check_archive(request):
     session = DBSession()
     archive_id = int(request.matchdict["archive_id"])
     archive = session.query(Archive).filter(Archive.id==archive_id).first()
-    return {"archive_label": archive.label, "time": archive.time, "path": archive.path}
+    return {"archive_label": archive.label, "time": archive.time,
+            "path": archive.path, "status": archive.status}
