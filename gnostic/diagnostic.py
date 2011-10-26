@@ -44,8 +44,8 @@ def run_tester(test, settings, diagnostic_id, archive_path):
     """
     logger = run_tester.get_logger()
     logger.info("Running test %s/%d on %s" % (test.name, diagnostic_id, archive_path))
-    #engine = engine_from_config(settings)
-    #initialize_sql(engine)
+    engine = engine_from_config(settings)
+    initialize_sql(engine)
     session = DBSession()
     diagnostic = session.query(Diagnostic).get(diagnostic_id)
     diagnostic.status = u"Running"

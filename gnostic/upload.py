@@ -5,7 +5,7 @@ import os
 import os.path
 import zipfile
 from celery.task import task
-from celery.task.sets import TaskSet
+from celery.task import chord
 
 from sqlalchemy import engine_from_config
 
@@ -125,13 +125,24 @@ def process_archive(settings, archive_id, destination, archive_name, testers):
     archive = session.query(Archive).get(archive_id)
     logger.info("Archive is %s" % str(archive))
     archive.status = u"Archive decompressed successfully. Starting diagnostics."
-    jobs = TaskSet(diagnostic.run_tester.subtask(
+    jobs = [diagnostic.run_tester.subtask(
                     (testers[d.name], settings, d.id, archive.path))
-                    for d in archive.diagnostics)
+                    for d in archive.diagnostics]
 
     transaction.commit()
     logger.info("Set up %d diagnostics." % len(jobs))
-    jobs.apply()
+    callback = finalize_report.subtask((settings, archive_id))
+    chord(jobs)(callback)
+
+
+@task
+def finalize_report(results, settings, archive_id):
+    print(results)
+    print(settings)
+    print(archive_id)
+    logger = finalize_report.get_logger()
+    engine = engine_from_config(settings)
+    initialize_sql(engine)
     session = DBSession()
     archive = session.query(Archive).get(archive_id)
     archive.status = u"Diagnostics completed."
