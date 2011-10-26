@@ -8,13 +8,24 @@ directory containing the diagnostic, not the directory containing it's results.
 
 __author__ = 'bakennedy'
 
+import transaction
+import subprocess
+import io
 import os
 import os.path
+from celery.task import task
+
+from sqlalchemy import engine_from_config
+
+from gnostic.models import DBSession
+from gnostic.models import Diagnostic
+from gnostic.models import initialize_sql
 
 
-class Test(object):
+class Tester(object):
 
     def __init__(self, directory, main):
+        self.name = directory
         self.directory = os.path.abspath(directory)
         self.main = os.join(self.directory, main)
         readme = os.join(directory, "README")
@@ -22,15 +33,51 @@ class Test(object):
             self.readme = open(readme, 'rt').read()
         else:
             self.readme = None
-        
+
+    def diagnostic_record(self):
+        return Diagnostic(self.name)
+
+    @task
+    def run(self, settings, diagnostic_id, archive_path):
+        """Spawn a subshell in which the test's main script is run, with the
+        archive's folder and the script's output folder as command line args.
+        """
+        logger = self.run.get_logger()
+        logger.info("Running test %s/%d on %s" % (self.name, diagnostic_id, archive_path))
+        engine = engine_from_config(settings)
+        initialize_sql(engine)
+        session = DBSession()
+        diagnostic = session.query(Diagnostic).get(diagnostic_id)
+        diagnostic.status = "Running"
+        transaction.commit()
+        output_path = os.path.join(archive_path, self.name)
+        cmd = [self.main, archive_path, output_path]
+        stdout = io.StringIO()
+        result = subprocess.call(cmd, stdout=stdout, cwd=self.directory)
+        if result:
+            output = stdout.getvalue().splitlines()
+            status = output[0]
+            priority = int(output[1])
+            details = output[2:].rstrip()
+            logger.info("Test %s/%d completed with status %s" % (self.name, diagnostic_id, status))
+        else:
+            status = "TEST ERROR"
+            priority = 75
+            details = "Test %s ended with an error instead of running normally.\n<br />It output:\n<br /><pre>%s</pre>" % \
+                      (self.name, stdout.getvalue())
+            logger.warn("Test %s/%d ended with an error." % (self.name, diagnostic_id))
+        diagnostic.status = status
+        diagnostic.priority = priority
+        diagnostic.details = details
+        transaction.commit()
 
 
-def get_tests(test_directory):
+def get_testers(test_directory):
     tests = []
     for path in os.listdir(test_directory):
         if os.path.isdir(path):
             for filename in os.listdir(path):
                 if filename.startswith("main"):
-                    tests.append(Test(path, filename))
+                    tests.append(Tester(path, filename))
     return tests
 
