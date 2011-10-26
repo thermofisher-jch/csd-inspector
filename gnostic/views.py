@@ -6,7 +6,6 @@ import os
 import os.path
 from gnostic.models import DBSession
 from gnostic.models import Archive
-from gnostic.models import current_engine
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
 import upload
