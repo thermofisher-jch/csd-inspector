@@ -55,6 +55,7 @@ class Diagnostic(Base):
         self.name = name
         self.archive = archive
         if archive is not None:
+            self.archive_id = archive.id
             self.archive.diagnostics.append(self)
         self.status = "Queued"
         self.priority = 0
@@ -67,7 +68,6 @@ def populate():
     test1 = Diagnostic("Test One", model)
     test2 = Diagnostic("Test Two", model)
     session.add(model)
-    session.flush()
     transaction.commit()
 
 

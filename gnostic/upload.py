@@ -5,12 +5,14 @@ import os
 import os.path
 import zipfile
 from celery.task import task
+from celery.task.sets import TaskSet
 
 from sqlalchemy import engine_from_config
 
 from gnostic.models import DBSession
 from gnostic.models import Archive
 from gnostic.models import initialize_sql
+from gnostic import diagnostic
 
 
 def get_common_prefix(files):
@@ -107,7 +109,7 @@ def sizer(destination, target):
 
 
 @task
-def process_archive(settings, archive_id, destination, archive_name):
+def process_archive(settings, archive_id, destination, archive_name, testers):
     """This is an external, celery task which unzips the file, restructures
     it's into a folder hierarchy relative to destination, and writes the
     archive's contents into that restructured hierarchy.
@@ -122,11 +124,22 @@ def process_archive(settings, archive_id, destination, archive_name):
     session = DBSession()
     archive = session.query(Archive).get(archive_id)
     logger.info("Archive is %s" % str(archive))
-    archive.status = "Archive decompressed successfully. Starting diagnostics."
+    archive.status = u"Archive decompressed successfully. Starting diagnostics."
+    jobs = TaskSet(diagnostic.run_tester.subtask(
+                    (testers[d.name], settings, d.id, archive.path))
+                    for d in archive.diagnostics)
+
     transaction.commit()
+    logger.info("Set up %d diagnostics." % len(jobs))
+    jobs.apply()
+    session = DBSession()
+    archive = session.query(Archive).get(archive_id)
+    archive.status = u"Diagnostics completed."
+    transaction.commit()
+    logger.info("Finished applying jobs.")
 
 
-def queue_archive(settings, archive_id, destination, data):
+def queue_archive(settings, archive_id, destination, data, testers):
     os.mkdir(destination)
     output_file = open(os.path.join(destination, "archive.zip"), 'wb')
     data.seek(0)
@@ -136,4 +149,4 @@ def queue_archive(settings, archive_id, destination, data):
             break
         output_file.write(buffer)
     output_file.close()
-    return process_archive.delay(settings, archive_id, destination, "archive.zip")
+    return process_archive.delay(settings, archive_id, destination, "archive.zip", testers)

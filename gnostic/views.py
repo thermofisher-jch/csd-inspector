@@ -68,11 +68,11 @@ def upload_file(request):
         destination += "_derp"
     session = DBSession()
     archive = Archive(label, destination)
-    archive.diagnostics = [t.diagnostic_record() for t in testers]
+    archive.diagnostics = [t.diagnostic_record() for t in testers.values()]
     session.add(archive)
     session.flush()
     archive_id = archive.id
-    upload.queue_archive(request.registry.settings, archive_id, destination, data)
+    upload.queue_archive(request.registry.settings, archive_id, destination, data, testers)
     transaction.commit()
     return {"archive_path": destination, "folder": folder,
             "archive_id": archive_id}

@@ -37,48 +37,51 @@ class Tester(object):
     def diagnostic_record(self):
         return Diagnostic(self.name)
 
-    @task
-    def run(self, settings, diagnostic_id, archive_path):
-        """Spawn a subshell in which the test's main script is run, with the
-        archive's folder and the script's output folder as command line args.
-        """
-        logger = self.run.get_logger()
-        logger.info("Running test %s/%d on %s" % (self.name, diagnostic_id, archive_path))
-        engine = engine_from_config(settings)
-        initialize_sql(engine)
-        session = DBSession()
-        diagnostic = session.query(Diagnostic).get(diagnostic_id)
-        diagnostic.status = "Running"
-        transaction.commit()
-        output_path = os.path.join(archive_path, self.name)
-        cmd = [self.main, archive_path, output_path]
-        stdout = io.StringIO()
-        result = subprocess.call(cmd, stdout=stdout, cwd=self.directory)
-        if result:
-            output = stdout.getvalue().splitlines()
-            status = output[0]
-            priority = int(output[1])
-            details = output[2:].rstrip()
-            logger.info("Test %s/%d completed with status %s" % (self.name, diagnostic_id, status))
-        else:
-            status = "TEST ERROR"
-            priority = 75
-            details = "Test %s ended with an error instead of running normally.\n<br />It output:\n<br /><pre>%s</pre>" % \
-                      (self.name, stdout.getvalue())
-            logger.warn("Test %s/%d ended with an error." % (self.name, diagnostic_id))
-        diagnostic.status = status
-        diagnostic.priority = priority
-        diagnostic.details = details
-        transaction.commit()
+@task
+def run_tester(test, settings, diagnostic_id, archive_path):
+    """Spawn a subshell in which the test's main script is run, with the
+    archive's folder and the script's output folder as command line args.
+    """
+    logger = run_tester.get_logger()
+    logger.info("Running test %s/%d on %s" % (test.name, diagnostic_id, archive_path))
+    #engine = engine_from_config(settings)
+    #initialize_sql(engine)
+    session = DBSession()
+    diagnostic = session.query(Diagnostic).get(diagnostic_id)
+    diagnostic.status = u"Running"
+    transaction.commit()
+    session = DBSession()
+    diagnostic = session.query(Diagnostic).get(diagnostic_id)
+    output_path = os.path.join(archive_path, test.name)
+    cmd = [test.main, archive_path, output_path]
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, cwd=test.directory)
+    result = proc.wait()
+    stdout, stderr = proc.communicate()
+    if result is 0:
+        output = stdout.splitlines()
+        status = output[0]
+        priority = int(output[1])
+        details = "\n".join(output[2:]).rstrip()
+        logger.info("Test %s/%d completed with status %s" % (test.name, diagnostic_id, status))
+    else:
+        status = "TEST ERROR"
+        priority = 75
+        details = "Test %s ended with an error instead of running normally.\n<br />It output:\n<br /><pre>%s</pre>" % \
+                  (test.name, stdout)
+        logger.warning("Test %s/%d ended with an error." % (test.name, diagnostic_id))
+    diagnostic.status = unicode(status)
+    diagnostic.priority = priority
+    diagnostic.details = unicode(details)
+    transaction.commit()
 
 
 def get_testers(test_directory):
-    tests = []
+    tests = dict()
     for path in os.listdir(test_directory):
         test_path = os.path.join(test_directory, path)
         if os.path.isdir(test_path):
             for filename in os.listdir(test_path):
                 if filename.startswith("main"):
-                    tests.append(Tester(path, test_path, filename))
+                    tests[path] = Tester(path, test_path, filename)
     return tests
 
