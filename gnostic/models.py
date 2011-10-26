@@ -29,6 +29,7 @@ class Archive(Base):
     label = Column(Unicode(255))
     path = Column(Unicode(255))
     time = Column(DateTime)
+    status = Column(Unicode(255))
 
     diagnostics = relationship("Diagnostic", order_by='Diagnostic.id')
 
@@ -36,6 +37,7 @@ class Archive(Base):
         self.label = label
         self.path = path
         self.time = datetime.datetime.now()
+        self.status = u"Processing newly uploaded archive."
 
 
 class Diagnostic(Base):
@@ -54,7 +56,7 @@ class Diagnostic(Base):
         self.archive = archive
         if archive is not None:
             self.archive.diagnostics.append(self)
-        self.status = "Running"
+        self.status = "Queued"
         self.priority = 0
         self.details = ""
 
