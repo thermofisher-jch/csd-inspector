@@ -21,7 +21,7 @@ from zope.sqlalchemy import ZopeTransactionExtension
 
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 Base = declarative_base()
-
+testers = []
 
 class Archive(Base):
     __tablename__ = 'archives'
@@ -75,4 +75,11 @@ def initialize_sql(engine):
     DBSession.configure(bind=engine)
     Base.metadata.bind = engine
     Base.metadata.create_all(engine)
+
+
+def initialize_testers(test_directory):
+    import diagnostic
+    global testers
+    testers = diagnostic.get_testers(test_directory)
+
 

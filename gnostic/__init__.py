@@ -3,12 +3,15 @@ from pyramid.config import Configurator
 from sqlalchemy import engine_from_config
 
 from gnostic.models import initialize_sql
+from gnostic.models import initialize_testers
+
 
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
     engine = engine_from_config(settings, 'sqlalchemy.')
     initialize_sql(engine)
+    initialize_testers(os.path.abspath("gnostic/diagnostics"))
     settings["technical_upload_root"] = \
                         os.path.abspath(settings["technical_upload_root"])
     settings["experimental_upload_root"] = \
