@@ -82,4 +82,3 @@ def initialize_testers(test_directory):
     global testers
     testers = diagnostic.get_testers(test_directory)
 
-

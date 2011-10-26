@@ -6,6 +6,7 @@ import os
 import os.path
 from gnostic.models import DBSession
 from gnostic.models import Archive
+from gnostic.models import testers
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
 import upload
@@ -65,10 +66,9 @@ def upload_file(request):
     # _derp the folder name until it's unique.
     while os.path.exists(destination):
         destination += "_derp"
-    print(label)
-    print(folder)
     session = DBSession()
     archive = Archive(label, destination)
+    archive.diagnostics = [t.diagnostic_record() for t in testers]
     session.add(archive)
     session.flush()
     archive_id = archive.id

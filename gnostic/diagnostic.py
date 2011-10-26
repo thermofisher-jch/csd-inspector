@@ -24,11 +24,11 @@ from gnostic.models import initialize_sql
 
 class Tester(object):
 
-    def __init__(self, directory, main):
-        self.name = directory
-        self.directory = os.path.abspath(directory)
-        self.main = os.join(self.directory, main)
-        readme = os.join(directory, "README")
+    def __init__(self, name, directory, main):
+        self.name = name
+        self.directory = directory
+        self.main = os.path.join(self.directory, main)
+        readme = os.path.join(directory, "README")
         if os.path.exists(readme):
             self.readme = open(readme, 'rt').read()
         else:
@@ -75,9 +75,10 @@ class Tester(object):
 def get_testers(test_directory):
     tests = []
     for path in os.listdir(test_directory):
-        if os.path.isdir(path):
-            for filename in os.listdir(path):
+        test_path = os.path.join(test_directory, path)
+        if os.path.isdir(test_path):
+            for filename in os.listdir(test_path):
                 if filename.startswith("main"):
-                    tests.append(Tester(path, filename))
+                    tests.append(Tester(path, test_path, filename))
     return tests
 
