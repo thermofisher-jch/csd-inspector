@@ -2310,13 +2310,13 @@ button.btn::-moz-focus-inner, input[type=submit].btn::-moz-focus-inner {
   -moz-border-radius: 3px;
   border-radius: 3px;
 }
-.label.important {
+.label.Fail {
   background-color: #c43c35;
 }
-.label.warning {
+.label.Warning {
   background-color: #f89406;
 }
-.label.success {
+.label.OK {
   background-color: #46a546;
 }
 .label.notice {

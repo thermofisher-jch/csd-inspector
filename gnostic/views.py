@@ -85,4 +85,5 @@ def check_archive(request):
     archive_id = int(request.matchdict["archive_id"])
     archive = session.query(Archive).filter(Archive.id==archive_id).first()
     return {"archive_label": archive.label, "time": archive.time,
-            "path": archive.path, "status": archive.status}
+            "path": archive.path, "status": archive.status,
+            "diagnostics": archive.diagnostics}
