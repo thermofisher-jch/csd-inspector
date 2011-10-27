@@ -23,8 +23,11 @@ def index(request):
     #dbsession = DBSession()
     #root = dbsession.query(MyModel).filter(MyModel.name==u'root').first()
     now = datetime.datetime.now()
-    label = now.strftime("%Y-%m-%d_%H-%M-%S")
-    return {'label':label}
+    label = "Archive_%s" % now.strftime("%Y-%m-%d_%H-%M-%S")
+    label = request.params.get("label", label)
+    name = ""
+    name = request.params.get("name", name)
+    return {'label':label, 'name': name}
 
 
 def slugify(value):
@@ -51,7 +54,8 @@ def make_report(request):
     data = get_uploaded_file(request)
     label = unicode(request.POST["label"])
     folder = slugify(label)
-    return label, upload_root, folder, data
+    submitter_name = unicode(request.POST["submitter"])
+    return submitter_name, label, upload_root, folder, data
 
 
 @view_config(route_name="upload", renderer="templates/upload.pt")
@@ -60,14 +64,14 @@ def upload_file(request):
     save a copy of the archive to the folder, and extract it's contents there.
     This displays the extracted files relative paths and file sizes.
     """
-    label, upload_root, folder, data = make_report(request)
+    submitter_name, label, upload_root, folder, data = make_report(request)
     destination = os.path.join(upload_root, folder)
     # if the user's label produces a destination path that already exists,
     # _derp the folder name until it's unique.
     while os.path.exists(destination):
         destination += "_derp"
     session = DBSession()
-    archive = Archive(label, destination)
+    archive = Archive(submitter_name, label, destination)
     archive.diagnostics = [t.diagnostic_record() for t in testers.values()]
     session.add(archive)
     session.flush()
@@ -86,4 +90,4 @@ def check_archive(request):
     archive = session.query(Archive).filter(Archive.id==archive_id).first()
     return {"archive_label": archive.label, "time": archive.time,
             "path": archive.path, "status": archive.status,
-            "diagnostics": archive.diagnostics}
+            "diagnostics": archive.diagnostics, "archive": archive}

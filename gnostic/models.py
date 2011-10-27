@@ -30,10 +30,12 @@ class Archive(Base):
     path = Column(Unicode(255))
     time = Column(DateTime)
     status = Column(Unicode(255))
+    submitter_name = Column(Unicode(255))
 
     diagnostics = relationship("Diagnostic", order_by='Diagnostic.id')
 
-    def __init__(self, label, path):
+    def __init__(self, submitter_name, label, path):
+        self.submitter_name = submitter_name
         self.label = label
         self.path = path
         self.time = datetime.datetime.now()

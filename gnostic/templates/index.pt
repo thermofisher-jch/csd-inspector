@@ -19,9 +19,15 @@
           <form action="/upload/technical" method="post" accept-charset="UTF-8" enctype="multipart/form-data">
             <fieldset>
               <div class="clearfix">
+                <label for="label">Your Name</label>
+                <div class="input">
+                  <input class="large" id="submitter" name="submitter" size="30" type="text" value="${name}" />
+                </div>
+              </div>
+              <div class="clearfix">
                 <label for="label">Report Label</label>
                 <div class="input">
-                  <input class="large" id="label" name="label" size="30" type="text" value="technical" />
+                  <input class="large" id="label" name="label" size="30" type="text" value="${label}" />
                 </div>
               </div>
               <div class="clearfix">
@@ -41,6 +47,12 @@
           <p>Upload a customer support archive.</p>
           <form action="/upload/experimental" method="post" accept-charset="UTF-8" enctype="multipart/form-data">
             <fieldset>
+              <div class="clearfix">
+                <label for="label">Your Name</label>
+                <div class="input">
+                  <input class="large" id="submitter" name="submitter" size="30" type="text" value="technical" />
+                </div>
+              </div>
               <div class="clearfix">
                 <label for="label">Report Label</label>
                 <div class="input">

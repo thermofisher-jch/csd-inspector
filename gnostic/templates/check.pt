@@ -3,23 +3,34 @@
       xmlns:tal="http://xml.zope.org/namespaces/tal"
       xmlns:metal="http://xml.zope.org/namespaces/metal"
       metal:use-macro="layout">
+
+
 <tal:block metal:fill-slot="main">
     <!-- Main hero unit for a primary marketing message or call to action -->
     <div class="hero-unit">
         <h1>${archive_label}</h1>
-        <i>Uploaded ${time.strftime("%c")}</i>
+        <i>Uploaded by ${archive.submitter_name} on ${time.strftime("%c")}</i>
         <p>This archive is stored in <pre>${path}</pre></p>
     </div>
     <div>
         <h2>Status: ${status}</h2>
-<table class="zebra-striped">
-<thead><tr><th>Diagnostic</th><th>Status</th><th>Details</th></tr></thead>
-<tr tal:repeat="test diagnostics">
-<td>${test.name}</td>
-<td><span class="label ${test.status}">${test.status}</span></td>
-<td>${test.details}</td>
-</tr>
-</table>
+        <table class="zebra-striped">
+            <thead>
+                <tr>
+                    <th>Diagnostic</th><th>Status</th><th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr tal:repeat="test diagnostics">
+                    <td>${test.name}</td>
+                    <td>
+                        <span class="label ${test.status}">${test.status}</span>
+                    </td>
+                    <td>${test.details}</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </tal:block>
+
 </html>
