@@ -8,12 +8,12 @@
 <tal:block metal:fill-slot="main">
     <!-- Main hero unit for a primary marketing message or call to action -->
     <div class="hero-unit">
-        <h1>${archive_label}</h1>
-        <i>Uploaded by ${archive.submitter_name} on ${time.strftime("%c")}</i>
-        <p>This archive is stored in <pre>${path}</pre></p>
+        <h1>${archive.label}</h1>
+        <i>Uploaded by ${archive.submitter_name} on ${archive.time.strftime("%c")}</i>
+        <p>This archive is stored in <pre>${archive.path}</pre></p>
     </div>
     <div>
-        <h2>Status: ${status}</h2>
+        <h2>Status: ${archive.status}</h2>
         <table class="zebra-striped">
             <thead>
                 <tr>
@@ -21,7 +21,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr tal:repeat="test diagnostics">
+                <tr tal:repeat="test archive.diagnostics">
                     <td>${test.name}</td>
                     <td>
                         <span class="label ${test.status}">${test.status}</span>

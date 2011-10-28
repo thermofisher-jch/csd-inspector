@@ -9,6 +9,7 @@ from gnostic.models import Archive
 from gnostic.models import testers
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
+from sqlalchemy.orm import subqueryload
 import upload
 
 
@@ -20,13 +21,11 @@ def add_base_template(event):
 
 @view_config(route_name="index", renderer="templates/index.pt")
 def index(request):
-    #dbsession = DBSession()
-    #root = dbsession.query(MyModel).filter(MyModel.name==u'root').first()
     now = datetime.datetime.now()
     label = "Archive_%s" % now.strftime("%Y-%m-%d_%H-%M-%S")
-    label = request.params.get("label", label)
+    label = request.GET.get("label", label)
     name = ""
-    name = request.params.get("name", name)
+    name = request.GET.get("name", name)
     return {'label':label, 'name': name}
 
 
@@ -75,11 +74,9 @@ def upload_file(request):
     archive.diagnostics = [t.diagnostic_record() for t in testers.values()]
     session.add(archive)
     session.flush()
-    archive_id = archive.id
-    upload.queue_archive(request.registry.settings, archive_id, destination, data, testers)
-    transaction.commit()
+    upload.queue_archive(request.registry.settings, archive.id, destination, data, testers)
     return {"archive_path": destination, "folder": folder,
-            "archive_id": archive_id}
+            "archive_id": archive.id}
 
 
 @view_config(route_name="check", renderer="templates/check.pt")
@@ -87,7 +84,7 @@ def check_archive(request):
     """Show the status of an archive given it's ID."""
     session = DBSession()
     archive_id = int(request.matchdict["archive_id"])
-    archive = session.query(Archive).filter(Archive.id==archive_id).first()
-    return {"archive_label": archive.label, "time": archive.time,
-            "path": archive.path, "status": archive.status,
-            "diagnostics": archive.diagnostics, "archive": archive}
+    archive = session.query(Archive).options(subqueryload(
+        Archive.diagnostics)).filter(Archive.id==archive_id).first()
+    session.close()
+    return {"archive": archive}
