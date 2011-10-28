@@ -30,7 +30,8 @@
         <div class="container">
           <a class="brand" href="${request.route_path('index')}">Gnostic</a>
           <ul class="nav">
-              <li><a href="${request.route_path('upload')}">Upload</a></li>
+              <li><a href="${request.route_path('upload')}">Upload Archive</a></li>
+              <li><a href="${request.route_path('reports')}">View Reports</a></li>
           </ul>
         </div>
       </div>

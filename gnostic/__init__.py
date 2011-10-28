@@ -27,7 +27,8 @@ def main(global_config, **settings):
     config.add_route('index', '/')
     config.add_route('upload', '/upload')
     config.add_route('check', '/check/{archive_id}')
-    # This lets the function 'add_base_template' tack the layout template into
+    config.add_route('reports', '/reports')
+            # This lets the function 'add_base_template' tack the layout template into
     # the mystical universe of chameleon templating so that the other templates
     # can put themselves inside layout.pt like they're supposed to.
     config.add_subscriber('gnostic.views.add_base_template',

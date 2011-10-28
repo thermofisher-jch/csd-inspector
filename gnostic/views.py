@@ -91,3 +91,10 @@ def check_archive(request):
         Archive.diagnostics)).filter(Archive.id==archive_id).first()
     session.close()
     return {"archive": archive}
+
+
+@view_config(route_name="reports", renderer="templates/reports.pt")
+def list_reports(request):
+    session = DBSession()
+    archives = session.query(Archive).all()
+    return {"archives": archives}

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      metal:use-macro="layout">
+
+
+<tal:block metal:fill-slot="main">
+    <div>
+        <h2>All available reports:</h2>
+        <table class="zebra-striped">
+            <thead>
+                <tr>
+                    <th>ID</th><th>Submitter</th><th>Date</th><th>Label</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr tal:repeat="archive archives" onclick="window.location='${request.route_url('check', archive_id=archive.id)}';" style="cursor: pointer;">
+                    <td>${archive.id}</td>
+                    <td>${archive.submitter_name}</td>
+                    <td>${archive.time.strftime("%c")}</td>
+                    <td>${archive.label}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</tal:block>
+
+</html>
