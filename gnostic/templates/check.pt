@@ -10,6 +10,7 @@
     <div class="hero-unit">
         <h1>${archive.label}</h1>
         <i>Uploaded by ${archive.submitter_name} on ${archive.time.strftime("%c")}</i>
+        <p>You may always view this report here on this page <a href="${request.route_url('check', archive_id=archive.id)}">${request.route_url('check', archive_id=archive.id)}</a></p>
         <p>This archive is stored in <pre>${archive.path}</pre></p>
     </div>
     <div>

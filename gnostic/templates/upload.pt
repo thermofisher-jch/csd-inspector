@@ -3,10 +3,72 @@
       xmlns:tal="http://xml.zope.org/namespaces/tal"
       xmlns:metal="http://xml.zope.org/namespaces/metal"
       metal:use-macro="layout">
-      <!-- Main hero unit for a primary marketing message or call to action -->
-      <div class="hero-unit" metal:fill-slot="main">
-        <h1>Upload Success!</h1>
-        <p>Your support archive is being processed is in ${archive_path}.</p>
-        <p>You may check it's status at <a href="${request.route_url('check', archive_id=archive_id)}">${request.route_url('check', archive_id=archive_id)}</a></p>
+      <tal:block metal:fill-slot="main">
+       <!-- Main hero unit for a primary marketing message or call to action -->
+      <div class="hero-unit">
+        <h1>Using Gnostic</h1>
+        <p>Gnostic is a customer support diagnostic tool.  It automatically runs a battery of diagnostic tests on a customer support archive and reports actionable information about any known issues.</p>
+        <p>Submit an archive of the appropriate type below.</p>
       </div>
+
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="span8">
+          <h2>Technical</h2>
+          <p>Upload a system log archive.</p>
+          <form action="/upload" method="post" accept-charset="UTF-8" enctype="multipart/form-data">
+            <fieldset>
+              <div class="clearfix">
+                <label for="label">Your Name</label>
+                <div class="input">
+                  <input class="large" id="submitter" name="submitter" size="30" type="text" value="${name}" />
+                </div>
+              </div>
+              <div class="clearfix">
+                <label for="label">Report Label</label>
+                <div class="input">
+                  <input class="large" id="label" name="label" size="30" type="text" value="${label}" />
+                </div>
+              </div>
+              <div class="clearfix">
+                <label for="technicalFile">Select file</label>
+                <div class="input">
+                  <input type="file" name="fileInput" id="fileInput" class="input-file" />
+                </div>
+              </div>
+              <div class="actions">
+                <input type="submit" value="Submit Technical" class="btn primary">&nbsp;<button class="btn" type="reset">Reset</button>
+              </div>
+            </fieldset>
+          </form>
+        </div>
+        <div class="span8">
+          <h2>Experimental</h2>
+          <p>Upload a customer support archive.</p>
+          <form action="/upload" method="post" accept-charset="UTF-8" enctype="multipart/form-data">
+            <fieldset>
+              <div class="clearfix">
+                <label for="label">Your Name</label>
+                <div class="input">
+                  <input class="large" id="submitter" name="submitter" size="30" type="text" value="technical" />
+                </div>
+              </div>
+              <div class="clearfix">
+                <label for="label">Report Label</label>
+                <div class="input">
+                  <input class="large" id="label" name="label" size="30" type="text" value="experimental" />
+                </div>
+              </div>
+              <label for="technicalFile">Select file</label>
+              <div class="input">
+                <input type="file" name="fileInput" id="fileInput" class="input-file" />
+              </div>
+              <div class="actions">
+                <input type="submit" value="Submit Experimental" class="btn primary">&nbsp;<button class="btn" type="reset">Reset</button>
+              </div>
+            </fieldset>
+          </form>
+       </div>
+      </div>
+      </tal:block>
 </html>
