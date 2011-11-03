@@ -125,6 +125,7 @@ def process_archive(settings, archive_id, destination, archive_name, testers):
     archive = session.query(Archive).get(archive_id)
     logger.info("Archive is %s" % str(archive))
     archive.status = u"Archive decompressed successfully. Starting diagnostics."
+    os.mkdir(os.path.join(archive.path, "test_results"))
     jobs = [diagnostic.run_tester.subtask(
                     (testers[d.name], settings, d.id, archive.path))
                     for d in archive.diagnostics]

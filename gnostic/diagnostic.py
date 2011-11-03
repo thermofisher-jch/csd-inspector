@@ -10,7 +10,6 @@ __author__ = 'bakennedy'
 
 import transaction
 import subprocess
-import io
 import os
 import os.path
 from celery.task import task
@@ -52,11 +51,15 @@ def run_tester(test, settings, diagnostic_id, archive_path):
     transaction.commit()
     session = DBSession()
     diagnostic = session.query(Diagnostic).get(diagnostic_id)
-    output_path = os.path.join(archive_path, test.name)
+    output_path = os.path.join(archive_path, "test_results", test.name)
+    os.mkdir(output_path)
     cmd = [test.main, archive_path, output_path]
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, cwd=test.directory)
     result = proc.wait()
     stdout, stderr = proc.communicate()
+    open(os.path.join(output_path, "standard_output.log"), 'w').write(stdout)
+    if stderr:
+        open(os.path.join(output_path, "standard_error.log"), 'w').write(stderr)
     if result is 0:
         output = stdout.splitlines()
         status = output[0]
