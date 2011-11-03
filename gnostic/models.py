@@ -49,6 +49,7 @@ class Diagnostic(Base):
     status = Column(Unicode(255))
     priority = Column(Integer)
     details = Column(Text)
+    html = Column(Univode(255))
     archive_id = Column(Integer, ForeignKey('archives.id'))
 
     archive = relationship("Archive")
@@ -62,6 +63,7 @@ class Diagnostic(Base):
         self.status = "Queued"
         self.priority = 0
         self.details = ""
+        self.html = None
 
 
 def populate():

@@ -45,15 +45,18 @@ def run_tester(test, settings, diagnostic_id, archive_path):
     logger.info("Running test %s/%d on %s" % (test.name, diagnostic_id, archive_path))
     engine = engine_from_config(settings)
     initialize_sql(engine)
+    # Now that we're finally running the task, set the status appropriately.
     session = DBSession()
     diagnostic = session.query(Diagnostic).get(diagnostic_id)
     diagnostic.status = u"Running"
     transaction.commit()
+    # Open a DB session and fetch the diagnostic object to be updated.
     session = DBSession()
     diagnostic = session.query(Diagnostic).get(diagnostic_id)
     output_path = os.path.join(archive_path, "test_results", test.name)
     os.mkdir(output_path)
     cmd = [test.main, archive_path, output_path]
+    # Spawn the test subprocess and wait for it to complete.
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, cwd=test.directory)
     result = proc.wait()
     stdout, stderr = proc.communicate()
@@ -65,13 +68,17 @@ def run_tester(test, settings, diagnostic_id, archive_path):
         status = output[0]
         priority = int(output[1])
         details = "\n".join(output[2:]).rstrip()
+        html = os.path.join(output_path, "results.html")
+        if os.path.exists(html):
+            diagnostic.html = html
         logger.info("Test %s/%d completed with status %s" % (test.name, diagnostic_id, status))
     else:
-        status = "TEST ERROR"
-        priority = 75
+        status = "TEST BROKEN"
+        priority = 100
         details = "Test %s ended with an error instead of running normally.\n<br />It output:\n<br /><pre>%s</pre>" % \
                   (test.name, stdout)
         logger.warning("Test %s/%d ended with an error." % (test.name, diagnostic_id))
+    # Update the record with the results.
     diagnostic.status = unicode(status)
     diagnostic.priority = priority
     diagnostic.details = unicode(details)
