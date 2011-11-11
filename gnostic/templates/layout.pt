@@ -4,8 +4,8 @@
       xmlns:metal="http://xml.zope.org/namespaces/metal">
   <head>
     <meta charset="utf-8">
-    <title>Gnostic, Ion Torrent internal customer support diagnostics.</title>
-    <meta name="description" content="Gnostic, Ion Torrent internal customer support diagnostics for field specialists.">
+    <title>Gnostic, Ion Torrent internal customer support tests.</title>
+    <meta name="description" content="Lemon Test, Ion Torrent internal customer support tests for field specialists.">
     <meta name="author" content="Brian Kennedy">
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
@@ -28,7 +28,7 @@
     <div class="topbar">
       <div class="fill">
         <div class="container">
-          <a class="brand" href="${request.route_path('index')}">Gnostic</a>
+          <a class="brand" href="${request.route_path('index')}">Lemon Test</a>
           <ul class="nav">
               <li><a href="${request.route_path('upload')}">Upload Archive</a></li>
               <li><a href="${request.route_path('reports')}">View Reports</a></li>

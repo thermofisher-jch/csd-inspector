@@ -6,9 +6,9 @@
       <tal:block metal:fill-slot="main">
        <!-- Main hero unit for a primary marketing message or call to action -->
       <div class="hero-unit">
-        <h1>Using Gnostic</h1>
-        <p>Gnostic is a customer support diagnostic tool.  It automatically runs a battery of diagnostic tests on a customer support archive and reports actionable information about any known issues.</p>
-        <p>Submit an archive of the appropriate type below.</p>
+        <h1>Using Lemon Test</h1>
+        <p>Lemon Test is a simple customer support testing tool.  It automatically runs a battery of tests on a customer support archive and reports actionable information for any known issues.</p>
+        <p>Submit an archive below.</p>
       </div>
 
       <!-- Example row of columns -->

@@ -1235,8 +1235,7 @@ table .headerSortUp.purple, table .headerSortDown.purple {
   overflow: visible;
 }
 .topbar a {
-  color: #bfbfbf;
-  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  color: #202020;
 }
 .topbar h3 a:hover, .topbar .brand a:hover, .topbar ul .active > a {
   background-color: #333;
@@ -1256,6 +1255,7 @@ table .headerSortUp.purple, table .headerSortDown.purple {
   font-size: 20px;
   font-weight: 200;
   line-height: 1;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
 }
 .topbar p {
   margin: 0;
@@ -1323,16 +1323,16 @@ table .headerSortUp.purple, table .headerSortDown.purple {
   box-shadow: 0 0 3px rgba(0, 0, 0, 0.15);
 }
 .topbar-inner, .topbar .fill {
-  background-color: #470947;
+  background-color: #E0D819;
   background-repeat: repeat-x;
-  background-image: -khtml-gradient(linear, left top, left bottom, from(#470947), to(#3a0a3a));
-  background-image: -moz-linear-gradient(top, #470947, #3a0a3a);
-  background-image: -ms-linear-gradient(top, #470947, #3a0a3a);
-  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #470947), color-stop(100%, #3a0a3a));
-  background-image: -webkit-linear-gradient(top, #470947, #3a0a3a);
-  background-image: -o-linear-gradient(top, #470947, #3a0a3a);
-  background-image: linear-gradient(top, #470947, #3a0a3a);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#470947', endColorstr='#3a0a3a', GradientType=0);
+  background-image: -khtml-gradient(linear, left top, left bottom, from(#E0D819), to(#AAC92D));
+  background-image: -moz-linear-gradient(top, #E0D819, #AAC92D);
+  background-image: -ms-linear-gradient(top, #E0D819, #AAC92D);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #E0D819), color-stop(100%, #AAC92D));
+  background-image: -webkit-linear-gradient(top, #E0D819, #AAC92D);
+  background-image: -o-linear-gradient(top, #E0D819, #AAC92D);
+  background-image: linear-gradient(top, #E0D819, #AAC92D);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#E0D819', endColorstr='#AAC92D', GradientType=0);
   -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
   -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
