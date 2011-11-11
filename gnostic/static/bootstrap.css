@@ -2319,7 +2319,7 @@ button.btn::-moz-focus-inner, input[type=submit].btn::-moz-focus-inner {
 .label.OK {
   background-color: #46a546;
 }
-.label.notice {
+.label.Info {
   background-color: #62cffc;
 }
 .media-grid {

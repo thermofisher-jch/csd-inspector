@@ -28,7 +28,7 @@
                         <span class="label ${test.status}">${test.status}</span>
                     </td>
                     <td>
-                        <p class="details">${structure: test.details}</p>
+                        <p class="details" tal:content="structure test.details"></p>
                         <div class="links" tal:condition="test.html">
                             <a href="${request.static_url(test.html)}">Results</a>
                         </div>

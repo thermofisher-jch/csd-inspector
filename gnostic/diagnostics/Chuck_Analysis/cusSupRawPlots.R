@@ -104,6 +104,7 @@ plotSig2 = function(tpSig, title = "Plot", toPlot = c(), ylim = c(), xlim = c(),
   if (length(xlim) > 0) {
     td = td + xlim(xlim);
   }
+  print(td);
 }
 
 #######################################################
@@ -151,6 +152,7 @@ cusSupRawPlots = function(archivePath, plotDir)
     flows <- c(0, 1, 2, 3, 4, 5, 6, 7);
     changedFlows <- c(0, 4, 1, 5, 2, 6, 3, 7);
     nucs <- c("T","A","C","G");
+    expName <- "archive";
     unzippedFolder <- list.files(archivePath, full.names=TRUE);
     datFile <- c();
     for ( i in 1:length(unzippedFolder)){
@@ -158,9 +160,9 @@ cusSupRawPlots = function(archivePath, plotDir)
       if(temp[length(temp)]=="separator.trace.txt") datFile <- unzippedFolder[i];
     }
     if(length(datFile) == 0){
-      print("Fail");
-      print("100");
-      print("Can not find the separator.trace.txt file");
+      cat("Fail\n");
+      cat("100\n");
+      cat("Can not find the separator.trace.txt file\n");
       stop();
     }
     
@@ -199,9 +201,9 @@ cusSupRawPlots = function(archivePath, plotDir)
     }
                                         #$ Output to html file
     writeHtml(plotDir,expName,length(retSig),flows,changedFlows,nucs,xl);
-    print("Info");
-    print("25");
-    print("View various plots for more information.");
+    cat("Info\n");
+    cat("25\n");
+    cat("View various plots for more information.\n");
   }
 #######################################################
 

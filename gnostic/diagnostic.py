@@ -75,7 +75,7 @@ def run_tester(test, settings, diagnostic_id, archive_path):
     else:
         status = "TEST BROKEN"
         priority = 100
-        details = "Test %s ended with an error instead of running normally.\n<br />It output:\n<br style=\"clear: both\"/><pre display=\"block\">whole bunch of stuff %s</pre>" % \
+        details = "<div>Test %s ended with an error instead of running normally.\n<br />It output:</div><pre>%s</pre>" % \
                   (test.name, stdout)
         logger.warning("Test %s/%d ended with an error." % (test.name, diagnostic_id))
     # Update the record with the results.
