@@ -15,7 +15,7 @@
     </div>
     <div>
         <h2>Status: ${archive.status}</h2>
-        <table class="zebra-striped">
+        <table id="test-summary" class="zebra-striped">
             <thead>
                 <tr>
                     <th>Diagnostic</th><th>Status</th><th>Details</th>
@@ -27,7 +27,12 @@
                     <td>
                         <span class="label ${test.status}">${test.status}</span>
                     </td>
-                    <td>${test.details}</td>
+                    <td>
+                        <p class="details">${test.details}</p>
+                        <div class="links" tal:condition="test.html">
+                            <a href="${request.static_url(test.html)}">Results</a>
+                        </div>
+                    </td>
                 </tr>
             </tbody>
         </table>
