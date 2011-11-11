@@ -23,12 +23,12 @@ def main(global_config, **settings):
     config = Configurator(settings=settings)
     # configure various URL routes and
     config.add_static_view('static', 'gnostic:static', cache_max_age=3600)
-    config.add_static_view('/tech', settings["technical_upload_root"])
+    config.add_static_view('output', settings["technical_upload_root"])
     config.add_route('index', '/')
     config.add_route('upload', '/upload')
     config.add_route('check', '/check/{archive_id}')
     config.add_route('reports', '/reports')
-            # This lets the function 'add_base_template' tack the layout template into
+    # This lets the function 'add_base_template' tack the layout template into
     # the mystical universe of chameleon templating so that the other templates
     # can put themselves inside layout.pt like they're supposed to.
     config.add_subscriber('gnostic.views.add_base_template',
