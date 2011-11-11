@@ -49,7 +49,7 @@ class Diagnostic(Base):
     status = Column(Unicode(255))
     priority = Column(Integer)
     details = Column(Text)
-    html = Column(Univode(255))
+    html = Column(Unicode(255))
     archive_id = Column(Integer, ForeignKey('archives.id'))
 
     archive = relationship("Archive")
