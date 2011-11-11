@@ -1,5 +1,6 @@
 import datetime
 import transaction
+import os.path
 
 from sqlalchemy import Column
 from sqlalchemy import Integer
@@ -64,6 +65,10 @@ class Diagnostic(Base):
         self.priority = 0
         self.details = ""
         self.html = None
+
+    def get_output_path(self):
+        return os.path.join(self.archive.path, "test_results", self.name)
+
 
 
 def populate():

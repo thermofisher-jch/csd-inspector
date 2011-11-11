@@ -53,7 +53,7 @@ def run_tester(test, settings, diagnostic_id, archive_path):
     # Open a DB session and fetch the diagnostic object to be updated.
     session = DBSession()
     diagnostic = session.query(Diagnostic).get(diagnostic_id)
-    output_path = os.path.join(archive_path, "test_results", test.name)
+    output_path = diagnostic.get_output_path()
     os.mkdir(output_path)
     cmd = [test.main, archive_path, output_path]
     # Spawn the test subprocess and wait for it to complete.
