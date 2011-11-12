@@ -1323,16 +1323,16 @@ table .headerSortUp.purple, table .headerSortDown.purple {
   box-shadow: 0 0 3px rgba(0, 0, 0, 0.15);
 }
 .topbar-inner, .topbar .fill {
-  background-color: #E0D819;
+  background-color: #FFC720;
   background-repeat: repeat-x;
-  background-image: -khtml-gradient(linear, left top, left bottom, from(#E0D819), to(#AAC92D));
-  background-image: -moz-linear-gradient(top, #E0D819, #AAC92D);
-  background-image: -ms-linear-gradient(top, #E0D819, #AAC92D);
-  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #E0D819), color-stop(100%, #AAC92D));
-  background-image: -webkit-linear-gradient(top, #E0D819, #AAC92D);
-  background-image: -o-linear-gradient(top, #E0D819, #AAC92D);
-  background-image: linear-gradient(top, #E0D819, #AAC92D);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#E0D819', endColorstr='#AAC92D', GradientType=0);
+  background-image: -khtml-gradient(linear, left top, left bottom, from(#FFC720), to(#E5AC00));
+  background-image: -moz-linear-gradient(top, #FFC720, #E5AC00);
+  background-image: -ms-linear-gradient(top, #FFC720, #E5AC00);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #FFC720), color-stop(100%, #E5AC00));
+  background-image: -webkit-linear-gradient(top, #FFC720, #E5AC00);
+  background-image: -o-linear-gradient(top, #FFC720, #E5AC00);
+  background-image: linear-gradient(top, #FFC720, #E5AC00);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFC720', endColorstr='#E5AC00', GradientType=0);
   -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
   -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
