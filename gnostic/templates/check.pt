@@ -23,7 +23,7 @@
             </thead>
             <tbody>
                 <tr tal:repeat="test archive.diagnostics">
-                    <td>${test.name}</td>
+                    <td>${test.name.replace("_", " ")}</td>
                     <td>
                         <span class="label ${test.status}">${test.status}</span>
                     </td>

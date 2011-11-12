@@ -477,7 +477,6 @@ ol {
 }
 li {
   line-height: 18px;
-  color: #808080;
 }
 ul.unstyled {
   list-style: none;
@@ -538,7 +537,7 @@ address {
   line-height: 18px;
   margin-bottom: 18px;
 }
-code, pre {
+code, pre, .prettyprint {
   padding: 0 3px 2px;
   font-family: Monaco, Andale Mono, Courier New, monospace;
   font-size: 12px;
@@ -2374,4 +2373,33 @@ button.btn::-moz-focus-inner, input[type=submit].btn::-moz-focus-inner {
 
 #test-summary .links a {
     padding-left: 16px;
+}
+.prettyprint {
+  background-color: #fafafa;
+  padding: 0px;
+  display: block;
+  margin: 0 0 18px;
+  font-size: 12px;
+  border: 1px solid #b5b5b5;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  word-wrap: break-word;
+
+}
+.prettyprint td {
+    line-height: 18px;
+    border: none;
+    padding:  2px 10px 2px 10px;
+}
+.prettyprint tr:first-child td {
+    padding-top: 6px;
+}
+.prettyprint tr:last-child td {
+    padding-bottom: 6px;
+}
+.prettyprint td.linenum {
+    background-color: #f5f5f5;
+    color: #b5b5b5;
+    border-right: 1px solid #ddd;
 }
