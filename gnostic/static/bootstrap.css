@@ -230,13 +230,13 @@ body {
   margin-left: 240px;
 }
 a {
-  color: #0069d6;
+  color: #2159ff;
   text-decoration: none;
   line-height: inherit;
   font-weight: inherit;
 }
 a:hover {
-  color: #00438a;
+  color: #002699;
   text-decoration: underline;
 }
 .pull-right {
@@ -637,11 +637,14 @@ select,
   padding: 4px;
   font-size: 13px;
   line-height: 18px;
-  color: #808080;
+  color: #383838;
   border: 1px solid #ccc;
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   border-radius: 3px;
+}
+.uneditable-input {
+    color: #808080;
 }
 /* mini reset for non-html5 file types */
 input[type=checkbox], input[type=radio] {
