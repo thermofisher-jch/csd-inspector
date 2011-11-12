@@ -4,7 +4,7 @@
       xmlns:metal="http://xml.zope.org/namespaces/metal">
   <head>
     <meta charset="utf-8">
-    <title>Gnostic, Ion Torrent internal customer support tests.</title>
+    <title>Lemon Test: simple, scalable, fast</title>
     <meta name="description" content="Lemon Test, Ion Torrent internal customer support tests for field specialists.">
     <meta name="author" content="Brian Kennedy">
 
@@ -30,8 +30,9 @@
         <div class="container">
           <a class="brand" href="${request.route_path('index')}">Lemon Test</a>
           <ul class="nav">
-              <li><a href="${request.route_path('upload')}">Upload Archive</a></li>
-              <li><a href="${request.route_path('reports')}">View Reports</a></li>
+            <li><a href="${request.route_path('upload')}">Submit Archive</a></li>
+            <li><a href="${request.route_path('reports')}">List Reports</a></li>
+            <li><a href="${request.route_path('documentation')}">Documentation</a></li>
           </ul>
         </div>
       </div>

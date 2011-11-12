@@ -98,3 +98,7 @@ def list_reports(request):
     session = DBSession()
     archives = session.query(Archive).all()
     return {"archives": archives}
+
+@view_config(route_name="documentation", renderer="templates/documentation.pt")
+def documentation(request):
+    return {}
