@@ -18,17 +18,18 @@ def main(global_config, **settings):
     initialize_testers(os.path.abspath("gnostic/diagnostics"))
     # I have an inexplicable distrust of the relative file paths given in
     # the config file.  This step also lets us die early if they're erroneous.
-    settings["technical_upload_root"] = \
-                        os.path.abspath(settings["technical_upload_root"])
+    settings["upload_root"] = os.path.abspath(settings["upload_root"])
+    settings["test_root"] = os.path.abspath(settings["test_root"])
     config = Configurator(settings=settings)
     # configure various URL routes and
     config.add_static_view('static', 'gnostic:static', cache_max_age=3600)
-    config.add_static_view('output', settings["technical_upload_root"])
+    config.add_static_view('output', settings["upload_root"])
     config.add_route('index', '/')
     config.add_route('upload', '/upload')
     config.add_route('check', '/check/{archive_id}')
     config.add_route('reports', '/reports')
     config.add_route('documentation', '/documentation')
+    config.add_route('test_readme', '/test/{test_name}/README')
     # This lets the function 'add_base_template' tack the layout template into
     # the mystical universe of chameleon templating so that the other templates
     # can put themselves inside layout.pt like they're supposed to.

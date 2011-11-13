@@ -2371,8 +2371,10 @@ button.btn::-moz-focus-inner, input[type=submit].btn::-moz-focus-inner {
     text-align: right;
 }
 
-#test-summary .links a {
-    padding-left: 16px;
+#test-summary .links div {
+    margin-left: 16px;
+    width: 4em;
+    display: inline-block;
 }
 .prettyprint {
   background-color: #fafafa;
@@ -2385,7 +2387,6 @@ button.btn::-moz-focus-inner, input[type=submit].btn::-moz-focus-inner {
   -moz-border-radius: 3px;
   border-radius: 3px;
   word-wrap: break-word;
-
 }
 .prettyprint td {
     line-height: 18px;

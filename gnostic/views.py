@@ -10,6 +10,7 @@ from gnostic.models import Archive
 from gnostic.models import testers
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
+from pyramid.response import Response
 from pyramid.httpexceptions import HTTPFound
 from sqlalchemy.orm import subqueryload
 import upload
@@ -45,7 +46,7 @@ def get_uploaded_file(request):
 
 def make_report(request):
     """Do everything for which the request object is needed."""
-    upload_root = request.registry.settings["technical_upload_root"]
+    upload_root = request.registry.settings["upload_root"]
     data = get_uploaded_file(request)
     label = unicode(request.POST["label"])
     folder = slugify(label)
@@ -99,6 +100,19 @@ def list_reports(request):
     archives = session.query(Archive).all()
     return {"archives": archives}
 
+
 @view_config(route_name="documentation", renderer="templates/documentation.pt")
 def documentation(request):
     return {}
+
+
+@view_config(route_name="test_readme")
+def test_readme(request):
+    response = Response(content_type='text/plain')
+    test_name = request.matchdict["test_name"]
+    readme = testers[test_name].readme
+    if readme:
+        response.app_iter = open(readme, 'rt')
+    else:
+        response = HTTPFound("%s does not have a README file." % test_name)
+    return response

@@ -6,7 +6,7 @@ should place their results.  The current working directory will be the
 directory containing the diagnostic, not the directory containing it's results.
 """
 
-__author__ = 'bakennedy'
+__author__ = 'Brian Kennedy'
 
 import transaction
 import subprocess
@@ -27,14 +27,13 @@ class Tester(object):
         self.name = name
         self.directory = directory
         self.main = os.path.join(self.directory, main)
-        readme = os.path.join(directory, "README")
-        if os.path.exists(readme):
-            self.readme = open(readme, 'rt').read()
-        else:
+        self.readme = os.path.join(directory, "README")
+        if not os.path.exists(self.readme):
             self.readme = None
 
     def diagnostic_record(self):
         return Diagnostic(self.name)
+
 
 @task
 def run_tester(test, settings, diagnostic_id, archive_path):

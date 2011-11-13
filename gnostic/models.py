@@ -22,7 +22,7 @@ from zope.sqlalchemy import ZopeTransactionExtension
 
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 Base = declarative_base()
-testers = []
+testers = dict()
 
 class Archive(Base):
     __tablename__ = 'archives'
@@ -69,6 +69,8 @@ class Diagnostic(Base):
     def get_output_path(self):
         return os.path.join(self.archive.path, "test_results", self.name)
 
+    def get_readme_path(self):
+        return testers[self.name].readme
 
 
 def populate():

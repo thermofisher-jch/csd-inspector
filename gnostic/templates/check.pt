@@ -4,7 +4,6 @@
       xmlns:metal="http://xml.zope.org/namespaces/metal"
       metal:use-macro="layout">
 
-
 <tal:block metal:fill-slot="main">
     <!-- Main hero unit for a primary marketing message or call to action -->
     <div class="hero-unit">
@@ -29,8 +28,9 @@
                     </td>
                     <td>
                         <p class="details" tal:content="structure test.details"></p>
-                        <div class="links" tal:condition="test.html">
-                            <a href="${request.static_url(test.html)}">Results</a>
+                        <div class="links">
+                            <div><a tal:condition="test.html" href="${request.static_url(test.html)}">Results</a></div>
+                            <div><a tal:condition="test.get_readme_path()" href="${request.route_url('test_readme', test_name=test.name)}">Readme</a></div>
                         </div>
                     </td>
                 </tr>
