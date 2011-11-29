@@ -37,9 +37,11 @@ def get_common_prefix(files):
     return prefix, relative_files
 
 
-def validate_files(files):
+def valid_files(files):
+    black_list = [lambda f: f.startswith("__MACOSX")]
     if any(os.path.isabs(d) for d in files):
         raise ValueError("Archive contains a mix of absolute and relative paths.")
+    return [f for f in files if not any(reject(f) for reject in black_list)]
 
 
 def make_relative_directories(root, files):
@@ -54,7 +56,7 @@ def unzip_archive(root, data):
     zip_file = zipfile.ZipFile(data, 'r')
     namelist = zip_file.namelist()
     prefix, files = get_common_prefix(namelist)
-    validate_files(files)
+    files = valid_files(files)
     make_relative_directories(root, files)
     out_names = [(n, f) for n, f in zip(namelist, files) if
                                                     os.path.basename(f) != '']
