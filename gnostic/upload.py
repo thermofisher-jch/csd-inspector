@@ -70,7 +70,7 @@ def unzip_archive(root, data):
                 output_file.write(contents.read())
                 output_file.close()
             except IOError as err:
-                print("For zip's '%s', could not open '%s'" % (key, full_path)
+                print("For zip's '%s', could not open '%s'" % (key, full_path))
     return [f for n, f in out_names]
 
 
