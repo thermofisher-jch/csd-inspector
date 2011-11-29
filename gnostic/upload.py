@@ -58,11 +58,8 @@ def make_relative_directories(root, files):
 def unzip_archive(root, data):
     zip_file = zipfile.ZipFile(data, 'r')
     namelist = zip_file.namelist()
-    print("\n\t".join(namelist))
     namelist = valid_files(namelist)
-    print("\n\t".join(namelist))
     prefix, files = get_common_prefix(namelist)
-    print("\n\t".join(files))
     make_relative_directories(root, files)
     out_names = [(n, f) for n, f in zip(namelist, files) if
                                                     os.path.basename(f) != '']
@@ -149,9 +146,6 @@ def process_archive(settings, archive_id, destination, archive_name, testers):
 
 @task
 def finalize_report(results, settings, archive_id):
-    print(results)
-    print(settings)
-    print(archive_id)
     logger = finalize_report.get_logger()
     engine = engine_from_config(settings)
     initialize_sql(engine)
