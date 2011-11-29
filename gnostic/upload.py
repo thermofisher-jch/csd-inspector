@@ -33,7 +33,7 @@ def get_common_prefix(files):
     directories = [os.path.dirname(f) for f in files]
     prefix = os.path.commonprefix(directories)
     start = len(prefix)
-    if all(f[start] == "/"):
+    if all(f[start] == "/" for f in files):
         start += 1
     relative_files = [f[start:] for f in files]
     return prefix, relative_files
