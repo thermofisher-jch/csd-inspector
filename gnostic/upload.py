@@ -65,9 +65,12 @@ def unzip_archive(root, data):
         if os.path.basename(out_name) != "":
             full_path = os.path.join(root, out_name)
             contents = zip_file.open(key, 'r')
-            output_file = open(full_path, 'wb')
-            output_file.write(contents.read())
-            output_file.close()
+            try:
+                output_file = open(full_path, 'wb')
+                output_file.write(contents.read())
+                output_file.close()
+            except IOError as err:
+                print("For zip's '%s', could not open '%s'" % (key, full_path)
     return [f for n, f in out_names]
 
 
