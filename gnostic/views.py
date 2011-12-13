@@ -91,7 +91,7 @@ def check_archive(request):
     archive = session.query(Archive).options(subqueryload(
         Archive.diagnostics)).filter(Archive.id==archive_id).first()
     session.close()
-    archive.diagnostics.sort(key=lambda x: -int(x.priority)
+    archive.diagnostics.sort(key=lambda x: -int(x.priority))
     return {"archive": archive}
 
 
