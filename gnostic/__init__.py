@@ -15,11 +15,11 @@ def main(global_config, **settings):
     log.info("Starting Gnostic.")
     engine = engine_from_config(settings, 'sqlalchemy.')
     initialize_sql(engine)
-    initialize_testers(os.path.abspath("gnostic/diagnostics"))
     # I have an inexplicable distrust of the relative file paths given in
     # the config file.  This step also lets us die early if they're erroneous.
     settings["upload_root"] = os.path.abspath(settings["upload_root"])
     settings["test_root"] = os.path.abspath(settings["test_root"])
+    settings["test_manifest"] = os.path.abspath(settings["test_manifest"])
     config = Configurator(settings=settings)
     # configure various URL routes and
     config.add_static_view('static', 'gnostic:static', cache_max_age=3600)
@@ -36,5 +36,6 @@ def main(global_config, **settings):
     config.add_subscriber('gnostic.views.add_base_template',
                       'pyramid.events.BeforeRender')
     config.scan()
+    initialize_testers(settings["test_manifest"], settings["test_root"])
     return config.make_wsgi_app()
 

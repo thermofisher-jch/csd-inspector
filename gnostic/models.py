@@ -1,4 +1,5 @@
 import datetime
+import json
 import transaction
 import os.path
 
@@ -24,6 +25,13 @@ DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 Base = declarative_base()
 testers = dict()
 
+
+class ArchiveType(Base):
+    __tablename__ = 'archivetypes'
+    id = Column(Integer, primary_key=True)
+    name = Column(Unicode(255))
+
+
 class Archive(Base):
     __tablename__ = 'archives'
     id = Column(Integer, primary_key=True)
@@ -32,6 +40,7 @@ class Archive(Base):
     time = Column(DateTime)
     status = Column(Unicode(255))
     submitter_name = Column(Unicode(255))
+    archive_type = Column(Unicode(255))
 
     diagnostics = relationship("Diagnostic", order_by='Diagnostic.id')
 
@@ -88,8 +97,10 @@ def initialize_sql(engine):
     Base.metadata.create_all(engine)
 
 
-def initialize_testers(test_directory):
+def initialize_testers(test_manifest, test_directory):
     import diagnostic
     global testers
-    testers = diagnostic.get_testers(test_directory)
+    with open(test_manifest) as manifest_file:
+        tests = json.load(manifest_file)
+    testers = diagnostic.get_testers(tests, test_directory)
 

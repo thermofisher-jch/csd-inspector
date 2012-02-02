@@ -84,13 +84,24 @@ def run_tester(test, settings, diagnostic_id, archive_path):
     transaction.commit()
 
 
-def get_testers(test_directory):
-    tests = dict()
-    for path in os.listdir(test_directory):
-        test_path = os.path.join(test_directory, path)
-        if os.path.isdir(test_path):
-            for filename in os.listdir(test_path):
-                if filename.startswith("main"):
-                    tests[path] = Tester(path, test_path, filename)
-    return tests
+def main_file(test_path):
+    if os.path.isdir(test_path):
+        for filename in os.listdir(test_path):
+            if filename.startswith("main"):
+                return filename
+    return None
+
+
+def get_testers(test_manifest, test_directory):
+    test_list = dict()
+    for archive_type, tests in test_manifest.items():
+        test_list[archive_type] = []
+        for test in tests:
+            test_path = os.path.join(test_directory, test)
+            filename = main_file(test_path)
+            if filename is not None:
+                tester = Tester(test, test_path, filename)
+                test_list[archive_type].append(test)
+    return test_list
+
 
