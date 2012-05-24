@@ -49,9 +49,10 @@ def make_report(request):
     upload_root = request.registry.settings["upload_root"]
     data = get_uploaded_file(request)
     label = unicode(request.POST["label"])
+    archive_type = unicode(request.POST["archive_type"])
     folder = slugify(label)
     submitter_name = unicode(request.POST["submitter"])
-    return submitter_name, label, upload_root, folder, data
+    return submitter_name, label, archive_type, upload_root, folder, data
 
 
 @view_config(route_name="upload", renderer="templates/upload.pt")
@@ -61,15 +62,15 @@ def upload_file(request):
     This displays the extracted files relative paths and file sizes.
     """
     if "fileInput" in request.POST:
-        submitter_name, label, upload_root, folder, data = make_report(request)
+        submitter_name, label, archive_type, upload_root, folder, data = make_report(request)
         destination = os.path.join(upload_root, folder)
         # if the user's label produces a destination path that already exists,
         # _derp the folder name until it's unique.
         while os.path.exists(destination):
             destination += "_derp"
         session = DBSession()
-        archive = Archive(submitter_name, label, destination)
-        archive.diagnostics = [t.diagnostic_record() for t in testers.values()]
+        archive = Archive(submitter_name, label, archive_type, destination)
+        archive.diagnostics = [t.diagnostic_record() for t in testers[archive_type].values()]
         session.add(archive)
         session.flush()
         upload.queue_archive(request.registry.settings, archive.id, destination, data, testers)
@@ -80,7 +81,8 @@ def upload_file(request):
     label = request.GET.get("label", label)
     name = ""
     name = request.GET.get("name", name)
-    return {'label':label, 'name': name}
+    print(testers.keys())
+    return {'label':label, 'name': name, 'archive_types': testers.keys()}
 
 
 @view_config(route_name="check", renderer="templates/check.pt")
@@ -92,6 +94,8 @@ def check_archive(request):
         Archive.diagnostics)).filter(Archive.id==archive_id).first()
     session.close()
     archive.diagnostics.sort(key=lambda x: -int(x.priority))
+    for test in archive.diagnostics:
+        test.readme = testers[archive.archive_type][test.name].readme
     return {"archive": archive}
 
 
@@ -99,6 +103,7 @@ def check_archive(request):
 def list_reports(request):
     session = DBSession()
     archives = session.query(Archive).all()
+    print(archives)
     return {"archives": archives}
 
 
@@ -111,7 +116,8 @@ def documentation(request):
 def test_readme(request):
     response = Response(content_type='text/plain')
     test_name = request.matchdict["test_name"]
-    readme = testers[test_name].readme
+    for archive_type in testers.keys():
+        readme = test_name in testers[archive_type] and testers[archive_type][test_name].readme
     if readme:
         response.app_iter = open(readme, 'rt')
     else:

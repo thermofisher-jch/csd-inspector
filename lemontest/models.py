@@ -44,9 +44,10 @@ class Archive(Base):
 
     diagnostics = relationship("Diagnostic", order_by='Diagnostic.id')
 
-    def __init__(self, submitter_name, label, path):
+    def __init__(self, submitter_name, label, archive_type, path):
         self.submitter_name = submitter_name
         self.label = label
+        self.archive_type = archive_type
         self.path = path
         self.time = datetime.datetime.now()
         self.status = u"Processing newly uploaded archive."
@@ -79,12 +80,13 @@ class Diagnostic(Base):
         return os.path.join(self.archive.path, "test_results", self.name)
 
     def get_readme_path(self):
-        return testers[self.name].readme
+        self.readme = testers[self.archive.archive_type][self.name].readme
+        return self.readme
 
 
 def populate():
     session = DBSession()
-    model = Archive(label=u'example_label', path=u"/home/bakennedy/Projects/gnostic_env/files/example")
+    model = Archive(label=u'example_label', path=u"/home/bakennedy/Projects/lemontest_env/files/example")
     test1 = Diagnostic("Test One", model)
     test2 = Diagnostic("Test Two", model)
     session.add(model)
@@ -102,5 +104,7 @@ def initialize_testers(test_manifest, test_directory):
     global testers
     with open(test_manifest) as manifest_file:
         tests = json.load(manifest_file)
-    testers = diagnostic.get_testers(tests, test_directory)
+    print(tests)
+    testers.update(diagnostic.get_testers(tests, test_directory))
+    print(testers)
 

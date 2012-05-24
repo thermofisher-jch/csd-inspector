@@ -94,14 +94,15 @@ def main_file(test_path):
 
 def get_testers(test_manifest, test_directory):
     test_list = dict()
+    print(test_manifest)
     for archive_type, tests in test_manifest.items():
-        test_list[archive_type] = []
+        test_list[archive_type] = dict()
         for test in tests:
             test_path = os.path.join(test_directory, test)
             filename = main_file(test_path)
             if filename is not None:
                 tester = Tester(test, test_path, filename)
-                test_list[archive_type].append(test)
+                test_list[archive_type][test] = tester
     return test_list
 
 

@@ -31,6 +31,16 @@
                 </div>
               </div>
               <div class="clearfix">
+                <label for="archive_type">Archive Type</label>
+                <div class="input">
+                  <select name="archive_type" id="archiveType">
+                    <option tal:repeat="type archive_types" value="${type}">
+                      ${type.replace("_", " ")}
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <div class="clearfix">
                 <label for="technicalFile">Select file</label>
                 <div class="input">
                   <input type="file" name="fileInput" id="fileInput" class="input-file" />
@@ -42,35 +52,6 @@
             </fieldset>
           </form>
         </div>
-        <!--
-        <div class="span8">
-          <h2>Experimental</h2>
-          <p>Upload a customer support archive.</p>
-          <form action="/upload" method="post" accept-charset="UTF-8" enctype="multipart/form-data">
-            <fieldset>
-              <div class="clearfix">
-                <label for="label">Your Name</label>
-                <div class="input">
-                  <input class="large" id="submitter" name="submitter" size="30" type="text" value="technical" />
-                </div>
-              </div>
-              <div class="clearfix">
-                <label for="label">Report Label</label>
-                <div class="input">
-                  <input class="large" id="label" name="label" size="30" type="text" value="experimental" />
-                </div>
-              </div>
-              <label for="technicalFile">Select file</label>
-              <div class="input">
-                <input type="file" name="fileInput" id="fileInput" class="input-file" />
-              </div>
-              <div class="actions">
-                <input type="submit" value="Submit Experimental" class="btn primary">&nbsp;<button class="btn" type="reset">Reset</button>
-              </div>
-            </fieldset>
-          </form>
-       </div>
-       -->
       </div>
       </tal:block>
 </html>

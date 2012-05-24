@@ -135,7 +135,7 @@ def process_archive(settings, archive_id, destination, archive_name, testers):
     archive.status = u"Archive decompressed successfully. Starting diagnostics."
     os.mkdir(os.path.join(archive.path, "test_results"))
     jobs = [diagnostic.run_tester.subtask(
-                    (testers[d.name], settings, d.id, archive.path))
+                    (testers[archive.archive_type][d.name], settings, d.id, archive.path))
                     for d in archive.diagnostics]
 
     transaction.commit()
