@@ -16,9 +16,9 @@ from celery.task import task
 
 from sqlalchemy import engine_from_config
 
-from gnostic.models import DBSession
-from gnostic.models import Diagnostic
-from gnostic.models import initialize_sql
+from lemontest.models import DBSession
+from lemontest.models import Diagnostic
+from lemontest.models import initialize_sql
 
 
 class Tester(object):

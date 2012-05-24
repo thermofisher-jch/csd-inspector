@@ -3,8 +3,8 @@ import os.path
 from pyramid.config import Configurator
 from sqlalchemy import engine_from_config
 
-from gnostic.models import initialize_sql
-from gnostic.models import initialize_testers
+from lemontest.models import initialize_sql
+from lemontest.models import initialize_testers
 
 
 def main(global_config, **settings):
@@ -22,7 +22,7 @@ def main(global_config, **settings):
     settings["test_manifest"] = os.path.abspath(settings["test_manifest"])
     config = Configurator(settings=settings)
     # configure various URL routes and
-    config.add_static_view('static', 'gnostic:static', cache_max_age=3600)
+    config.add_static_view('static', 'lemontest:static', cache_max_age=3600)
     config.add_static_view('output', settings["upload_root"])
     config.add_route('index', '/')
     config.add_route('upload', '/upload')
@@ -33,7 +33,7 @@ def main(global_config, **settings):
     # This lets the function 'add_base_template' tack the layout template into
     # the mystical universe of chameleon templating so that the other templates
     # can put themselves inside layout.pt like they're supposed to.
-    config.add_subscriber('gnostic.views.add_base_template',
+    config.add_subscriber('lemontest.views.add_base_template',
                       'pyramid.events.BeforeRender')
     config.scan()
     initialize_testers(settings["test_manifest"], settings["test_root"])

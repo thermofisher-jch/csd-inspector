@@ -9,10 +9,10 @@ from celery.task import chord
 
 from sqlalchemy import engine_from_config
 
-from gnostic.models import DBSession
-from gnostic.models import Archive
-from gnostic.models import initialize_sql
-from gnostic import diagnostic
+from lemontest.models import DBSession
+from lemontest.models import Archive
+from lemontest.models import initialize_sql
+from lemontest import diagnostic
 
 
 def get_common_prefix(files):

@@ -5,9 +5,9 @@ import re
 import unicodedata
 import os
 import os.path
-from gnostic.models import DBSession
-from gnostic.models import Archive
-from gnostic.models import testers
+from lemontest.models import DBSession
+from lemontest.models import Archive
+from lemontest.models import testers
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
 from pyramid.response import Response

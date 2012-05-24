@@ -5,7 +5,7 @@
       metal:use-macro="layout">
     <tal:block metal:fill-slot="main">
         <h2 style="float: right">
-            <a href="${request.static_url('gnostic:static/files/example_lemon_tests.zip')}">Download Example Tests</a>
+            <a href="${request.static_url('lemontest:static/files/example_lemon_tests.zip')}">Download Example Tests</a>
         </h2>
         <h1>
             Lemon Test Developer API

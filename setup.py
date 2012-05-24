@@ -19,9 +19,9 @@ requires = [
 if sys.version_info[:3] < (2,5,0):
     requires.append('pysqlite')
 
-setup(name='gnostic',
+setup(name='lemontest',
       version='0.0',
-      description='gnostic',
+      description='lemontest',
       long_description=README + '\n\n' +  CHANGES,
       classifiers=[
         "Programming Language :: Python",
@@ -36,11 +36,11 @@ setup(name='gnostic',
       packages=find_packages(),
       include_package_data=True,
       zip_safe=False,
-      test_suite='gnostic',
+      test_suite='lemontest',
       install_requires = requires,
       entry_points = """\
       [paste.app_factory]
-      main = gnostic:main
+      main = lemontest:main
       """,
       paster_plugins=['pyramid'],
       )
