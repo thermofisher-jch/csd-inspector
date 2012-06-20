@@ -12,7 +12,7 @@ def main(global_config, **settings):
     """
     logging.basicConfig()
     log = logging.getLogger(__file__)
-    log.info("Starting Gnostic.")
+    log.info("Starting Lemon Test.")
     engine = engine_from_config(settings, 'sqlalchemy.')
     initialize_sql(engine)
     # I have an inexplicable distrust of the relative file paths given in
