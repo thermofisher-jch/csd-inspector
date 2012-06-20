@@ -3,6 +3,7 @@ import transaction
 import datetime
 import re
 import unicodedata
+import mimetypes
 import os
 import os.path
 from lemontest.models import DBSession
@@ -114,11 +115,12 @@ def documentation(request):
 
 @view_config(route_name="test_readme")
 def test_readme(request):
-    response = Response(content_type='text/plain')
     test_name = request.matchdict["test_name"]
     for archive_type in testers.keys():
         readme = test_name in testers[archive_type] and testers[archive_type][test_name].readme
-    if readme:
+    if readme is not None:
+        mime = mimetypes.guess_type(readme)[0] or 'text/plain'
+        response = Response(content_type=mime)
         response.app_iter = open(readme, 'rt')
     else:
         response = HTTPFound("%s does not have a README file." % test_name)

@@ -12,6 +12,7 @@ import transaction
 import subprocess
 import os
 import os.path
+from glob import glob
 from celery.task import task
 
 from sqlalchemy import engine_from_config
@@ -27,8 +28,10 @@ class Tester(object):
         self.name = name
         self.directory = directory
         self.main = os.path.join(self.directory, main)
-        self.readme = os.path.join(directory, "README")
-        if not os.path.exists(self.readme):
+        readmes = glob(os.path.join(directory, "README*"))
+        if readmes:
+            self.readme = readmes[0]
+        else:
             self.readme = None
 
     def diagnostic_record(self):
