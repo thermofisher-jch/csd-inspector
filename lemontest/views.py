@@ -103,8 +103,7 @@ def check_archive(request):
 @view_config(route_name="reports", renderer="templates/reports.pt")
 def list_reports(request):
     session = DBSession()
-    archives = session.query(Archive).all()
-    print(archives)
+    archives = session.query(Archive).order_by(Archive.time).all()
     return {"archives": archives}
 
 
