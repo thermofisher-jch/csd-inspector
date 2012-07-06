@@ -97,7 +97,8 @@ def check_archive(request):
     archive.diagnostics.sort(key=lambda x: -int(x.priority))
     for test in archive.diagnostics:
         test.readme = testers[archive.archive_type][test.name].readme
-    return {"archive": archive}
+    basename = os.path.basename(archive.path)
+    return {"archive": archive, "basename": basename}
 
 
 @view_config(route_name="reports", renderer="templates/reports.pt")
