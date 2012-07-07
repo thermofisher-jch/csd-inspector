@@ -17,7 +17,7 @@
     </div>
     <div>
         <h2>Status: ${archive.status}</h2>
-        <table id="test-summary" class="zebra-striped">
+        <table id="test-summary" class="table table-striped">
             <thead>
                 <tr>
                     <th>Test</th><th>Status</th><th>Details</th>
@@ -27,7 +27,7 @@
                 <tr tal:repeat="test archive.diagnostics">
                     <td>${test.name.replace("_", " ")}</td>
                     <td>
-                        <span class="label ${test.status}">${test.status}</span>
+                        <span class="label label-${test.status.lower()}">${test.status}</span>
                     </td>
                     <td>
                         <p class="details" tal:content="structure test.details"></p>
