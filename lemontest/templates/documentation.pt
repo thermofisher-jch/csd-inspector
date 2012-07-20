@@ -8,10 +8,10 @@
             <a href="${request.static_url('lemontest:static/files/example_lemon_tests.zip')}">Download Example Tests</a>
         </h2>
         <h1>
-            Lemon Test Developer API
+            Ion Inspector Developer API
         </h1>
         <p>
-            Lemon Test is a Customer Support Archive testing automation server. When a
+            Ion Inspector is a Customer Support Archive testing automation server. When a
             CSA is uploaded to the server, a battery of tests are automatically run on
             the contents of the archive. Each of these tests reports the result of either
             a falsifiable hypothesis, i.e. OK/Fail/Warning, or performs some additional
