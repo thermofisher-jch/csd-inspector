@@ -17,7 +17,7 @@
     <link href="${request.static_url('lemontest:static/css/bootstrap.css')}" rel="stylesheet">
     <style type="text/css">
       body {
-        padding-top: 60px;
+        padding-top: 82px;
       }
     </style>
     <script src="${request.static_url('lemontest:static/js/jquery.js')}"></script>
