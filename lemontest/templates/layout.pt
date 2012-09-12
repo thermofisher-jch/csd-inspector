@@ -21,6 +21,9 @@
       }
     </style>
     <script src="${request.static_url('lemontest:static/js/jquery.js')}"></script>
+    <tal:block  metal:define-slot="extra_head">
+      <!-- The extra header content goes here -->
+    </tal:block>
   </head>
 
   <body>
