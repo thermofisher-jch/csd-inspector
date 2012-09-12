@@ -152,7 +152,11 @@ cusSupSepPlots = function(archivePath, plotDir)
     numRegions <- 3;
  #   onemerFlows <- c(1,3,6)
  #   zeromerFlows <- c(5,7,2,4)        
- 
+    sigproc_path = file.path(archivePath, "sigproc_results");
+    temp = unlist(strsplit(archivePath,"/"));
+    datName <- temp[length(temp)];
+    if (file.exists(sigproc_path))  archivePath = sigproc_path;
+    
     # get key and flowOrder from processParameters.txt
     params <- readLines(file.path(archivePath,"processParameters.txt"))    
     temp = getParam(params,"flowOrder")
@@ -174,8 +178,6 @@ cusSupSepPlots = function(archivePath, plotDir)
       temp = unlist(strsplit(unzippedFolder[i],"/"));
       if(temp[length(temp)]=="separator.trace.txt") {
         datFile <- unzippedFolder[i];
-        temp = unlist(strsplit(archivePath,"/"));
-        datName <- temp[length(temp)]
       }
     }
     if(length(datFile) == 0){

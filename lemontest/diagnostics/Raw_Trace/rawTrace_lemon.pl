@@ -81,6 +81,10 @@ my $htmlHeaderLine = $htmlTitle;
 &writeHtmlHeader($htmlTitle,$htmlHeaderLine,$htmlFh);
 
 my $analysisDir = $opt->{"analysis-dir"};
+my $sigproc_dir = $analysisDir . "/sigproc_results";
+if (-d $sigproc_dir) {
+  $analysisDir = $sigproc_dir;
+}
 my $plotDir = "plots";
 
 my $problem = 0;

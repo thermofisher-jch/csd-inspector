@@ -39,8 +39,9 @@ getBasecallerParam = function(text, key, adj=0){
 #######################################################
 filterMetricsPlots = function(archivePath, plotDir)
   {
-
-    log <- readLines(file.path(archivePath,"ReportLog.html")) 
+    file_path = file.path(archivePath,"ReportLog.html")
+    if (!file.exists(file_path)) file_path = file.path(archivePath,"sigproc_results/sigproc.log")
+    log <- readLines(file_path) 
     sep = "\t"  
  
     # Top-level breakdown
