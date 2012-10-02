@@ -40,8 +40,10 @@ getBasecallerParam = function(text, key, adj=0){
 filterMetricsPlots = function(archivePath, plotDir)
   {
     file_path = file.path(archivePath,"ReportLog.html")
-    if (!file.exists(file_path)) file_path = file.path(archivePath,"sigproc_results/sigproc.log")
-    log <- readLines(file_path) 
+    sig_log = file.path(archivePath,"sigproc_results/sigproc.log")
+    base_log = file.path(archivePath,"basecaller_results/basecaller.log")
+    if (file.exists(sig_log)) file_path <- sig_log
+    log <- readLines(file_path)
     sep = "\t"  
  
     # Top-level breakdown
@@ -64,7 +66,8 @@ filterMetricsPlots = function(archivePath, plotDir)
     png(plotFile <- sprintf("%s/loaded.png",plotDir),width=pngWidth,height=pngHeight)
 myBarplot(breakdownBead/1e3,beside=TRUE,las=2,ylab="Reads (1,000's)",main="Loaded Well Categorization",col=myColor)
 dev.off()
-    
+    if (file.exists(base_log)) file_path <- base_log
+    log <- readLines(file_path)
     # Breakdown of Library wells            
     breakdownLib <- c(
       "Valid"  = getBasecallerParam(log, "Valid reads", 3),
