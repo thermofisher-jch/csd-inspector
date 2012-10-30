@@ -68,7 +68,8 @@ myBarplot(breakdownBead/1e3,beside=TRUE,las=2,ylab="Reads (1,000's)",main="Loade
 dev.off()
     if (file.exists(base_log)) file_path <- base_log
     log <- readLines(file_path)
-    # Breakdown of Library wells            
+    log = log[grep("Examined wells", log):grep("Valid reads saved to SFF", log)]
+    # Breakdown of Library wells
     breakdownLib <- c(
       "Valid"  = getBasecallerParam(log, "Valid reads", 3),
       "Polyclonal" = getBasecallerParam(log, " Polyclonal ",-1),
