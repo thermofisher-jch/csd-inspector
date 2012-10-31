@@ -4,3 +4,5 @@
 *.log
 .idea
 gnostic/diagnostics/
+*.sublime-project
+*.sublime-workspace
