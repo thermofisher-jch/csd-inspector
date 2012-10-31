@@ -1,0 +1,22 @@
+Filter Metrics test shows results of applied software filters:
+
+  Library well categories show percentage of Library Beads (from Basecaller output):
+    Valid         - reads pass all filters, saved and passed on to further analysis
+    Polyclonal    - fail polyclonal filter
+    Bad key       - key signal doesn't match either library or TF keys.
+    HighPPF       - percent positive flows over accepted software threshold
+    High residual - fitting residual over accepted software threshold
+    Zero bases, Short, Filtered - fail length filters before or after trimming
+
+  Loaded well categories show percentage of Bead wells (from Separator output):
+    Library - library key found
+    TF      - TF key found
+    Dud     - No signal, excluded from analysis
+    
+  Primary well categories (from Separator output):
+    Beads   - beads
+    Empty   - empty
+    Pinned  - pinned values, excluded from analysis
+    Ignored - excluded from analysis based on poor or bad behaved signal
+    
+  
