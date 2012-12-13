@@ -52,8 +52,6 @@ def make_archive(request):
     archive_type = unicode(request.POST["archive_type"])
     submitter_name = unicode(request.POST["submitter"])
 
-    diagnostics = [t.diagnostic_record() for t in testers[archive_type].values()]
-    
     upload_root = request.registry.settings["upload_root"]
     folder = slugify(label)
     destination = os.path.join(upload_root, folder)
@@ -63,7 +61,8 @@ def make_archive(request):
         destination += "_derp"
 
     archive = Archive(submitter_name, label, site, archive_type, destination)
-
+    archive.diagnostics = [t.diagnostic_record() for t in testers[archive_type].values()]
+    
     return archive
 
 
