@@ -6,11 +6,10 @@
 
 <tal:block metal:fill-slot="main">
     <!-- Main hero unit for a primary marketing message or call to action -->
-    <div class="hero-unit">
+    <div>
         <h1>${archive.label}</h1>
         <h3 tal:condition="archive.site">${archive.site}</h3>
-        <em>Uploaded by ${archive.submitter_name} on ${archive.time.strftime("%c")}</em>
-        <p>You may always view this report here on this page <a href="${request.route_url('check', archive_id=archive.id)}">${request.route_url('check', archive_id=archive.id)}</a></p>
+        <p><em>Uploaded by ${archive.submitter_name} on ${archive.time.strftime("%c")}</em></p>
         <p>
             <a class="btn btn-success" href="/archives/${basename}/archive.zip">Download Archive</a>
             <a class="btn" href="/archives/${basename}/">View Files</a>
