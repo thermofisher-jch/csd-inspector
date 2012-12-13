@@ -1,6 +1,7 @@
 import datetime
 import json
 import transaction
+import logging
 import os.path
 
 from sqlalchemy import Column
@@ -20,6 +21,7 @@ from sqlalchemy.orm import backref
 
 from zope.sqlalchemy import ZopeTransactionExtension
 
+logger = logging.getLogger(__name__)
 
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 Base = declarative_base()
@@ -43,7 +45,7 @@ class Archive(Base):
     submitter_name = Column(Unicode(255))
     archive_type = Column(Unicode(255))
 
-    diagnostics = relationship("Diagnostic", order_by='Diagnostic.id')
+    diagnostics = relationship("Diagnostic", order_by='Diagnostic.id', cascade='all')
 
     def __init__(self, submitter_name, label, site, archive_type, path):
         self.submitter_name = submitter_name

@@ -11,13 +11,14 @@
         <h3 tal:condition="archive.site">${archive.site}</h3>
         <p><em>Uploaded by ${archive.submitter_name} on ${archive.time.strftime("%c")}</em></p>
     </div>
-    <div class="clearfix">
+    <div class="clearfix form-actions">
         <div class="pull-left">
             <a class="btn btn-success" href="/archives/${basename}/archive.zip"><i class="icon-arrow-down icon-white"></i> Download Archive</a>
             <a class="btn" href="/archives/${basename}/"><i class="icon-folder-open"></i> View Files</a>
             <a class="btn" href="/check/${archive.id}/rerun" ><i class="icon-repeat"></i> Re-run Tests</a>
         </div>
         <div class="pull-right">
+            <a class="btn btn-danger" href="/check/${archive.id}/super_delete"><i class="icon-trash icon-white"></i> Super Delete</a>
         </div>
     </div>
     <div class="row">

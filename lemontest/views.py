@@ -9,6 +9,7 @@ import shutil
 import os.path
 from lemontest.models import DBSession
 from lemontest.models import Archive
+from lemontest.models import Diagnostic
 from lemontest.models import testers
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
@@ -109,6 +110,22 @@ def check_archive(request):
         test.readme = testers[archive.archive_type][test.name].readme
     basename = os.path.basename(archive.path)
     return {"archive": archive, "basename": basename}
+
+
+@view_config(route_name="super_delete")
+def super_delete(request):
+    archive_id = int(request.matchdict["archive_id"])
+    archive = DBSession.query(Archive).options(subqueryload(
+        Archive.diagnostics)).filter(Archive.id==archive_id).first()
+    for diagnostic in archive.diagnostics:
+        out = diagnostic.get_output_path()
+        if os.path.exists(out):
+            shutil.rmtree(out)
+    if os.path.exists(archive.path):
+        shutil.rmtree(archive.path)
+    DBSession.delete(archive)
+    url = request.route_url('reports')
+    return HTTPFound(location=url)
 
 
 @view_config(route_name="rerun")
