@@ -27,6 +27,7 @@ def main(global_config, **settings):
     config.add_route('index', '/')
     config.add_route('upload', '/upload')
     config.add_route('check', '/check/{archive_id}')
+    config.add_route('rerun', '/check/{archive_id}/rerun')
     config.add_route('reports', '/reports')
     config.add_route('documentation', '/documentation')
     config.add_route('test_readme', '/test/{test_name}/README')

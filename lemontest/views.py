@@ -5,6 +5,7 @@ import re
 import unicodedata
 import mimetypes
 import os
+import shutil
 import os.path
 from lemontest.models import DBSession
 from lemontest.models import Archive
@@ -45,6 +46,10 @@ def get_uploaded_file(request):
     return data
 
 
+def get_diagnostics(archive_type):
+    return [t.diagnostic_record() for t in testers[archive_type].values()]
+
+
 def make_archive(request):
     """Do everything needed to make a new Archive"""
     label = unicode(request.POST["label"])
@@ -61,8 +66,8 @@ def make_archive(request):
         destination += "_derp"
 
     archive = Archive(submitter_name, label, site, archive_type, destination)
-    archive.diagnostics = [t.diagnostic_record() for t in testers[archive_type].values()]
-    
+    archive.diagnostics = get_diagnostics(archive_type)
+
     return archive
 
 
@@ -104,6 +109,23 @@ def check_archive(request):
         test.readme = testers[archive.archive_type][test.name].readme
     basename = os.path.basename(archive.path)
     return {"archive": archive, "basename": basename}
+
+
+@view_config(route_name="rerun")
+def rerun_archive(request):
+    session = DBSession()
+    archive_id = int(request.matchdict["archive_id"])
+    archive = session.query(Archive).options(subqueryload(
+        Archive.diagnostics)).filter(Archive.id==archive_id).first()
+    for diagnostic in archive.diagnostics:
+        out = diagnostic.get_output_path()
+        if os.path.exists(out):
+            shutil.rmtree(out)
+    archive.diagnostics = get_diagnostics(archive.archive_type)
+    session.flush()
+    upload.run_diagnostics(archive, request.registry.settings, testers)
+    url = request.route_url('check', archive_id=archive.id)
+    return HTTPFound(location=url)
 
 
 @view_config(route_name="reports", renderer="templates/reports.pt")

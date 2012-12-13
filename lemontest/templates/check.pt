@@ -10,14 +10,19 @@
         <h1>${archive.label}</h1>
         <h3 tal:condition="archive.site">${archive.site}</h3>
         <p><em>Uploaded by ${archive.submitter_name} on ${archive.time.strftime("%c")}</em></p>
-        <p>
+    </div>
+    <div class="clearfix">
+        <div class="pull-left">
             <a class="btn btn-success" href="/archives/${basename}/archive.zip">Download Archive</a>
             <a class="btn" href="/archives/${basename}/">View Files</a>
-        <p>
+        </div>
+        <div class="pull-right">
+            <a class="btn" href="/check/${archive.id}/rerun" ><i class="icon-repeat"></i> Re-run Tests</a>
+        </div>
     </div>
-    <div>
-        <h2>Status: ${archive.status}</h2>
-        <table id="test-summary" class="table table-striped">
+    <div class="row">
+        <h2 class="span12">Status: ${archive.status}</h2>
+        <table id="test-summary" class="table table-striped span12">
             <thead>
                 <tr>
                     <th>Test</th><th>Status</th><th>Details</th>

@@ -116,6 +116,17 @@ def sizer(destination, target):
     return natural_size(os.stat(full_path).st_size, gnu=True)
 
 
+def run_diagnostics(archive, settings, testers):
+    jobs = [diagnostic.run_tester.subtask(
+                    (testers[archive.archive_type][d.name], settings, d.id, archive.path))
+                    for d in archive.diagnostics]
+    if jobs:
+        callback = finalize_report.subtask((settings, archive.id))
+        chord(jobs)(callback)
+    else:
+        finalize_report.delay(None, settings, archive.id)
+
+
 @task
 def process_archive(settings, archive_id, destination, archive_name, testers):
     """This is an external, celery task which unzips the file, restructures
@@ -134,17 +145,8 @@ def process_archive(settings, archive_id, destination, archive_name, testers):
     logger.info("Archive is %s" % str(archive))
     archive.status = u"Archive decompressed successfully. Starting diagnostics."
     os.mkdir(os.path.join(archive.path, "test_results"))
-    jobs = [diagnostic.run_tester.subtask(
-                    (testers[archive.archive_type][d.name], settings, d.id, archive.path))
-                    for d in archive.diagnostics]
-
     transaction.commit()
-    logger.info("Set up %d diagnostics." % len(jobs))
-    if jobs:
-        callback = finalize_report.subtask((settings, archive_id))
-        chord(jobs)(callback)
-    else:
-        finalize_report.delay(None, settings, archive_id)
+    run_diagnostics(archive, settings, testers)
 
 
 @task
