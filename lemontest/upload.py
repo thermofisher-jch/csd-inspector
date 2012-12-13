@@ -140,8 +140,11 @@ def process_archive(settings, archive_id, destination, archive_name, testers):
 
     transaction.commit()
     logger.info("Set up %d diagnostics." % len(jobs))
-    callback = finalize_report.subtask((settings, archive_id))
-    chord(jobs)(callback)
+    if jobs:
+        callback = finalize_report.subtask((settings, archive_id))
+        chord(jobs)(callback)
+    else:
+        finalize_report.delay(None, settings, archive_id)
 
 
 @task
