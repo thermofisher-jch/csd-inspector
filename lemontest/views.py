@@ -45,15 +45,26 @@ def get_uploaded_file(request):
     return data
 
 
-def make_report(request):
-    """Do everything for which the request object is needed."""
-    upload_root = request.registry.settings["upload_root"]
-    data = get_uploaded_file(request)
+def make_archive(request):
+    """Do everything needed to make a new Archive"""
     label = unicode(request.POST["label"])
+    site = unicode(request.POST["site"])
     archive_type = unicode(request.POST["archive_type"])
-    folder = slugify(label)
     submitter_name = unicode(request.POST["submitter"])
-    return submitter_name, label, archive_type, upload_root, folder, data
+
+    diagnostics = [t.diagnostic_record() for t in testers[archive_type].values()]
+    
+    upload_root = request.registry.settings["upload_root"]
+    folder = slugify(label)
+    destination = os.path.join(upload_root, folder)
+    # if the user's label produces a destination path that already exists,
+    # _derp the folder name until it's unique.
+    while os.path.exists(destination):
+        destination += "_derp"
+
+    archive = Archive(submitter_name, label, site, archive_type, destination)
+
+    return archive
 
 
 @view_config(route_name="upload", renderer="templates/upload.pt")
@@ -63,18 +74,13 @@ def upload_file(request):
     This displays the extracted files relative paths and file sizes.
     """
     if "fileInput" in request.POST:
-        submitter_name, label, archive_type, upload_root, folder, data = make_report(request)
-        destination = os.path.join(upload_root, folder)
-        # if the user's label produces a destination path that already exists,
-        # _derp the folder name until it's unique.
-        while os.path.exists(destination):
-            destination += "_derp"
+        archive = make_archive(request)
+        data = get_uploaded_file(request)
+        
         session = DBSession()
-        archive = Archive(submitter_name, label, archive_type, destination)
-        archive.diagnostics = [t.diagnostic_record() for t in testers[archive_type].values()]
         session.add(archive)
         session.flush()
-        upload.queue_archive(request.registry.settings, archive.id, destination, data, testers)
+        upload.queue_archive(request.registry.settings, archive.id, archive.path, data, testers)
         url = request.route_url('check', archive_id=archive.id)
         return HTTPFound(location=url)
     now = datetime.datetime.now()

@@ -21,7 +21,7 @@
         <table class="table table-striped" id="reports">
             <thead>
                 <tr>
-                    <th>ID</th><th>Submitter</th><th>Date</th><th>Type</th><th>Label</th>
+                    <th>ID</th><th>Submitter</th><th>Date</th><th>Type</th><th>Site</th><th>Label</th>
                 </tr>
             </thead>
             <tbody>
@@ -30,6 +30,7 @@
                     <td>${archive.submitter_name}</td>
                     <td>${archive.time.strftime("%c")}</td>
                     <td>${archive.archive_type.replace("_", " ")}</td>
+                    <td>${archive.site}</td>
                     <td>${archive.label}</td>
                 </tr>
             </tbody>

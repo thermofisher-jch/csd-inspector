@@ -31,6 +31,12 @@
                 </div>
               </div>
               <div class="clearfix">
+                <label for="label">Site Name</label>
+                <div class="input">
+                  <input class="large" id="site" name="site" size="30" type="text" />
+                </div>
+              </div>
+              <div class="clearfix">
                 <label for="archive_type">Archive Type</label>
                 <div class="input">
                   <select name="archive_type" id="archiveType">

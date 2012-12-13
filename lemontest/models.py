@@ -36,6 +36,7 @@ class Archive(Base):
     __tablename__ = 'archives'
     id = Column(Integer, primary_key=True)
     label = Column(Unicode(255))
+    site = Column(Unicode(255))
     path = Column(Unicode(255))
     time = Column(DateTime)
     status = Column(Unicode(255))
@@ -44,9 +45,10 @@ class Archive(Base):
 
     diagnostics = relationship("Diagnostic", order_by='Diagnostic.id')
 
-    def __init__(self, submitter_name, label, archive_type, path):
+    def __init__(self, submitter_name, label, site, archive_type, path):
         self.submitter_name = submitter_name
         self.label = label
+        self.site = site
         self.archive_type = archive_type
         self.path = path
         self.time = datetime.datetime.now()
