@@ -13,11 +13,11 @@
     </div>
     <div class="clearfix">
         <div class="pull-left">
-            <a class="btn btn-success" href="/archives/${basename}/archive.zip">Download Archive</a>
-            <a class="btn" href="/archives/${basename}/">View Files</a>
+            <a class="btn btn-success" href="/archives/${basename}/archive.zip"><i class="icon-arrow-down icon-white"></i> Download Archive</a>
+            <a class="btn" href="/archives/${basename}/"><i class="icon-folder-open"></i> View Files</a>
+            <a class="btn" href="/check/${archive.id}/rerun" ><i class="icon-repeat"></i> Re-run Tests</a>
         </div>
         <div class="pull-right">
-            <a class="btn" href="/check/${archive.id}/rerun" ><i class="icon-repeat"></i> Re-run Tests</a>
         </div>
     </div>
     <div class="row">
