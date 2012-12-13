@@ -81,10 +81,8 @@ def upload_file(request):
     if "fileInput" in request.POST:
         archive = make_archive(request)
         data = get_uploaded_file(request)
-        
-        session = DBSession()
-        session.add(archive)
-        session.flush()
+        DBSession.add(archive)
+        DBSession.flush()
         upload.queue_archive(request.registry.settings, archive.id, archive.path, data, testers)
         url = request.route_url('check', archive_id=archive.id)
         return HTTPFound(location=url)
@@ -130,25 +128,24 @@ def super_delete(request):
 
 @view_config(route_name="rerun")
 def rerun_archive(request):
-    session = DBSession()
     archive_id = int(request.matchdict["archive_id"])
-    archive = session.query(Archive).options(subqueryload(
+    archive = DBSession.query(Archive).options(subqueryload(
         Archive.diagnostics)).filter(Archive.id==archive_id).first()
     for diagnostic in archive.diagnostics:
         out = diagnostic.get_output_path()
         if os.path.exists(out):
             shutil.rmtree(out)
+        DBSession.delete(diagnostic)
     archive.diagnostics = get_diagnostics(archive.archive_type)
-    session.flush()
+    DBSession.flush()
     upload.run_diagnostics(archive, request.registry.settings, testers)
-    url = request.route_url('check', archive_id=archive.id)
+    url = request.route_url('check', archive_id=archive_id)
     return HTTPFound(location=url)
 
 
 @view_config(route_name="reports", renderer="templates/reports.pt")
 def list_reports(request):
-    session = DBSession()
-    archives = session.query(Archive).order_by(Archive.time.desc()).all()
+    archives = DBSession.query(Archive).order_by(Archive.time.desc()).all()
     return {"archives": archives}
 
 
