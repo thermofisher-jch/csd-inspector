@@ -1,6 +1,6 @@
 
-pngWidth <- 500
-pngHeight <- 400
+pngWidth <- 700
+pngHeight <- 500
 myColor <- rev(rainbow(10))
 
 myBarplot <- function(y,...) {
@@ -36,12 +36,50 @@ getBasecallerParam = function(text, key, adj=0){
    return(value)
 }
 
+library_stats = function(archivePath) {
+  file_path = file.path(archivePath,"ReportLog.html")
+  base_log = file.path(archivePath,"basecaller_results/basecaller.log")
+  basecaller_json = file.path(archivePath,"basecaller_results/BaseCaller.json")
+
+  if (file.exists(basecaller_json)) {
+      bc_json_data <- fromJSON(file=basecaller_json)
+      d <- bc_json_data$Filtering$ReadDetails$lib
+      lib_stats<-c(
+        "valid" = d$valid,
+        "short" = d$short,
+        "quality\ntrim" = d$quality_trim,
+        "polyclonal" = d$polyclonal,
+        "high\nresidual" = d$high_residual,
+        "high ppf" = d$high_ppf,
+        "failed\nkeypass" = d$failed_keypass,
+        "bkgmodel\npolyclonal" = d$bkgmodel_polyclonal,
+        "bkgmodel\nkeypass" = d$bkgmodel_keypass,
+        "bkgmodel\nhigh ppf" = d$bkgmodel_high_ppf,
+        "beverly\nfilter" = d$beverly_filter,
+        "adapter\ntrim" = d$adapter_trim
+      )
+    } else {
+      if (file.exists(base_log)) file_path <- base_log
+      log <- readLines(file_path)
+      log = log[grep("Examined wells", log):grep("Valid reads saved to SFF", log)]
+      lib_stats <- c(
+          "Valid"  = getBasecallerParam(log, "Valid reads", 3),
+          "Polyclonal" = getBasecallerParam(log, " Polyclonal ",-1),
+          "Bad key"  = getBasecallerParam(log, "Bad key"),
+          "HighPPF"  = getBasecallerParam(log, "High PPF"),            
+          "High\nresidual"  = getBasecallerParam(log, "High residual"),
+          "Zero\nbases" = getBasecallerParam(log, "Zero bases"),
+          "Short,\nFiltered" = getBasecallerParam(log, "Short read") + getBasecallerParam(log, "Short after", 2) + getBasecallerParam(log, "Beverly filter ")
+        )
+  }
+  return(lib_stats)
+}
+
 #######################################################
 filterMetricsPlots = function(archivePath, plotDir)
   {
     file_path = file.path(archivePath,"ReportLog.html")
     sig_log = file.path(archivePath,"sigproc_results/sigproc.log")
-    base_log = file.path(archivePath,"basecaller_results/basecaller.log")
     if (file.exists(sig_log)) file_path <- sig_log
     log <- readLines(file_path)
     sep = "\t"  
@@ -66,19 +104,9 @@ filterMetricsPlots = function(archivePath, plotDir)
     png(plotFile <- sprintf("%s/loaded.png",plotDir),width=pngWidth,height=pngHeight)
 myBarplot(breakdownBead/1e3,beside=TRUE,las=2,ylab="Reads (1,000's)",main="Loaded Well Categorization",col=myColor)
 dev.off()
-    if (file.exists(base_log)) file_path <- base_log
-    log <- readLines(file_path)
-    log = log[grep("Examined wells", log):grep("Valid reads saved to SFF", log)]
+    
     # Breakdown of Library wells
-    breakdownLib <- c(
-      "Valid"  = getBasecallerParam(log, "Valid reads", 3),
-      "Polyclonal" = getBasecallerParam(log, " Polyclonal ",-1),
-      "Bad key"  = getBasecallerParam(log, "Bad key"),
-      "HighPPF"  = getBasecallerParam(log, "High PPF"),            
-      "High\nresidual"  = getBasecallerParam(log, "High residual"),
-      "Zero\nbases" = getBasecallerParam(log, "Zero bases"),
-      "Short,\nFiltered" = getBasecallerParam(log, "Short read") + getBasecallerParam(log, "Short after", 2) + getBasecallerParam(log, "Beverly filter ")
-    )    
+    breakdownLib <- library_stats(archivePath)
     png(plotFile <- sprintf("%s/library.png",plotDir),width=pngWidth,height=pngHeight)
 myBarplot(breakdownLib/1e3,beside=TRUE,las=2,ylab="Reads (1,000's)",main="Library Well Categorization",col=myColor)
 dev.off()
@@ -107,6 +135,6 @@ dev.off()
     cat("Filtering and categorization plots.\n");
   }
 #######################################################
-
+library("rjson");
 cmd.args <- commandArgs(trailingOnly = TRUE);
 filterMetricsPlots(cmd.args[1], cmd.args[2]);
