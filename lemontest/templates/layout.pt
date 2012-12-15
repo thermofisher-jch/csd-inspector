@@ -36,6 +36,7 @@
               <li><a href="${request.route_path('upload')}">Submit Archive</a></li>
               <li><a href="${request.route_path('reports')}">List Reports</a></li>
               <li><a href="${request.route_path('documentation')}">Documentation</a></li>
+              <li><a href="${request.route_path('changes')}">Change Log</a></li>
             </ul>
           </div><!--/.nav-collapse -->
         </div>

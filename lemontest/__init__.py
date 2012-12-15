@@ -31,6 +31,7 @@ def main(global_config, **settings):
     config.add_route('super_delete', '/check/{archive_id}/super_delete')
     config.add_route('reports', '/reports')
     config.add_route('documentation', '/documentation')
+    config.add_route('changes', '/changes')
     config.add_route('test_readme', '/test/{test_name}/README')
     # This lets the function 'add_base_template' tack the layout template into
     # the mystical universe of chameleon templating so that the other templates

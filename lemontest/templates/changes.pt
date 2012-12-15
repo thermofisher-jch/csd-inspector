@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      metal:use-macro="layout">
+    <tal:block metal:fill-slot="main">
+        <h1>
+            Change Log
+        </h1>
+        <p>
+            Ion Inspector is in a rolling deployment cycle like the Debian distribution of GNU/Linux, and in that fashion, changes to the site will roll out here as they go live on the site.
+        </p>
+        <dl>
+            <dt>Q4 2012</dt>
+            <dd>
+                <ul>
+                    <li>Added an optional "Site Name" field to archive uploads.</li>
+                    <li>Added "Re-run" which re-runs all tests on an archive as if it were freshly uploaded.</li>
+                    <li>Added "Super delete" which deletes an archive, it's tests, all of their files from the system, as if it were never uploaded.</li>
+                    <li>Fixed incompatibilities between TS 3.4 archives and the Filter Metrics and Separator Traces tests</li>
+                    <li>For 3.4+ archives, Filter Metrics will report all Library read details contained in BaseCaller.json</li>
+                </ul>
+            </dd>
+        </dl>
+    </tal:block>
+</html>
