@@ -158,7 +158,8 @@ cusSupSepPlots = function(archivePath, plotDir)
     if (file.exists(sigproc_path))  archivePath = sigproc_path;
     
     # get key and flowOrder from processParameters.txt
-    params <- readLines(file.path(archivePath,"processParameters.txt"))    
+    raw_params <- readLines(file.path(archivePath,"processParameters.txt"))
+    params <- raw_params[tail(grep("global", raw_params), n=1):length(raw_params)]
     temp = getParam(params,"flowOrder")
     if (!is.na(temp)) flowOrder = temp;
     temp = getParam(params,"libraryKey")
