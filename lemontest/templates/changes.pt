@@ -14,6 +14,7 @@
             <dt>Q4 2012</dt>
             <dd>
                 <ul>
+                    <li>Added a change log to the site which can be found <a href="/changes">here</a></li>
                     <li>Added an optional "Site Name" field to archive uploads.</li>
                     <li>Added "Re-run" which re-runs all tests on an archive as if it were freshly uploaded.</li>
                     <li>Added "Super delete" which deletes an archive, it's tests, all of their files from the system, as if it were never uploaded.</li>
