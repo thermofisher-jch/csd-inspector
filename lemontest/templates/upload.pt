@@ -19,7 +19,7 @@
           <form action="/upload" method="post" accept-charset="UTF-8" enctype="multipart/form-data">
             <fieldset>
               <div class="clearfix">
-                <label for="label">Your Name</label>
+                <label for="submitter">Your Name</label>
                 <div class="input">
                   <input class="large" id="submitter" name="submitter" size="30" type="text" value="${name}" />
                 </div>
@@ -31,13 +31,13 @@
                 </div>
               </div>
               <div class="clearfix">
-                <label for="label">Site Name</label>
+                <label for="site">Site Name</label>
                 <div class="input">
                   <input class="large" id="site" name="site" size="30" type="text" />
                 </div>
               </div>
               <div class="clearfix">
-                <label for="archive_type">Archive Type</label>
+                <label for="archiveType">Archive Type</label>
                 <div class="input">
                   <select name="archive_type" id="archiveType">
                     <option tal:repeat="type archive_types" value="${type}">
@@ -52,8 +52,8 @@
                   <input type="file" name="fileInput" id="fileInput" class="input-file" />
                 </div>
               </div>
-              <div class="actions">
-                <input type="submit" value="Submit Technical" class="btn primary">&nbsp;<button class="btn" type="reset">Reset</button>
+              <div class="form-actions">
+                <input type="submit" value="Submit Technical" class="btn btn-primary">&nbsp;<button class="btn" type="reset">Reset</button>
               </div>
             </fieldset>
           </form>
