@@ -3,6 +3,21 @@
       xmlns:tal="http://xml.zope.org/namespaces/tal"
       xmlns:metal="http://xml.zope.org/namespaces/metal"
       metal:use-macro="layout">
+      <tal:block metal:fill-slot="extra_head">
+        <script src="${request.static_url('lemontest:static/js/bootstrap-typeahead.js')}"></script>
+        <script>
+          $(function(){
+
+            var name_source = function (query, process) {
+              $.getJSON("/api/auto_name", {name: query}, process);
+            }
+
+            $("#submitter").typeahead({
+              source: name_source
+            });
+          });
+        </script>
+      </tal:block>
       <tal:block metal:fill-slot="main">
        <!-- Main hero unit for a primary marketing message or call to action -->
       <div class="hero-unit">
@@ -21,7 +36,7 @@
               <div class="clearfix">
                 <label for="submitter">Your Name</label>
                 <div class="input">
-                  <input class="large" id="submitter" name="submitter" size="30" type="text" value="${name}" />
+                  <input class="large" id="submitter" name="submitter" size="30" type="text" autocomplete="off" value="${name}" />
                 </div>
               </div>
               <div class="clearfix">
