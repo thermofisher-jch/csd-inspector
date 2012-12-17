@@ -34,7 +34,7 @@ def main(global_config, **settings):
     config.add_route('changes', '/changes')
     config.add_route('test_readme', '/test/{test_name}/README')
     
-    config.add_route('api_auto_name', '/api/auto_name')
+    config.add_route('api_auto_complete', '/api/auto_complete')
     
     # This lets the function 'add_base_template' tack the layout template into
     # the mystical universe of chameleon templating so that the other templates

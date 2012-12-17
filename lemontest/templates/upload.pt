@@ -8,13 +8,18 @@
         <script>
           $(function(){
 
-            var name_source = function (query, process) {
-              $.getJSON("/api/auto_name", {name: query}, process);
-            }
+            var sourcerer = function (what) {
+              return function (query, process) {
+                $.getJSON(
+                  "/api/auto_complete", 
+                  {what: what, match: query}, 
+                  process
+                );
+              };
+            };
 
-            $("#submitter").typeahead({
-              source: name_source
-            });
+            $("#submitter").typeahead({source: sourcerer("name")});
+            $("#site").typeahead({source: sourcerer("site")});
           });
         </script>
       </tal:block>
@@ -35,40 +40,31 @@
             <fieldset>
               <div class="clearfix">
                 <label for="submitter">Your Name</label>
-                <div class="input">
-                  <input class="large" id="submitter" name="submitter" size="30" type="text" autocomplete="off" value="${name}" />
-                </div>
+                <input id="submitter" name="submitter" size="30" type="text" autocomplete="off" value="${name}" />
               </div>
               <div class="clearfix">
                 <label for="label">Report Label</label>
-                <div class="input">
-                  <input class="large" id="label" name="label" size="30" type="text" value="${label}" />
-                </div>
+                <input id="label" name="label" size="30" type="text" value="${label}" />
               </div>
               <div class="clearfix">
                 <label for="site">Site Name</label>
-                <div class="input">
-                  <input class="large" id="site" name="site" size="30" type="text" />
-                </div>
+                <input id="site" name="site" size="30" type="text" autocomplete="off" />
               </div>
               <div class="clearfix">
                 <label for="archiveType">Archive Type</label>
-                <div class="input">
-                  <select name="archive_type" id="archiveType">
-                    <option tal:repeat="type archive_types" value="${type}">
-                      ${type.replace("_", " ")}
-                    </option>
-                  </select>
-                </div>
+                <select name="archive_type" id="archiveType">
+                  <option tal:repeat="type archive_types" value="${type}">
+                    ${type.replace("_", " ")}
+                  </option>
+                </select>
               </div>
               <div class="clearfix">
                 <label for="technicalFile">Select file</label>
-                <div class="input">
-                  <input type="file" name="fileInput" id="fileInput" class="input-file" />
-                </div>
+                <input type="file" name="fileInput" id="fileInput" class="btn" />
               </div>
               <div class="form-actions">
-                <input type="submit" value="Submit Technical" class="btn btn-primary">&nbsp;<button class="btn" type="reset">Reset</button>
+                <input type="submit" value="Submit Technical" class="btn btn-primary">
+                <button class="btn" type="reset">Reset</button>
               </div>
             </fieldset>
           </form>
