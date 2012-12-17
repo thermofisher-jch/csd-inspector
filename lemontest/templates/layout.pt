@@ -20,7 +20,7 @@
         padding-top: 82px;
       }
     </style>
-    <script src="${request.static_url('lemontest:static/js/jquery.js')}"></script>
+    <script src="${request.static_url('lemontest:static/js/jquery-1.8.3.min.js')}"></script>
     <tal:block  metal:define-slot="extra_head">
       <!-- The extra header content goes here -->
     </tal:block>
