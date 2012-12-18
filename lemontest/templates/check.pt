@@ -12,10 +12,15 @@
                 <h3 tal:condition="archive.site">${archive.site}</h3>
             </div>
             <form id="edit_titles" action="/check/5" method="post" hidden>
-                <input class="form-h1 span12" name="label" value="${archive.label}" />
-                <div>
-                    <input type="submit" class="btn btn-primary pull-right" value="Save Changes" />
-                    <input class="form-h3 span7" name="site" value="${archive.site}" />
+                <input class="form-h1 span12" name="label" placeholder="Label" value="${archive.label}" />
+                <div class="row">
+                    <div class="span7" style="text-align:left;">
+                        <input class="form-h3 span7" name="site" placeholder="Site" value="${archive.site}" />
+                    </div>
+                    <div class="span5" style="text-align:right; margin-top:12px;">
+                        <button id="cancel" class="btn">Cancel</button>
+                        <input type="submit" class="btn btn-primary" value="Save Changes" />
+                    </div>
                 </div>
             </form>
             <p><em>${archive.time.strftime("%c")}, uploaded by ${archive.submitter_name}</em></p>
@@ -61,7 +66,7 @@
 <tal:block metal:fill-slot="extra_head">
     <script>
         $(function(){
-            $("#edit").click(function(){
+            $("#edit, #cancel").click(function(){
                 $("#view_titles").toggle();
                 $("#edit_titles").toggle();
             });
