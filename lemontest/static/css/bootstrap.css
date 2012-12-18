@@ -1310,6 +1310,43 @@ textarea[class*="span"],
   display: inline-block;
 }
 
+.form-h1,
+.form-h2,
+.form-h3,
+.form-h4,
+.form-h5,
+.form-h6 {
+  font-family: inherit;
+  font-weight: bold;
+  line-height: 20px;
+  color: inherit;
+  text-rendering: optimizelegibility;
+}
+
+.form-h1 {
+  font-size: 38.5px;
+}
+
+.form-h2 {
+  font-size: 31.5px;
+}
+
+.form-h3 {
+  font-size: 24.5px;
+}
+
+.form-h4 {
+  font-size: 17.5px;
+}
+
+.form-h5 {
+  font-size: 14px;
+}
+
+.form-h6 {
+  font-size: 11.9px;
+}
+
 input,
 textarea,
 .uneditable-input {
