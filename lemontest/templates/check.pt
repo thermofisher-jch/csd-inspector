@@ -3,22 +3,33 @@
       xmlns:tal="http://xml.zope.org/namespaces/tal"
       xmlns:metal="http://xml.zope.org/namespaces/metal"
       metal:use-macro="layout">
-
 <tal:block metal:fill-slot="main">
     <!-- Main hero unit for a primary marketing message or call to action -->
-    <div>
-        <h1>${archive.label}</h1>
-        <h3 tal:condition="archive.site">${archive.site}</h3>
-        <p><em>Uploaded by ${archive.submitter_name} on ${archive.time.strftime("%c")}</em></p>
-    </div>
-    <div class="clearfix form-actions">
-        <div class="pull-left">
-            <a class="btn btn-success" href="/archives/${basename}/archive.zip"><i class="icon-arrow-down icon-white"></i> Download Archive</a>
-            <a class="btn" href="/archives/${basename}/"><i class="icon-folder-open"></i> View Files</a>
-            <a class="btn" href="/check/${archive.id}/rerun" ><i class="icon-repeat"></i> Re-run Tests</a>
-        </div>
-        <div class="pull-right">
-            <a class="btn btn-danger" href="/check/${archive.id}/super_delete"><i class="icon-trash icon-white"></i> Super Delete</a>
+    <div class="row">
+        <div class="span12">
+            <div id="view_titles">
+                <h1>${archive.label}</h1>
+                <h3 tal:condition="archive.site">${archive.site}</h3>
+            </div>
+            <form id="edit_titles" action="/check/5" method="post" hidden>
+                <input class="form-h1 span12" name="label" value="${archive.label}" />
+                <div>
+                    <input type="submit" class="btn btn-primary pull-right" value="Save Changes" />
+                    <input class="form-h3 span7" name="site" value="${archive.site}" />
+                </div>
+            </form>
+            <p><em>${archive.time.strftime("%c")}, uploaded by ${archive.submitter_name}</em></p>
+            <div class="form-actions">
+                <div class="pull-left">
+                    <a id="edit" class="btn" href="#"><i class="icon-pencil"></i> Edit</a>
+                    <a class="btn btn-success" href="/archives/${basename}/archive.zip"><i class="icon-arrow-down icon-white"></i> Download Archive</a>
+                    <a class="btn" href="/archives/${basename}/"><i class="icon-folder-open"></i> View Files</a>
+                    <a class="btn" href="/check/${archive.id}/rerun" ><i class="icon-repeat"></i> Re-run Tests</a>
+                </div>
+                <div class="pull-right">
+                    <a class="btn btn-danger" href="/check/${archive.id}/super_delete"><i class="icon-trash icon-white"></i> Super Delete</a>
+                </div>
+            </div>
         </div>
     </div>
     <div class="row">
@@ -47,5 +58,14 @@
         </table>
     </div>
 </tal:block>
-
+<tal:block metal:fill-slot="extra_head">
+    <script>
+        $(function(){
+            $("#edit").click(function(){
+                $("#view_titles").toggle();
+                $("#edit_titles").toggle();
+            });
+        });
+    </script>
+</tal:block>
 </html>

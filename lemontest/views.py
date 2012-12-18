@@ -19,6 +19,9 @@ from sqlalchemy.orm import subqueryload
 import upload
 
 
+logger = logging.getLogger(__name__)
+
+
 def add_base_template(event):
     """Use layout.pt as a common frame for every other renderer."""
     layout = get_renderer("templates/layout.pt").implementation()
@@ -102,7 +105,12 @@ def check_archive(request):
     archive_id = int(request.matchdict["archive_id"])
     archive = session.query(Archive).options(subqueryload(
         Archive.diagnostics)).filter(Archive.id==archive_id).first()
-    session.close()
+    if request.POST:
+        archive.label = request.POST['label']
+        archive.site = request.POST['site']
+    else:
+        logger.warning("No Posting: " + str(request.POST))
+    session.flush()
     archive.diagnostics.sort(key=lambda x: -int(x.priority))
     for test in archive.diagnostics:
         test.readme = testers[archive.archive_type][test.name].readme
