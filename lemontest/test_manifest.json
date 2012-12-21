@@ -4,6 +4,11 @@
     "Filter_Metrics",
     "Raw_Trace"
 ],
+"Proton":[
+    "Separator_Traces",
+    "Filter_Metrics",
+    "Raw_Trace"
+],
 "System_Log": [
     "HD_Space",
     "Services_Check"
