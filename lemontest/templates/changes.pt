@@ -20,6 +20,9 @@
                     <li>Added "Super delete" which deletes an archive, it's tests, all of their files from the system, as if it were never uploaded.</li>
                     <li>Fixed incompatibilities between TS 3.4 archives and the Filter Metrics and Separator Traces tests</li>
                     <li>For 3.4+ archives, Filter Metrics will report all Library read details contained in BaseCaller.json</li>
+                    <li>Submitter and Site name autocompletion</li>
+                    <li>Refined site layout by removing un-needed text and improving the upload form layout</li>
+                    <li>Editing of archive meta data from check page</li>
                 </ul>
             </dd>
         </dl>
