@@ -20,7 +20,7 @@
       $("#site").typeahead({source: sourcerer("site")});
     });
   </script>
-</tal:block>c
+</tal:block>
 <tal:block metal:fill-slot="main">
  <!-- Main hero unit for a primary marketing message or call to action -->
   <h1>Upload <small> submit a new archive for testing.</small></h1>
