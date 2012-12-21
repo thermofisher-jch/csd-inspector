@@ -12,7 +12,7 @@
                 <h3 tal:condition="archive.site">${archive.site}</h3>
                 <p><em>${archive.time.strftime("%c")}, uploaded by ${archive.submitter_name}</em></p>
             </div>
-            <form id="edit_titles" action="/check/5" method="post" hidden>
+            <form id="edit_titles" action="${request.route_url('check', archive_id=archive.id)}" method="post" hidden>
                 <input class="form-h1 span12" name="label" placeholder="Label" value="${archive.label}" />
                 <div class="row">
                     <div class="span7" style="text-align:left;">
