@@ -108,6 +108,7 @@ def check_archive(request):
     if request.POST:
         archive.label = request.POST['label']
         archive.site = request.POST['site']
+        archive.archive_type = request.POST['archive_type']
     else:
         logger.warning("No Posting: " + str(request.POST))
     session.flush()
@@ -115,7 +116,7 @@ def check_archive(request):
     for test in archive.diagnostics:
         test.readme = testers[archive.archive_type][test.name].readme
     basename = os.path.basename(archive.path)
-    return {"archive": archive, "basename": basename}
+    return {"archive": archive, "basename": basename, 'archive_types': testers.keys()}
 
 
 @view_config(route_name="super_delete")

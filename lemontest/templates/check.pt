@@ -10,6 +10,7 @@
             <div id="view_titles">
                 <h1>${archive.label}</h1>
                 <h3 tal:condition="archive.site">${archive.site}</h3>
+                <p><em>${archive.time.strftime("%c")}, uploaded by ${archive.submitter_name}</em></p>
             </div>
             <form id="edit_titles" action="/check/5" method="post" hidden>
                 <input class="form-h1 span12" name="label" placeholder="Label" value="${archive.label}" />
@@ -18,12 +19,21 @@
                         <input class="form-h3 span7" name="site" placeholder="Site" value="${archive.site}" />
                     </div>
                     <div class="span5" style="text-align:right; margin-top:12px;">
+                        <select name="archive_type" id="archiveType">
+                            <option tal:repeat="type archive_types" value="${type}" tal:attributes="selected 'selected' if type==archive.archive_type else None">
+                                ${type.replace("_", " ")}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <p class="span8"><em>${archive.time.strftime("%c")}, uploaded by ${archive.submitter_name}</em></p>
+                    <div class="span4" style="text-align: right;">
                         <button id="cancel" class="btn">Cancel</button>
                         <input type="submit" class="btn btn-primary" value="Save Changes" />
                     </div>
                 </div>
             </form>
-            <p><em>${archive.time.strftime("%c")}, uploaded by ${archive.submitter_name}</em></p>
             <div class="form-actions">
                 <div class="pull-left">
                     <a id="edit" class="btn" href="#"><i class="icon-pencil"></i> Edit</a>
@@ -69,6 +79,7 @@
             $("#edit, #cancel").click(function(){
                 $("#view_titles").toggle();
                 $("#edit_titles").toggle();
+                return false;
             });
         });
     </script>
