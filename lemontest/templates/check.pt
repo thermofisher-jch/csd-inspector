@@ -49,28 +49,30 @@
     </div>
     <div class="row">
         <h2 class="span12">Status: ${archive.status}</h2>
-        <table id="test-summary" class="table table-striped span12">
-            <thead>
-                <tr>
-                    <th>Test</th><th>Status</th><th>Details</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr tal:repeat="test archive.diagnostics">
-                    <td>${test.name.replace("_", " ")}</td>
-                    <td>
-                        <span class="label label-${test.status.lower()}">${test.status}</span>
-                    </td>
-                    <td>
-                        <p class="details" tal:content="structure test.details"></p>
-                        <div class="links">
-                            <div><a tal:condition="test.html" href="${request.static_url(test.html)}">Results</a></div>
-                            <div><a tal:condition="test.readme" href="${request.route_url('test_readme', test_name=test.name)}">Readme</a></div>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="span12">
+            <table id="test-summary" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Test</th><th>Status</th><th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr tal:repeat="test archive.diagnostics">
+                        <td>${test.name.replace("_", " ")}</td>
+                        <td>
+                            <span class="label label-${test.status.lower()}">${test.status}</span>
+                        </td>
+                        <td>
+                            <p class="details" tal:content="structure test.details"></p>
+                            <div class="links">
+                                <div><a tal:condition="test.html" href="${request.static_url(test.html)}">Results</a></div>
+                                <div><a tal:condition="test.readme" href="${request.route_url('test_readme', test_name=test.name)}">Readme</a></div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </tal:block>
 <tal:block metal:fill-slot="extra_head">
