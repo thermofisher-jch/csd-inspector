@@ -141,14 +141,17 @@ def process_archive(settings, archive_id, destination, archive_name, testers):
     engine = engine_from_config(settings)
     initialize_sql(engine)
     # Finally read the data from the uploaded zip file
-    archive_file = open(os.path.join(destination, archive_name), 'rb')
-    unzip_archive(destination, archive_file, logger)
     session = DBSession()
     archive = session.query(Archive).get(archive_id)
-    logger.info("Archive is %s" % str(archive))
-    archive.status = u"Archive decompressed successfully. Starting diagnostics."
-    os.mkdir(os.path.join(archive.path, "test_results"))
-    run_diagnostics(archive, settings, testers)
+    try:
+        archive_file = open(os.path.join(destination, archive_name), 'rb')
+        unzip_archive(destination, archive_file, logger)
+        logger.info("Archive is %s" % str(archive))
+        archive.status = u"Archive decompressed successfully. Starting diagnostics."
+        os.mkdir(os.path.join(archive.path, "test_results"))
+        run_diagnostics(archive, settings, testers)
+    except IOError as err:
+        archive.status = "Failed during archive extraction"
     transaction.commit()
 
 
