@@ -10,7 +10,6 @@ from lemontest.models import initialize_testers
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
-    logging.basicConfig()
     log = logging.getLogger(__file__)
     log.info("Starting Lemon Test.")
     engine = engine_from_config(settings, 'sqlalchemy.')

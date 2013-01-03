@@ -108,7 +108,7 @@ def initialize_testers(test_manifest, test_directory):
     global testers
     with open(test_manifest) as manifest_file:
         tests = json.load(manifest_file)
-    print(tests)
+    logger.debug("Loaded Test Manifest, %s" % test_manifest)
+    for archive_type, test_names in sorted(tests.items()):
+        logger.debug("Archive Type %s has tests %s" % (archive_type, ", ".join(test_names)))
     testers.update(diagnostic.get_testers(tests, test_directory))
-    print(testers)
-

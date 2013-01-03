@@ -94,7 +94,6 @@ def upload_file(request):
     label = request.GET.get("label", label)
     name = ""
     name = request.GET.get("name", name)
-    print(testers.keys())
     return {'label':label, 'name': name, 'archive_types': testers.keys()}
 
 

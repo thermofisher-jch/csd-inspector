@@ -14,6 +14,8 @@ from lemontest.models import Archive
 from lemontest.models import initialize_sql
 from lemontest import diagnostic
 
+logger = logging.getLogger(__name__)
+
 
 def get_common_prefix(files):
     """For a list of files, a common path prefix and a list file names with
@@ -55,7 +57,7 @@ def make_relative_directories(root, files):
             os.makedirs(path)
 
 
-def unzip_archive(root, data):
+def unzip_archive(root, data, logger):
     zip_file = zipfile.ZipFile(data, 'r')
     namelist = zip_file.namelist()
     namelist = valid_files(namelist)
@@ -72,7 +74,8 @@ def unzip_archive(root, data):
                 output_file.write(contents.read())
                 output_file.close()
             except IOError as err:
-                print("For zip's '%s', could not open '%s'" % (key, full_path))
+                logger.error("For zip's file '%s', could not open '%s'" % (key, full_path))
+                raise
     return [f for n, f in out_names]
 
 
@@ -139,7 +142,7 @@ def process_archive(settings, archive_id, destination, archive_name, testers):
     initialize_sql(engine)
     # Finally read the data from the uploaded zip file
     archive_file = open(os.path.join(destination, archive_name), 'rb')
-    unzip_archive(destination, archive_file)
+    unzip_archive(destination, archive_file, logger)
     session = DBSession()
     archive = session.query(Archive).get(archive_id)
     logger.info("Archive is %s" % str(archive))
