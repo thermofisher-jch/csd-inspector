@@ -1,5 +1,6 @@
 __author__ = 'bakennedy'
 
+import logging
 import transaction
 import os
 import os.path
