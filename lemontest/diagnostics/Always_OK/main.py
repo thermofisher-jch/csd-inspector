@@ -57,7 +57,7 @@ print("OK")
 # Various tests in the final report.  There is some external correlation between
 # Status and Priority that will be defined as this humble test framework grows
 # in complexity and responsibility, I'm sure.
-print(0)
+print(10)
 # When at all possible, distil your results in to one or two plain text sentences
 # and just print them here instead of writing a results.html file.
 print("This test always results in success.")

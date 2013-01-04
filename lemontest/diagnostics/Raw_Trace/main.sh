@@ -6,10 +6,10 @@ OUTPUT=$2
 var=$(./rawTrace_lemon.pl -a $ARCHIVE -o $OUTPUT 2>&1)
 if [ "$?" = "0" ]; then
   echo Info
-  echo 25
+  echo 20
   echo Plots of NucStep traces.
 else
-  echo NA
-  echo 100
+  echo N/A
+  echo 0
   echo $var
 fi  

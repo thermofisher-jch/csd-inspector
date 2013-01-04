@@ -131,7 +131,7 @@ dev.off()
     
     # output    
     cat("Info\n");
-    cat("25\n");
+    cat("20\n");
     cat("Filtering and categorization plots.\n");
   }
 #######################################################

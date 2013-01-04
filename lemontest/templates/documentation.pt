@@ -115,7 +115,7 @@
                       <td class="linenum">Line 2.</td>
                         <td><em>integer result priority</em> (This is 0 to
                       100 and is used for sorting the test results by
-                      importance)</td>
+                      importance, descending order)</td>
                     </tr>
                     <tr>
                       <td class="linenum">Lines 3+</td>
@@ -133,6 +133,45 @@
                 </p>
             </li>
         </ol>
+        <p>
+            Use these output statuses and priority numbers for lines 1 and 2 in the output above.
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Priority</th>
+                        <th>When?</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Fail</td>
+                        <td>40</td>
+                        <td>Conclusively or highly likely to be a problem.</td>
+                    </tr>
+                    <tr>
+                        <td>Warning</td>
+                        <td>30</td>
+                        <td>Potentially a problem neither, conclusively failed nor likely acceptable.</td>
+                    </tr>
+                    <tr>
+                        <td>Info</td>
+                        <td>20</td>
+                        <td>No positive or negative analysis at all, e.g. graphs.  Don't use this if at all avoidable.</td>
+                    </tr>
+                    <tr>
+                        <td>OK</td>
+                        <td>10</td>
+                        <td>Likely acceptable, conditions which are probably not the problem, while not necessarily 100% guaranteed to be safe.</td>
+                    </tr>
+                    <tr>
+                        <td>N/A</td>
+                        <td>0</td>
+                        <td>The test cannot run on the archive at all.  This is a graceful failure mode.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </p>
         <p>
             <strong>Optionally</strong>, if you have very rich or lengthly result
             information, the test may write a <code>OUTPUT/results.html</code> file. This file

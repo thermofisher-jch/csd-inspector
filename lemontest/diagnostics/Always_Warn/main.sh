@@ -13,5 +13,5 @@ echo "<html><body>
 </body></html>" > $OUTPUT/results.html
 
 echo Warning
-echo 50
+echo 30
 echo This test always results in a warning.

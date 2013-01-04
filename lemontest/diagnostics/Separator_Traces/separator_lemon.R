@@ -182,8 +182,8 @@ cusSupSepPlots = function(archivePath, plotDir)
       }
     }
     if(length(datFile) == 0){
-      cat("Fail\n");
-      cat("100\n");
+      cat("N/A\n");
+      cat("0\n");
       cat("Can not find the separator.trace.txt file\n");
       stop();
     }
@@ -239,7 +239,7 @@ cusSupSepPlots = function(archivePath, plotDir)
     
     # output    
     cat("Info\n");
-    cat("25\n");
+    cat("20\n");
     cat("Key flows raw plots from Separator.\n");
   }
 #######################################################
