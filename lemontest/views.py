@@ -160,8 +160,8 @@ def list_reports(request):
     archive_query = DBSession.query(Archive).order_by(Archive.time.desc())
     archives = paginate.Page(archive_query, page, items_per_page=100, url=page_url)
     pages = [archives.first_page]
-    left_pagius = 1
-    right_pagius = 1
+    left_pagius = 5
+    right_pagius = 5
     total = 2 + left_pagius + 1 + right_pagius + 2
     if archives.page_count <= total:
         pages = range(1, archives.page_count + 1)
