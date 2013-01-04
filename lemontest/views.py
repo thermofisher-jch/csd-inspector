@@ -158,7 +158,7 @@ def list_reports(request):
     page_url = paginate.PageURL_WebOb(request)
     logger.info(str(page_url))
     archive_query = DBSession.query(Archive).order_by(Archive.time.desc())
-    archives = paginate.Page(archive_query, page, items_per_page=3, url=page_url)
+    archives = paginate.Page(archive_query, page, items_per_page=100, url=page_url)
     pages = [archives.first_page]
     left_pagius = 1
     right_pagius = 1
