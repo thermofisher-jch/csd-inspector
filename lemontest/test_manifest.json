@@ -2,12 +2,14 @@
 "PGM_Run":[
     "Separator_Traces",
     "Filter_Metrics",
-    "Raw_Trace"
+    "Raw_Trace",
+    "Version_Check"
 ],
 "Proton":[
     "Separator_Traces",
     "Filter_Metrics",
-    "Raw_Trace"
+    "Raw_Trace",
+    "Version_Check"
 ],
 "System_Log": [
     "HD_Space",

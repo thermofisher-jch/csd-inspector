@@ -15,6 +15,8 @@
             <dd>
                 <ul>
                     <li>The archive report list view is paginated</li>
+                    <li>A more compact, absolute/relative hybrid date time format is being used for the report list</li>
+                    <li>The Version Check test indicates CSAs from old versions of the TS which should be upgraded</li>
                 </ul>
             </dd>
             <dt>Q4 2012</dt>
