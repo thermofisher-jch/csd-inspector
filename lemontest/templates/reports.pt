@@ -43,7 +43,7 @@
                 <tr tal:repeat="archive archives" onclick="window.location='${request.route_url('check', archive_id=archive.id)}';" style="cursor: pointer;">
                     <td>${archive.id}</td>
                     <td>${archive.submitter_name}</td>
-                    <td>${archive.time.strftime("%c")}</td>
+                    <td>${h.prettydate(archive.time)}</td>
                     <td>${archive.archive_type.replace("_", " ")}</td>
                     <td>${archive.site}</td>
                     <td>${archive.label}</td>

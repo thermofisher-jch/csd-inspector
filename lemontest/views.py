@@ -18,7 +18,7 @@ from pyramid.httpexceptions import HTTPFound
 from sqlalchemy.orm import subqueryload
 from webhelpers import paginate
 import upload
-
+import helpers
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +27,10 @@ def add_base_template(event):
     """Use layout.pt as a common frame for every other renderer."""
     layout = get_renderer("templates/layout.pt").implementation()
     event.update({"layout": layout})
+
+
+def add_helpers(event):
+    event['h'] = helpers
 
 
 @view_config(route_name="index", renderer="templates/index.pt")
@@ -194,6 +198,7 @@ def list_reports(request):
 
         if archives.page < archives.page_count:
             pages.append(archives.page_count)
+
     return {"archives": archives, "pages": pages}
 
 
