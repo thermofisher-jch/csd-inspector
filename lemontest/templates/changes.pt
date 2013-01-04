@@ -11,6 +11,12 @@
             Ion Inspector is in a rolling deployment cycle like the Debian distribution of GNU/Linux, and in that fashion, changes to the site will roll out here as they go live on the site.
         </p>
         <dl>
+            <dt>Q1 2012</dt>
+            <dd>
+                <ul>
+                    <li>The archive report list view is paginated</li>
+                </ul>
+            </dd>
             <dt>Q4 2012</dt>
             <dd>
                 <ul>
