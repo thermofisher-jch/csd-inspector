@@ -48,7 +48,7 @@
         <!-- The main content goes here -->
       </tal:block>
       <footer>
-        <p>&copy; Ion Torrent 2011</p>
+        <p>&copy; Ion Torrent 2013</p>
       </footer>
     </div> <!-- /container -->
 
