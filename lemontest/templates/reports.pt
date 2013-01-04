@@ -17,7 +17,22 @@
 
 <tal:block metal:fill-slot="main">
     <div>
-        <h2>All available reports:</h2>
+        <div class="pagination pagination-centered">
+            <ul>
+                <li tal:attributes="class 'disabled' if archives.page == 1 else None">
+                    <a tal:condition="archives.page > 1" href="${request.route_url('reports', _query={'page':archives.page-1})}">&laquo;</a>
+                    <span tal:condition="archives.page == 1">&laquo;</span>
+                </li>
+                <li tal:repeat="page pages" tal:attributes="class 'active' if page == archives.page else 'disabled' if page == '..' else None">
+                    <a tal:condition="page != archives.page and page != '..'" href="${request.route_url('reports', _query={'page':page})}">${page}</a>
+                    <span tal:condition="page == '..' or page == archives.page">${page}</span>
+                </li>
+                <li tal:attributes="class 'disabled' if archives.page == archives.page_count else None">
+                    <a tal:condition="archives.page < archives.page_count" href="${request.route_url('reports', _query={'page':archives.page+1})}">&raquo;</a>
+                    <span tal:condition="archives.page == archives.page_count">&raquo;</span>
+                </li>
+            </ul>
+        </div>
         <table class="table table-striped" id="reports">
             <thead>
                 <tr>

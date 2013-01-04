@@ -16,6 +16,7 @@ from pyramid.renderers import get_renderer
 from pyramid.response import Response
 from pyramid.httpexceptions import HTTPFound
 from sqlalchemy.orm import subqueryload
+from webhelpers import paginate
 import upload
 
 
@@ -153,8 +154,47 @@ def rerun_archive(request):
 
 @view_config(route_name="reports", renderer="templates/reports.pt")
 def list_reports(request):
-    archives = DBSession.query(Archive).order_by(Archive.time.desc()).all()
-    return {"archives": archives}
+    page = int(request.params.get("page", 1))
+    page_url = paginate.PageURL_WebOb(request)
+    logger.info(str(page_url))
+    archive_query = DBSession.query(Archive).order_by(Archive.time.desc())
+    archives = paginate.Page(archive_query, page, items_per_page=3, url=page_url)
+    pages = [archives.first_page]
+    left_pagius = 1
+    right_pagius = 1
+    total = 2 + left_pagius + 1 + right_pagius + 2
+    if archives.page_count <= total:
+        pages = range(1, archives.page_count + 1)
+    else:
+        if archives.page - left_pagius < 3:
+            diff = 3 - (archives.page - left_pagius)
+            right_pagius += diff
+            left_pagius = max(left_pagius - diff, 0)
+        if archives.page + right_pagius > archives.page_count - 2:
+            diff = (archives.page + right_pagius + 1) - (archives.page_count - 1)
+            left_pagius += diff
+            right_pagius = max(right_pagius - diff, 0)
+        logger.info("Left %d    Right %d" % (left_pagius, right_pagius))
+        if archives.page - left_pagius > 3:
+            pages.append("..")
+        elif archives.page - left_pagius == 3:
+            pages.append("2")
+
+        if archives.page > 2:
+            pages.extend(range(max(archives.page - left_pagius, 3), archives.page))
+        if archives.page >= 2:
+            pages.append(archives.page)
+
+        pages.extend(range(archives.page+1, min(archives.page + right_pagius + 1, archives.page_count)))
+
+        if archives.page + right_pagius < archives.page_count - 2:
+            pages.append("..")
+        elif archives.page + right_pagius == archives.page_count - 2:
+            pages.append(archives.page_count - 1)
+
+        if archives.page < archives.page_count:
+            pages.append(archives.page_count)
+    return {"archives": archives, "pages": pages}
 
 
 @view_config(route_name="documentation", renderer="templates/documentation.pt")
