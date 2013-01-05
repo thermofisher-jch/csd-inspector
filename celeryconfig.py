@@ -11,7 +11,9 @@ BROKER_URL = "amqp://lemon:lemonpass@localhost:5672/lemon"
 CELERY_IMPORTS = ("lemontest.upload", "lemontest.diagnostic")
 
 # Extra arguments to celeryd
-CELERYD_OPTS="--time-limit=300 --concurrency=8"
+CELERYD_OPTS=""
+CELERYD_TASK_TIME_LIMIT = 300
+CELERYD_CONCURRENCY = 9
 
 # Name of the celery config module.
 CELERY_CONFIG_MODULE="celeryconfig"
