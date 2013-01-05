@@ -45,7 +45,7 @@ class Archive(Base):
     submitter_name = Column(Unicode(255))
     archive_type = Column(Unicode(255))
 
-    diagnostics = relationship("Diagnostic", order_by='Diagnostic.id', cascade='all')
+    diagnostics = relationship("Diagnostic", order_by='Diagnostic.priority.desc()', cascade='all')
 
     def __init__(self, submitter_name, label, site, archive_type, path):
         self.submitter_name = submitter_name

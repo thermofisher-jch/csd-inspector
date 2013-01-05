@@ -60,7 +60,7 @@
                     <tr tal:repeat="test archive.diagnostics">
                         <td>${test.name.replace("_", " ")}</td>
                         <td>
-                            <span class="label label-${test.status.lower()}">${test.status}</span>
+                            <span class="label label-${status_highlights.get(test.status, '')}">${test.status}</span>
                         </td>
                         <td>
                             <p class="details" tal:content="structure test.details"></p>

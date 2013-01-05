@@ -22,6 +22,13 @@ import helpers
 
 logger = logging.getLogger(__name__)
 
+status_highlights = {
+    "Fail": "important",
+    "Warning": "warning",
+    "Info": "info",
+    "OK": "success"
+}
+
 
 def add_base_template(event):
     """Use layout.pt as a common frame for every other renderer."""
@@ -116,11 +123,11 @@ def check_archive(request):
     else:
         logger.warning("No Posting: " + str(request.POST))
     session.flush()
-    archive.diagnostics.sort(key=lambda x: -int(x.priority))
     for test in archive.diagnostics:
         test.readme = testers[archive.archive_type][test.name].readme
     basename = os.path.basename(archive.path)
-    return {"archive": archive, "basename": basename, 'archive_types': testers.keys()}
+    return {"archive": archive, "basename": basename, 'archive_types': testers.keys(), 
+        "status_highlights": status_highlights}
 
 
 @view_config(route_name="super_delete")
