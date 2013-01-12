@@ -144,6 +144,9 @@ def process_archive(settings, archive_id, destination, archive_name, testers):
     # Finally read the data from the uploaded zip file
     session = DBSession()
     archive = session.query(Archive).get(archive_id)
+    if archive is None:
+        logger.error("Archive id = %s not found." % archive_id)
+        return
     try:
         archive_file = open(os.path.join(destination, archive_name), 'rb')
         unzip_archive(destination, archive_file, logger)

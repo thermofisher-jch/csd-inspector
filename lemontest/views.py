@@ -93,11 +93,12 @@ def upload_file(request):
     save a copy of the archive to the folder, and extract it's contents there.
     This displays the extracted files relative paths and file sizes.
     """
+    session = DBSession()
     if "fileInput" in request.POST:
         archive = make_archive(request)
         data = get_uploaded_file(request)
-        DBSession.add(archive)
-        DBSession.flush()
+        session.add(archive)
+        session.flush()
         upload.queue_archive(request.registry.settings, archive.id, archive.path, data, testers)
         url = request.route_url('check', archive_id=archive.id)
         return HTTPFound(location=url)
