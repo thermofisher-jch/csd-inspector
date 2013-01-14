@@ -155,7 +155,6 @@ def process_archive(settings, archive_id, destination, archive_name, testers):
         unzip_archive(destination, archive_file, logger)
         logger.info("Archive is %s" % str(archive))
         archive.status = u"Archive decompressed successfully. Starting diagnostics."
-        os.mkdir(os.path.join(archive.path, "test_results"))
         jobs = make_diagnostic_jobs(archive, settings, testers)
         run_diagnostics(archive_id, settings, jobs)
     except IOError as err:
@@ -175,14 +174,13 @@ def finalize_report(results, settings, archive_id):
     logger.info("Finished applying jobs.")
 
 
-def queue_archive(settings, archive_id, destination, data, testers):
-    os.mkdir(destination)
-    output_file = open(os.path.join(destination, "archive.zip"), 'wb')
+def queue_archive(settings, archive_id, archive_path, data, testers):
+    os.mkdir(archive_path)
+    os.mkdir(os.path.join(archive_path, "test_results"))
     data.seek(0)
-    while 1:
+    with open(os.path.join(archive_path, "archive.zip"), 'wb') as output_file:
         buffer = data.read(2 << 16)
-        if not buffer:
-            break
-        output_file.write(buffer)
-    output_file.close()
-    return process_archive.delay(settings, archive_id, destination, "archive.zip", testers)
+        while buffer:
+            output_file.write(buffer)
+            buffer = data.read(2 << 16)
+    return process_archive.delay(settings, archive_id, archive_path, "archive.zip", testers)
