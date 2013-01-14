@@ -120,15 +120,18 @@ def sizer(destination, target):
     return natural_size(os.stat(full_path).st_size, gnu=True)
 
 
-def run_diagnostics(archive, settings, testers):
-    jobs = [diagnostic.run_tester.subtask(
+def make_diagnostic_jobs(archive, settings, testers):
+    return [diagnostic.run_tester.subtask(
                     (testers[archive.archive_type][d.name], settings, d.id, archive.path))
                     for d in archive.diagnostics]
+
+
+def run_diagnostics(archive_id, settings, jobs):
     if jobs:
-        callback = finalize_report.subtask((settings, archive.id))
+        callback = finalize_report.subtask((settings, archive_id))
         chord(jobs)(callback)
     else:
-        finalize_report.delay(None, settings, archive.id)
+        finalize_report.delay(None, settings, archive_id)
 
 
 @task
@@ -153,7 +156,8 @@ def process_archive(settings, archive_id, destination, archive_name, testers):
         logger.info("Archive is %s" % str(archive))
         archive.status = u"Archive decompressed successfully. Starting diagnostics."
         os.mkdir(os.path.join(archive.path, "test_results"))
-        run_diagnostics(archive, settings, testers)
+        jobs = make_diagnostic_jobs(archive, settings, testers)
+        run_diagnostics(archive_id, settings, jobs)
     except IOError as err:
         archive.status = "Failed during archive extraction"
     transaction.commit()

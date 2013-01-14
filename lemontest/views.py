@@ -99,8 +99,11 @@ def upload_file(request):
         data = get_uploaded_file(request)
         session.add(archive)
         session.flush()
-        upload.queue_archive(request.registry.settings, archive.id, archive.path, data, testers)
-        url = request.route_url('check', archive_id=archive.id)
+        archive_id = archive.id
+        archive_path = archive.path
+        transaction.commit()
+        upload.queue_archive(request.registry.settings, archive_id, archive_path, data, testers)
+        url = request.route_url('check', archive_id=archive_id)
         return HTTPFound(location=url)
     now = datetime.datetime.now()
     label = "Archive_%s" % now.strftime("%Y-%m-%d_%H-%M-%S")
@@ -159,7 +162,9 @@ def rerun_archive(request):
         DBSession.delete(diagnostic)
     archive.diagnostics = get_diagnostics(archive.archive_type)
     DBSession.flush()
-    upload.run_diagnostics(archive, request.registry.settings, testers)
+    jobs = upload.make_diagnostic_jobs(archive, request.registry.settings, testers)
+    transaction.commit()
+    upload.run_diagnostics(archive_id, request.registry.settings, jobs)
     url = request.route_url('check', archive_id=archive_id)
     return HTTPFound(location=url)
 
