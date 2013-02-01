@@ -1,12 +1,13 @@
 import logging
 import transaction
-import datetime
 import re
 import unicodedata
 import mimetypes
 import os
 import shutil
 import os.path
+from datetime import datetime
+
 from lemontest.models import DBSession
 from lemontest.models import Archive
 from lemontest.models import Diagnostic
@@ -68,7 +69,7 @@ def get_diagnostics(archive_type):
 
 def make_archive(request):
     """Do everything needed to make a new Archive"""
-    label = unicode(request.POST["label"])
+    label = unicode(request.POST["label"] or "Archive_%s" % datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
     site = unicode(request.POST["site"])
     archive_type = unicode(request.POST["archive_type"])
     submitter_name = unicode(request.POST["submitter"])
@@ -105,8 +106,7 @@ def upload_file(request):
         upload.queue_archive(request.registry.settings, archive_id, archive_path, data, testers)
         url = request.route_url('check', archive_id=archive_id)
         return HTTPFound(location=url)
-    now = datetime.datetime.now()
-    label = "Archive_%s" % now.strftime("%Y-%m-%d_%H-%M-%S")
+    label = ""
     label = request.GET.get("label", label)
     name = ""
     name = request.GET.get("name", name)
