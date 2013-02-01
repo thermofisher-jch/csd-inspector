@@ -238,5 +238,5 @@ def test_readme(request):
     return response
 
 @view_config(route_name="stats", renderer="templates/stats.pt")
-def changes(request):
+def stats(request):
     return {}
