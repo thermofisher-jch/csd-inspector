@@ -236,3 +236,7 @@ def test_readme(request):
     else:
         response = HTTPFound("%s does not have a README file." % test_name)
     return response
+
+@view_config(route_name="stats", renderer="templates/stats.pt")
+def changes(request):
+    return {}

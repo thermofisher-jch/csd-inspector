@@ -32,6 +32,7 @@ def main(global_config, **settings):
     config.add_route('documentation', '/documentation')
     config.add_route('changes', '/changes')
     config.add_route('test_readme', '/test/{test_name}/README')
+    config.add_route('stats', '/stats')
     
     config.add_route('api_auto_complete', '/api/auto_complete')
     
