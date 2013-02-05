@@ -188,7 +188,7 @@ def list_reports(request):
                 archive_query = archive_query.filter(Archive.archive_type == value)
             else:
                 archive_query = archive_query.filter(getattr(Archive, column).like("%{}%".format(value)))
-    archives = paginate.Page(archive_query, page, items_per_page=2, url=page_url)
+    archives = paginate.Page(archive_query, page, items_per_page=100, url=page_url)
     pages = [archives.first_page]
     left_pagius = 5
     right_pagius = 5
