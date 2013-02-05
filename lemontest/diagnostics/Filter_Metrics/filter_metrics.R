@@ -86,7 +86,7 @@ filterMetricsPlots = function(archivePath, plotDir)
  
     # Top-level breakdown
     breakdownWell <- c(
-      "Beads"    = getParam(log, "Beads  :", sep),
+      "ISPs"    = getParam(log, "Beads  :", sep),
       "Empty"   = getParam(log, "Empties:", sep),
       "Pinned"  = getParam(log, "Pinned :", sep),
       "Ignored"  = getParam(log, "Ignored:", sep)      
@@ -95,7 +95,7 @@ filterMetricsPlots = function(archivePath, plotDir)
     myBarplot(breakdownWell/1e3,beside=TRUE,las=2,ylab="Reads (1,000's)",main="Primary Well Categorization",col=myColor)
     dev.off()
     
-    # Breakdown of bead wells
+    # Breakdown of ISP wells
     breakdownBead <- c(
       "Library"  = getParam(log, "Library:", sep),      
       "TF"   = getParam(log, "TFBead :", sep),

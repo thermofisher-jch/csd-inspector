@@ -2,7 +2,7 @@ Filter Metrics test shows results of applied software filters.
 
 Archives before version 3.4:
 
-  Library well categories show percentage of Library Beads (from Basecaller output):
+  Library well categories show percentage of Library ISPs (from Basecaller output):
     Valid         - reads pass all filters, saved and passed on to further analysis
     Polyclonal    - fail polyclonal filter
     Bad key       - key signal doesn't match either library or TF keys.
@@ -10,13 +10,13 @@ Archives before version 3.4:
     High residual - fitting residual over accepted software threshold
     Zero bases, Short, Filtered - fail length filters before or after trimming
 
-  Loaded well categories show percentage of Bead wells (from Separator output):
+  Loaded well categories show percentage of ISP wells (from Separator output):
     Library - library key found
     TF      - TF key found
     Dud     - No signal, excluded from analysis
     
   Primary well categories (from Separator output):
-    Beads   - beads
+    ISPs   - ISPs
     Empty   - empty
     Pinned  - pinned values, excluded from analysis
     Ignored - excluded from analysis based on poor or bad behaved signal
@@ -26,7 +26,7 @@ Archives after version 3.4:
 
 Library Well Categorization:
 	"Bkgmodel polyclonal" and "polyclonal" – wells identified as polyclonal by polyclonal filter. Only "bkgmodel polyclonal" is currently used, "polyclonal" is deprecated and should always be zero.
-	"Bkgmodel high ppf" and "high ppf" – wells identified as "high percent positive flows" by polyclonal filter, which is a murky category that may contain either polyclonal beads with >2 sequences or just very low quality beads. In main report, these count toward "low quality". Only "bkgmodel high ppf" is currently used, "high ppf" is deprecated and should always be zero.
+	"Bkgmodel high ppf" and "high ppf" – wells identified as "high percent positive flows" by polyclonal filter, which is a murky category that may contain either polyclonal ISPs with >2 sequences or just very low quality ISPs. In main report, these count toward "low quality". Only "bkgmodel high ppf" is currently used, "high ppf" is deprecated and should always be zero.
 	"Bkgmodel keypass" and "failed keypass" - both refer to reads that were discarded because their key sequence did not perfectly match. We do this check twice, once in Signal Processing ("bkgmodel keypass") and another time in BaseCaller ("failed keypass")
 	"short" - reads discarded, because BaseCaller called less than 4 bases (beyond key & barcode)
 	"quality trim" - reads discarded because quality trimming (based on sliding-window average of phred qv scores) reduced the size of read below 4 (beyond key and barcode)
@@ -34,12 +34,12 @@ Library Well Categorization:
 	"adapter trim" - reads discarded because adapter trimming reduced the side of the read below 4 (beyond key and barcode)
 	"valid" - whatever reads survived the above filters and were saved to BaseCaller's output file (unmapped BAM or SFF in earlier versions)
 Loaded well Categorization:
-	Library – beads with library key
-	TF – beads with TF key
-	Dud – beads with no key or key  cannot be reliably determined
+	Library – ISPs with library key
+	TF – ISPs with TF key
+	Dud – ISPs with no key or key  cannot be reliably determined
 Primary well categorization:
-	Beads – wells with beads (that did not pin or were ignored)
-	Empty – wells without beads (that did not pin or were ignored)
+	ISPs – wells with ISPs (that did not pin or were ignored)
+	Empty – wells without ISPs (that did not pin or were ignored)
 	Pinned – "pinned wells" are wells where A/D converter went out of range. These wells are not processed.
 	Ignored – corner wells not fluidically addessable
   

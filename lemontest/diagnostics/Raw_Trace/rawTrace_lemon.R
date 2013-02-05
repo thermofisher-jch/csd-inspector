@@ -135,7 +135,7 @@ for(iRegion in 1:length(data)) {
   x <- data[[iRegion]]
   for(wellType in c("bead","empty","nbrsub")) {
     # plot of nuc steps
-    myTitle <- sprintf("Nuc Steps for %s\n%s wells in %dx%d %s region, lower-left corner at (c%d,r%d)\n%d empties and %d beads",
+    myTitle <- sprintf("Nuc Steps for %s\n%s wells in %dx%d %s region, lower-left corner at (c%d,r%d)\n%d empties and %d ISPs",
       analysisName,
       wellType,x$xMax-x$xMin,x$yMax-x$yMin,names(data)[iRegion],
       x$xMin,x$yMin,
@@ -243,7 +243,7 @@ if(nchar(libKey) > 1 && nchar(floworder) > 1) {
       for(i in 1:length(bkgSub[[iRegion]])) {
         lines(frameStart,bkgSub[[iRegion]][[i]],col=nucColor[duplicatedNucs[i]],lwd=2)
       }
-      title(sprintf("Background-subtracted key traces\n%d bead and %d empty wells\n%dx%d %s region, lower-left at (c%d,r%d)",
+      title(sprintf("Background-subtracted key traces\n%d ISPs and %d empty wells\n%dx%d %s region, lower-left at (c%d,r%d)",
         data[[iRegion]]$count$bead,data[[iRegion]]$count$empty,
         data[[iRegion]]$xMax-data[[iRegion]]$xMin,data[[iRegion]]$yMax-data[[iRegion]]$yMin,
         regionName,
@@ -271,7 +271,7 @@ if(nchar(libKey) > 1 && nchar(floworder) > 1) {
     for(iFlow in 1:length(idealKey)) {
       lines(frameStart,data[[iRegion]]$signal$nbrsub[iFlow,],col=nucColor[data[[iRegion]]$nuc[iFlow]],lwd=2,lty=2-idealKey[iFlow])
     }
-    title(sprintf("Neighbor-subtracted key traces\n%d bead and %d empty wells\n%dx%d region, lower-left at (c%d,r%d)",
+    title(sprintf("Neighbor-subtracted key traces\n%d ISPs and %d empty wells\n%dx%d region, lower-left at (c%d,r%d)",
       data[[iRegion]]$count$bead,data[[iRegion]]$count$empty,
       data[[iRegion]]$xMax-data[[iRegion]]$xMin,data[[iRegion]]$yMax-data[[iRegion]]$yMin,
       data[[iRegion]]$xMin,data[[iRegion]]$yMin)
