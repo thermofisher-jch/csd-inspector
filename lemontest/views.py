@@ -225,7 +225,7 @@ def list_reports(request):
         if archives.page < archives.page_count:
             pages.append(archives.page_count)
 
-    return {'archives': archives, 'pages': range(1,16), 'page_url': page_url, 'is_search': is_search,
+    return {'archives': archives, 'pages': pages, 'page_url': page_url, 'is_search': is_search,
             'archive_types': testers.keys(), 'filters': filter_params}
 
 
