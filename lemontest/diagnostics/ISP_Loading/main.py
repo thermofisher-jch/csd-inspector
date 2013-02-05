@@ -33,8 +33,8 @@ if stats_path:
     else:
         print("Fail")
         print(40)
-    print("{:.1%} of wells found beads".format(bead_loading))
+    print("{:.1%} of wells found ISPs".format(bead_loading))
 else:
     print("N/A")
     print(0)
-    print("No Bead Find stats files included")
+    print("Required stats files not included")
