@@ -12,45 +12,85 @@
     #reports td {
         padding: 12px 8px;
     }
+    #reports thead tr th {
+        border-top: 0 none;
+        background-image: linear-gradient(to bottom, white, #EFEFEF);
+    }
+    #reports thead tr.filter-row th {
+        padding-top: 0;
+        background-image: none;
+        background-color: #EEEEEE;
+    }
+    #reports thead tr th:last-child {
+        border-right: 0 none;
+    }
+    #reports th input, #reports th select {
+        margin: 0;
+        width: auto;
+    }
     </style>
 </tal:block>
 
 <tal:block metal:fill-slot="main">
-    <div>
-        <div class="pagination pagination-centered">
-            <ul>
-                <li tal:attributes="class 'disabled' if archives.page == 1 else None">
-                    <a tal:condition="archives.page > 1" href="${request.route_url('reports', _query={'page':archives.page-1})}">&laquo;</a>
-                    <span tal:condition="archives.page == 1">&laquo;</span>
-                </li>
-                <li tal:repeat="page pages" tal:attributes="class 'active' if page == archives.page else 'disabled' if page == '..' else None">
-                    <a tal:condition="page != archives.page and page != '..'" href="${request.route_url('reports', _query={'page':page})}">${page}</a>
-                    <span tal:condition="page == '..' or page == archives.page">${page}</span>
-                </li>
-                <li tal:attributes="class 'disabled' if archives.page == archives.page_count else None">
-                    <a tal:condition="archives.page < archives.page_count" href="${request.route_url('reports', _query={'page':archives.page+1})}">&raquo;</a>
-                    <span tal:condition="archives.page == archives.page_count">&raquo;</span>
-                </li>
-            </ul>
+    <div class="row" style="margin-bottom: 20px;">
+        <div class="span8">
+            <div class="pagination" style="margin:0;">
+                <ul>
+                    <li tal:attributes="class 'disabled' if archives.page == 1 else None">
+                        <a tal:condition="archives.page > 1" href="${page_url(archives.page-1)}">&laquo;</a>
+                        <span tal:condition="archives.page == 1">&laquo;</span>
+                    </li>
+                    <li tal:repeat="page pages" tal:attributes="class 'active' if page == archives.page else 'disabled' if page == '..' else None">
+                        <a tal:condition="page != archives.page and page != '..'" href="${page_url(page)}">${page}</a>
+                        <span tal:condition="page == '..' or page == archives.page">${page}</span>
+                    </li>
+                    <li tal:attributes="class 'disabled' if archives.page == archives.page_count else None">
+                        <a tal:condition="archives.page < archives.page_count" href="${page_url(archives.page+1)}">&raquo;</a>
+                        <span tal:condition="archives.page == archives.page_count">&raquo;</span>
+                    </li>
+                </ul>
+            </div>
         </div>
-        <table class="table table-striped" id="reports">
-            <thead>
-                <tr>
-                    <th>ID</th><th>Submitter</th><th>Date</th><th>Type</th><th>Site</th><th>Label</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr tal:repeat="archive archives" onclick="window.location='${request.route_url('check', archive_id=archive.id)}';" style="cursor: pointer;">
-                    <td>${archive.id}</td>
-                    <td>${archive.submitter_name}</td>
-                    <td>${h.prettydate(archive.time)}</td>
-                    <td>${archive.archive_type.replace("_", " ")}</td>
-                    <td>${archive.site}</td>
-                    <td>${archive.label}</td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="span4" style="line-height: 30px">
+            ${archives.first_item} to ${archives.last_item} of ${archives.item_count}
+            <a tal:condition="is_search" href="${request.current_route_url()}" class="btn pull-right">Clear Search</a>
+        </div>
     </div>
+    <form id="filter" action="/reports" method="GET">
+    <table class="table table-striped" id="reports">
+        <thead>
+            <tr>
+                <th>ID</th><th>Submitter</th><th>Date</th><th>Type</th><th>Site</th><th>Label</th>
+            </tr>
+            <tr class="filter-row">
+                    <th></th>
+                    <th><input name="submitter_name" type="text" value="${filters.submitter_name}"></th>
+                    <th></th>
+                    <th>
+                        <select name="archive_type" id="archiveType" onchange="$('#filter').submit();">
+                            <option value=""></option>
+                            <option tal:repeat="type archive_types" value="${type}" tal:attributes="selected 'selected' if type==filters.archive_type else None">
+                                ${type.replace("_", " ")}
+                            </option>
+                        </select>
+                    </th>
+                    <th><input name="site" type="text" value="${filters.site}"></th>
+                    <th><input name="label" type="text" value="${filters.label}"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr tal:repeat="archive archives" onclick="window.location='${request.route_url('check', archive_id=archive.id)}';" style="cursor: pointer;">
+                <td>${archive.id}</td>
+                <td>${archive.submitter_name}</td>
+                <td>${h.prettydate(archive.time)}</td>
+                <td>${archive.archive_type.replace("_", " ")}</td>
+                <td>${archive.site}</td>
+                <td>${archive.label}</td>
+            </tr>
+        </tbody>
+    </table>
+    <input type="submit" style="height: 0px; width: 0px; border: none; padding: 0px;" hidefocus="true" />
+    </form>
 </tal:block>
 
 </html>

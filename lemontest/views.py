@@ -171,11 +171,24 @@ def rerun_archive(request):
 
 @view_config(route_name="reports", renderer="templates/reports.pt")
 def list_reports(request):
+    filter_params = {
+        'archive_type': request.params.get('archive_type', u''),
+        'submitter_name': request.params.get('submitter_name', u''),
+        'site': request.params.get('site', u''),
+        'label': request.params.get('label' u'')
+    }
     page = int(request.params.get("page", 1))
     page_url = paginate.PageURL_WebOb(request)
     logger.info(str(page_url))
     archive_query = DBSession.query(Archive).order_by(Archive.time.desc())
-    archives = paginate.Page(archive_query, page, items_per_page=100, url=page_url)
+    is_search = any(filter_params.values())
+    for column, value in filter_params.items():
+        if value:
+            if column == 'archive_type':
+                archive_query = archive_query.filter(Archive.archive_type == value)
+            else:
+                archive_query = archive_query.filter(getattr(Archive, column).like("%{}%".format(value)))
+    archives = paginate.Page(archive_query, page, items_per_page=2, url=page_url)
     pages = [archives.first_page]
     left_pagius = 5
     right_pagius = 5
@@ -212,7 +225,8 @@ def list_reports(request):
         if archives.page < archives.page_count:
             pages.append(archives.page_count)
 
-    return {"archives": archives, "pages": pages}
+    return {'archives': archives, 'pages': range(1,16), 'page_url': page_url, 'is_search': is_search,
+            'archive_types': testers.keys(), 'filters': filter_params}
 
 
 @view_config(route_name="documentation", renderer="templates/documentation.pt")

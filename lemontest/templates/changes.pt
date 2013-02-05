@@ -19,6 +19,7 @@
                     <li>The Version Check test indicates CSAs from old versions of the TS which should be upgraded</li>
                     <li>The Bead Loading test flags runs for which loading may be a concern.</li>
                     <li>Added a not so secret site statistics page <a href="/stats">here</a></li>
+                    <li>Filtering of results on reports page</li>
                 </ul>
             </dd>
             <dt>Q4 2012</dt>
