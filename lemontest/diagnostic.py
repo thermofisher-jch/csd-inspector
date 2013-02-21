@@ -14,10 +14,12 @@ import os
 import os.path
 from glob import glob
 from celery.task import task
+from celery.utils.log import get_task_logger
 
 from lemontest.models import DBSession
 from lemontest.models import Diagnostic
 
+logger = get_task_logger(__name__)
 
 class Tester(object):
 
@@ -34,13 +36,16 @@ class Tester(object):
     def diagnostic_record(self):
         return Diagnostic(self.name)
 
+@task
+def echo(message):
+    print("Printing " + message)
+    logger.warning(message)
 
 @task
 def run_tester(test, settings, diagnostic_id, archive_path):
     """Spawn a subshell in which the test's main script is run, with the
     archive's folder and the script's output folder as command line args.
     """
-    logger = run_tester.get_logger()
     logger.info("Running test %s/%d on %s" % (test.name, diagnostic_id, archive_path))
     # Now that we're finally running the task, set the status appropriately.
     session = DBSession()
