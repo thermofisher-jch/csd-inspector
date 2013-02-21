@@ -28,12 +28,15 @@
         margin: 0;
         width: auto;
     }
+    #filter_name, #filter_site {
+        max-width: 150px;
+    }
     </style>
 </tal:block>
 
 <tal:block metal:fill-slot="main">
     <div class="row" style="margin-bottom: 20px;">
-        <div class="span8">
+        <div class="span9">
             <div class="pagination" style="margin:0;">
                 <ul>
                     <li tal:attributes="class 'disabled' if archives.page == 1 else None">
@@ -51,9 +54,8 @@
                 </ul>
             </div>
         </div>
-        <div class="span4" style="line-height: 30px">
+        <div class="span3" style="line-height: 30px; text-align: right;">
             ${archives.first_item} to ${archives.last_item} of ${archives.item_count}
-            <a tal:condition="is_search" href="${request.current_route_url()}" class="btn pull-right">Clear Search</a>
         </div>
     </div>
     <form id="filter" action="/reports" method="GET">
@@ -64,7 +66,7 @@
             </tr>
             <tr class="filter-row">
                     <th></th>
-                    <th><input name="submitter_name" type="text" value="${filters.submitter_name}"></th>
+                    <th><input id="filter_name" name="submitter_name" type="text" value="${filters.submitter_name}"></th>
                     <th></th>
                     <th>
                         <select name="archive_type" id="archiveType" onchange="$('#filter').submit();">
@@ -74,8 +76,11 @@
                             </option>
                         </select>
                     </th>
-                    <th><input name="site" type="text" value="${filters.site}"></th>
-                    <th><input name="label" type="text" value="${filters.label}"></th>
+                    <th><input id="filter_site" name="site" type="text" value="${filters.site}"></th>
+                    <th>
+                        <input id="filter_label" name="label" type="text" value="${filters.label}">
+                        <a tal:condition="is_search" href="${request.current_route_url()}" class="btn btn-inverse pull-right">Clear</a>
+                    </th>
             </tr>
         </thead>
         <tbody>
