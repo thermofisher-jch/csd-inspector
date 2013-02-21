@@ -8,11 +8,8 @@ import zipfile
 from celery.task import task
 from celery.task import chord
 
-from sqlalchemy import engine_from_config
-
 from lemontest.models import DBSession
 from lemontest.models import Archive
-from lemontest.models import initialize_sql
 from lemontest import diagnostic
 
 logger = logging.getLogger(__name__)
@@ -142,11 +139,8 @@ def process_archive(settings, archive_id, destination, archive_name, testers):
     """
     logger = process_archive.get_logger()
     logger.info("Processing archive in %s" % destination)
-    engine = engine_from_config(settings)
-    initialize_sql(engine)
     # Finally read the data from the uploaded zip file
-    session = DBSession()
-    archive = session.query(Archive).get(archive_id)
+    archive = DBSession.query(Archive).get(archive_id)
     if archive is None:
         logger.error("Archive id = %s not found." % archive_id)
         return
@@ -156,7 +150,7 @@ def process_archive(settings, archive_id, destination, archive_name, testers):
         logger.info("Archive is %s" % str(archive))
         archive.status = u"Archive decompressed successfully. Starting diagnostics."
         jobs = make_diagnostic_jobs(archive, settings, testers)
-        run_diagnostics(archive_id, settings, jobs)
+        #run_diagnostics(archive_id, settings, jobs)
     except IOError as err:
         archive.status = "Failed during archive extraction"
     transaction.commit()
@@ -165,10 +159,7 @@ def process_archive(settings, archive_id, destination, archive_name, testers):
 @task
 def finalize_report(results, settings, archive_id):
     logger = finalize_report.get_logger()
-    engine = engine_from_config(settings)
-    initialize_sql(engine)
-    session = DBSession()
-    archive = session.query(Archive).get(archive_id)
+    archive = DBSession.query(Archive).get(archive_id)
     archive.status = u"Diagnostics completed."
     transaction.commit()
     logger.info("Finished applying jobs.")

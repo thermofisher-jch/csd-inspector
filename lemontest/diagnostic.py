@@ -15,11 +15,8 @@ import os.path
 from glob import glob
 from celery.task import task
 
-from sqlalchemy import engine_from_config
-
 from lemontest.models import DBSession
 from lemontest.models import Diagnostic
-from lemontest.models import initialize_sql
 
 
 class Tester(object):
@@ -45,8 +42,6 @@ def run_tester(test, settings, diagnostic_id, archive_path):
     """
     logger = run_tester.get_logger()
     logger.info("Running test %s/%d on %s" % (test.name, diagnostic_id, archive_path))
-    engine = engine_from_config(settings)
-    initialize_sql(engine)
     # Now that we're finally running the task, set the status appropriately.
     session = DBSession()
     diagnostic = session.query(Diagnostic).get(diagnostic_id)
