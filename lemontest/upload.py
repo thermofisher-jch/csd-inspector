@@ -7,6 +7,7 @@ import os.path
 import zipfile
 from celery.task import task
 from celery.task import chord
+from celery.utils.log import get_task_logger
 
 from lemontest.models import DBSession
 from lemontest.models import Archive
@@ -14,6 +15,7 @@ from lemontest import diagnostic
 
 logger = logging.getLogger(__name__)
 
+task_logger = get_task_logger(__name__)
 
 def get_common_prefix(files):
     """For a list of files, a common path prefix and a list file names with
@@ -137,7 +139,7 @@ def process_archive(settings, archive_id, destination, archive_name, testers):
     it's into a folder hierarchy relative to destination, and writes the
     archive's contents into that restructured hierarchy.
     """
-    logger = process_archive.get_logger()
+    logger = task_logger
     logger.info("Processing archive in %s" % destination)
     # Finally read the data from the uploaded zip file
     archive = DBSession.query(Archive).get(archive_id)
@@ -158,7 +160,7 @@ def process_archive(settings, archive_id, destination, archive_name, testers):
 
 @task
 def finalize_report(results, settings, archive_id):
-    logger = finalize_report.get_logger()
+    logger = task_logger
     archive = DBSession.query(Archive).get(archive_id)
     archive.status = u"Diagnostics completed."
     transaction.commit()
