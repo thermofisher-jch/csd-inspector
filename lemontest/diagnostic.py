@@ -43,13 +43,11 @@ def run_tester(test, settings, diagnostic_id, archive_path):
     logger = run_tester.get_logger()
     logger.info("Running test %s/%d on %s" % (test.name, diagnostic_id, archive_path))
     # Now that we're finally running the task, set the status appropriately.
-    session = DBSession()
-    diagnostic = session.query(Diagnostic).get(diagnostic_id)
+    diagnostic = DBSession.query(Diagnostic).get(diagnostic_id)
     diagnostic.status = u"Running"
     transaction.commit()
     # Open a DB session and fetch the diagnostic object to be updated.
-    session = DBSession()
-    diagnostic = session.query(Diagnostic).get(diagnostic_id)
+    diagnostic = DBSession.query(Diagnostic).get(diagnostic_id)
     output_path = diagnostic.get_output_path()
     os.mkdir(output_path)
     cmd = [test.main, archive_path, output_path]

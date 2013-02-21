@@ -150,7 +150,7 @@ def process_archive(settings, archive_id, destination, archive_name, testers):
         logger.info("Archive is %s" % str(archive))
         archive.status = u"Archive decompressed successfully. Starting diagnostics."
         jobs = make_diagnostic_jobs(archive, settings, testers)
-        #run_diagnostics(archive_id, settings, jobs)
+        run_diagnostics(archive_id, settings, jobs)
     except IOError as err:
         archive.status = "Failed during archive extraction"
     transaction.commit()
