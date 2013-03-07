@@ -4,14 +4,16 @@
     "Filter_Metrics",
     "Raw_Trace",
     "Version_Check",
-    "ISP_Loading"
+    "ISP_Loading",
+    "Auto_pH"
 ],
 "Proton":[
     "Separator_Traces",
     "Filter_Metrics",
     "Raw_Trace",
     "Version_Check",
-    "ISP_Loading"
+    "ISP_Loading",
+    "Auto_pH"
 ],
 "System_Log": [
     "HD_Space",
