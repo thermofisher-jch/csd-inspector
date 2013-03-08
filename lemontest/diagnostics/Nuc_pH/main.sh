@@ -10,6 +10,8 @@ if [ ! -z  $test ]
 	then
 		perl nuc_pH.pl $test
 	else
+		echo "Warning"
+		echo "30"
 		echo "Unable to find InitLog.txt file. Please upload it manually"
 fi
 
