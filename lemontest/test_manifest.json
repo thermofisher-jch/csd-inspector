@@ -5,7 +5,6 @@
     "Raw_Trace",
     "Version_Check",
     "ISP_Loading",
-    "Auto_pH",
     "Nuc_pH"
 ],
 "Proton":[
@@ -14,8 +13,6 @@
     "Raw_Trace",
     "Version_Check",
     "ISP_Loading",
-    "Auto_pH",
-    "Nuc_pH"
 ],
 "System_Log": [
     "HD_Space",
