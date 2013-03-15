@@ -31,7 +31,7 @@ if stats_path:
         print("Warning")
         print(30)
     else:
-        print("Fail")
+        print("Alert")
         print(40)
     print("{:.1%} of wells found ISPs".format(bead_loading))
 else:

@@ -160,7 +160,7 @@ cusSupRawPlots = function(archivePath, plotDir)
       if(temp[length(temp)]=="separator.trace.txt") datFile <- unzippedFolder[i];
     }
     if(length(datFile) == 0){
-      cat("Fail\n");
+      cat("Alert\n");
       cat("100\n");
       cat("Can not find the separator.trace.txt file\n");
       stop();

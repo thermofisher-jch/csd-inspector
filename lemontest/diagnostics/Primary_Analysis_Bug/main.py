@@ -19,5 +19,5 @@ logFile += open(stdout,'r').read()
 
 #m = re.search(r".*Bus error|core dumped|Segmentation fault.*",logFile,re.S)
 if 'Bus error'.lower() in logFile.lower() or 'core dumped'.lower() in logFile.lower() or 'Segmentation fault'.lower() in logFile.lower():
-	print "Fail\n100\nThere is a major failure with the primary analysis code. Escalate!"
+	print "Alert\n100\nThere is a major failure with the primary analysis code. Escalate!"
 

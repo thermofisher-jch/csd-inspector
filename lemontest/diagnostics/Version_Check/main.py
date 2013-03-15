@@ -17,7 +17,7 @@ if __name__ == "__main__":
             print("10")
             print("Version is acceptable at %s" % version)
         else:
-            print("Fail")
+            print("Alert")
             print("40")
             print("Advise customer to upgrade their Torrent Server.  Their version is out-dated at %s" % version)
     else:

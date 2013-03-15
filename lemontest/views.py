@@ -24,7 +24,7 @@ import helpers
 logger = logging.getLogger(__name__)
 
 status_highlights = {
-    "Fail": "important",
+    "Alert": "important",
     "Warning": "warning",
     "Info": "info",
     "OK": "success"

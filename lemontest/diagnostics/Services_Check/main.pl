@@ -95,7 +95,7 @@ sub writeSTDOUT{
   my $priority  = shift || 0;
   my $warn      = shift || 0;
   print "OK\n$priority\nAll Services are Running.\n" if $warn == 0; 
-  print "Fail\n$priority\nThe following services are not running: @failedservices\n" if $warn == 2; 
+  print "Alert\n$priority\nThe following services are not running: @failedservices\n" if $warn == 2; 
 }
 
 sub writeHTML{

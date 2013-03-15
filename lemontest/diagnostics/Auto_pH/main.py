@@ -15,7 +15,7 @@ class InitLog:
 		self.aborted  = False
 		self.missing  = True
 		self.issues   = ""
-		self.outcome  = "Failed"
+		self.outcome  = "Alerted"
 	
 def main():
 	archive_path = "."
@@ -44,7 +44,7 @@ def main():
 					outputStatus = "OK"
 					outputPriority = 10
 				else:
-					outputStatus = "Fail"
+					outputStatus = "Alert"
 					outputPriority = 40
 
 				print outputStatus
@@ -63,8 +63,8 @@ def printRun(log, runNumber, f):
 		
 		if "Passed" in log.outcome:
 			f.write("<td style=\"vertical-align:middle\" class=\"phPass\">" + log.outcome + "</td>\n")
-		elif "Failed" in log.outcome:
-			f.write("<td style=\"vertical-align:middle\" class=\"phFail\">" + log.outcome + "</td>\n")
+		elif "Alerted" in log.outcome:
+			f.write("<td style=\"vertical-align:middle\" class=\"phAlert\">" + log.outcome + "</td>\n")
 		else:
 			f.write("<td style=\"vertical-align:middle\">" + log.outcome + "</td>\n")
 
@@ -270,7 +270,7 @@ def writeOutputPreamble(f, instNameIn):
   font-weight: bold;
   vertical-align:middle;
 }}
-.phFail {{
+.phAlert {{
   color: #cc4444;
   font-weight: bold;
   vertical-align:middle;

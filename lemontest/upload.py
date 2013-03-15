@@ -154,7 +154,7 @@ def process_archive(settings, archive_id, destination, archive_name, testers):
         jobs = make_diagnostic_jobs(archive, settings, testers)
         run_diagnostics(archive_id, settings, jobs)
     except IOError as err:
-        archive.status = "Failed during archive extraction"
+        archive.status = "Alerted during archive extraction"
     transaction.commit()
 
 

@@ -251,7 +251,7 @@ sub executeSystemCall {
   my ($command,$returnVal) = @_;
 
   # Initialize status tracking
-  my $exeFail  = 0;
+  my $exeAlert  = 0;
   my $died     = 0;
   my $core     = 0;
   my $exitCode = 0;
@@ -265,7 +265,7 @@ sub executeSystemCall {
 
   # Check status
   if ($? == -1) {
-    $exeFail = 1;
+    $exeAlert = 1;
   } elsif ($? & 127) {
    $died = ($? & 127);
    $core = 1 if($? & 128);
@@ -274,10 +274,10 @@ sub executeSystemCall {
   }
 
   my $problem = 0;
-  if($exeFail || $died || $exitCode) {
+  if($exeAlert || $died || $exitCode) {
     print STDERR "$0: problem encountered running command \"$command\"\n";
-    if($exeFail) {
-      print STDERR "Failed to execute command: $!\n";
+    if($exeAlert) {
+      print STDERR "Alerted to execute command: $!\n";
     } elsif ($died) {
       print STDERR sprintf("Child died with signal %d, %s coredump\n", $died,  $core ? 'with' : 'without');
     } else {

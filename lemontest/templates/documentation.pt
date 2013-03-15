@@ -14,10 +14,10 @@
             Ion Inspector is a Customer Support Archive testing automation server. When a
             CSA is uploaded to the server, a battery of tests are automatically run on
             the contents of the archive. Each of these tests reports the result of either
-            a falsifiable hypothesis, i.e. OK/Fail/Warning, or performs some additional
+            a falsifiable hypothesis, i.e. OK/Alert/Warning, or performs some additional
             analysis from which no concrete determination can be made and human
             interpretation is required, i.e. Info. Any test reports a simple summary of
-            its result status (OK/Fail/Warning/Info) along with more detailed, actionable
+            its result status (OK/Alert/Warning/Info) along with more detailed, actionable
             information about the implications of the result, such as ("There are X% Q20
             reads, which is abnormally low."). This will be rendered in a table with the
             results of the other tests, e.g.
@@ -32,7 +32,7 @@
                 <tr>
                     <td>Q20 Read Count</td>
                     <td>
-                        <span class="label Fail">Fail</span>
+                        <span class="label Alert">Alert</span>
                     </td>
                     <td>
                         <p class="details">There are 7% Q20 reads, which is abnormally low.</p>
@@ -109,7 +109,7 @@
                 <table class="prettyprint">
                     <tr>
                         <td class="linenum">Line 1.</td>
-                        <td><em>final test result status</em> (OK/Fail/Warning/Info, etc.)</td>
+                        <td><em>final test result status</em> (OK/Alert/Warning/Info, etc.)</td>
                     </tr>
                     <tr>
                       <td class="linenum">Line 2.</td>
@@ -145,7 +145,7 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Fail</td>
+                        <td>Alert</td>
                         <td>40</td>
                         <td>Conclusively or highly likely to be a problem.</td>
                     </tr>

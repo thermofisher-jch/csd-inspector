@@ -106,7 +106,7 @@ sub writeSTDOUT{
     my $errvalue  = shift || -1;
     print "OK\n0\nHard drive space is fine.\n" if $warn == 0; 
     print "Warning\n0\nHard drive space is an issue. Please see results for details.\n" if $warn == 1; 
-    print "Fail\n100\nNo Hard drive space left! Please see results for details.\n" if $warn == 2; 
+    print "Alert\n100\nNo Hard drive space left! Please see results for details.\n" if $warn == 2; 
 }
 
 sub writeHTMLTab{

@@ -2,7 +2,7 @@
 
 sleep 15;
 
-print "Fail\n";
+print "Alert\n";
 print "40\n";
 print "This test always fails.\n";
 

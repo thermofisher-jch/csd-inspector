@@ -2312,7 +2312,7 @@ button.btn::-moz-focus-inner, input[type=submit].btn::-moz-focus-inner {
   -moz-border-radius: 3px;
   border-radius: 3px;
 }
-.label.Fail {
+.label.Alert {
   background-color: #c43c35;
 }
 .label.Warning {
