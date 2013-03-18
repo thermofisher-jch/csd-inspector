@@ -5,17 +5,18 @@ OUTPUT=$2
 export OUTPUT
 
 #Check if the file exists in the ARCHIVE directory
-OTFILE=`ls $ARCHIVE`
+OTFILE=`ls $ARCHIVE/*.log`
 
 if [ ! $OTFILE ]
 then
-	echo "Warning: unable to find the OT csv file"
+	echo "Warning"
 	echo "30"
+	echo "Unable to find the OT csv file."
 else
 	#Remove csvfile.csv from  a possible previous run
 	if [ -e $OUTPUT/csvfile.csv ]
 	then
-		echo "Removing csv file from a previous run"
+		echo "Removing csv file from a previous run" >&2
 		rm -f $OUTPUT/csvfile.csv
 	fi
 
@@ -37,7 +38,7 @@ else
 	#make sure the html file does not exist in the OUTPUT directory from a previous run
 	if [ -e $OUTPUT/results.html ]
     then
-    	echo "Removing html output from previous run"
+    	echo "Removing html output from previous run" >&2
         rm $OUTPUT/results.html
         rm -R $OUTPUT/results_files
 	fi
