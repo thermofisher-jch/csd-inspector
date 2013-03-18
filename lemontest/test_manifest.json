@@ -13,9 +13,5 @@
     "Raw_Trace",
     "Version_Check",
     "ISP_Loading"
-],
-"System_Log": [
-    "HD_Space",
-    "Services_Check"
 ]
 }
