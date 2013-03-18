@@ -13,5 +13,8 @@
     "Raw_Trace",
     "Version_Check",
     "ISP_Loading"
+],
+"OT Log": [
+    "Plots"
 ]
 }
