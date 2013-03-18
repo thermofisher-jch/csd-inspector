@@ -119,22 +119,22 @@ def sizer(destination, target):
     return natural_size(os.stat(full_path).st_size, gnu=True)
 
 
-def make_diagnostic_jobs(archive, settings, testers):
+def make_diagnostic_jobs(archive, testers):
     return [diagnostic.run_tester.subtask(
-                    (testers[archive.archive_type][d.name], settings, d.id, archive.path))
+                    (testers[archive.archive_type][d.name], d.id, archive.path))
                     for d in archive.diagnostics]
 
 
-def run_diagnostics(archive_id, settings, jobs):
+def run_diagnostics(archive_id, jobs):
     if jobs:
-        callback = finalize_report.subtask((settings, archive_id))
+        callback = finalize_report.subtask((archive_id,))
         chord(jobs)(callback)
     else:
-        finalize_report.delay(None, settings, archive_id)
+        finalize_report.delay(None, archive_id)
 
 
 @task
-def process_archive(settings, archive_id, destination, archive_name, testers):
+def process_archive(archive_id, destination, archive_name, testers):
     """This is an external, celery task which unzips the file, restructures
     it's into a folder hierarchy relative to destination, and writes the
     archive's contents into that restructured hierarchy.
@@ -151,15 +151,15 @@ def process_archive(settings, archive_id, destination, archive_name, testers):
         unzip_archive(destination, archive_file, logger)
         logger.info("Archive is %s" % str(archive))
         archive.status = u"Archive decompressed successfully. Starting diagnostics."
-        jobs = make_diagnostic_jobs(archive, settings, testers)
-        run_diagnostics(archive_id, settings, jobs)
+        jobs = make_diagnostic_jobs(archive, testers)
+        run_diagnostics(archive_id, jobs)
     except IOError as err:
         archive.status = "Alerted during archive extraction"
     transaction.commit()
 
 
 @task
-def finalize_report(results, settings, archive_id):
+def finalize_report(results, archive_id):
     logger = task_logger
     archive = DBSession.query(Archive).get(archive_id)
     archive.status = u"Diagnostics completed."
@@ -167,7 +167,7 @@ def finalize_report(results, settings, archive_id):
     logger.info("Finished applying jobs.")
 
 
-def queue_archive(settings, archive_id, archive_path, data, testers):
+def queue_archive(archive_id, archive_path, data, testers):
     os.mkdir(archive_path)
     os.mkdir(os.path.join(archive_path, "test_results"))
     data.seek(0)
@@ -176,4 +176,4 @@ def queue_archive(settings, archive_id, archive_path, data, testers):
         while buffer:
             output_file.write(buffer)
             buffer = data.read(2 << 16)
-    return process_archive.delay(settings, archive_id, archive_path, "archive.zip", testers)
+    return process_archive.delay(archive_id, archive_path, "archive.zip", testers)

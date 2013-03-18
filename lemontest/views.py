@@ -103,7 +103,7 @@ def upload_file(request):
         archive_id = archive.id
         archive_path = archive.path
         transaction.commit()
-        upload.queue_archive(request.registry.settings, archive_id, archive_path, data, testers)
+        upload.queue_archive(archive_id, archive_path, data, testers)
         url = request.route_url('check', archive_id=archive_id)
         return HTTPFound(location=url)
     label = ""

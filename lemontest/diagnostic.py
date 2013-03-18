@@ -42,7 +42,7 @@ def echo(message):
     logger.warning(message)
 
 @task
-def run_tester(test, settings, diagnostic_id, archive_path):
+def run_tester(test, diagnostic_id, archive_path):
     """Spawn a subshell in which the test's main script is run, with the
     archive's folder and the script's output folder as command line args.
     """
