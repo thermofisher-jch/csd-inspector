@@ -133,28 +133,49 @@ def run_diagnostics(archive_id, jobs):
         finalize_report.delay(None, archive_id)
 
 
+def unzip_csa(archive):
+    try:
+        full_path = os.path.join(archive.path, "archive.zip")
+        os.rename(os.path.join(archive.path, "uploaded_file.tmp"), full_path)
+        archive_file = open(full_path, 'rb')
+        unzip_archive(archive.path, archive_file, logger)
+    except IOError as err:
+        archive.status = "Alerted during archive extraction"
+        logger.error("Archive {0} had an error: {1}".format(archive.id, err))
+        raise 
+
+
+def one_touch_log(archive):
+    full_path = os.path.join(archive.path, "onetouch.log")
+    os.rename(os.path.join(archive.path, "uploaded_file.tmp"), full_path)
+
+
+archive_handlers = {
+    "PGM Log": unzip_csa,
+    "Proton": unzip_csa,
+    "OT Log": one_touch_log
+}
+
+
 @task
-def process_archive(archive_id, destination, archive_name, testers):
+def process_archive(archive_id, upload_name, testers):
     """This is an external, celery task which unzips the file, restructures
     it's into a folder hierarchy relative to destination, and writes the
     archive's contents into that restructured hierarchy.
     """
     logger = task_logger
-    logger.info("Processing archive in %s" % destination)
-    # Finally read the data from the uploaded zip file
     archive = DBSession.query(Archive).get(archive_id)
+    logger.info("Processing archive in %s" % archive.path)
     if archive is None:
         logger.error("Archive id = %s not found." % archive_id)
         return
     try:
-        archive_file = open(os.path.join(destination, archive_name), 'rb')
-        unzip_archive(destination, archive_file, logger)
-        logger.info("Archive is %s" % str(archive))
-        archive.status = u"Archive decompressed successfully. Starting diagnostics."
+        archive_handlers[archive.archive_type](archive)
+        archive.status = u"Starting tests."
         jobs = make_diagnostic_jobs(archive, testers)
         run_diagnostics(archive_id, jobs)
-    except IOError as err:
-        archive.status = "Alerted during archive extraction"
+    except Exception as err:
+        archive.status = u"Error processing archive."
     transaction.commit()
 
 
@@ -171,9 +192,9 @@ def queue_archive(archive_id, archive_path, data, testers):
     os.mkdir(archive_path)
     os.mkdir(os.path.join(archive_path, "test_results"))
     data.seek(0)
-    with open(os.path.join(archive_path, "archive.zip"), 'wb') as output_file:
+    with open(os.path.join(archive_path, "uploaded_file.tmp"), 'wb') as output_file:
         buffer = data.read(2 << 16)
         while buffer:
             output_file.write(buffer)
             buffer = data.read(2 << 16)
-    return process_archive.delay(archive_id, archive_path, "archive.zip", testers)
+    return process_archive.delay(archive_id, archive_path, "uploaded_file.tmp", testers)
