@@ -151,9 +151,9 @@ def one_touch_log(archive):
 
 
 archive_handlers = {
-    "PGM Log": unzip_csa,
+    "PGM_Log": unzip_csa,
     "Proton": unzip_csa,
-    "OT Log": one_touch_log
+    "OT_Log": one_touch_log
 }
 
 
