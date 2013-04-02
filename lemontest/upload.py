@@ -197,4 +197,4 @@ def queue_archive(archive_id, archive_path, data, testers):
         while buffer:
             output_file.write(buffer)
             buffer = data.read(2 << 16)
-    return process_archive.delay(archive_id, archive_path, "uploaded_file.tmp", testers)
+    return process_archive.delay(archive_id, "uploaded_file.tmp", testers)
