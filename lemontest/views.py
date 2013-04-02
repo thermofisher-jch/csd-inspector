@@ -162,7 +162,7 @@ def rerun_archive(request):
         DBSession.delete(diagnostic)
     archive.diagnostics = get_diagnostics(archive.archive_type)
     DBSession.flush()
-    jobs = upload.make_diagnostic_jobs(archive, request.registry.settings, testers)
+    jobs = upload.make_diagnostic_jobs(archive, testers)
     transaction.commit()
     upload.run_diagnostics(archive_id, request.registry.settings, jobs)
     url = request.route_url('check', archive_id=archive_id)

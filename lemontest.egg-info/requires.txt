@@ -7,3 +7,4 @@ zope.sqlalchemy
 celery
 gunicorn
 pyramid-celery
+webhelpers
