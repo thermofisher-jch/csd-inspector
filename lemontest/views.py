@@ -164,7 +164,7 @@ def rerun_archive(request):
     DBSession.flush()
     jobs = upload.make_diagnostic_jobs(archive, testers)
     transaction.commit()
-    upload.run_diagnostics(archive_id, request.registry.settings, jobs)
+    upload.run_diagnostics(archive_id, jobs)
     url = request.route_url('check', archive_id=archive_id)
     return HTTPFound(location=url)
 
