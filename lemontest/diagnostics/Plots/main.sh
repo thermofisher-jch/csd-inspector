@@ -16,7 +16,7 @@ else
 	#Remove csvfile.csv from  a possible previous run
 	if [ -e $OUTPUT/csvfile.csv ]
 	then
-		echo "Removing csv file from a previous run" &>2
+		echo "Removing csv file from a previous run" >&2
 		rm -f $OUTPUT/csvfile.csv
 	fi
 
@@ -38,11 +38,10 @@ else
 	#make sure the html file does not exist in the OUTPUT directory from a previous run
 	if [ -e $OUTPUT/results.html ]
     then
-    	echo "Removing html output from previous run" &>2
+    	echo "Removing html output from previous run" >&2
         rm $OUTPUT/results.html
         rm -R $OUTPUT/results_files
 	fi
 
-
-	R --vanilla --slave --args $OUTPUT/ csvfile.csv ${V[@]} < ./OT_Plots.R
+	R --vanilla --slave --args $OUTPUT/ csvfile.csv ${V[@]} < ./OT_plots.R
 fi
