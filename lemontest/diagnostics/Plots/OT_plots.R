@@ -58,6 +58,9 @@ OT_plots<-function(work_dir,file_name,machine,target,version) {
     system(paste("mkdir",filesDir))
     
     cat(paste("<h1 align=\"center\">Plots for",machine,target,version,"</h1>\n",sep=" "),file=f,append=TRUE)
+
+    #get the number of rows to be plotted
+    l=nrow(dataSet)
     
     #This is plot 1
     #verify that the data can be plotted
