@@ -23,6 +23,8 @@ OT_plots<-function(work_dir,file_name,machine,target,version) {
 
     #stop if the header of the file is not as expected
     if(! all(names(dataSet)==header)) {
+        cat("Warning\n");
+        cat("30\n");
         cat("Stopping: the file header is different from what is expected\n")
         cat("Verify that the header and structure of your file is exactly as follows:\n\n")
         cat(paste("Step,Thermistor-0 Temperature,Thermistor-1 Temperature,Thermistor-2 Temperature,",
@@ -32,18 +34,8 @@ OT_plots<-function(work_dir,file_name,machine,target,version) {
             "Set Temp, PWM duty Cycle,Motor Power- Oscillation, Raw,Solenoid Pump- Total Volume, ",
             "Dispensed Volume, Oil Pump Status, Sample Pump Status,Pin-0 Pin,Pin-1 Pin,Pin-2 Pin,",
             "Pin-3 Pin,Pin-4 Pin,Pin-5 Pin,Flowmeter0,Timestamp",sep=""))
-        cat("The file's header is different from what was expected")
-        cat("Warning\n");
-        cat("30\n");
+        cat("The file's header is different from what was expected\n");
         stop()
-    }
-
-    #Verify the R2HTML library is present. If not, stop sending message.
-    if (require(R2HTML,quietly=TRUE)==FALSE){
-        cat("This program requires the R2HTML library!!")
-        cat("Warning\n");
-        cat("30\n");
-        stop("The program will stop now")
     }
     
     #The name of the resulting report
@@ -53,10 +45,6 @@ OT_plots<-function(work_dir,file_name,machine,target,version) {
     
     #make it nicer by adding a css file
     cat("<html><link rel=stylesheet href=some.css type=text/css>\n</head><body>\n",file=f,append=FALSE)
-    
-    filesDir<-gsub(".html","_files",f)
-    system(paste("mkdir",filesDir))
-    
     cat(paste("<h1 align=\"center\">Plots for",machine,target,version,"</h1>\n",sep=" "),file=f,append=TRUE)
 
     #get the number of rows to be plotted
@@ -68,7 +56,7 @@ OT_plots<-function(work_dir,file_name,machine,target,version) {
         cat("<h3 align=\"center\">The data temperatures cannot be plotted: verify all the data are numeric</h3>\n",sep=" ",file=f,append=TRUE)  
         cat("The data temperatures cannot be plotted: verify all the data are numeric")
     }else{
-        graph <- paste(filesDir,"/p1.png",sep="")
+        graph <- paste(work_dir,"p1.png",sep="")
         png(graph)
 
         plot(seq(1,l)/60,ylim=(c(0,100)),dataSet$Thermistor.0.Temperature,las=1, yaxp= c(0,100,10), type="l",col="dark green",xlab="Time (minutes)",ylab="Temperature (Celsius)",main="Thermistor Temperature")
@@ -79,9 +67,7 @@ OT_plots<-function(work_dir,file_name,machine,target,version) {
         legend("bottomright",cex=0.8,c("T0-Ambient","T1-Heated Lid","T2-Thermal Cycling","T3-Internal Case"),col=c("dark green","dark blue","red","orange"),lty=1)
         dev.off()
 
-        HTMLInsertGraph(graph,file=f, append=TRUE)
-        
-        cat("<br/><br/>",file=f,append=TRUE)
+        cat(paste("<img src=\"", graph, "\" /><br/><br/>", sep=""),file=f,append=TRUE)
     }
 
     #This is plot 2
@@ -90,13 +76,12 @@ OT_plots<-function(work_dir,file_name,machine,target,version) {
         cat("<h3 align=\"center\">The sensor pressure data cannot be plotted: the data is not numeric</h3>\n",sep=" ",file=f,append=TRUE)
         cat("The sensor pressure data cannot be plotted: the data is not numeric")
     }else{
-        graph <- paste(filesDir,"/p2.png",sep="")
+        graph <- paste(work_dir,"p2.png",sep="")
         png(graph)
         plot(seq(1,l)/60,las=1,dataSet$P_Sensor..Cur..Pressure,type="l",col="dark blue",xlab="Time (minutes)",ylab="Pressure (PSI)",main="Sensor Presure")
-
         dev.off()
 
-    	HTMLInsertGraph(graph,file=f, append=TRUE)
+        cat(paste("<img src=\"", graph, "\" /><br/><br/>", sep=""),file=f,append=TRUE)
     }
 
     #Check if there is an error (a value is 5) in the pump status
@@ -114,7 +99,6 @@ OT_plots<-function(work_dir,file_name,machine,target,version) {
             
     #finish report
     cat("\n<hr size=1>\n</body></html>",file=f,append=TRUE)
-    cat("Done!")
     cat("Info\n");
     cat("20\n");
     
