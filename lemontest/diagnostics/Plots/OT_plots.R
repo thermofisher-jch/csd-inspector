@@ -67,7 +67,7 @@ OT_plots<-function(work_dir,file_name,machine,target,version) {
         legend("bottomright",cex=0.8,c("T0-Ambient","T1-Heated Lid","T2-Thermal Cycling","T3-Internal Case"),col=c("dark green","dark blue","red","orange"),lty=1)
         dev.off()
 
-        cat(paste("<img src=\"", graph, "\" /><br/><br/>", sep=""),file=f,append=TRUE)
+        cat("<img src=\"p1.png\" /><br/><br/>", file=f, append=TRUE)
     }
 
     #This is plot 2
@@ -81,7 +81,7 @@ OT_plots<-function(work_dir,file_name,machine,target,version) {
         plot(seq(1,l)/60,las=1,dataSet$P_Sensor..Cur..Pressure,type="l",col="dark blue",xlab="Time (minutes)",ylab="Pressure (PSI)",main="Sensor Presure")
         dev.off()
 
-        cat(paste("<img src=\"", graph, "\" /><br/><br/>", sep=""),file=f,append=TRUE)
+        cat("<img src=\"p2.png\" /><br/><br/>", file=f, append=TRUE)
     }
 
     #Check if there is an error (a value is 5) in the pump status
