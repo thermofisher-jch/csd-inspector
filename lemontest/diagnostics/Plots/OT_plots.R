@@ -67,7 +67,7 @@ OT_plots<-function(work_dir,file_name,machine,target,version) {
         legend("bottomright",cex=0.8,c("T0-Ambient","T1-Heated Lid","T2-Thermal Cycling","T3-Internal Case"),col=c("dark green","dark blue","red","orange"),lty=1)
         dev.off()
 
-        cat("<img src=\"p1.png\" /><br/><br/>", file=f, append=TRUE)
+        cat("<img src=\"p1.png\" />", file=f, append=TRUE)
     }
 
     #This is plot 2
@@ -81,7 +81,7 @@ OT_plots<-function(work_dir,file_name,machine,target,version) {
         plot(seq(1,l)/60,las=1,dataSet$P_Sensor..Cur..Pressure,type="l",col="dark blue",xlab="Time (minutes)",ylab="Pressure (PSI)",main="Sensor Presure")
         dev.off()
 
-        cat("<img src=\"p2.png\" /><br/><br/>", file=f, append=TRUE)
+        cat("<img src=\"p2.png\" /><br />", file=f, append=TRUE)
     }
 
     #Check if there is an error (a value is 5) in the pump status
@@ -91,9 +91,9 @@ OT_plots<-function(work_dir,file_name,machine,target,version) {
     }else{
         
         if(5 %in% dataSet$Sample.Pump.Status){
-            cat("<br></br><br></br> <h2 align=\"center\" style=\"color: red\">Sample pump status test: ERROR detected value of 5</h3>\n",sep=" ",file=f,append=TRUE)
+            cat("<h2 align=\"center\" style=\"color: red\">Sample pump status test: ERROR detected value of 5</h3>\n",sep=" ",file=f,append=TRUE)
         }else{
-            cat("<br></br><br></br> <h2 align=\"center\" style=\"color: lime\">Sample pump status test: OK</h3>\n",sep=" ",file=f,append=TRUE)
+            cat("<h2 align=\"center\" style=\"color: lime\">Sample pump status test: OK</h3>\n",sep=" ",file=f,append=TRUE)
         }
     }
             
