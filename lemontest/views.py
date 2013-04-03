@@ -103,7 +103,7 @@ def upload_file(request):
         archive_id = archive.id
         archive_path = archive.path
         transaction.commit()
-        upload.queue_archive(request.registry.settings, archive_id, archive_path, data, testers)
+        upload.queue_archive(archive_id, archive_path, data, testers)
         url = request.route_url('check', archive_id=archive_id)
         return HTTPFound(location=url)
     label = ""
@@ -162,9 +162,9 @@ def rerun_archive(request):
         DBSession.delete(diagnostic)
     archive.diagnostics = get_diagnostics(archive.archive_type)
     DBSession.flush()
-    jobs = upload.make_diagnostic_jobs(archive, request.registry.settings, testers)
+    jobs = upload.make_diagnostic_jobs(archive, testers)
     transaction.commit()
-    upload.run_diagnostics(archive_id, request.registry.settings, jobs)
+    upload.run_diagnostics(archive_id, jobs)
     url = request.route_url('check', archive_id=archive_id)
     return HTTPFound(location=url)
 

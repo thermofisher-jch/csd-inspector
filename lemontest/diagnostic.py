@@ -42,7 +42,7 @@ def echo(message):
     logger.warning(message)
 
 @task
-def run_tester(test, settings, diagnostic_id, archive_path):
+def run_tester(test, diagnostic_id, archive_path):
     """Spawn a subshell in which the test's main script is run, with the
     archive's folder and the script's output folder as command line args.
     """
@@ -59,7 +59,7 @@ def run_tester(test, settings, diagnostic_id, archive_path):
     os.mkdir(output_path)
     cmd = [test.main, archive_path, output_path]
     # Spawn the test subprocess and wait for it to complete.
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, cwd=test.directory)
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=test.directory)
     result = proc.wait()
     stdout, stderr = proc.communicate()
     open(os.path.join(output_path, "standard_output.log"), 'w').write(stdout)

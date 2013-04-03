@@ -14,8 +14,7 @@
     "Version_Check",
     "ISP_Loading"
 ],
-"System_Log": [
-    "HD_Space",
-    "Services_Check"
+"OT_Log": [
+    "Plots"
 ]
 }
