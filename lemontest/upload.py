@@ -57,7 +57,7 @@ def make_relative_directories(root, files):
             os.makedirs(path)
 
 
-def unzip_archive(root, data, logger):
+def unzip_archive(root, data):
     zip_file = zipfile.ZipFile(data, 'r')
     namelist = zip_file.namelist()
     namelist = valid_files(namelist)
@@ -74,7 +74,7 @@ def unzip_archive(root, data, logger):
                 output_file.write(contents.read())
                 output_file.close()
             except IOError as err:
-                logger.error("For zip's file '%s', could not open '%s'" % (key, full_path))
+                task_logger.error("For zip's file '%s', could not open '%s'" % (key, full_path))
                 raise
     return [f for n, f in out_names]
 
@@ -138,10 +138,10 @@ def unzip_csa(archive):
         full_path = os.path.join(archive.path, "archive.zip")
         os.rename(os.path.join(archive.path, "uploaded_file.tmp"), full_path)
         archive_file = open(full_path, 'rb')
-        unzip_archive(archive.path, archive_file, logger)
+        unzip_archive(archive.path, archive_file)
     except IOError as err:
         archive.status = "Alerted during archive extraction"
-        logger.error("Archive {0} had an error: {1}".format(archive.id, err))
+        task_logger.error("Archive {0} had an error: {1}".format(archive.id, err))
         raise 
 
 
@@ -151,7 +151,7 @@ def one_touch_log(archive):
 
 
 archive_handlers = {
-    "PGM_Log": unzip_csa,
+    "PGM_Run": unzip_csa,
     "Proton": unzip_csa,
     "OT_Log": one_touch_log
 }
