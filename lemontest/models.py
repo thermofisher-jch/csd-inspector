@@ -10,6 +10,7 @@ from sqlalchemy import Unicode
 from sqlalchemy import DateTime
 from sqlalchemy import Text
 from sqlalchemy import ForeignKey
+from sqlalchemy import Table
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
@@ -26,6 +27,12 @@ logger = logging.getLogger(__name__)
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 Base = declarative_base()
 testers = dict()
+
+
+archive_tags = Table('archive_tags', Base.metadata,
+    Column('archive_id', Integer, ForeignKey('archives.id')),
+    Column('tag_id', Integer, ForeignKey('tags.id'))
+)
 
 
 class ArchiveType(Base):
@@ -46,6 +53,8 @@ class Archive(Base):
     archive_type = Column(Unicode(255))
 
     diagnostics = relationship("Diagnostic", order_by='Diagnostic.priority.desc()', cascade='all')
+
+    tags = relationship("Tag", secondary=archive_tags, backref="archives")
 
     def __init__(self, submitter_name, label, site, archive_type, path):
         self.submitter_name = submitter_name
@@ -86,6 +95,13 @@ class Diagnostic(Base):
     def get_readme_path(self):
         self.readme = testers[self.archive.archive_type][self.name].readme
         return self.readme
+
+
+class Tag(Base):
+    __tablename__ = 'tags'
+    id = Column(Integer, primary_key=True)
+    name = Column(Unicode(255))
+
 
 
 def populate():
