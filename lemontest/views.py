@@ -117,7 +117,7 @@ def upload_file(request):
 def parse_tags(tag_string):
     session = DBSession()
     tags = []
-    for name in tag_string.split():
+    for name in tag_string.lower().split():
         name = name.strip()
         if name:
             tag = session.query(Tag).filter(Tag.name == name).first()
