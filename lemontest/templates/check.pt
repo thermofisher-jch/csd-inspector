@@ -10,7 +10,10 @@
             <div id="view_titles">
                 <h1>${archive.label}</h1>
                 <h3 tal:condition="archive.site">${archive.site}</h3>
-                <p><em>${archive.time.strftime("%c")}, uploaded by ${archive.submitter_name}</em></p>
+                <div id="tags">
+                    <span class="label label-inverse" tal:repeat="tag archive.tags">${tag.name}</span>
+                </div>
+                <p style="text-align: right;"><em>${archive.time.strftime("%c")}, uploaded by ${archive.submitter_name}</em></p>
             </div>
             <form id="edit_titles" action="${request.route_url('check', archive_id=archive.id)}" method="post" hidden>
                 <input class="form-h1 span12" name="label" placeholder="Label" value="${archive.label}" />
@@ -24,6 +27,11 @@
                                 ${type.replace("_", " ")}
                             </option>
                         </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="span12">
+                        <input name="tags" placeholder="Tags" value="${tag_string}"></input>
                     </div>
                 </div>
                 <div class="row">
@@ -48,7 +56,7 @@
         </div>
     </div>
     <div class="row">
-        <h2 class="span12">Status: ${archive.status}</h2>
+        <h2 class="span12" tal:condition="archive.status != 'Diagnostics completed.'">Status: ${archive.status}</h2>
         <div class="span12">
             <table id="test-summary" class="table table-striped">
                 <thead>

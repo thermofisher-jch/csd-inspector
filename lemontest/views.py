@@ -11,6 +11,7 @@ from datetime import datetime
 from lemontest.models import DBSession
 from lemontest.models import Archive
 from lemontest.models import Diagnostic
+from lemontest.models import Tag
 from lemontest.models import testers
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
@@ -113,6 +114,20 @@ def upload_file(request):
     return {'label':label, 'name': name, 'archive_types': testers.keys()}
 
 
+def parse_tags(tag_string):
+    session = DBSession()
+    tags = []
+    for name in tag_string.lower().split():
+        name = name.strip()
+        if name:
+            tag = session.query(Tag).filter(Tag.name == name).first()
+            if tag is None:
+                tag = Tag(name=name)
+                session.add(tag)
+            tags.append(tag)
+    return tags
+
+
 @view_config(route_name="check", renderer="templates/check.pt")
 def check_archive(request):
     """Show the status of an archive given it's ID."""
@@ -124,6 +139,7 @@ def check_archive(request):
         archive.label = request.POST['label']
         archive.site = request.POST['site']
         archive.archive_type = request.POST['archive_type']
+        archive.tags = parse_tags(request.POST['tags'])
     else:
         logger.warning("No Posting: " + str(request.POST))
     session.flush()
@@ -131,7 +147,7 @@ def check_archive(request):
         test.readme = testers[archive.archive_type][test.name].readme
     basename = os.path.basename(archive.path)
     return {"archive": archive, "basename": basename, 'archive_types': testers.keys(), 
-        "status_highlights": status_highlights}
+        "status_highlights": status_highlights, "tag_string": " ".join(t.name for t in archive.tags)}
 
 
 @view_config(route_name="super_delete")
