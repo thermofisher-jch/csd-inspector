@@ -11,7 +11,23 @@ def load_ini(file_path, namespace="global"):
     return dict(parse.items(namespace))
 
 
+def check_chip(archive_path):
+    path = os.path.join(archive_path, "explog_final.txt")
+    if not os.path.exists(path):
+        path = os.path.join(archive_path, "explog.txt")
+    if os.path.exists(path):
+        for line in open(path):
+            if line.startswith("ChipType:"):
+                return line.split(":", 1)[-1].strip()
+
+
 archive_path, output_path = sys.argv[1:3]
+
+if check_chip(archive_path) == "314R":
+    print("N\A")
+    print(0)
+    print("Loading for 314 chips is not actionable :(")
+    sys.exit()
 
 stats_path = None
 files = ['sigproc_results/analysis.bfmask.stats', 'sigproc_results/bfmask.stats']
