@@ -77,6 +77,7 @@ class Diagnostic(Base):
     archive_id = Column(Integer, ForeignKey('archives.id'))
 
     archive = relationship("Archive")
+    readme = None
 
     def __init__(self, name, archive=None):
         self.name = name
@@ -88,12 +89,16 @@ class Diagnostic(Base):
         self.priority = 0
         self.details = ""
         self.html = None
+        self.readme = None
 
     def get_output_path(self):
         return os.path.join(self.archive.path, "test_results", self.name)
 
     def get_readme_path(self):
-        self.readme = testers[self.archive.archive_type][self.name].readme
+        try:
+            self.readme = testers[self.archive.archive_type][self.name].readme
+        except KeyError:
+            self.readme = None
         return self.readme
 
 
