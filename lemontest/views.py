@@ -144,7 +144,7 @@ def check_archive(request):
         logger.warning("No Posting: " + str(request.POST))
     session.flush()
     for test in archive.diagnostics:
-        test.readme = testers[archive.archive_type][test.name].readme
+        test.get_readme_path()
     basename = os.path.basename(archive.path)
     return {"archive": archive, "basename": basename, 'archive_types': testers.keys(), 
         "status_highlights": status_highlights, "tag_string": " ".join(t.name for t in archive.tags)}
