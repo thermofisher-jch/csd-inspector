@@ -1,8 +1,10 @@
 OT_plots<-function(work_dir,file_name,machine,target,version) {
     
+	#One of these flags becomes true
     
     OT2=FALSE
     OT1=FALSE
+	OTDL=FALSE
 
     dataSet <- read.csv(paste(work_dir,file_name,sep=""),header=TRUE)
 
@@ -10,7 +12,7 @@ OT_plots<-function(work_dir,file_name,machine,target,version) {
     header_len=length(names(dataSet))
 
 
-    #There are 2 types of file:
+    #There are 3 types of file:
     #OT2 has 34 columns
     if( header_len ==34){
         OT2=TRUE;
@@ -36,10 +38,29 @@ OT_plots<-function(work_dir,file_name,machine,target,version) {
         header=c("Thermistor0Temperature","Thermistor1Temperature","Thermistor2Temperature","Thermistor3Temperature",
             "Thermistor4Temperature","Heater0CurrentTemp","SetTemp","PWMdutyCycle","Heater1CurrentTemp","SetTemp.1",
             "PWMdutyCycle.1","Heater2CurrentTemp","SetTemp.2","PWMdutyCycle.2","Heater3CurrentTemp","SetTemp.3",
-            "PWMdutyCycle.3","PressureAdj.SetPt","SetPt","P_SensorCur.Pressure","RawA2D","MotorPower.Oscillation",
+            "PWMdutyCycle.3","PressureAdj.SetPt","SetPt","P_SensorCur.Pressure","RawA2D","MotorPowerOscillation",
             "Valve0","Valve1","Valve2","Valve3","Valve4","Valve5","Valve6","Fan0","Fan1","Timestamp")
 
         #stop if the header names of the file are not as expected for OT1
+        if( ! (all(names(dataSet)==header))) {
+            cat("Stopping: the file header is different from what is expected\n")
+            cat("Warning\n");
+            cat("30\n");
+            stop()
+        }
+	}else if(header_len ==33) {
+        OTDL=TRUE;
+        machine="OTDL"
+        target=""
+        version=""
+        #OTDL has 33 columns and does not have pump data either
+        header=c("Thermistor0Temperature","Thermistor1Temperature","Thermistor2Temperature","Thermistor3Temperature",
+            "Thermistor4Temperature","Heater0CurrentTemp","SetTemp","PWMdutyCycle","Heater1CurrentTemp","SetTemp.1",
+            "PWMdutyCycle.1","Heater2CurrentTemp","SetTemp.2","PWMdutyCycle.2","Heater3CurrentTemp","SetTemp.3",
+            "PWMdutyCycle.3","PressureAdj.SetPt","SetPt","P_SensorCur.Pressure","RawA2D","MotorPowerOscillation",
+            "Valve0","Valve1","Valve2","Valve3","Valve4","Valve5","Valve6","Valve7","Fan0","Fan1","Timestamp")
+
+        # #stop if the header names of the file are not as expected for OTDL
         if( ! (all(names(dataSet)==header))) {
             cat("Stopping: the file header is different from what is expected\n")
             cat("Warning\n");
@@ -50,6 +71,7 @@ OT_plots<-function(work_dir,file_name,machine,target,version) {
         cat("Warning\n");
         cat("30\n");
         cat("The file's header length is different from what is expected")
+
         stop()
     }
   
@@ -85,11 +107,11 @@ OT_plots<-function(work_dir,file_name,machine,target,version) {
         cat("<img src=\"p1.png\" />", file=f, append=TRUE)
     }
 
-    #This is plot 2
+    #This is plot 2 Sensor pressure
     #verify the data can be plotted
     if(!(is.numeric(dataSet$P_SensorCur.Pressure))) {
         cat("<h3 align=\"center\">The sensor pressure data cannot be plotted: the data is not numeric</h3>\n",sep=" ",file=f,append=TRUE)
-        cat("The sensor pressure data cannot be plotted: the data is not numeric")
+        cat("The sensor pressure data cannot be plotted: the data is not numeric\n")
     }else{
         graph <- paste(work_dir,"p2.png",sep="")
         png(graph)
@@ -98,6 +120,31 @@ OT_plots<-function(work_dir,file_name,machine,target,version) {
         dev.off()
 
         cat("<img src=\"p2.png\" /><br />", file=f, append=TRUE)
+    }
+
+
+
+    #For OT1 Motor Oscillation data comes in a list of values separated by ":", we need to extract the first value to be plotted
+    #
+    if(OT1==TRUE|OTDL==TRUE){
+        MPO=(as.integer(sapply(strsplit(as.character(dataSet$MotorPowerOscillation),":"),"[[",1)))
+    }else{
+        MPO=dataSet$MotorPowerOscillation
+    }
+
+    #plot 3 Motor oscillation
+    #verify the data can be plotted
+    if(!(is.numeric(MPO))) {
+        cat("<h3 align=\"center\">The Motor Power Oscillation data cannot be plotted: the data is not numeric</h3>\n",sep=" ",file=f,append=TRUE)
+        cat("The Motor Power Oscillation data cannot be plotted: the data is not numeric")
+    }else{
+        graph <- paste(work_dir,"p3.png",sep="")
+        png(graph)
+        plot(seq(1,l)/60,las=1,MPO,type="l",col="dark blue",xlab="Time (minutes)",ylab="Signal",main="Motor Power Oscillation")
+
+        dev.off()
+
+        cat("<img src=\"p3.png\" /><br />", file=f, append=TRUE)
     }
 
 	if(OT2==TRUE){
@@ -120,5 +167,6 @@ OT_plots<-function(work_dir,file_name,machine,target,version) {
 }
 
 cmd.args <- commandArgs(trailingOnly = TRUE);
+
 OT_plots(cmd.args[1], cmd.args[2], cmd.args[3], cmd.args[4], cmd.args[5]);
 
