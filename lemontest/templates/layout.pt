@@ -44,17 +44,6 @@
     </div>
 
     <div class="container">
-      <div class="row">
-        <div class="span12">
-          <p class="alert alert-warning">
-            <strong>Weekend Downtime</strong><br>
-            Ion inspector will go down on Friday May 17th around 5pm Pacific,
-            and it will be back up Saturday afternoon at the soonest and Sunday
-            the 19th at the latest, due to the server moving to the Oyster 
-            Point site.
-          </p>
-        </div>
-        </div>
       <tal:block  metal:define-slot="main">
         <!-- The main content goes here -->
       </tal:block>
