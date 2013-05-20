@@ -32,12 +32,12 @@ else
                             $F[2] =~ /(\S+)\s+(\S+)/; \
                             print "$2\n"; \
                     }else{ \
-                        if($.==2) {$_ =~ s/[ |-]//g;$_="$_\n"}\
+                        if($.==2) {$_ =~ s/[ |:|-]//g;$_="$_\n"}\
                         print CSVFILE $_ \
                     }' $OTFILE`)
         else
             V=($OTFILE)
-            sed -e '1 s/[ |-]//g' $OTFILE > $OUTPUT/csvfile.csv
+            sed -e '1 s/[ |:|-]//g' $OTFILE > $OUTPUT/csvfile.csv
         fi
 
         R --vanilla --slave --args $OUTPUT/ csvfile.csv ${V[@]} < ./OT_plots.R
