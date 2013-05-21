@@ -140,9 +140,7 @@ def check_archive(request):
         archive.site = request.POST['site']
         archive.archive_type = request.POST['archive_type']
         archive.tags = parse_tags(request.POST['tags'])
-    else:
-        logger.warning("No Posting: " + str(request.POST))
-    session.flush()
+        session.flush()
     for test in archive.diagnostics:
         test.get_readme_path()
     basename = os.path.basename(archive.path)
