@@ -71,11 +71,11 @@
                             <span class="label label-${status_highlights.get(test.status, '')}">${test.status}</span>
                         </td>
                         <td>
-                            <p class="details" tal:content="structure test.details"></p>
-                            <div class="links">
+                            <div class="links" tal:condition="test.html or test.readme">
                                 <div><a tal:condition="test.html" href="${request.static_url(test.html)}">Results</a></div>
                                 <div><a tal:condition="test.readme" href="${request.route_url('test_readme', test_name=test.name)}">Readme</a></div>
                             </div>
+                            <p class="details" tal:content="structure test.details"></p>
                         </td>
                     </tr>
                 </tbody>
