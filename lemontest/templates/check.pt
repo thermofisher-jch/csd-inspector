@@ -7,7 +7,7 @@
     <!-- Main hero unit for a primary marketing message or call to action -->
     <div class="row">
         <div class="span12">
-            <div id="view_titles">
+            <div id="view_titles" class="clearfix">
                 <h1>${archive.label}</h1>
                 <h3 tal:condition="archive.site">${archive.site}</h3>
                 <p style="float: right;"><em>${archive.time.strftime("%c")}, uploaded by ${archive.submitter_name}</em></p>
