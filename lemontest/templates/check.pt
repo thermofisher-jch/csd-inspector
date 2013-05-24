@@ -83,13 +83,16 @@ ins>                <div class="pull-left">
             </table>
         </div>
     </div>
-    <div class="row" id="run_report">
-        <div class="span12">
+    <div class="row" style="margin-top: 20px;">
+        <div id="run_report" class="span12">
             <object tal:attributes="data '/archives/'+basename+'/report.pdf'" 
                 type="application/pdf" height="600px;" width="100%"
-                onerror="javascript:$('#run_report').hide();">
+                onerror="$('#run_report').hide();$('#no_report').show();">
             </object>
             <a tal:attributes="href '/archives/'+basename+'/report.pdf'" class="btn btn-success"><i class="icon-arrow-down icon-white"></i> Download Report</a>
+        </div>
+        <div id="no_report" class="span12" style="display:none;">
+            <small>There is no report.pdf for this archive.</small>
         </div>
     </div>
 </tal:block>
