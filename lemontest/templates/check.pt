@@ -43,8 +43,8 @@
                     </div>
                 </div>
             </form>
-            <div class="form-actions">
-                <div class="pull-left">
+            <div class="form-actions"
+ins>                <div class="pull-left">
                     <a class="btn btn-success" href="/archives/${basename}/archive.zip"><i class="icon-arrow-down icon-white"></i> Download Archive</a>
                     <a class="btn" href="/archives/${basename}/"><i class="icon-folder-open"></i> View Files</a>
                     <a id="edit" class="btn" href="#"><i class="icon-pencil"></i> Edit</a>
@@ -81,6 +81,15 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
+    </div>
+    <div class="row" id="run_report">
+        <div class="span12">
+            <object tal:attributes="data '/archives/'+basename+'/report.pdf'" 
+                type="application/pdf" height="600px;" width="100%"
+                onerror="javascript:$('#run_report').hide();">
+            </object>
+            <a tal:attributes="href '/archives/'+basename+'/report.pdf'" class="btn btn-success"><i class="icon-arrow-down icon-white"></i> Download Report</a>
         </div>
     </div>
 </tal:block>
