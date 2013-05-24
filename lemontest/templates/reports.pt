@@ -62,7 +62,7 @@
     <table class="table table-striped" id="reports">
         <thead>
             <tr>
-                <th>ID</th><th>Submitter</th><th>Date</th><th>Type</th><th>Site</th><th>Label</th>
+                <th>ID</th><th>Submitter</th><th>Date</th><th>Type</th><th>Site</th><th>Label</th><th>Summary</th>
             </tr>
             <tr class="filter-row">
                     <th></th>
@@ -79,7 +79,9 @@
                     <th><input id="filter_site" name="site" type="text" value="${filters.site}"></th>
                     <th>
                         <input id="filter_label" name="label" type="text" value="${filters.label}">
-                        <a tal:condition="is_search" href="${request.current_route_url()}" class="btn btn-inverse pull-right">Clear</a>
+                    </th>
+                    <th>
+                        <a tal:condition="is_search" href="${request.current_route_url()}" class="btn btn-inverse">Clear</a>
                     </th>
             </tr>
         </thead>
@@ -91,6 +93,7 @@
                 <td>${archive.archive_type.replace("_", " ")}</td>
                 <td>${archive.site}</td>
                 <td>${archive.label}</td>
+                <td>${archive.summary}</td>
             </tr>
         </tbody>
     </table>

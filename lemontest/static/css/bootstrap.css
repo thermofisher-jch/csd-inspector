@@ -6068,3 +6068,12 @@ a.badge:hover {
 .affix {
   position: fixed;
 }
+
+#test-summary .links {
+    float: right;
+}
+
+#test-summary .links div {
+    width: 5em;
+    display: inline-block;
+}
