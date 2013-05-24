@@ -10,10 +10,11 @@
             <div id="view_titles">
                 <h1>${archive.label}</h1>
                 <h3 tal:condition="archive.site">${archive.site}</h3>
-                <div id="tags">
+                <p style="float: right;"><em>${archive.time.strftime("%c")}, uploaded by ${archive.submitter_name}</em></p>
+                <h4 tal:condition="archive.summary">${archive.summary}</h4>
+                <div id="tags" tal:condition="archive.tags">
                     <span class="label label-inverse" tal:repeat="tag archive.tags">${tag.name}</span>
                 </div>
-                <p style="text-align: right;"><em>${archive.time.strftime("%c")}, uploaded by ${archive.submitter_name}</em></p>
             </div>
             <form id="edit_titles" action="${request.route_url('check', archive_id=archive.id)}" method="post" hidden>
                 <input class="form-h1 span12" name="label" placeholder="Label" value="${archive.label}" />
@@ -29,14 +30,14 @@
                         </select>
                     </div>
                 </div>
+
                 <div class="row">
-                    <div class="span12">
+                    <div class="span6">
+                        <input name="summary" class="form-h4" placeholder="Summary" value="${archive.summary}" style="width: 300px;" maxlength="30"></input><br/>
                         <input name="tags" placeholder="Tags" value="${tag_string}"></input>
                     </div>
-                </div>
-                <div class="row">
-                    <p class="span8"><em>${archive.time.strftime("%c")}, uploaded by ${archive.submitter_name}</em></p>
-                    <div class="span4" style="text-align: right;">
+                    <div class="span6" style="text-align: right;">
+                        <p><em>${archive.time.strftime("%c")}, uploaded by ${archive.submitter_name}</em></p>
                         <button id="cancel" class="btn">Cancel</button>
                         <input type="submit" class="btn btn-primary" value="Save Changes" />
                     </div>

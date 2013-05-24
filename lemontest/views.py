@@ -139,8 +139,10 @@ def check_archive(request):
         archive.label = request.POST['label']
         archive.site = request.POST['site']
         archive.archive_type = request.POST['archive_type']
+        archive.summary = request.POST['summary']
         archive.tags = parse_tags(request.POST['tags'])
         session.flush()
+        return HTTPFound(location=request.current_route_url())
     for test in archive.diagnostics:
         test.get_readme_path()
     basename = os.path.basename(archive.path)
