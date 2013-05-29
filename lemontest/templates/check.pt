@@ -38,7 +38,7 @@
                     </div>
                     <div class="span6" style="text-align: right;">
                         <p><em>${archive.time.strftime("%c")}, uploaded by ${archive.submitter_name}</em></p>
-                        <button id="cancel" class="btn">Cancel</button>
+                        <input type="button" id="cancel" class="btn" value="Cancel" />
                         <input type="submit" class="btn btn-primary" value="Save Changes" />
                     </div>
                 </div>
