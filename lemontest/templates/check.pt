@@ -85,9 +85,8 @@ ins>                <div class="pull-left">
     </div>
     <div class="row" style="margin-top: 20px;">
         <div id="run_report" class="span12">
-            <object tal:attributes="data '/archives/'+basename+'/report.pdf'" 
-                type="application/pdf" height="600px;" width="100%"
-                onerror="$('#run_report').hide();$('#no_report').show();">
+            <object type="application/pdf" data="/archives/${basename}/report.pdf" onload="console.log('fuck');" onerror="console.log('derp');" id="derp">
+                <div>Your browser does not support PDF display</div>
             </object>
             <a tal:attributes="href '/archives/'+basename+'/report.pdf'" class="btn btn-success"><i class="icon-arrow-down icon-white"></i> Download Report</a>
         </div>
@@ -98,7 +97,12 @@ ins>                <div class="pull-left">
 </tal:block>
 <tal:block metal:fill-slot="extra_head">
     <script>
+        window.onerror=function(){console.log("at least fucking something is aware of this");};
         $(function(){
+            console.log("merp");
+            $("#derp").error(function(){
+                console.log("mega derp");
+            });
             $("#edit, #cancel").click(function(){
                 $("#view_titles").toggle();
                 $("#edit_titles").toggle();
