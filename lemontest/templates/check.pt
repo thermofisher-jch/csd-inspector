@@ -83,10 +83,36 @@
             </table>
         </div>
     </div>
+    <div class="row" style="margin-top: 20px;">
+        <div id="run_report" class="span12">
+            <div id="pdf"></div>
+            <a tal:attributes="href '/archives/'+basename+'/report.pdf'" class="btn btn-success"><i class="icon-arrow-down icon-white"></i> Download Report</a>
+        </div>
+        <div id="no_report" class="span12" style="display:none;">
+            <small>There is no report.pdf for this archive.</small>
+        </div>
+    </div>
 </tal:block>
 <tal:block metal:fill-slot="extra_head">
     <script>
         $(function(){
+            var report_url = "/archives/${basename}/report.pdf";
+            var pdf_template = '<object type="application/pdf" data="/archives/${basename}/report.pdf" height="600px" width="100%"><p>Your browser does not support PDF display</p></object>';
+            console.log("merp");
+            $.ajax({
+                type: 'HEAD',
+                url: report_url,
+                success: function () {
+                    $("#pdf").html(pdf_template);
+                },
+                error: function () {
+                    $("#run_report").hide();
+                    $("#no_report").show();
+                }
+            });
+            $("#derp").error(function(){
+                console.log("mega derp");
+            });
             $("#edit, #cancel").click(function(){
                 $("#view_titles").toggle();
                 $("#edit_titles").toggle();

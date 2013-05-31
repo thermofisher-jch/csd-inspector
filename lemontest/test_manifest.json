@@ -4,7 +4,11 @@
     "Raw_Trace",
     "Version_Check",
     "ISP_Loading",
-    "Nuc_pH"
+    "Nuc_pH",
+    "Chip_Temperature",
+    "PGM_Temperature",
+    "PGM_Pressure",
+    "Chip_Noise"
 ],
 "Proton":[
     "Filter_Metrics",

@@ -1,0 +1,4 @@
+The chip noise should be less than these values for these chip types:
+314: 8.0
+316: 10.0
+318: 9.0

@@ -6077,3 +6077,7 @@ a.badge:hover {
     width: 5em;
     display: inline-block;
 }
+
+footer {
+  margin-top: 100px;
+}
