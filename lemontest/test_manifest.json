@@ -5,7 +5,8 @@
     "Version_Check",
     "ISP_Loading",
     "Nuc_pH",
-    "Chip_Temperature"
+    "Chip_Temperature",
+    "PGM_Temperature"
 ],
 "Proton":[
     "Filter_Metrics",
