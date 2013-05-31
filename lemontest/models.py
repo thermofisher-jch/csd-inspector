@@ -54,7 +54,7 @@ class Archive(Base):
     archive_type = Column(Unicode(255))
     summary = Column(Unicode(30), default=u"")
 
-    diagnostics = relationship("Diagnostic", order_by='Diagnostic.priority.desc()', cascade='all')
+    diagnostics = relationship("Diagnostic", order_by="(Diagnostic.priority.desc(), Diagnostic.name.asc())", cascade='all')
 
     tags = relationship("Tag", secondary=archive_tags, backref="archives")
 
