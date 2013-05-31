@@ -2,10 +2,17 @@
 
 import sys
 import os
-import ConfigParser
+
 
 def load_explog(path):
-    return dict(l.strip().split(": ", 1) for l in open(path) if ": " in l)
+    data = {}
+    for line in open(path):
+        # Trying extra hard to accomodate formatting issues in explog
+        datum = line.split(": ", 1)
+        if len(datum) == 2:
+            key, value = datum
+            data[key.strip()] = value.strip()
+    return data
 
 
 def validate(archive_path):
@@ -16,12 +23,12 @@ def validate(archive_path):
     explog = load_explog(path)
     if "ChipTemperature" not in explog:
         return "ChipTemperature missing from explog_final.txt", False
-    return explog
+    return explog, True
 
 
 def report(data):
     temperature = float(data["ChipTemperature"].split(" - ")[1])
-    if 48.0 < temperature:
+    if temperature < 48.0:
         print("Alert")
         print(40)
         print("Chip temperature {:.2f} is too cold.".format(temperature))
@@ -45,3 +52,5 @@ def main():
         sys.exit()
     else:
         report(data)
+
+main()
