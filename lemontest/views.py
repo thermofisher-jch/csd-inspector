@@ -257,9 +257,12 @@ def changes(request):
 @view_config(route_name="test_readme")
 def test_readme(request):
     test_name = request.matchdict["test_name"]
+    readme = None
     for archive_type in testers.keys():
-        readme = test_name in testers[archive_type] and testers[archive_type][test_name].readme
-    if readme is not None:
+        if test_name in testers[archive_type]:
+            readme = testers[archive_type][test_name].readme
+            break
+    if readme:
         mime = mimetypes.guess_type(readme)[0] or 'text/plain'
         response = Response(content_type=mime)
         response.app_iter = open(readme, 'rt')
