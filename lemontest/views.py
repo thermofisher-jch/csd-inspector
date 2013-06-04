@@ -17,6 +17,7 @@ from pyramid.view import view_config
 from pyramid.renderers import get_renderer
 from pyramid.response import Response
 from pyramid.httpexceptions import HTTPFound
+from pyramid.httpexceptions import HTTPNotFound
 from sqlalchemy.orm import subqueryload
 from webhelpers import paginate
 import upload
@@ -272,4 +273,9 @@ def test_readme(request):
 
 @view_config(route_name="stats", renderer="templates/stats.pt")
 def stats(request):
+    return {}
+
+@view_config(context=HTTPNotFound, renderer="404.mak")
+def not_found(self, request):
+    request.response.status = 404
     return {}
