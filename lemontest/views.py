@@ -18,6 +18,7 @@ from pyramid.renderers import get_renderer
 from pyramid.response import Response
 from pyramid.httpexceptions import HTTPFound
 from pyramid.httpexceptions import HTTPNotFound
+from pyramid.exceptions import NotFound
 from sqlalchemy.orm import subqueryload
 from webhelpers import paginate
 import upload
@@ -136,6 +137,8 @@ def check_archive(request):
     archive_id = int(request.matchdict["archive_id"])
     archive = session.query(Archive).options(subqueryload(
         Archive.diagnostics)).filter(Archive.id==archive_id).first()
+    if not archive:
+        raise NotFound()
     if request.POST:
         archive.label = request.POST['label']
         archive.site = request.POST['site']
