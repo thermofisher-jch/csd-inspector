@@ -19,7 +19,7 @@
       }
     </style>
     <script src="${request.static_url('lemontest:static/js/jquery-1.8.3.min.js')}"></script>
-    <%block name="header"/>
+    <%block name="extra_head"/>
   </head>
 
   <body>

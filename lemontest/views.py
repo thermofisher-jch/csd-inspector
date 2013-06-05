@@ -130,7 +130,7 @@ def parse_tags(tag_string):
     return tags
 
 
-@view_config(route_name="check", renderer="templates/check.pt")
+@view_config(route_name="check", renderer="check.mak")
 def check_archive(request):
     """Show the status of an archive given it's ID."""
     session = DBSession()
