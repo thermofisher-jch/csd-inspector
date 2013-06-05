@@ -4,9 +4,10 @@
     <div class="span12">
         <div id="view_titles" class="clearfix">
             <h1>${archive.label}</h1>
-            % if archive.site:
-                <h3>${archive.site}</h3>
-            % endif
+            <div class="row">
+                <h3 class="span9">${archive.site}</h3>
+                <h3 class="span3" style="text-align: right">${archive.archive_type.replace("_", " ")}</h3>
+            </div>
             <p style="float: right;"><em>${archive.time.strftime("%c")}, uploaded by ${archive.submitter_name}</em></p>
             % if archive.summary:
                 <h4>${archive.summary}</h4>
