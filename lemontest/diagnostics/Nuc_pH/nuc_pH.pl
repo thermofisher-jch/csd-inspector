@@ -34,9 +34,9 @@ while (<FILE>){
 
 #test fails if one or more of the values are not present in the file
 if($found < 5 ){
-	print "Alert\n";
-	print "40\n";
-	print "Unable to find all the data needed for the test!\n";
+	print "N/A\n";
+	print "0\n";
+	print "Unable to find all the data needed for the test.\n";
 }elsif($kit eq 'IonPGM200Kit'){  
 	if($RT_R1 < 7.0){
 		print "Alert\n";
@@ -62,6 +62,7 @@ if($found < 5 ){
 }else{
 	print "N/A\n";
 	print "0\n";
+	print "Only applicable to the PGM 200bp Kit.\n";
 }
 
 close(FILE);
