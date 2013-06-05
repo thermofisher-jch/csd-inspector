@@ -95,9 +95,7 @@
                                     </div>
                                 </div>
                             % endif
-                            <p class="details">
-                                ${test.details}
-                            </p>
+                            ${test.details | n}
                         </td>
                     </tr>
                 % endfor
