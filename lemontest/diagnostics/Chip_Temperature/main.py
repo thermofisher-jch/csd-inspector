@@ -23,6 +23,10 @@ def validate(archive_path):
     explog = load_explog(path)
     if "ChipTemperature" not in explog:
         return "ChipTemperature missing from explog_final.txt", False
+
+    if explog['PGM HW'] == '1.1':
+        return "Not needed for PGM 1.1", False
+
     return explog, True
 
 
