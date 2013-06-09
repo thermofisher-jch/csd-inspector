@@ -1,0 +1,4 @@
+This test flags runs with low nucleotide pH.
+
+OK indicates that nuc pH was >= 7.0 as measured during reagent check.
+Alert indicates that nuc pH was < 7.0.

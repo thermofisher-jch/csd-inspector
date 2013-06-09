@@ -17,6 +17,8 @@ from pyramid.view import view_config
 from pyramid.renderers import get_renderer
 from pyramid.response import Response
 from pyramid.httpexceptions import HTTPFound
+from pyramid.httpexceptions import HTTPNotFound
+from pyramid.exceptions import NotFound
 from sqlalchemy.orm import subqueryload
 from webhelpers import paginate
 import upload
@@ -128,21 +130,23 @@ def parse_tags(tag_string):
     return tags
 
 
-@view_config(route_name="check", renderer="templates/check.pt")
+@view_config(route_name="check", renderer="check.mak")
 def check_archive(request):
     """Show the status of an archive given it's ID."""
     session = DBSession()
     archive_id = int(request.matchdict["archive_id"])
     archive = session.query(Archive).options(subqueryload(
         Archive.diagnostics)).filter(Archive.id==archive_id).first()
+    if not archive:
+        raise NotFound()
     if request.POST:
         archive.label = request.POST['label']
         archive.site = request.POST['site']
         archive.archive_type = request.POST['archive_type']
+        archive.summary = request.POST['summary']
         archive.tags = parse_tags(request.POST['tags'])
-    else:
-        logger.warning("No Posting: " + str(request.POST))
-    session.flush()
+        session.flush()
+        return HTTPFound(location=request.current_route_url())
     for test in archive.diagnostics:
         test.get_readme_path()
     basename = os.path.basename(archive.path)
@@ -203,7 +207,7 @@ def list_reports(request):
             if column == 'archive_type':
                 archive_query = archive_query.filter(Archive.archive_type == value)
             else:
-                archive_query = archive_query.filter(getattr(Archive, column).like("%{}%".format(value)))
+                archive_query = archive_query.filter(getattr(Archive, column).ilike("%{}%".format(value)))
     archives = paginate.Page(archive_query, page, items_per_page=100, url=page_url)
     pages = [archives.first_page]
     left_pagius = 5
@@ -257,9 +261,12 @@ def changes(request):
 @view_config(route_name="test_readme")
 def test_readme(request):
     test_name = request.matchdict["test_name"]
+    readme = None
     for archive_type in testers.keys():
-        readme = test_name in testers[archive_type] and testers[archive_type][test_name].readme
-    if readme is not None:
+        if test_name in testers[archive_type]:
+            readme = testers[archive_type][test_name].readme
+            break
+    if readme:
         mime = mimetypes.guess_type(readme)[0] or 'text/plain'
         response = Response(content_type=mime)
         response.app_iter = open(readme, 'rt')
@@ -269,4 +276,9 @@ def test_readme(request):
 
 @view_config(route_name="stats", renderer="templates/stats.pt")
 def stats(request):
+    return {}
+
+@view_config(context=HTTPNotFound, renderer="404.mak")
+def not_found(self, request):
+    request.response.status = 404
     return {}
