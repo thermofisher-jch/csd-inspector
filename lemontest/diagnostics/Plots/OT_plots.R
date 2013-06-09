@@ -144,21 +144,34 @@ OT_plots<-function(work_dir,file_name,machine,target,version) {
 
         dev.off()
 
-        cat("<img src=\"p3.png\" /><br />", file=f, append=TRUE)
+        cat("<img src=\"p3.png\" />", file=f, append=TRUE)
     }
 
 	if(OT2==TRUE){
+        #flowmeter test only for OT2
+        if(!(is.numeric(dataSet$Flowmeter0))) {
+            cat("<h3 align=\"center\">Unable to test Flowmeter: the data is not numeric</h3>\n",sep=" ",file=f,append=TRUE)
+            cat("Unable to test SFlowmeter: the data is not numeric")
+        }else{
+             graph <- paste(work_dir,"p4.png",sep="")
+            png(graph)
+            plot(seq(1,l)/60,las=1,dataSet$Flowmeter0,type="l",col="dark blue",xlab="Time (minutes)",ylab="Liters per minute",main="Flowmeter")
+
+            dev.off()
+
+            cat("<img src=\"p4.png\" /><br />", file=f, append=TRUE)           
+        }    
 		#Check if there is an error (a value is 5) in the pump status
-		if(!(is.numeric(dataSet$SamplePumpStatus))) {
-			cat("<h3 align=\"center\">Unable to test Sample pump status: the data is not numeric</h3>\n",sep=" ",file=f,append=TRUE)
-			cat("Unable to test Sample pump status: the data is not numeric")
-		}else{		
-			if(5 %in% dataSet$SamplePumpStatus){
-				cat("<br></br><br></br> <h2 align=\"center\" style=\"color: red\">Sample pump status test: ERROR detected value of 5</h3>\n",sep=" ",file=f,append=TRUE)
-			}else{
-				cat("<h2 align=\"center\" style=\"color: lime\">Sample pump status test: OK</h3>\n",sep=" ",file=f,append=TRUE)
-			}
-		}
+		# if(!(is.numeric(dataSet$SamplePumpStatus))) {
+		# 	cat("<h3 align=\"center\">Unable to test Sample pump status: the data is not numeric</h3>\n",sep=" ",file=f,append=TRUE)
+		# 	cat("Unable to test Sample pump status: the data is not numeric")
+		# }else{		
+		# 	if(5 %in% dataSet$SamplePumpStatus){
+		# 		cat("<br></br><br></br> <h2 align=\"center\" style=\"color: red\">Sample pump status test: ERROR detected value of 5</h3>\n",sep=" ",file=f,append=TRUE)
+		# 	}else{
+		# 		cat("<h2 align=\"center\" style=\"color: lime\">Sample pump status test: OK</h3>\n",sep=" ",file=f,append=TRUE)
+		# 	}
+		# }
 	}
     #finish report
     cat("\n<hr size=1>\n</body></html>",file=f,append=TRUE)
