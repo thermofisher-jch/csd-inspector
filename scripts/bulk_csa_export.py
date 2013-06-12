@@ -36,7 +36,7 @@ def download_result(experiment, url_path):
     if result_response.ok:
         return result_response.json()
     else:
-        log("{:<4d} failed downloading {}".format(experiment['id'], result_url))
+        log("{} {:<4d} failed downloading {}".format(g['hostname'], experiment['id'], result_url))
         with open(os.path.join(directory, "errors.log"), 'w') as errlog:
             errlog.write("HTTP {} {}\n".format(result_response.status_code, result_response.reason))
             errlog.write(result_response.content)
@@ -51,9 +51,9 @@ def download_csa(experiment, result, directory):
         with open(os.path.join(directory, "csa.zip"), 'wb') as csa:
             for data in response.iter_content(4096):
                 csa.write(data)
-        log("Experiment {:<4d} downloaded CSA".format(experiment['id']))
+        log("{} Experiment {:<4d} downloaded CSA".format(g['hostname'], experiment['id']))
     else:
-        log("{:<4d} failed up downloading {}".format(experiment['id'], csa_url))
+        log("{} {:<4d} failed up downloading {}".format(g['hostname'], experiment['id'], csa_url))
         with open(os.path.join(directory, "errors.log"), 'w') as errlog:
             errlog.write("HTTP {} {}\n".format(response.status_code, response.reason))
             errlog.write(response.content)
@@ -70,7 +70,7 @@ def get_archive(experiment):
         if result and result.get("status", None) == "Completed":
             break
     else:
-        log("server {} experiment {:d} had no complete results".format(g['hostname'], experiment['id']))
+        log("{} experiment {:d} had no complete results".format(g['hostname'], experiment['id']))
         return
     with open(os.path.join(directory, "result.json"), 'w') as output:
         json.dump(result, output, sort_keys=True, indent=4)
@@ -81,28 +81,59 @@ def init(process_globals):
     g.update(process_globals)
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("server_url")
-    parser.add_argument("api_file")
-    args = parser.parse_args()
-    api_data = json.load(open(args.api_file))
-    print("Loaded {} Experiment records.".format(api_data['meta']['total_count']))
-    experiments = api_data['objects'][:130]
-    
-    start_time = datetime.now()
-    g['server_url'] = args.server_url
-    g['hostname'] = urlparse.urlparse(args.server_url).hostname
+def download_experiment_list(server_url):
+    try:
+        g['hostname'] = urlparse.urlparse(server_url).hostname
+        g['server_path'] = os.path.join(root_path, g['hostname'])
+        if not os.path.exists(g['server_path']):
+            os.mkdir(g['server_path'])
+        experiment_url_path = "/rundb/api/v1/experiment/?limit=0"
+        url = urlparse.urljoin(server_url, experiment_url_path)
+        log("Downloading {}".format(url))
+        response = requests.get(url, auth=auth)
+        if response.ok:
+            with open(os.path.join(g['server_path'], "all_experiments.json"), 'w') as out:
+                json.dump(response.json(), out, sort_keys=True, indent=4)
+            log("Downloaded {} successfully".format(url))
+        else:
+            log("Failed to download {}".format(url))
+    except Exception as err:
+        log(traceback.format_exc())
+
+
+def get_server(server_url):
+    g['server_url'] = server_url
+    g['hostname'] = urlparse.urlparse(server_url).hostname
     g['server_path'] = os.path.join(root_path, g['hostname'])
-    if not os.path.exists(g['server_path']):
-        os.mkdir(g['server_path'])
+    api_data = json.load(open(os.path.join(g['server_path'], "all_experiments.json")))
+    print("{} Loaded {} Experiment records.".format(g['hostname'], api_data['meta']['total_count']))
+    experiments = api_data['objects']
     # Process pool handling
-    g['lock'] = Lock()
     workers = Pool(4, init, (g,))
     result = workers.map_async(logged_get_archive, experiments, 1)
     workers.close()
-    print("Closed: waiting for completion...")
-    workers.join()
+    return workers
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("server_urls", nargs="+")
+    args = parser.parse_args()
+    g['lock'] = Lock()
+
+    start_time = datetime.now()
+    print("Starting download of experiment lists")
+    print(args.server_urls)
+    downloads = Pool(3, init, (g,))
+    downloads.map_async(download_experiment_list, args.server_urls)
+    downloads.close()
+    downloads.join()
+    print("All experiment lists downloaded.")
+    print("          Let's rock!")
+
+    all_workers = [get_server(server) for server in args.server_urls]
+    print("All jobs started")
+    for workers in all_workers:
+        workers.join()
 
     end_time = datetime.now()
 
