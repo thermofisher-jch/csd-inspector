@@ -86,13 +86,17 @@ def make_archive(request):
     return archive
 
 
+def upload_validate(data):
+    return hasattr(data.get('fileInput', None), 'file')
+
+
 @view_config(route_name="upload", renderer="templates/upload.pt")
 def upload_file(request):
     """Receive the uploaded archive, create a folder to contain the diagnostic,
     save a copy of the archive to the folder, and extract it's contents there.
     This displays the extracted files relative paths and file sizes.
     """
-    if "fileInput" in request.POST:
+    if upload_validate(request.POST):
         archive = make_archive(request)
         data = get_uploaded_file(request)
         DBSession.add(archive)
@@ -103,10 +107,8 @@ def upload_file(request):
         upload.queue_archive(archive_id, archive_path, data, testers)
         url = request.route_url('check', archive_id=archive_id)
         return HTTPFound(location=url)
-    label = ""
-    label = request.GET.get("label", label)
-    name = ""
-    name = request.GET.get("name", name)
+    label = request.GET.get("label", "")
+    name = request.GET.get("name", "")
     return {'label':label, 'name': name, 'archive_types': testers.keys()}
 
 
