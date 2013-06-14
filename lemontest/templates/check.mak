@@ -62,47 +62,51 @@
         </div>
     </div>
 </div>
-<div class="row">
-    % if archive.status != 'Diagnostics completed.':
+% if archive.status != 'Diagnostics completed.':
+    <div class="row">
         <h2 class="span12">Status: ${archive.status}</h2>
-    % endif
-    <div class="span12">
-        <table id="test-summary" class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Test</th><th>Status</th><th>Details</th>
-                </tr>
-            </thead>
-            <tbody>
-                % for test in archive.diagnostics:
-                    <tr>
-                        <td>${test.name.replace("_", " ")}</td>
-                        <td>
-                            <span class="label label-${status_highlights.get(test.status, '')}">${test.status}</span>
-                        </td>
-                        <td>
-                            % if test.html or test.readme:
-                                <div class="links">
-                                    <div>
-                                        % if test.html:
-                                            <a href="${request.static_url(test.html)}">Results</a>
-                                        % endif
-                                    </div>
-                                    <div>
-                                        % if test.readme:
-                                            <a href="${request.route_url('test_readme', test_name=test.name)}">Readme</a>
-                                        % endif
-                                    </div>
-                                </div>
-                            % endif
-                            ${test.details | n}
-                        </td>
-                    </tr>
-                % endfor
-            </tbody>
-        </table>
     </div>
-</div>
+% endif
+% if archive.diagnostics:
+    <div class="row">
+        <div class="span12">
+            <table id="test-summary" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Test</th><th>Status</th><th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    % for test in archive.diagnostics:
+                        <tr>
+                            <td>${test.name.replace("_", " ")}</td>
+                            <td>
+                                <span class="label label-${status_highlights.get(test.status, '')}">${test.status}</span>
+                            </td>
+                            <td>
+                                % if test.html or test.readme:
+                                    <div class="links">
+                                        <div>
+                                            % if test.html:
+                                                <a href="${request.static_url(test.html)}">Results</a>
+                                            % endif
+                                        </div>
+                                        <div>
+                                            % if test.readme:
+                                                <a href="${request.route_url('test_readme', test_name=test.name)}">Readme</a>
+                                            % endif
+                                        </div>
+                                    </div>
+                                % endif
+                                ${test.details | n}
+                            </td>
+                        </tr>
+                    % endfor
+                </tbody>
+            </table>
+        </div>
+    </div>
+% endif
 <div class="row" style="margin-top: 20px;">
     <div id="run_report" class="span12">
         <div id="pdf"></div>

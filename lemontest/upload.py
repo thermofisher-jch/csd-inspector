@@ -11,6 +11,7 @@ from celery.utils.log import get_task_logger
 
 from lemontest.models import DBSession
 from lemontest.models import Archive
+from lemontest.models import testers
 from lemontest import diagnostic
 
 logger = logging.getLogger(__name__)
@@ -119,6 +120,10 @@ def sizer(destination, target):
     return natural_size(os.stat(full_path).st_size, gnu=True)
 
 
+def get_diagnostics(archive_type):
+    return [t.diagnostic_record() for t in testers[archive_type].values()]
+
+
 def make_diagnostic_jobs(archive, testers):
     return [diagnostic.run_tester.subtask(
                     (testers[archive.archive_type][d.name], d.id, archive.path))
@@ -137,17 +142,22 @@ def unzip_csa(archive):
     try:
         full_path = os.path.join(archive.path, "archive.zip")
         os.rename(os.path.join(archive.path, "uploaded_file.tmp"), full_path)
-        archive_file = open(full_path, 'rb')
-        unzip_archive(archive.path, archive_file)
+        if zipfile.is_zipfile(full_path):
+            archive_file = open(full_path, 'rb')
+            unzip_archive(archive.path, archive_file)
+            return True
+        else:
+            archive.status = u"Error, archive is not a zip"
     except IOError as err:
-        archive.status = "Alerted during archive extraction"
+        archive.status = u"Error during archive unzip"
         task_logger.error("Archive {0} had an error: {1}".format(archive.id, err))
-        raise 
+    return False 
 
 
 def one_touch_log(archive):
     full_path = os.path.join(archive.path, "onetouch.log")
     os.rename(os.path.join(archive.path, "uploaded_file.tmp"), full_path)
+    return True
 
 
 archive_handlers = {
@@ -170,13 +180,17 @@ def process_archive(archive_id, upload_name, testers):
         logger.error("Archive id = %s not found." % archive_id)
         return
     try:
-        archive_handlers[archive.archive_type](archive)
-        archive.status = u"Starting tests."
-        jobs = make_diagnostic_jobs(archive, testers)
-        run_diagnostics(archive_id, jobs)
+        if archive_handlers[archive.archive_type](archive):
+            archive.status = u"Starting tests"
+            archive.diagnostics = get_diagnostics(archive.archive_type)
+            transaction.commit()
+            jobs = make_diagnostic_jobs(archive, testers)
+            run_diagnostics(archive_id, jobs)
     except Exception as err:
-        archive.status = u"Error processing archive."
-    transaction.commit()
+        archive = DBSession.query(Archive).get(archive_id)
+        archive.status = u"Error processing archive"
+        task_logger.exception("Archive {} failed with an error".format(archive_id))
+        transaction.commit()
 
 
 @task

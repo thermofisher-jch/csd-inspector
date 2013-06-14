@@ -66,10 +66,6 @@ def get_uploaded_file(request):
     return data
 
 
-def get_diagnostics(archive_type):
-    return [t.diagnostic_record() for t in testers[archive_type].values()]
-
-
 def make_archive(request):
     """Do everything needed to make a new Archive"""
     label = unicode(request.POST["label"] or "Archive_%s" % datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
@@ -86,7 +82,6 @@ def make_archive(request):
         destination += "_derp"
 
     archive = Archive(submitter_name, label, site, archive_type, destination)
-    archive.diagnostics = get_diagnostics(archive_type)
 
     return archive
 
@@ -97,12 +92,11 @@ def upload_file(request):
     save a copy of the archive to the folder, and extract it's contents there.
     This displays the extracted files relative paths and file sizes.
     """
-    session = DBSession()
     if "fileInput" in request.POST:
         archive = make_archive(request)
         data = get_uploaded_file(request)
-        session.add(archive)
-        session.flush()
+        DBSession.add(archive)
+        DBSession.flush()
         archive_id = archive.id
         archive_path = archive.path
         transaction.commit()
@@ -117,15 +111,14 @@ def upload_file(request):
 
 
 def parse_tags(tag_string):
-    session = DBSession()
     tags = []
     for name in tag_string.lower().split():
         name = name.strip()
         if name:
-            tag = session.query(Tag).filter(Tag.name == name).first()
+            tag = DBSession.query(Tag).filter(Tag.name == name).first()
             if tag is None:
                 tag = Tag(name=name)
-                session.add(tag)
+                DBSession.add(tag)
             tags.append(tag)
     return tags
 
@@ -133,9 +126,8 @@ def parse_tags(tag_string):
 @view_config(route_name="check", renderer="check.mak")
 def check_archive(request):
     """Show the status of an archive given it's ID."""
-    session = DBSession()
     archive_id = int(request.matchdict["archive_id"])
-    archive = session.query(Archive).options(subqueryload(
+    archive = DBSession.query(Archive).options(subqueryload(
         Archive.diagnostics)).filter(Archive.id==archive_id).first()
     if not archive:
         raise NotFound()
@@ -145,7 +137,7 @@ def check_archive(request):
         archive.archive_type = request.POST['archive_type']
         archive.summary = request.POST['summary']
         archive.tags = parse_tags(request.POST['tags'])
-        session.flush()
+        DBSession.flush()
         return HTTPFound(location=request.current_route_url())
     for test in archive.diagnostics:
         test.get_readme_path()
@@ -180,7 +172,7 @@ def rerun_archive(request):
         if os.path.exists(out):
             shutil.rmtree(out)
         DBSession.delete(diagnostic)
-    archive.diagnostics = get_diagnostics(archive.archive_type)
+    archive.diagnostics = upload.get_diagnostics(archive.archive_type)
     DBSession.flush()
     jobs = upload.make_diagnostic_jobs(archive, testers)
     transaction.commit()
