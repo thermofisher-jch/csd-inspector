@@ -25,12 +25,12 @@
     <form action="/upload" method="post" accept-charset="UTF-8" enctype="multipart/form-data">
       <div class="row">
         <div class="span3">
-          <label for="submitter">Your Name</label>
-          <input id="submitter" name="submitter" type="text" autocomplete="off" autofocus value="${name}" />
+          <label for="name">Your Name</label>
+          <input id="name" name="name" type="text" autocomplete="off" autofocus value="${name}" />
         </div>
         <div class="span3">
           <label for="site">Site Name</label>
-          <input id="site" name="site" type="text" autocomplete="off" value="${site_name}"/>
+          <input id="site" name="site" type="text" autocomplete="off" value="${site}"/>
         </div>
       </div>
       <div class="row">

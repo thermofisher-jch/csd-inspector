@@ -71,7 +71,7 @@ def make_archive(request):
     label = unicode(request.POST["label"] or "Archive_%s" % datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
     site = unicode(request.POST["site"])
     archive_type = unicode(request.POST["archive_type"])
-    submitter_name = unicode(request.POST["submitter"])
+    submitter_name = unicode(request.POST["name"])
 
     upload_root = request.registry.settings["upload_root"]
     folder = slugify(label)
@@ -99,16 +99,15 @@ def upload_file(request):
     ctx = {
         'label':request.GET.get("label", ""), 
         'name': request.GET.get("name", ""), 
-        'site_name': ''
-        'archive_types': testers.keys()
+        'site': '',
+        'archive_types': testers.keys(),
         'archive_type': None,
-
     }
     if request.method == "POST":
         ctx['label'] = request.POST.get("label", "")
         ctx['name'] = request.POST.get("name", "")
         ctx['archive_type'] = request.POST.get("archive_type", "")
-        ctx['site_name'] = request.POST.get("site_name", "")
+        ctx['site'] = request.POST.get("site", "")
 
         if upload_validate(request.POST):
             archive = make_archive(request)
