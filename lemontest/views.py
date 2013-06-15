@@ -90,26 +90,38 @@ def upload_validate(data):
     return hasattr(data.get('fileInput', None), 'file')
 
 
-@view_config(route_name="upload", renderer="templates/upload.pt")
+@view_config(route_name="upload", renderer="upload.mak")
 def upload_file(request):
     """Receive the uploaded archive, create a folder to contain the diagnostic,
     save a copy of the archive to the folder, and extract it's contents there.
     This displays the extracted files relative paths and file sizes.
     """
-    if upload_validate(request.POST):
-        archive = make_archive(request)
-        data = get_uploaded_file(request)
-        DBSession.add(archive)
-        DBSession.flush()
-        archive_id = archive.id
-        archive_path = archive.path
-        transaction.commit()
-        upload.queue_archive(archive_id, archive_path, data, testers)
-        url = request.route_url('check', archive_id=archive_id)
-        return HTTPFound(location=url)
-    label = request.GET.get("label", "")
-    name = request.GET.get("name", "")
-    return {'label':label, 'name': name, 'archive_types': testers.keys()}
+    ctx = {
+        'label':request.GET.get("label", ""), 
+        'name': request.GET.get("name", ""), 
+        'site_name': ''
+        'archive_types': testers.keys()
+        'archive_type': None,
+
+    }
+    if request.method == "POST":
+        ctx['label'] = request.POST.get("label", "")
+        ctx['name'] = request.POST.get("name", "")
+        ctx['archive_type'] = request.POST.get("archive_type", "")
+        ctx['site_name'] = request.POST.get("site_name", "")
+
+        if upload_validate(request.POST):
+            archive = make_archive(request)
+            data = get_uploaded_file(request)
+            DBSession.add(archive)
+            DBSession.flush()
+            archive_id = archive.id
+            archive_path = archive.path
+            transaction.commit()
+            upload.queue_archive(archive_id, archive_path, data, testers)
+            url = request.route_url('check', archive_id=archive_id)
+            return HTTPFound(location=url)
+    return ctx
 
 
 def parse_tags(tag_string):
