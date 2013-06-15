@@ -190,7 +190,7 @@ def process_archive(archive_id, upload_name, testers):
         archive = DBSession.query(Archive).get(archive_id)
         archive.status = u"Error processing archive"
         task_logger.exception("Archive {} failed with an error".format(archive_id))
-        transaction.commit()
+    transaction.commit()
 
 
 @task
