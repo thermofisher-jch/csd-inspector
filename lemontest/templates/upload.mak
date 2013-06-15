@@ -13,7 +13,7 @@
           );
         };
       };
-      $("#submitter").typeahead({source: sourcerer("name")});
+      $("#name").typeahead({source: sourcerer("name")});
       $("#site").typeahead({source: sourcerer("site")});
     });
   </script>
