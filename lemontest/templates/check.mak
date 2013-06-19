@@ -1,10 +1,10 @@
 <%inherit file="base.mak"/>
 
-<div class="row">
+<div class="row-fluid">
     <div class="span12">
         <div id="view_titles" class="clearfix">
             <h1>${archive.label}</h1>
-            <div class="row">
+            <div class="row-fluid">
                 <h3 class="span9">${archive.site}</h3>
                 <h3 class="span3" style="text-align: right">${archive.archive_type.replace("_", " ")}</h3>
             </div>
@@ -22,7 +22,7 @@
         </div>
         <form id="edit_titles" action="${request.route_url('check', archive_id=archive.id)}" method="post" hidden>
             <input class="form-h1 span12" name="label" placeholder="Label" value="${archive.label}" />
-            <div class="row">
+            <div class="row-fluid">
                 <div class="span7" style="text-align:left;">
                     <input class="form-h3 span7" name="site" placeholder="Site" value="${archive.site}" />
                 </div>
@@ -37,7 +37,7 @@
                 </div>
             </div>
 
-            <div class="row">
+            <div class="row-fluid">
                 <div class="span6">
                     <input name="summary" class="form-h4" placeholder="Summary" value="${archive.summary}" style="width: 300px;" maxlength="30"></input><br/>
                     <input name="tags" placeholder="Tags" value="${tag_string}"></input>
@@ -63,12 +63,12 @@
     </div>
 </div>
 % if archive.status != 'Diagnostics completed.':
-    <div class="row">
+    <div class="row-fluid">
         <h2 class="span12">Status: ${archive.status}</h2>
     </div>
 % endif
 % if archive.diagnostics:
-    <div class="row">
+    <div class="row-fluid">
         <div class="span12">
             <table id="test-summary" class="table table-striped">
                 <thead>
@@ -107,7 +107,7 @@
         </div>
     </div>
 % endif
-<div class="row" style="margin-top: 20px;">
+<div class="row-fluid" style="margin-top: 20px;">
     <div id="run_report" class="span12">
         <div id="pdf"></div>
         <a href="/archives/${basename}/report.pdf}" class="btn btn-success"><i class="icon-arrow-down icon-white"></i> Download Report</a>

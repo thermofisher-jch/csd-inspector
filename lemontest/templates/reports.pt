@@ -35,7 +35,7 @@
 </tal:block>
 
 <tal:block metal:fill-slot="main">
-    <div class="row" style="margin-bottom: 20px;">
+    <div class="row-fluid" style="margin-bottom: 20px;">
         <div class="span9">
             <div class="pagination" style="margin:0;">
                 <ul>
