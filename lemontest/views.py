@@ -44,7 +44,7 @@ def add_helpers(event):
     event['h'] = helpers
 
 
-@view_config(route_name="index", renderer="templates/index.pt")
+@view_config(route_name="index", renderer="index.mak")
 def index(request):
     """Currently more of a static page.
     """
