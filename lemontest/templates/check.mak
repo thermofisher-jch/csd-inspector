@@ -70,7 +70,7 @@
 % if archive.diagnostics:
     <div class="row-fluid">
         <div class="span12">
-            <table id="test-summary" class="table table-striped">
+            <table id="test-summary" class="table table-striped table-hover">
                 <thead>
                     <tr>
                         <th>Test</th><th>Status</th><th>Details</th>

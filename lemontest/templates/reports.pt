@@ -59,7 +59,7 @@
         </div>
     </div>
     <form id="filter" action="/reports" method="GET">
-    <table class="table table-striped" id="reports">
+    <table class="table table-striped table-hover" id="reports">
         <thead>
             <tr>
                 <th>ID</th><th>Submitter</th><th>Date</th><th>Type</th><th>Site</th><th>Label</th><th>Summary</th>
