@@ -1,5 +1,6 @@
 import logging
 import os.path
+import pyramid_beaker
 from pyramid.config import Configurator
 from sqlalchemy import engine_from_config
 
@@ -19,7 +20,17 @@ def main(global_config, **settings):
     settings["upload_root"] = os.path.abspath(settings["upload_root"])
     settings["test_root"] = os.path.abspath(settings["test_root"])
     settings["test_manifest"] = os.path.abspath(settings["test_manifest"])
+
+    # Setup cache configuration
+    pyramid_beaker.set_cache_regions_from_settings(settings)
+    
+    # Create configurator
     config = Configurator(settings=settings)
+    
+    # Set up session configuration
+    session_factory = pyramid_beaker.session_factory_from_settings(settings)
+    config.set_session_factory(session_factory)
+    
     # configure various URL routes and
     config.add_static_view('static', 'lemontest:static', cache_max_age=3600)
     config.add_static_view('output', settings["upload_root"])
