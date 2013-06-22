@@ -25,7 +25,7 @@
   <body>
     <div class="navbar navbar-fixed-top">
       <div class="navbar-inner">
-        <div class="container">
+        <div class="container-fluid">
           <a class="brand" href="${request.route_path('index')}">Ion Inspector</a>
           <div class="nav-collapse">
             <ul class="nav">
@@ -39,7 +39,7 @@
       </div>
     </div>
 
-    <div class="container">
+    <div class="container-fluid">
       ${self.body()}
       <footer>
         <p>&copy; Ion Torrent 2013</p>
