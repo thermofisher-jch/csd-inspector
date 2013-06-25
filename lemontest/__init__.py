@@ -41,7 +41,6 @@ def main(global_config, **settings):
     config.add_route('super_delete', '/check/{archive_id:\d+}/super_delete')
     config.add_route('reports', '/reports')
     config.add_route('documentation', '/documentation')
-    config.add_route('changes', '/changes')
     config.add_route('test_readme', '/test/{test_name}/README')
     config.add_route('stats', '/stats')
     

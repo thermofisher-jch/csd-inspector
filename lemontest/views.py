@@ -257,10 +257,6 @@ def documentation(request):
     return {}
 
 
-@view_config(route_name="changes", renderer="templates/changes.pt")
-def changes(request):
-    return {}
-
 @view_config(route_name="test_readme")
 def test_readme(request):
     test_name = request.matchdict["test_name"]
