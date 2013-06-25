@@ -49,8 +49,6 @@ def main(global_config, **settings):
     # This lets the function 'add_base_template' tack the layout template into
     # the mystical universe of chameleon templating so that the other templates
     # can put themselves inside layout.pt like they're supposed to.
-    config.add_subscriber('lemontest.views.add_base_template',
-                      'pyramid.events.BeforeRender')
     config.add_subscriber('lemontest.views.add_helpers',
                         'pyramid.events.BeforeRender')
     config.scan()

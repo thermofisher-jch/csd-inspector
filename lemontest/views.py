@@ -34,12 +34,6 @@ status_highlights = {
 }
 
 
-def add_base_template(event):
-    """Use layout.pt as a common frame for every other renderer."""
-    layout = get_renderer("templates/layout.pt").implementation()
-    event.update({"layout": layout})
-
-
 def add_helpers(event):
     event['h'] = helpers
 
@@ -252,7 +246,7 @@ def list_reports(request):
             'archive_types': testers.keys(), 'search': search_params}
 
 
-@view_config(route_name="documentation", renderer="templates/documentation.pt")
+@view_config(route_name="documentation", renderer="documentation.mako")
 def documentation(request):
     return {}
 
@@ -273,7 +267,7 @@ def test_readme(request):
         response = HTTPFound("%s does not have a README file." % test_name)
     return response
 
-@view_config(route_name="stats", renderer="templates/stats.pt")
+@view_config(route_name="stats", renderer="stats.mako")
 def stats(request):
     return {}
 
