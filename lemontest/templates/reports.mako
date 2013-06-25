@@ -1,4 +1,4 @@
-<%inherit file="base.mak"/>
+<%inherit file="base.mako"/>
 
 <%block name="extra_head">
     <style type="text/css">

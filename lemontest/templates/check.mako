@@ -1,4 +1,4 @@
-<%inherit file="base.mak"/>
+<%inherit file="base.mako"/>
 
 <div class="row-fluid">
     <div class="span12">

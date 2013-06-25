@@ -1,4 +1,4 @@
-<%inherit file="base.mak"/>
+<%inherit file="base.mako"/>
 
 <%block name="extra_head">
   <script src="${request.static_url('lemontest:static/js/bootstrap-typeahead.js')}"></script>

@@ -1,4 +1,4 @@
-<%inherit file="base.mak"/>
+<%inherit file="base.mako"/>
 
 <!-- Main hero unit for a primary marketing message or call to action -->
 <h1>Ion Inspector</h1>

@@ -1,4 +1,4 @@
-<%inherit file="base.mak"/>
+<%inherit file="base.mako"/>
 
 <h1>404 <small>Not Found</small></h1>
 <p><code>${request.url}</code></p>

@@ -1,4 +1,4 @@
-<%inherit file="base.mak"/>
+<%inherit file="base.mako"/>
 
 <h2 style="float: right">
     <a href="${request.static_url('lemontest:static/files/example_lemon_tests.zip')}">Download Example Tests</a>
