@@ -62,7 +62,6 @@
         ${archives.first_item} to ${archives.last_item} of ${archives.item_count}
     </div>
 </div>
-
 <form id="filter" action="/reports" method="GET">
 <table class="table table-striped table-hover" id="reports">
     <thead>
@@ -71,21 +70,21 @@
         </tr>
         <tr class="filter-row">
                 <th></th>
-                <th><input id="filter_name" name="submitter_name" type="text" value="${filters.submitter_name}"></th>
+                <th><input id="filter_name" name="submitter_name" type="text" value="${search['submitter_name']}"></th>
                 <th></th>
                 <th>
                     <select name="archive_type" id="archiveType" onchange="$('#filter').submit();">
                         <option value=""></option>
                         % for type in archive_types:
-                            <option value="${type}" ${'selected="selected"' if type==filters.archive_type else ''}>
+                            <option value="${type}" ${'selected="selected"' if type==search['archive_type'] else ''}>
                                 ${type.replace("_", " ")}
                             </option>
                         % endfor
                     </select>
                 </th>
-                <th><input id="filter_site" name="site" type="text" value="${filters.site}"></th>
+                <th><input id="filter_site" name="site" type="text" value="${search['site']}"></th>
                 <th>
-                    <input id="filter_label" name="label" type="text" value="${filters.label}">
+                    <input id="filter_label" name="label" type="text" value="${search['label']}">
                 </th>
                 <th>
                     % if is_search:

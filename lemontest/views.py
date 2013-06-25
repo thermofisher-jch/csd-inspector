@@ -196,18 +196,17 @@ def rerun_archive(request):
 
 @view_config(route_name="reports", renderer="reports.mak")
 def list_reports(request):
-    filter_params = {
+    search_params = {
         'archive_type': request.params.get('archive_type', u''),
         'submitter_name': request.params.get('submitter_name', u''),
         'site': request.params.get('site', u''),
-        'label': request.params.get('label' u'')
+        'label': request.params.get('label', u'')
     }
     page = int(request.params.get("page", 1))
     page_url = paginate.PageURL_WebOb(request)
-    logger.info(str(page_url))
     archive_query = DBSession.query(Archive).order_by(Archive.time.desc())
-    is_search = any(filter_params.values())
-    for column, value in filter_params.items():
+    is_search = any(search_params.values())
+    for column, value in search_params.items():
         if value:
             if column == 'archive_type':
                 archive_query = archive_query.filter(Archive.archive_type == value)
@@ -229,7 +228,6 @@ def list_reports(request):
             diff = (archives.page + right_pagius + 1) - (archives.page_count - 1)
             left_pagius += diff
             right_pagius = max(right_pagius - diff, 0)
-        logger.info("Left %d    Right %d" % (left_pagius, right_pagius))
         if archives.page - left_pagius > 3:
             pages.append("..")
         elif archives.page - left_pagius == 3:
@@ -251,7 +249,7 @@ def list_reports(request):
             pages.append(archives.page_count)
 
     return {'archives': archives, 'pages': pages, 'page_url': page_url, 'is_search': is_search,
-            'archive_types': testers.keys(), 'filters': filter_params}
+            'archive_types': testers.keys(), 'search': search_params}
 
 
 @view_config(route_name="documentation", renderer="templates/documentation.pt")
