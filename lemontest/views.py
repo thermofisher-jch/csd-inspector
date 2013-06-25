@@ -38,7 +38,7 @@ def add_helpers(event):
     event['h'] = helpers
 
 
-@view_config(route_name="index", renderer="index.mak")
+@view_config(route_name="index", renderer="index.mako")
 def index(request):
     """Currently more of a static page.
     """
@@ -84,7 +84,7 @@ def upload_validate(data):
     return hasattr(data.get('fileInput', None), 'file')
 
 
-@view_config(route_name="upload", renderer="upload.mak")
+@view_config(route_name="upload", renderer="upload.mako")
 def upload_file(request):
     """Receive the uploaded archive, create a folder to contain the diagnostic,
     save a copy of the archive to the folder, and extract it's contents there.
@@ -130,7 +130,7 @@ def parse_tags(tag_string):
     return tags
 
 
-@view_config(route_name="check", renderer="check.mak")
+@view_config(route_name="check", renderer="check.mako")
 def check_archive(request):
     """Show the status of an archive given it's ID."""
     archive_id = int(request.matchdict["archive_id"])
@@ -188,7 +188,7 @@ def rerun_archive(request):
     return HTTPFound(location=url)
 
 
-@view_config(route_name="reports", renderer="reports.mak")
+@view_config(route_name="reports", renderer="reports.mako")
 def list_reports(request):
     search_params = {
         'archive_type': request.params.get('archive_type', u''),
@@ -271,7 +271,7 @@ def test_readme(request):
 def stats(request):
     return {}
 
-@view_config(context=HTTPNotFound, renderer="404.mak")
+@view_config(context=HTTPNotFound, renderer="404.mako")
 def not_found(self, request):
     request.response.status = 404
     return {}
