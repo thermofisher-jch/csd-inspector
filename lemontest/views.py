@@ -194,7 +194,7 @@ def rerun_archive(request):
     return HTTPFound(location=url)
 
 
-@view_config(route_name="reports", renderer="templates/reports.pt")
+@view_config(route_name="reports", renderer="reports.mak")
 def list_reports(request):
     filter_params = {
         'archive_type': request.params.get('archive_type', u''),
