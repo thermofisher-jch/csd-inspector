@@ -30,6 +30,7 @@
     </style>
 </%block>
 
+<%block name="pager">
 <div class="row-fluid" style="margin-bottom: 20px;">
     <div class="span9">
         <div class="pagination" style="margin:0;">
@@ -62,6 +63,8 @@
         ${archives.first_item} to ${archives.last_item} of ${archives.item_count}
     </div>
 </div>
+</%block>
+
 <form id="filter" action="/reports" method="GET">
 <table class="table table-striped table-hover" id="reports">
     <thead>
@@ -109,3 +112,5 @@
 </table>
 <input type="submit" style="height: 0px; width: 0px; border: none; padding: 0px;" hidefocus="true" />
 </form>
+
+${pager()}
