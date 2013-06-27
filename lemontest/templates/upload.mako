@@ -17,11 +17,15 @@
       $("#site").typeahead({source: sourcerer("site")});
       
       function on_upload_progress(event) {
-        console.log(Math.round(event.loaded / event.total * 1000)/10 + "%");
+        var progress = Math.round(event.loaded / event.total * 100)+'%';
+        $("#progress_bar").css('width', progress);
+        $("#progress_percent").html(progress);
       }
       
-      $('#new_archive').submit(function(event){
+      $('#new_archive').submit(function(event) {
         event.preventDefault();
+        $("#file_select").hide();
+        $("#file_progress").show();
         var formData = new FormData($('#new_archive')[0]);
         dumb = $.ajax({
           url: '/upload',  //server script to process data
@@ -33,14 +37,6 @@
             }
             return myXhr;
           },
-          //Ajax events
-          success: function(data, status, xhr){
-            if (data.valid) {
-              window.location.href = data.url;
-            } else {
-              console.log("Invalid upload!");
-            }
-          },
           // Form data
           data: formData,
           dataType: 'json',
@@ -48,10 +44,34 @@
           cache: false,
           contentType: false,
           processData: false
+        }).done(function(data){
+          $("#progress_bar").css('width', "100%");
+          $("#progress_percent").html("100%");
+          if (data.valid) {
+            window.location.href = data.url;
+          } else {
+            $("#file_select").show();
+            $("#file_progress").hide();
+            $("#log").prepend('<p class="alert alert-error">Invalid upload.<p>');
+            $("#log_container").slideDown();
+          }
+        }).fail(function(xhr, status){
+          console.log("Request failed: " + status);
+          $("#log").prepend('<p class="alert alert-error">Upload error ' + status + '. Refresh the page and retry.<p>');
+          $("#action_container").slideUp();
+          $("#log_container").slideDown();
         });
       });
     });
   </script>
+  <style type="text/css">
+    #progress_bar {
+      -webkit-transition: none;
+         -moz-transition: none;
+           -o-transition: none;
+              transition: none;
+    }
+  </style>
 </%block>
 
 <h1>Upload <small> a new archive for testing</small></h1>
@@ -84,11 +104,26 @@
           </select>
         </div>
       </div>
-      <label for="technicalFile">Select file</label>
-      <input type="file" name="fileInput" id="fileInput" class="btn" />
-      <div class="form-actions">
-        <input type="submit" value="Submit Archive" class="btn btn-primary">
-        <button class="btn" type="reset">Reset</button>
+      <div style="height: 60px;">
+        <div id="file_select">
+          <label for="technicalFile">Select file</label>
+          <input type="file" name="fileInput" id="fileInput" style="max-width: 100%"/>
+        </div>
+        <div id="file_progress" style="display: none;">
+          <p>Upload in progress <span id="progress_percent">0%</span></p>
+          <div class="progress progress-striped active">
+            <div id="progress_bar" class="bar" style="width: 0%;"></div>
+          </div>
+        </div>
+      </div>
+      <div id="action_container">
+        <div class="form-actions">
+          <input type="submit" value="Submit Archive" class="btn btn-primary">
+          <button class="btn" type="reset">Reset</button>
+        </div>
+      </div>
+      <div id="log_container" style="display: none;">
+        <div id="log" style="margin: 20px 0;"></div>
       </div>
     </form>
   </div>
