@@ -15,6 +15,41 @@
       };
       $("#name").typeahead({source: sourcerer("name")});
       $("#site").typeahead({source: sourcerer("site")});
+      
+      function on_upload_progress(event) {
+        console.log(Math.round(event.loaded / event.total * 1000)/10 + "%");
+      }
+      
+      $('#new_archive').submit(function(event){
+        event.preventDefault();
+        var formData = new FormData($('#new_archive')[0]);
+        dumb = $.ajax({
+          url: '/upload',  //server script to process data
+          type: 'POST',
+          xhr: function() {  // custom xhr
+            var myXhr = $.ajaxSettings.xhr();
+            if(myXhr.upload){ // check if upload property exists
+              myXhr.upload.addEventListener('progress', on_upload_progress, false); // for handling the progress of the upload
+            }
+            return myXhr;
+          },
+          //Ajax events
+          success: function(data, status, xhr){
+            if (data.valid) {
+              window.location.href = data.url;
+            } else {
+              console.log("Invalid upload!");
+            }
+          },
+          // Form data
+          data: formData,
+          dataType: 'json',
+          //Options to tell JQuery not to process data or worry about content-type
+          cache: false,
+          contentType: false,
+          processData: false
+        });
+      });
     });
   </script>
 </%block>
@@ -22,7 +57,7 @@
 <h1>Upload <small> a new archive for testing</small></h1>
 <div class="row">
   <div class="span6">
-    <form action="/upload" method="post" accept-charset="UTF-8" enctype="multipart/form-data">
+    <form id="new_archive" action="/upload" method="post" accept-charset="UTF-8" enctype="multipart/form-data">
       <div class="row">
         <div class="span3">
           <label for="name">Your Name</label>

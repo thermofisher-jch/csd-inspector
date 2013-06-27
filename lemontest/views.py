@@ -84,7 +84,28 @@ def upload_validate(data):
     return hasattr(data.get('fileInput', None), 'file')
 
 
-@view_config(route_name="upload", renderer="upload.mako")
+def post_upload_validate(request):
+    if request.method == "POST" and upload_validate(request.POST):
+        archive = make_archive(request)
+        data = get_uploaded_file(request)
+        DBSession.add(archive)
+        DBSession.flush()
+        archive_id = archive.id
+        archive_path = archive.path
+        transaction.commit()
+        upload.queue_archive(archive_id, archive_path, data, testers)
+        url = request.route_url('check', archive_id=archive_id)
+        return True, url
+    return False, None
+
+
+@view_config(route_name="upload", xhr=True, renderer="json")
+def xhr_upload_file(request):
+    valid, url = post_upload_validate(request)
+    return {"valid": valid, "url": url}
+
+
+@view_config(route_name="upload", xhr=False, renderer="upload.mako")
 def upload_file(request):
     """Receive the uploaded archive, create a folder to contain the diagnostic,
     save a copy of the archive to the folder, and extract it's contents there.
@@ -102,17 +123,8 @@ def upload_file(request):
         ctx['name'] = request.POST.get("name", "")
         ctx['archive_type'] = request.POST.get("archive_type", "")
         ctx['site'] = request.POST.get("site", "")
-
-        if upload_validate(request.POST):
-            archive = make_archive(request)
-            data = get_uploaded_file(request)
-            DBSession.add(archive)
-            DBSession.flush()
-            archive_id = archive.id
-            archive_path = archive.path
-            transaction.commit()
-            upload.queue_archive(archive_id, archive_path, data, testers)
-            url = request.route_url('check', archive_id=archive_id)
+        valid, url = post_upload_validate(request)
+        if valid:
             return HTTPFound(location=url)
     return ctx
 
