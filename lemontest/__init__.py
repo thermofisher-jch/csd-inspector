@@ -30,6 +30,8 @@ def main(global_config, **settings):
     # Set up session configuration
     session_factory = pyramid_beaker.session_factory_from_settings(settings)
     config.set_session_factory(session_factory)
+
+    config.include('apex', route_prefix='/auth')
     
     # configure various URL routes and
     config.add_static_view('static', 'lemontest:static', cache_max_age=3600)
