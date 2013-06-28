@@ -38,7 +38,8 @@ def add_helpers(event):
     event['h'] = helpers
 
 
-@view_config(route_name="index", renderer="index.mako")
+@view_config(route_name="index", renderer="index.mako",
+    permission='view')
 def index(request):
     """Currently more of a static page.
     """
@@ -99,13 +100,15 @@ def post_upload_validate(request):
     return False, None
 
 
-@view_config(route_name="upload", xhr=True, renderer="json")
+@view_config(route_name="upload", xhr=True, renderer="json",
+    permission='authenticated')
 def xhr_upload_file(request):
     valid, url = post_upload_validate(request)
     return {"valid": valid, "url": url}
 
 
-@view_config(route_name="upload", xhr=False, renderer="upload.mako")
+@view_config(route_name="upload", xhr=False, renderer="upload.mako",
+    permission='authenticated')
 def upload_file(request):
     """Receive the uploaded archive, create a folder to contain the diagnostic,
     save a copy of the archive to the folder, and extract it's contents there.
@@ -142,7 +145,8 @@ def parse_tags(tag_string):
     return tags
 
 
-@view_config(route_name="check", renderer="check.mako")
+@view_config(route_name="check", renderer="check.mako",
+    permission='view')
 def check_archive(request):
     """Show the status of an archive given it's ID."""
     archive_id = int(request.matchdict["archive_id"])
@@ -165,7 +169,8 @@ def check_archive(request):
         "status_highlights": status_highlights, "tag_string": " ".join(t.name for t in archive.tags)}
 
 
-@view_config(route_name="super_delete")
+@view_config(route_name="super_delete",
+    permission='authenticated')
 def super_delete(request):
     archive_id = int(request.matchdict["archive_id"])
     archive = DBSession.query(Archive).options(subqueryload(
@@ -181,7 +186,8 @@ def super_delete(request):
     return HTTPFound(location=url)
 
 
-@view_config(route_name="rerun")
+@view_config(route_name="rerun",
+    permission='authenticated')
 def rerun_archive(request):
     archive_id = int(request.matchdict["archive_id"])
     archive = DBSession.query(Archive).options(subqueryload(
@@ -200,7 +206,8 @@ def rerun_archive(request):
     return HTTPFound(location=url)
 
 
-@view_config(route_name="reports", renderer="reports.mako")
+@view_config(route_name="reports", renderer="reports.mako",
+    permission='view')
 def list_reports(request):
     search_params = {
         'archive_type': request.params.get('archive_type', u''),
@@ -258,12 +265,14 @@ def list_reports(request):
             'archive_types': testers.keys(), 'search': search_params}
 
 
-@view_config(route_name="documentation", renderer="documentation.mako")
+@view_config(route_name="documentation", renderer="documentation.mako",
+    permission='view')
 def documentation(request):
     return {}
 
 
-@view_config(route_name="test_readme")
+@view_config(route_name="test_readme",
+    permission='view')
 def test_readme(request):
     test_name = request.matchdict["test_name"]
     readme = None
@@ -279,7 +288,8 @@ def test_readme(request):
         response = HTTPFound("%s does not have a README file." % test_name)
     return response
 
-@view_config(route_name="stats", renderer="stats.mako")
+@view_config(route_name="stats", renderer="stats.mako",
+    permission='view')
 def stats(request):
     return {}
 
