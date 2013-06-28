@@ -3,8 +3,5 @@ SQLAlchemy
 transaction
 pyramid_tm
 pyramid_debugtoolbar
+pyramid_celery
 zope.sqlalchemy
-celery
-gunicorn
-pyramid-celery
-webhelpers

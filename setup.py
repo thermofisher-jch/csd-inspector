@@ -12,8 +12,11 @@ requires = [
     'SQLAlchemy',
     'transaction',
     'pyramid_tm',
+    'pyramid_beaker',
     'pyramid_debugtoolbar',
+    'pyramid_celery',
     'zope.sqlalchemy',
+    'webhelpers',
     ]
 
 if sys.version_info[:3] < (2,5,0):
