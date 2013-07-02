@@ -20,7 +20,8 @@
                 </div>
             % endif
         </div>
-        <form id="edit_titles" action="${request.route_url('check', archive_id=archive.id)}" method="post" hidden>
+        <form id="edit_titles" action="${request.route_url('check', archive_id=archive.id)}" method="post" style="display:none;">
+            <input type="hidden" name="csrf_token" value="${request.session.get_csrf_token()}"/>
             <input class="form-h1 span12" name="label" placeholder="Label" value="${archive.label}" />
             <div class="row-fluid">
                 <div class="span7" style="text-align:left;">
