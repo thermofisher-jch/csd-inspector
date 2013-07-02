@@ -78,6 +78,7 @@
 <div class="row">
   <div class="span6">
     <form id="new_archive" action="/upload" method="post" accept-charset="UTF-8" enctype="multipart/form-data">
+      <input type="hidden" name="csrf_token" value="${request.session.get_csrf_token()}"/>
       <div class="row">
         <div class="span3">
           <label for="name">Your Name</label>

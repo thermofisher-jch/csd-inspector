@@ -33,6 +33,15 @@
               <li><a href="${request.route_path('reports')}">List Reports</a></li>
               <li><a href="${request.route_path('documentation')}">Documentation</a></li>
             </ul>
+            <div id="auth_controls" class="pull-right">
+              % if request.user:
+                <a href="${request.route_url('apex_logout')}" class="btn">Logout</a>
+              % else:
+                <a href="${request.route_url('apex_login')}" class="btn">Login</a>
+                or
+                <a href="${request.route_url('apex_register')}" class="btn">Register</a>
+              % endif
+            </div>
           </div><!--/.nav-collapse -->
         </div>
       </div>
