@@ -49,11 +49,10 @@ def run_tester(test, diagnostic_id, archive_path):
     logger.info("Running test %s/%d on %s" % (test.name, diagnostic_id, archive_path))
     # Now that we're finally running the task, set the status appropriately.
     diagnostic = DBSession.query(Diagnostic).get(diagnostic_id)
+    output_path = diagnostic.get_output_path()
     diagnostic.status = u"Running"
     transaction.commit()
 
-    diagnostic = DBSession.query(Diagnostic).get(diagnostic_id)
-    output_path = diagnostic.get_output_path()
     os.mkdir(output_path)
     cmd = [test.main, archive_path, output_path]
     # Spawn the test subprocess and wait for it to complete.
@@ -63,6 +62,8 @@ def run_tester(test, diagnostic_id, archive_path):
     open(os.path.join(output_path, "standard_output.log"), 'w').write(stdout)
     if stderr:
         open(os.path.join(output_path, "standard_error.log"), 'w').write(stderr)
+
+    diagnostic = DBSession.query(Diagnostic).get(diagnostic_id)
     if result is 0:
         output = stdout.splitlines()
         status = output[0]
