@@ -101,14 +101,14 @@ def post_upload_validate(request):
 
 
 @view_config(route_name="upload", xhr=True, renderer="json",
-    permission='authenticated')
+    permission='view')
 def xhr_upload_file(request):
     valid, url = post_upload_validate(request)
     return {"valid": valid, "url": url}
 
 
 @view_config(route_name="upload", xhr=False, renderer="upload.mako",
-    permission='authenticated')
+    permission='view')
 def upload_file(request):
     """Receive the uploaded archive, create a folder to contain the diagnostic,
     save a copy of the archive to the folder, and extract it's contents there.
@@ -170,7 +170,7 @@ def check_archive(request):
 
 
 @view_config(route_name="super_delete",
-    permission='authenticated')
+    permission='view')
 def super_delete(request):
     archive_id = int(request.matchdict["archive_id"])
     archive = DBSession.query(Archive).options(subqueryload(
@@ -187,7 +187,7 @@ def super_delete(request):
 
 
 @view_config(route_name="rerun",
-    permission='authenticated')
+    permission='view')
 def rerun_archive(request):
     archive_id = int(request.matchdict["archive_id"])
     archive = DBSession.query(Archive).options(subqueryload(
