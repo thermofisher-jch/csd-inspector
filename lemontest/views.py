@@ -161,6 +161,8 @@ def check_archive(request):
 
 @view_config(route_name="super_delete")
 def super_delete(request):
+    url = request.route_url('reports')
+    return HTTPFound(location=url)
     archive_id = int(request.matchdict["archive_id"])
     archive = DBSession.query(Archive).options(subqueryload(
         Archive.diagnostics)).filter(Archive.id==archive_id).first()
@@ -177,6 +179,8 @@ def super_delete(request):
 
 @view_config(route_name="rerun")
 def rerun_archive(request):
+    url = request.route_url('check', archive_id=archive_id)
+    return HTTPFound(location=url)
     archive_id = int(request.matchdict["archive_id"])
     archive = DBSession.query(Archive).options(subqueryload(
         Archive.diagnostics)).filter(Archive.id==archive_id).first()
