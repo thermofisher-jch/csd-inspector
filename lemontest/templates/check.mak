@@ -110,7 +110,7 @@
 <div class="row-fluid" style="margin-top: 20px;">
     <div id="run_report" class="span12">
         <div id="pdf"></div>
-        <a href="/archives/${basename}/report.pdf}" class="btn btn-success"><i class="icon-arrow-down icon-white"></i> Download Report</a>
+        <a href="/archives/${basename}/report.pdf" class="btn btn-success"><i class="icon-arrow-down icon-white"></i> Download Report</a>
     </div>
     <div id="no_report" class="span12" style="display:none;">
         <small>There is no report.pdf for this archive.</small>
