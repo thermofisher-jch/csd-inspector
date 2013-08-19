@@ -12,6 +12,7 @@ import transaction
 import subprocess
 import os
 import os.path
+import time
 from glob import glob
 from celery.task import task
 from celery.utils.log import get_task_logger
@@ -57,11 +58,16 @@ def run_tester(test, diagnostic_id, archive_path):
     cmd = [test.main, archive_path, output_path]
     # Spawn the test subprocess and wait for it to complete.
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=test.directory)
-    result = proc.wait()
-    stdout, stderr = proc.communicate()
-    open(os.path.join(output_path, "standard_output.log"), 'w').write(stdout)
-    if stderr:
-        open(os.path.join(output_path, "standard_error.log"), 'w').write(stderr)
+    result = None    
+    while result is None and time.time() - start_time < 120:
+        time.sleep(1)
+        result = proc.poll()
+
+    if result is not None:
+        stdout, stderr = proc.communicate()
+        open(os.path.join(output_path, "standard_output.log"), 'w').write(stdout)
+        if stderr:
+            open(os.path.join(output_path, "standard_error.log"), 'w').write(stderr)
 
     diagnostic = DBSession.query(Diagnostic).get(diagnostic_id)
     if result is 0:
@@ -76,7 +82,10 @@ def run_tester(test, diagnostic_id, archive_path):
     else:
         status = "TEST BROKEN"
         priority = 15
-        details = "<div>Test %s ended with an error instead of running normally.\n<br />It output:</div><pre>%s</pre>" % \
+        if result is None:
+            details = "Test %s ran for longer than 120 seconds without completing." % test.name
+        else:
+            details = "<div>Test %s ended with an error instead of running normally.\n<br />It output:</div><pre>%s</pre>" % \
                   (test.name, stdout)
         logger.warning("Test %s/%d ended with an error." % (test.name, diagnostic_id))
     # Update the record with the results.
