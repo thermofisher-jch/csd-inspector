@@ -47,6 +47,7 @@ def run_tester(test, diagnostic_id, archive_path):
     """Spawn a subshell in which the test's main script is run, with the
     archive's folder and the script's output folder as command line args.
     """
+    timeout = 120
     logger.info("Running test %s/%d on %s" % (test.name, diagnostic_id, archive_path))
     # Now that we're finally running the task, set the status appropriately.
     diagnostic = DBSession.query(Diagnostic).get(diagnostic_id)
@@ -58,8 +59,9 @@ def run_tester(test, diagnostic_id, archive_path):
     cmd = [test.main, archive_path, output_path]
     # Spawn the test subprocess and wait for it to complete.
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=test.directory)
-    result = None    
-    while result is None and time.time() - start_time < 120:
+    result = proc.poll()
+    start_time = time.time()
+    while result is None and time.time() - start_time < timeout:
         time.sleep(1)
         result = proc.poll()
 
@@ -83,7 +85,7 @@ def run_tester(test, diagnostic_id, archive_path):
         status = "TEST BROKEN"
         priority = 15
         if result is None:
-            details = "Test %s ran for longer than 120 seconds without completing." % test.name
+            details = "Test %s ran for longer than %d seconds without completing." % (test.name, timeout)
         else:
             details = "<div>Test %s ended with an error instead of running normally.\n<br />It output:</div><pre>%s</pre>" % \
                   (test.name, stdout)
