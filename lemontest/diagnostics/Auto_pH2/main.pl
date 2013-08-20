@@ -1,10 +1,12 @@
 #!/usr/bin/perl 
 #Creates plots for the autopH data in an initlog.txt file
-#Takes 2 arguments: 1st is the initlog.txt file, 2nd is the results file
+#Takes 2 arguments: 1st is the ARCHIVE Directory where the initLog.txt file is expected, 2nd is the RESULTS directory
 
 use Chart::Gnuplot;
 
 my $OUTDIR=$ARGV[1];
+my $ARCHIVE=$ARGV[0];
+my $initLog_name="InitLog.txt";	#the name of the file that is expected in the ARCHIVE directory
 my $proton=0;
 my $numlogs=0;			#keeps track of the number of logs in a single file
 my $ll=0;				#lower limit, upper limit and target in a line like    -300  <  target=-124  < -36 
@@ -24,9 +26,6 @@ my $dx;					#dx holds the dx of the current iteration
 #the first value of array x is always 0
 push @x,0;
 
-#print "@ARGV\n";
-
-
 #initialize the HTML results file
 open (HTML_FILE, ">$OUTDIR/results.html") or die "Can't open html file\n";
 print HTML_FILE "<html><link rel=stylesheet href=some.css type=text/css>\n";
@@ -34,7 +33,10 @@ print HTML_FILE "</head><body>";
 print HTML_FILE "<h1 align=\"center\">AutopH plot</h1>";
 close (HTML_FILE);
 
-while (<>){
+#Open the initLog.txt file
+open (INIT_FILE,"$ARCHIVE/$initLog_name")or die "Can't open InitLog.txt file\n";
+
+while (<INIT_FILE>){
 	if(/^Chip\s+Type\s+(\S+)/){
 		#stop parsing if chip is Proton
 		if($1 eq "BB1"){
@@ -106,6 +108,9 @@ while (<>){
 		$diff=$ul=$ll=0;
 	}
 }
+
+#close init file
+close(INIT_FILE);
 
 #test does not apply for proton
 if($proton==0){
