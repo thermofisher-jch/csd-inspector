@@ -120,21 +120,22 @@ if($proton==0){
 	close (HTML_FILE);
 
 	#print output to stdout
-	#desired output is generated only if there is enough data in the x,y vectors
+	# output is generated only if there is enough data in the x,y vectors
 	if($#x1==$#y1){
-		print "Starting pH: $y1[0]\n";
-		print "W1 added (ml): $x1[-1]\n";
-
 		#print results only for the last test
-		#$status = 1 => overshot, 2=> undershot
+		#$status = 1 => overshot, 2=> undershot, $status = 0 => OK
 		if($status!=0){
 			print "Alert\n";
 			print "40\n";
+			print "Starting pH: $y1[0]\n";
+			print "W1 added (ml): $x1[-1]\n";
 			print "$dx\n"
 		#$status = 0 => OK
 		}else{
 			print "OK\n";
 			print "10\n";
+			print "Starting pH: $y1[0]\n";
+			print "W1 added (ml): $x1[-1]\n";
 			print "$dx\n"	
 		}
 
