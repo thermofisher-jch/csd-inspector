@@ -72,16 +72,25 @@ def run_tester(test, diagnostic_id, archive_path):
             open(os.path.join(output_path, "standard_error.log"), 'w').write(stderr)
 
     diagnostic = DBSession.query(Diagnostic).get(diagnostic_id)
+    was_exception = ""
     if result is 0:
         output = stdout.splitlines()
-        status = output[0]
-        priority = int(output[1])
-        details = "\n".join(output[2:]).rstrip()
-        html = os.path.join(output_path, "results.html")
-        if os.path.exists(html):
-            diagnostic.html = html
-        logger.info("Test %s/%d completed with status %s" % (test.name, diagnostic_id, status))
-    else:
+        try:
+            status = output[0]
+            priority = int(output[1])
+        except ValueError:
+            was_exception = "Line 1 of output was not an integer<br/>"
+        except IndexError:
+            was_exception = "Too few lines of output<br/>"
+        else:
+            details = "\n".join(output[2:]).rstrip()
+            html = os.path.join(output_path, "results.html")
+            if os.path.exists(html):
+                diagnostic.html = html
+            logger.info("Test %s/%d completed with status %s" % (test.name, diagnostic_id, status))
+
+    if result is not 0 or was_exception:
+        logger.error("Test Broken %s: %s" % (test.name, was_exception))
         status = "TEST BROKEN"
         priority = 15
         if result is None:
@@ -89,7 +98,6 @@ def run_tester(test, diagnostic_id, archive_path):
         else:
             details = "<div>Test %s ended with an error instead of running normally.\n<br />It output:</div><pre>%s</pre>" % \
                   (test.name, stdout)
-        logger.warning("Test %s/%d ended with an error." % (test.name, diagnostic_id))
     # Update the record with the results.
     diagnostic.status = unicode(status)
     diagnostic.priority = priority
