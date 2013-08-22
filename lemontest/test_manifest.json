@@ -17,6 +17,8 @@
     "ISP_Loading"
 ],
 "OT_Log": [
-    "Plots"
+    "Plots",
+    "Sample_Pump",
+    "Oil_Pump"
 ]
 }

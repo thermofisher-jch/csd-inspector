@@ -161,17 +161,6 @@ OT_plots<-function(work_dir,file_name,machine,target,version) {
 
             cat("<img src=\"p4.png\" /><br />", file=f, append=TRUE)           
         }    
-		#Check if there is an error (a value is 5) in the pump status
-		# if(!(is.numeric(dataSet$SamplePumpStatus))) {
-		# 	cat("<h3 align=\"center\">Unable to test Sample pump status: the data is not numeric</h3>\n",sep=" ",file=f,append=TRUE)
-		# 	cat("Unable to test Sample pump status: the data is not numeric")
-		# }else{		
-		# 	if(5 %in% dataSet$SamplePumpStatus){
-		# 		cat("<br></br><br></br> <h2 align=\"center\" style=\"color: red\">Sample pump status test: ERROR detected value of 5</h3>\n",sep=" ",file=f,append=TRUE)
-		# 	}else{
-		# 		cat("<h2 align=\"center\" style=\"color: lime\">Sample pump status test: OK</h3>\n",sep=" ",file=f,append=TRUE)
-		# 	}
-		# }
 	}
     #finish report
     cat("\n<hr size=1>\n</body></html>",file=f,append=TRUE)
