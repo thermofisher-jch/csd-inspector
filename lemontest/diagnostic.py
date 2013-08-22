@@ -86,7 +86,7 @@ def run_tester(test, diagnostic_id, archive_path):
             details = "\n".join(output[2:]).rstrip()
             html = os.path.join(output_path, "results.html")
             if os.path.exists(html):
-                diagnostic.html = html
+                diagnostic.html = unicode(html)
             logger.info("Test %s/%d completed with status %s" % (test.name, diagnostic_id, status))
 
     if result is not 0 or was_exception:
