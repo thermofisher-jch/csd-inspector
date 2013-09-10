@@ -150,7 +150,10 @@ def unzip_csa(archive):
             archive.status = u"Error, archive is not a zip"
     except IOError as err:
         archive.status = u"Error during archive unzip"
-        task_logger.error("Archive {0} had an error: {1}".format(archive.id, err))
+        task_logger.error("Archive {0} had an IOError: {1}".format(archive.id, err))
+    except zipfile.BadZipfile as err:
+        archive.status = u'Error in archive zip, "%s"' % err
+        task_logger.error("Archive {0} had a bad zip file: {1}".format(archive.id, err))
     return False 
 
 
