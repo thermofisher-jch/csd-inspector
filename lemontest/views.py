@@ -177,10 +177,8 @@ def super_delete(request):
     return HTTPFound(location=url)
 
 
-@view_config(route_name="rerun")
+@view_config(route_name="rerun", request_method="POST")
 def rerun_archive(request):
-    url = request.route_url('check', archive_id=archive_id)
-    return HTTPFound(location=url)
     archive_id = int(request.matchdict["archive_id"])
     archive = DBSession.query(Archive).options(subqueryload(
         Archive.diagnostics)).filter(Archive.id==archive_id).first()
