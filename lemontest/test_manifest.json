@@ -9,7 +9,7 @@
     "PGM_Temperature",
     "PGM_Pressure",
     "Chip_Noise",
-    "Auto_pH2"
+    "Auto_pH"
 ],
 "Proton":[
     "Filter_Metrics",
