@@ -8,6 +8,7 @@ COLUMN_HEADER = "Sample Pump Status"
 
 normal_operation = {
     0: ["Ready/Idle state", "Pump operating normally"],
+    16: ("Read timeout", "Harmless warning - No action needed"),
     22: ["Busy", "Pump operating normally"],
 }
 
@@ -21,7 +22,6 @@ error_codes = {
     10: ("Valve overload", "Error not documented - No Instruction"),
     11: ("Move not allowed", "Error not documented - No Instruction"),
     15: ("Command overflow", "Error not documented - No Instruction"),
-    16: ("Read timeout", "Error not documented - No Instruction"),
     17: ("Write timeout", "Error not documented - No Instruction"),
     18: ("Unknown error", "Error not documented - No Instruction"),
     19: ("Invalid format", "Error not documented - No Instruction"),
