@@ -89,6 +89,7 @@
                         <input id="filter_label" name="label" type="text" value="${filters.label}">
                     </th>
                     <th>
+                        <input id="filter_summary" name="summary" type="text" value="${filters.summary}">
                         <a tal:condition="is_search" href="${request.current_route_url()}" class="btn btn-inverse">Clear</a>
                     </th>
             </tr>

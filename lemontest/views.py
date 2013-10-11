@@ -202,7 +202,8 @@ def list_reports(request):
         'archive_type': request.params.get('archive_type', u''),
         'submitter_name': request.params.get('submitter_name', u''),
         'site': request.params.get('site', u''),
-        'label': request.params.get('label' u'')
+        'label': request.params.get('label' u''),
+        'summary': request.params.get('summary' u''),
     }
     page = int(request.params.get("page", 1))
     page_url = paginate.PageURL_WebOb(request)
