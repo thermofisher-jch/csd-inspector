@@ -10,7 +10,15 @@
         white-space: nowrap;
     }
     #reports td {
+        padding: 0;
+    }
+    #reports td a {
         padding: 12px 8px;
+        display: block;
+        color: #333333;
+    }
+    #reports td a:hover {
+        text-decoration: none;
     }
     #reports thead tr th {
         border-top: 0 none;
@@ -86,14 +94,14 @@
             </tr>
         </thead>
         <tbody>
-            <tr tal:repeat="archive archives" onclick="window.location='${request.route_url('check', archive_id=archive.id)}';" style="cursor: pointer;">
-                <td>${archive.id}</td>
-                <td>${archive.submitter_name}</td>
-                <td>${h.prettydate(archive.time)}</td>
-                <td>${archive.archive_type.replace("_", " ")}</td>
-                <td>${archive.site}</td>
-                <td>${archive.label}</td>
-                <td>${archive.summary}</td>
+            <tr tal:repeat="archive archives">
+                <td><a href="${request.route_url('check', archive_id=archive.id)}" target="_blank">${archive.id}</a></td>
+                <td><a href="${request.route_url('check', archive_id=archive.id)}" target="_blank">${archive.submitter_name}</a></td>
+                <td><a href="${request.route_url('check', archive_id=archive.id)}" target="_blank">${h.prettydate(archive.time)}</a></td>
+                <td><a href="${request.route_url('check', archive_id=archive.id)}" target="_blank">${archive.archive_type.replace("_", " ")}</a></td>
+                <td><a href="${request.route_url('check', archive_id=archive.id)}" target="_blank">${archive.site}</a></td>
+                <td><a href="${request.route_url('check', archive_id=archive.id)}" target="_blank">${archive.label}</a></td>
+                <td><a href="${request.route_url('check', archive_id=archive.id)}" target="_blank">${archive.summary}</a></td>
             </tr>
         </tbody>
     </table>
