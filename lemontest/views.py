@@ -207,22 +207,29 @@ def rerun_archive(request):
     return HTTPFound(location=url)
 
 
+def clean_strings(params):
+    for key, value in params.items():
+        params[key] = value.strip()
+    return params
+
+
 @view_config(route_name="reports", renderer="reports.mako",
     permission='view')
 def list_reports(request):
-    search_params = {
+    search_params = clean_strings({
         'archive_type': request.params.get('archive_type', u''),
         'submitter_name': request.params.get('submitter_name', u''),
         'site': request.params.get('site', u''),
-        'label': request.params.get('label' u''),
-        'summary': request.params.get('summary' u''),
-    }
+        'label': request.params.get('label', u''),
+        'summary': request.params.get('summary', u''),
+    })
     page = int(request.params.get("page", 1))
     page_url = paginate.PageURL_WebOb(request)
     archive_query = DBSession.query(Archive).order_by(Archive.time.desc())
-    is_search = any(search_params.values())
+    is_search = False
     for column, value in search_params.items():
         if value:
+            is_search = True
             if column == 'archive_type':
                 archive_query = archive_query.filter(Archive.archive_type == value)
             else:
