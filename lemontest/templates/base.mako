@@ -33,7 +33,7 @@
               <li><a href="${request.route_path('reports')}">List Reports</a></li>
               <li><a href="${request.route_path('documentation')}">Documentation</a></li>
             </ul>
-            <form id="jump_form" class="navbar-form">
+            <form id="jump_form" class="navbar-form pull-left">
               <div class="input-append">
                 <input type="text" id="id_jump" placeholder="ID" class="span1"/>
                 <button type="submit" id="jump_button" class="btn">Go</button>
