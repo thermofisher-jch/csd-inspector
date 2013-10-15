@@ -6,8 +6,17 @@
         white-space: nowrap;
     }
     #reports td {
-        padding: 12px 8px;
+        padding: 0;
     }
+    #reports td a {
+        padding: 12px 8px;
+        display: block;
+        color: #333333;
+    }
+    #reports td a:hover {
+        text-decoration: none;
+     }
+
     #reports thead tr th {
         border-top: 0 none;
         background-image: linear-gradient(to bottom, white, #EFEFEF);
@@ -90,6 +99,7 @@
                     <input id="filter_label" name="label" type="text" value="${search['label']}">
                 </th>
                 <th>
+                    <input id="filter_summary" name="summary" type="text" value="${search['summary']}">
                     % if is_search:
                         <a href="${request.current_route_url()}" class="btn btn-inverse">Clear</a>
                     % endif
@@ -98,14 +108,14 @@
     </thead>
     <tbody>
         % for archive in archives:
-            <tr onclick="window.location='${request.route_url('check', archive_id=archive.id)}';" style="cursor: pointer;">
-                <td>${archive.id}</td>
-                <td>${archive.submitter_name}</td>
-                <td>${h.prettydate(archive.time)}</td>
-                <td>${archive.archive_type.replace("_", " ")}</td>
-                <td>${archive.site}</td>
-                <td>${archive.label}</td>
-                <td>${archive.summary}</td>
+            <tr>
+                <td><a href="${request.route_url('check', archive_id=archive.id)}" target="_blank">${archive.id}</a></td>
+                <td><a href="${request.route_url('check', archive_id=archive.id)}" target="_blank">${archive.submitter_name}</a></td>
+                <td><a href="${request.route_url('check', archive_id=archive.id)}" target="_blank">${h.prettydate(archive.time)}</a></td>
+                <td><a href="${request.route_url('check', archive_id=archive.id)}" target="_blank">${archive.archive_type.replace("_", " ")}</a></td>
+                <td><a href="${request.route_url('check', archive_id=archive.id)}" target="_blank">${archive.site}</a></td>
+                <td><a href="${request.route_url('check', archive_id=archive.id)}" target="_blank">${archive.label}</a></td>
+                <td><a href="${request.route_url('check', archive_id=archive.id)}" target="_blank">${archive.summary}</a></td>
             </tr>
         % endfor
     </tbody>

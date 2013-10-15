@@ -172,6 +172,8 @@ def check_archive(request):
 @view_config(route_name="super_delete",
     permission='view')
 def super_delete(request):
+    url = request.route_url('reports')
+    return HTTPFound(location=url)
     archive_id = int(request.matchdict["archive_id"])
     archive = DBSession.query(Archive).options(subqueryload(
         Archive.diagnostics)).filter(Archive.id==archive_id).first()
@@ -186,8 +188,7 @@ def super_delete(request):
     return HTTPFound(location=url)
 
 
-@view_config(route_name="rerun",
-    permission='view')
+@view_config(route_name="rerun", request_method="POST", permission='view')
 def rerun_archive(request):
     archive_id = int(request.matchdict["archive_id"])
     archive = DBSession.query(Archive).options(subqueryload(
@@ -213,7 +214,8 @@ def list_reports(request):
         'archive_type': request.params.get('archive_type', u''),
         'submitter_name': request.params.get('submitter_name', u''),
         'site': request.params.get('site', u''),
-        'label': request.params.get('label', u'')
+        'label': request.params.get('label' u''),
+        'summary': request.params.get('summary' u''),
     }
     page = int(request.params.get("page", 1))
     page_url = paginate.PageURL_WebOb(request)

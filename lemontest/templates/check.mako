@@ -55,10 +55,12 @@
                 <a class="btn btn-success" href="/archives/${basename}/archive.zip"><i class="icon-arrow-down icon-white"></i> Download Archive</a>
                 <a class="btn" href="/archives/${basename}/"><i class="icon-folder-open"></i> View Files</a>
                 <a id="edit" class="btn" href="#"><i class="icon-pencil"></i> Edit</a>
-                <a class="btn" href="/check/${archive.id}/rerun" ><i class="icon-repeat"></i> Re-run Tests</a>
+                <form method="POST" action="${request.route_url('rerun', archive_id=archive.id)}" style="margin: 0; display: inline">
+                    <button type="submit"class="btn"><i class="icon-repeat"></i> Re-run Tests</button>
+                </form>
             </div>
             <div class="pull-right">
-                <a class="btn btn-danger" href="/check/${archive.id}/super_delete"><i class="icon-trash icon-white"></i> Super Delete</a>
+                <span class="btn btn-danger disabled" ><i class="icon-trash icon-white"></i> Super Delete</span>
             </div>
         </div>
     </div>
@@ -111,7 +113,7 @@
 <div class="row-fluid" style="margin-top: 20px;">
     <div id="run_report" class="span12">
         <div id="pdf"></div>
-        <a href="/archives/${basename}/report.pdf}" class="btn btn-success"><i class="icon-arrow-down icon-white"></i> Download Report</a>
+        <a href="/archives/${basename}/report.pdf" class="btn btn-success"><i class="icon-arrow-down icon-white"></i> Download Report</a>
     </div>
     <div id="no_report" class="span12" style="display:none;">
         <small>There is no report.pdf for this archive.</small>
