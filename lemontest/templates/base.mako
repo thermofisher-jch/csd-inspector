@@ -74,21 +74,22 @@
           })();
         </script>
         <noscript><p><img src="http://inspector.itw:4242/piwik.php?idsite=1" style="border:0" alt="" /></p></noscript>
-        <script type="text/javascript">
-          $(function(){
-            function isNumber(n) {
-              return !isNaN(parseFloat(n)) && isFinite(n);
-            }
-            $("#jump_form").submit(function(){
-              var id = $('#id_jump').val();
-              if (isNumber(id) && id > 0)
-                window.location='/check/'+id;
-              else
-                alert("Enter an upload ID number to jump directly to it.");
-              return false;
-            });
-          });
-        </script>
     </%block>
+    
+    <script type="text/javascript">
+      $(function(){
+        function isNumber(n) {
+          return !isNaN(parseFloat(n)) && isFinite(n);
+        }
+        $("#jump_form").submit(function(){
+          var id = $('#id_jump').val();
+          if (isNumber(id) && id > 0)
+            window.location='/check/'+id;
+          else
+            alert("Enter an upload ID number to jump directly to it.");
+          return false;
+        });
+      });
+    </script>
   </body>
 </html>
