@@ -56,6 +56,7 @@
                 <a class="btn" href="/archives/${basename}/"><i class="icon-folder-open"></i> View Files</a>
                 <a id="edit" class="btn" href="#"><i class="icon-pencil"></i> Edit</a>
                 <form method="POST" action="${request.route_url('rerun', archive_id=archive.id)}" style="margin: 0; display: inline">
+                    <input type="hidden" name="csrf_token" value="${request.session.get_csrf_token()}"/>
                     <button type="submit"class="btn"><i class="icon-repeat"></i> Re-run Tests</button>
                 </form>
             </div>

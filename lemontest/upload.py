@@ -5,6 +5,7 @@ import transaction
 import os
 import os.path
 import zipfile
+from celery.signals import worker_init
 from celery.task import task
 from celery.task import chord
 from celery.utils.log import get_task_logger
@@ -17,6 +18,14 @@ from lemontest import diagnostic
 logger = logging.getLogger(__name__)
 
 task_logger = get_task_logger(__name__)
+
+@worker_init.connect
+def initialize_session(signal, sender):
+    from sqlalchemy import engine_from_config
+    from celery import current_app
+    worker_engine = engine_from_config(current_app.conf, 'sqlalchemy.')
+    DBSession.configure(bind=worker_engine)
+
 
 def get_common_prefix(files):
     """For a list of files, a common path prefix and a list file names with
