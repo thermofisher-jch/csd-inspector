@@ -54,17 +54,23 @@ def run_tester(test, diagnostic_id, archive_path):
     output_path = diagnostic.get_output_path()
     diagnostic.status = u"Running"
     transaction.commit()
-
-    os.mkdir(output_path)
-    cmd = [test.main, archive_path, output_path]
-    # Spawn the test subprocess and wait for it to complete.
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=test.directory)
-    result = proc.poll()
-    start_time = time.time()
-    while result is None and time.time() - start_time < timeout:
-        time.sleep(1)
+    try:
+        os.mkdir(output_path)
+        cmd = [test.main, archive_path, output_path]
+        # Spawn the test subprocess and wait for it to complete.
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=test.directory)
         result = proc.poll()
-
+        start_time = time.time()
+        while result is None and time.time() - start_time < timeout:
+            time.sleep(1)
+            result = proc.poll()
+    except Exception as err:
+        logger.error("Upload id={} Could not create the {} test's output path: {}".format(diagnostic.archive_id, diagnostic.name, err))
+        diagnostic.status = u'System Failure'
+        diagnostic.priority = 15
+        diagnostic.details = u'There was an error in Ion Inspector, and this test could not run.'
+        transaction.commit()
+        raise
     if result is not None:
         stdout, stderr = proc.communicate()
         open(os.path.join(output_path, "standard_output.log"), 'w').write(stdout)
@@ -90,6 +96,8 @@ def run_tester(test, diagnostic_id, archive_path):
             logger.info("Test %s/%d completed with status %s" % (test.name, diagnostic_id, status))
 
     if result is not 0 or was_exception:
+        if not was_exception:
+            was_exception = "Non-zero exit status"
         logger.error("Test Broken %s: %s" % (test.name, was_exception))
         status = "TEST BROKEN"
         priority = 15
