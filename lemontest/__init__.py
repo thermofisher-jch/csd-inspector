@@ -35,7 +35,7 @@ def main(global_config, **settings):
     
     # configure various URL routes and
     config.add_static_view('static', 'lemontest:static', cache_max_age=3600)
-    config.add_static_view('output', settings["upload_root"])
+    config.add_static_view('archives', settings["upload_root"])
     config.add_route('index', '/')
     config.add_route('upload', '/upload')
     config.add_route('check', '/check/{archive_id:\d+}')
