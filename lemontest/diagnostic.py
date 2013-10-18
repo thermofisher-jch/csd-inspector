@@ -104,8 +104,11 @@ def run_tester(test, diagnostic_id, archive_path):
         if result is None:
             details = "Test %s ran for longer than %d seconds without completing." % (test.name, timeout)
         else:
-            details = "<div>Test %s ended with an error instead of running normally.\n<br />It output:</div><pre>%s</pre>" % \
-                  (test.name, stdout)
+            details = "<div>Test %s ended with an error instead of running normally.\n" % test.name
+            if stdout:
+                details += "<br/>It output:<pre>%s</pre>" % stdout
+            else:
+                details += "It output nothing."
     # Update the record with the results.
     diagnostic.status = unicode(status)
     diagnostic.priority = priority
