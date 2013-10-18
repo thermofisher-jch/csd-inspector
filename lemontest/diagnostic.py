@@ -56,6 +56,7 @@ def run_tester(test, diagnostic_id, archive_path):
     transaction.commit()
     try:
         os.mkdir(output_path)
+        raise OSError("Some crap about the path")
         cmd = [test.main, archive_path, output_path]
         # Spawn the test subprocess and wait for it to complete.
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=test.directory)
@@ -65,12 +66,13 @@ def run_tester(test, diagnostic_id, archive_path):
             time.sleep(1)
             result = proc.poll()
     except Exception as err:
-        logger.error("Upload id={} Could not create the {} test's output path: {}".format(diagnostic.archive_id, diagnostic.name, err))
+        logger.exception("Upload id={} test {} failed with an exception: {}".format(diagnostic.archive_id, diagnostic.name, err))
+        diagnostic = DBSession.query(Diagnostic).get(diagnostic_id)
         diagnostic.status = u'System Failure'
         diagnostic.priority = 15
         diagnostic.details = u'There was an error in Ion Inspector, and this test could not run.'
         transaction.commit()
-        raise
+        return
     if result is not None:
         stdout, stderr = proc.communicate()
         open(os.path.join(output_path, "standard_output.log"), 'w').write(stdout)
