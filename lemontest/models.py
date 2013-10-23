@@ -58,7 +58,7 @@ class Archive(Base):
 
     tags = relationship("Tag", secondary=archive_tags, backref="archives")
 
-    def __init__(self, submitter_name, label, site, archive_type, path):
+    def __init__(self, submitter_name, label, site, archive_type, path=""):
         self.submitter_name = submitter_name
         self.label = label
         self.site = site

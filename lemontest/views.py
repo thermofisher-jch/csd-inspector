@@ -68,15 +68,7 @@ def make_archive(request):
     archive_type = unicode(request.POST["archive_type"])
     submitter_name = unicode(request.POST["name"])
 
-    upload_root = request.registry.settings["upload_root"]
-    folder = slugify(label)
-    destination = os.path.join(upload_root, folder)
-    # if the user's label produces a destination path that already exists,
-    # _derp the folder name until it's unique.
-    while os.path.exists(destination):
-        destination += "_derp"
-
-    archive = Archive(submitter_name, label, site, archive_type, destination)
+    archive = Archive(submitter_name, label, site, archive_type)
 
     return archive
 
@@ -126,8 +118,18 @@ def upload_file(request):
         ctx['name'] = request.POST.get("name", "")
         ctx['archive_type'] = request.POST.get("archive_type", "")
         ctx['site'] = request.POST.get("site", "")
-        valid, url = post_upload_validate(request)
-        if valid:
+        if upload_validate(request.POST):
+            upload_root = request.registry.settings["upload_root"]
+            archive = make_archive(request)
+            data = get_uploaded_file(request)
+            DBSession.add(archive)
+            DBSession.flush()
+            archive.path = os.path.join(upload_root, unicode(archive.id))
+            archive_id = archive.id
+            archive_path = archive.path
+            transaction.commit()
+            upload.queue_archive(archive_id, archive_path, data, testers)
+            url = request.route_url('check', archive_id=archive_id)
             return HTTPFound(location=url)
     return ctx
 
