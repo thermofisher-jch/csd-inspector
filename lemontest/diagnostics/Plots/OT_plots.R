@@ -184,9 +184,10 @@ OT_plots<-function(work_dir,file_name,machine,target,version) {
     cat("\n<hr size=1>\n</body></html>",file=f,append=TRUE)
     cat("Info\n");
     cat("20\n");
+    return();
 }
 
 cmd.args <- commandArgs(trailingOnly = TRUE);
 
-OT_plots(cmd.args[1], cmd.args[2], cmd.args[3], cmd.args[4], cmd.args[5]);
+t<-OT_plots(cmd.args[1], cmd.args[2], cmd.args[3], cmd.args[4], cmd.args[5]);
 
