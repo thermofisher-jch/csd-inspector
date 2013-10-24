@@ -21,5 +21,8 @@
     "Plots",
     "Sample_Pump",
     "Oil_Pump"
+],
+"Ion_Chef": [
+    "Recipe"
 ]
 }

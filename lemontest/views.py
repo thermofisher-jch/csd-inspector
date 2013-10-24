@@ -79,10 +79,12 @@ def upload_validate(data):
 
 def post_upload_validate(request):
     if request.method == "POST" and upload_validate(request.POST):
+        upload_root = request.registry.settings["upload_root"]
         archive = make_archive(request)
         data = get_uploaded_file(request)
         DBSession.add(archive)
         DBSession.flush()
+        archive.path = os.path.join(upload_root, unicode(archive.id))
         archive_id = archive.id
         archive_path = archive.path
         transaction.commit()

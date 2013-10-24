@@ -4,6 +4,7 @@ import logging
 import transaction
 import os
 import os.path
+import tarfile
 import zipfile
 from celery.signals import worker_init
 from celery.task import task
@@ -166,6 +167,25 @@ def unzip_csa(archive):
     return False 
 
 
+def untar_upload(archive):
+    try:
+        full_path = os.path.join(archive.path, "logs.tar")
+        os.rename(os.path.join(archive.path, "uploaded_file.tmp"), full_path)
+        if tarfile.is_tarfile(full_path):
+            with tarfile.TarFile(full_path) as tar:
+                tar.extractall(archive.path)
+            return True
+        else:
+            archive.status = u"Error, archive is not a tar file"
+    except IOError as err:
+        archive.status = u"Error during archive untar"
+        task_logger.error("Archive {0} had an IOError: {1}".format(archive.id, err))
+    except tarfile.TarError as err:
+        archive.status = u'Error in archive tar file, "%s"' % err
+        task_logger.error("Archive {0} had a bad tar file: {1}".format(archive.id, err))
+    return False 
+
+
 def one_touch_log(archive):
     full_path = os.path.join(archive.path, "onetouch.log")
     os.rename(os.path.join(archive.path, "uploaded_file.tmp"), full_path)
@@ -175,7 +195,8 @@ def one_touch_log(archive):
 archive_handlers = {
     "PGM_Run": unzip_csa,
     "Proton": unzip_csa,
-    "OT_Log": one_touch_log
+    "OT_Log": one_touch_log,
+    "Ion_Chef": untar_upload,
 }
 
 
