@@ -56,7 +56,6 @@ def run_tester(test, diagnostic_id, archive_path):
     transaction.commit()
     try:
         os.mkdir(output_path)
-        raise OSError("Some crap about the path")
         cmd = [test.main, archive_path, output_path]
         # Spawn the test subprocess and wait for it to complete.
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=test.directory)
