@@ -12,9 +12,25 @@ OT_plots<-function(work_dir,file_name,machine,target,version) {
     header_len=length(names(dataSet))
 
 
-    #There are 3 types of file:
-    #OT2 has 34 columns
-    if( header_len ==34){
+    #There are 4 types of file:
+    #OT2 has 36 columns for TS4
+    if( header_len ==36){
+        OT2=TRUE;
+        machine="OT2"
+        header=c("Step","Thermistor0Temperature","Thermistor1Temperature","Thermistor2Temperature","Thermistor3Temperature",
+            "Thermistor4Temperature","P_SensorCur.Pressure","RawA2D","TEC0CurrentTemp","SetTemp","PWMdutyCycle","OnTime",
+            "TecDir","AdjustedSetTemp","Heater0CurrentTemp","SetTemp.1","PWMdutyCycle.1","Heater1CurrentTemp","SetTemp.2",
+            "PWMdutyCycle.2","MotorPowerOscillation","Raw","SolenoidPumpTotalVolume","DispensedVolume","OilPumpStatus",
+            "SamplePumpStatus","Pin0Pin","Pin1Pin","Pin2Pin","Pin3Pin","Pin4Pin","Pin5Pin","Flowmeter0","OilPumpPosition",
+            "SamplePumpPosition","Timestamp")
+        #stop if the header names of the file are not as expected for OT2
+        if( ! (all(names(dataSet)==header ))) {
+            cat("Warning\n");
+            cat("30\n");
+            cat("The file's header is different from what is expected\n");
+            return();
+        }
+    }else if( header_len ==34){
         OT2=TRUE;
         machine="OT2"
         header=c("Step","Thermistor0Temperature","Thermistor1Temperature","Thermistor2Temperature","Thermistor3Temperature",
@@ -24,10 +40,10 @@ OT_plots<-function(work_dir,file_name,machine,target,version) {
             "SamplePumpStatus","Pin0Pin","Pin1Pin","Pin2Pin","Pin3Pin","Pin4Pin","Pin5Pin","Flowmeter0","Timestamp")
         #stop if the header names of the file are not as expected for OT2
         if( ! (all(names(dataSet)==header ))) {
-            cat("Stopping: the file header is different from what is expected\n")
             cat("Warning\n");
             cat("30\n");
-            stop()
+            cat("The file's header is different from what is expected\n");
+            return();
         }
     }else if(header_len ==32) {
         OT1=TRUE;
@@ -43,10 +59,11 @@ OT_plots<-function(work_dir,file_name,machine,target,version) {
 
         #stop if the header names of the file are not as expected for OT1
         if( ! (all(names(dataSet)==header))) {
-            cat("Stopping: the file header is different from what is expected\n")
             cat("Warning\n");
             cat("30\n");
-            stop()
+            cat("The file's header is different from what is expected\n");
+            return();
+            
         }
 	}else if(header_len ==33) {
         OTDL=TRUE;
@@ -62,17 +79,17 @@ OT_plots<-function(work_dir,file_name,machine,target,version) {
 
         # #stop if the header names of the file are not as expected for OTDL
         if( ! (all(names(dataSet)==header))) {
-            cat("Stopping: the file header is different from what is expected\n")
             cat("Warning\n");
             cat("30\n");
-            stop()
+            cat("Stopping: the file header is different from what is expected\n");
+            return();
         }
     }else{
         cat("Warning\n");
         cat("30\n");
-        cat("The file's header length is different from what is expected")
-
-        stop()
+        cat("The file's header length is different from what is expected\n");
+        return();
+        
     }
   
     #The name of the resulting report
