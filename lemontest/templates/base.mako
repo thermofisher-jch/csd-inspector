@@ -43,9 +43,9 @@
               % if request.user:
                 <a href="${request.route_url('apex_logout')}" class="btn">Logout</a>
               % else:
-                <a href="${request.route_url('apex_login')}" class="btn">Login</a>
+                <!--<a href="${request.route_url('apex_login')}" class="btn">Login</a>
                 or
-                <a href="${request.route_url('apex_register')}" class="btn">Register</a>
+                <a href="${request.route_url('apex_register')}" class="btn">Register</a>-->
               % endif
             </div>
           </div><!--/.nav-collapse -->
