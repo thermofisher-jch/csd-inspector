@@ -55,14 +55,17 @@ if __name__ == "__main__":
     result = template.render(**context)
     with open(os.path.join(output, "results.html"), 'w') as out:
         out.write(result.encode("UTF-8"))
-
+    summary = "Contains {} files.  ".format(file_count)
+    if not rel_xml_path:
+        summary += "No Run Log."
     if errors:
         print("Alert")
         print("40")
     elif warnings:
         print("Warning")
         print("30")
+        summary += "{} warnings.".format(len(warnings))
     else:
         print("OK")
         print("10")
-    print("Hella logs {}".format(file_count))
+    print(summary)

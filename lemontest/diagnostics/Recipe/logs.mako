@@ -1,11 +1,16 @@
 <html>
 <head>
-<link rel="stylesheet" href="/static/css/bootstrap.css"/>
+	<link rel="stylesheet" href="/static/css/bootstrap.css"/>
+	<style type="text/css">
+		#files {
+			font-family: monospace;
+		}
+	</style>
 </head>
 <body>
 
 <h2>The log contains the following files:</h2>
-<table class="table">
+<table id="files" class="table table-striped table-condensed">
 % for file in files:
 	<tr><td>${file}</td></tr>
 % endfor
@@ -20,8 +25,8 @@
 % if xml_path:
 	<h3>Run Log:${xml_path}</h3>
 	% if warnings:
-		<h3 class="alert alert-warning">Warnings:</h3>
-		<table class="table">
+		<h3 class="alert alert-warning">${len(warnings)} warnings</h3>
+		<table class="table table-striped table-hover">
 			<thead>
 				<tr>
 					% for head in headers:
