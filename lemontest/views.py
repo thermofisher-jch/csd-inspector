@@ -79,6 +79,9 @@ def upload_validate(data):
 
 def post_upload_validate(request):
     if request.method == "POST" and upload_validate(request.POST):
+        for param in ['name', 'site', 'archive_type']:
+            request.session['upload.'+param] = request.POST.get(param, '')
+        request.session.save()
         upload_root = request.registry.settings["upload_root"]
         archive = make_archive(request)
         data = get_uploaded_file(request)
@@ -110,10 +113,10 @@ def upload_file(request):
     """
     ctx = {
         'label':request.GET.get("label", ""), 
-        'name': request.GET.get("name", ""), 
-        'site': '',
+        'name': request.GET.get("name", "") or request.session.get("upload.name", ""), 
+        'site': request.session.get("upload.site", ""),
         'archive_types': testers.keys(),
-        'archive_type': None,
+        'archive_type': request.session.get("upload.archive_type", None),
     }
     if request.method == "POST":
         ctx['label'] = request.POST.get("label", "")
