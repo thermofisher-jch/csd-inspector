@@ -1,1 +1,4 @@
-The PGM temperature should be 27 <= t <= 33.
+The PGM temperature should be 26°C <= t <= 34°C.
+
+For ideal Ion PGM™ Instrument operation the PGM Site Prep guide recommends an ambient room temperature of 20-25°C (68-77°F).  
+Note: The room temperature should not fluctuate more than 2°C over a 2-hour period.
