@@ -36,15 +36,15 @@ def report(data):
     if temperature < 48.0:
         print("Alert")
         print(40)
-        print(u"Chip temperature {:.2f}°C is too cold.".format(temperature))
+        print(u"Chip temperature {:.2f} C is too cold.".format(temperature))
     elif temperature > 51:
         print("Alert")
         print(40)
-        print(u"Chip temperature {:.2f}°C is not cool.".format(temperature))
+        print(u"Chip temperature {:.2f} C is not cool.".format(temperature))
     else:
         print("OK")
         print(10)
-        print(u"Chip temperature {:.2f}°C is just right.".format(temperature))
+        print(u"Chip temperature {:.2f} C is just right.".format(temperature))
         
 
 def main():
