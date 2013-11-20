@@ -176,7 +176,7 @@ def check_archive(request):
         "status_highlights": status_highlights, "tag_string": " ".join(t.name for t in archive.tags)}
 
 
-@view_config(route_name="super_delete", request_method="POST"
+@view_config(route_name="super_delete", request_method="POST",
     permission='view')
 def super_delete(request):
     archive_id = int(request.matchdict["archive_id"])
