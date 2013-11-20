@@ -176,11 +176,9 @@ def check_archive(request):
         "status_highlights": status_highlights, "tag_string": " ".join(t.name for t in archive.tags)}
 
 
-@view_config(route_name="super_delete",
+@view_config(route_name="super_delete", request_method="POST"
     permission='view')
 def super_delete(request):
-    url = request.route_url('reports')
-    return HTTPFound(location=url)
     archive_id = int(request.matchdict["archive_id"])
     archive = DBSession.query(Archive).options(subqueryload(
         Archive.diagnostics)).filter(Archive.id==archive_id).first()

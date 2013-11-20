@@ -57,11 +57,14 @@
                 <a id="edit" class="btn" href="#"><i class="icon-pencil"></i> Edit</a>
                 <form method="POST" action="${request.route_url('rerun', archive_id=archive.id)}" style="margin: 0; display: inline">
                     <input type="hidden" name="csrf_token" value="${request.session.get_csrf_token()}"/>
-                    <button type="submit"class="btn"><i class="icon-repeat"></i> Re-run Tests</button>
+                    <button type="submit" class="btn"><i class="icon-repeat"></i> Re-run Tests</button>
                 </form>
             </div>
             <div class="pull-right">
-                <span class="btn btn-danger disabled" ><i class="icon-trash icon-white"></i> Super Delete</span>
+                <form method="POST" action="${request.route_url('super_delete', archive_id=archive.id)}" style="margin: 0; display: inline">
+                    <input type="hidden" name="csrf_token" value="${request.session.get_csrf_token()}"/>
+                    <button type="submit" class="btn btn-danger" ><i class="icon-trash icon-white"></i> Super Delete</button>
+                </form>
             </div>
         </div>
     </div>
