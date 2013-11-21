@@ -33,11 +33,11 @@ def validate(archive_path):
 
 def report(data):
     temperature = float(data["PGMTemperature"].split(" - ")[1])
-    if temperature < 27.0:
+    if temperature < 26:
         print("Alert")
         print(40)
         print(u"PGM temperature {:.2f} C is too cold.".format(temperature))
-    elif temperature > 33:
+    elif temperature > 34:
         print("Alert")
         print(40)
         print(u"PGM temperature {:.2f} C is not cool.".format(temperature))

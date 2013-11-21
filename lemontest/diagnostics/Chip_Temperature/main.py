@@ -33,11 +33,11 @@ def validate(archive_path):
 
 def report(data):
     temperature = float(data["ChipTemperature"].split(" - ")[1])
-    if temperature < 48.0:
+    if temperature < 46:
         print("Alert")
         print(40)
         print(u"Chip temperature {:.2f} C is too cold.".format(temperature))
-    elif temperature > 51:
+    elif temperature > 54:
         print("Alert")
         print(40)
         print(u"Chip temperature {:.2f} C is not cool.".format(temperature))
