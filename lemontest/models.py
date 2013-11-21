@@ -110,6 +110,12 @@ class Tag(Base):
     name = Column(Unicode(255))
 
 
+class Profile(Base):
+    __tablename__ = "profiles"
+    id = Column(Integer, primary_key=True)
+    first_name = Column(Unicode(255))
+    last_name = Column(Unicode(255))
+
 
 def populate():
     session = DBSession()
