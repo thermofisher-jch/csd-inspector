@@ -28,7 +28,7 @@ push @x,0;
 
 #initialize the HTML results file
 open (HTML_FILE, ">$OUTDIR/results.html") or die "Can't open html file\n";
-print HTML_FILE "<html><link rel=stylesheet href=some.css type=text/css>\n";
+print HTML_FILE "<html>\n<head>\n<link type=\"text/css\" href=\"/static/css/bootstrap.css\" rel=\"stylesheet\">\n";
 print HTML_FILE "</head><body>";
 print HTML_FILE "<h1 align=\"center\">AutopH plot</h1>";
 close (HTML_FILE);
