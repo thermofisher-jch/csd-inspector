@@ -5,6 +5,7 @@
     <title>Ion Inspector: simple, scalable, fast</title>
     <meta name="description" content="Ion Inspector, Ion Torrent internal customer support tests for field specialists.">
     <meta name="author" content="Brian Kennedy">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
     <!--[if lt IE 9]>
@@ -13,6 +14,7 @@
 
     <!-- Le styles -->
     <link href="${request.static_url('lemontest:static/css/bootstrap.css')}" rel="stylesheet">
+    <link rel="icon" href="/static/img/inspector_background.png" type="image/png" />
     <style type="text/css">
       body {
         padding-top: 60px;
