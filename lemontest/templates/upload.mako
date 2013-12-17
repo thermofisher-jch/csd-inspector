@@ -2,7 +2,11 @@
 
 <%block name="extra_head">
   <script src="${request.static_url('lemontest:static/js/bootstrap-typeahead.js')}"></script>
+  <script src="${request.static_url('lemontest:static/js/modernizr.custom.js')}"></script>
   <script>
+    if ( !Modernizr.xhr2 ) {
+      window.location.href = "${request.route_url('old_browser')}";
+    }
     $(function(){
       var sourcerer = function (what) {
         return function (query, process) {

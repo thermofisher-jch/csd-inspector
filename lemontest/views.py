@@ -311,3 +311,8 @@ def stats(request):
 def not_found(self, request):
     request.response.status = 404
     return {}
+
+@view_config(route_name="old_browser", renderer="old_browser.mako",
+    permission='view')
+def documentation(request):
+    return {}
