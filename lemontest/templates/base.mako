@@ -18,9 +18,11 @@
     <style type="text/css">
       body {
         padding-top: 60px;
+        background-color: #FEFEFE;
       }
     </style>
     <script src="${request.static_url('lemontest:static/js/jquery-1.8.3.min.js')}"></script>
+    <script src="${request.static_url('lemontest:static/js/snowfall.min.jquery.js')}"></script>
     <%block name="extra_head"/>
   </head>
 
@@ -91,6 +93,7 @@
             alert("Enter an upload ID number to jump directly to it.");
           return false;
         });
+        $(document).snowfall({round: true, minSize: 2, maxSize: 5, maxSpeed: 3});
       });
     </script>
   </body>
