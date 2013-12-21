@@ -1,5 +1,14 @@
 <%inherit file="base.mako"/>
-
+<div id="delete_prompt" class="row-fluid" style="display: none;">
+    <div class="span12 alert alert-danger">
+        <h2>Delete this upload forever?</h2>
+        <button id="no_delete" class="btn btn-primary" >Keep</button>
+        <form  method="POST" action="${request.route_url('super_delete', archive_id=archive.id)}" style="margin: 0 0 0 100px; display: inline">
+            <input type="hidden" name="csrf_token" value="${request.session.get_csrf_token()}"/>
+            <button type="submit" class="btn" >Delete Forever</button>
+        </form>
+    </div>
+</div>
 <div class="row-fluid">
     <div class="span12">
         <div id="view_titles" class="clearfix">
@@ -61,10 +70,7 @@
                 </form>
             </div>
             <div class="pull-right">
-                <form method="POST" action="${request.route_url('super_delete', archive_id=archive.id)}" style="margin: 0; display: inline">
-                    <input type="hidden" name="csrf_token" value="${request.session.get_csrf_token()}"/>
-                    <button type="submit" class="btn btn-danger" ><i class="icon-trash icon-white"></i> Super Delete</button>
-                </form>
+                <button id="ask_delete" class="btn btn-danger" ><i class="icon-trash icon-white"></i> Delete</button>
             </div>
         </div>
     </div>
@@ -149,6 +155,12 @@
                 $("#view_titles").toggle();
                 $("#edit_titles").toggle();
                 return false;
+            });
+            $("#ask_delete").click(function(){
+                $("#delete_prompt").slideDown();
+            });
+            $("#no_delete").click(function(){
+                $("#delete_prompt").slideUp();
             });
         });
     </script>
