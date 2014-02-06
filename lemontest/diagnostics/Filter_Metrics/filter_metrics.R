@@ -1,6 +1,6 @@
 
 pngWidth <- 700
-pngHeight <- 500
+pngHeight <- 550
 myColor <- rev(rainbow(10))
 
 myBarplot <- function(y,...) {
