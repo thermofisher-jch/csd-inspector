@@ -51,7 +51,7 @@ library_stats = function(archivePath) {
         "Low Quality:\nShort Read" = d$short,
         "Low Quality:\nFailed Keypass" = d$failed_keypass,
         "Primer Dimer" = d$adapter_trim,
-        "Low Quality: Quality Trim" = d$quality_trim,
+        "Low Quality:\nQuality Trim" = d$quality_trim,
         "Final Library ISPs" = d$valid
       )
     } else {
