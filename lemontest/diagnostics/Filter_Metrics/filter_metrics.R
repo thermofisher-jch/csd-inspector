@@ -1,6 +1,6 @@
 
 pngWidth <- 700
-pngHeight <- 550
+pngHeight <- 500
 myColor <- rev(rainbow(10))
 
 myBarplot <- function(y,...) {
@@ -104,6 +104,7 @@ dev.off()
     # Breakdown of Library wells
     breakdownLib <- library_stats(archivePath)
     png(plotFile <- sprintf("%s/library.png",plotDir),width=pngWidth,height=pngHeight)
+    par(mar=c(8, 4, 4, 2))
 myBarplot(breakdownLib/1e3,beside=TRUE,las=2,ylab="Reads (1,000's)",main="Library Well Categorization",col=myColor)
 dev.off()
    
