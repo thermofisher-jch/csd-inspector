@@ -52,7 +52,7 @@ library_stats = function(archivePath) {
         "Low Quality:\nFailed Keypass" = d$failed_keypass,
         "Primer Dimer" = d$adapter_trim,
         "Low Quality: Quality Trim" = d$quality_trim,
-        "Final Library ISPs" = d$valid,
+        "Final Library ISPs" = d$valid
       )
     } else {
       if (file.exists(base_log)) file_path <- base_log
