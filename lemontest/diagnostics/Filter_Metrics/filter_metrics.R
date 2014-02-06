@@ -45,18 +45,14 @@ library_stats = function(archivePath) {
       bc_json_data <- fromJSON(file=basecaller_json)
       d <- bc_json_data$Filtering$ReadDetails$lib
       lib_stats<-c(
-        "valid" = d$valid,
-        "short" = d$short,
-        "quality\ntrim" = d$quality_trim,
-        "polyclonal" = d$polyclonal,
-        "high\nresidual" = d$high_residual,
-        "high ppf" = d$high_ppf,
-        "failed\nkeypass" = d$failed_keypass,
-        "bkgmodel\npolyclonal" = d$bkgmodel_polyclonal,
-        "bkgmodel\nkeypass" = d$bkgmodel_keypass,
-        "bkgmodel\nhigh ppf" = d$bkgmodel_high_ppf,
-        "beverly\nfilter" = d$beverly_filter,
-        "adapter\ntrim" = d$adapter_trim
+        "Low Quality:\nHigh PPF" = d$bkgmodel_high_ppf,
+        "Polyclonal" = d$bkgmodel_polyclonal,
+        "Low Quality:\nBad Key" = d$bkgmodel_keypass,
+        "Low Quality:\nShort Read" = d$short,
+        "Low Quality:\nFailed Keypass" = d$failed_keypass,
+        "Primer Dimer" = d$adapter_trim,
+        "Low Quality: Quality Trim" = d$quality_trim,
+        "Final Library ISPs" = d$valid,
       )
     } else {
       if (file.exists(base_log)) file_path <- base_log
