@@ -93,7 +93,6 @@
             alert("Enter an upload ID number to jump directly to it.");
           return false;
         });
-        $("div.navbar").snowfall({minSize: 1, maxSize: 2, maxSpeed: 1});
       });
     </script>
   </body>
