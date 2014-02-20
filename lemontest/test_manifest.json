@@ -25,6 +25,8 @@
 "Ion_Chef": [
     "Alarms",
     "Notifications",
-    "Chef_Kit"
+    "Chef_Kit",
+    "Chef_Chip",
+    "Chef_Timer"
 ]
 }
