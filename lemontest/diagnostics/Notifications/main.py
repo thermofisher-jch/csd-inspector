@@ -43,7 +43,7 @@ if __name__ == "__main__":
             if notes:
                 headers = [t.tag for t in notes[0].getchildren()]
             for note in notes:
-                notifications.append([t.text for t in notes.getchildren()])
+                notifications.append([t.text for t in note.getchildren()])
             warns = root.findall("Warnings_Run/warning")
             if warns:
                 headers = [t.tag for t in warns[0].getchildren()]
