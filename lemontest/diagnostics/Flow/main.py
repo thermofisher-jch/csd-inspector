@@ -38,7 +38,10 @@ if __name__ == "__main__":
             header = reader.next()
             cols = [(float(r[0]), int(r[7])) for r in reader]
             time, flows = zip(*cols)
-        plt.plot(data)
+        plt.plot(time, flows)
+        plt.title("Chef Flows")
+        plt.xlabel("Time")
+        plt.ylabel("Flows")
         figure_path = os.path.join(output, "plot.png")
         plt.savefig()
 
