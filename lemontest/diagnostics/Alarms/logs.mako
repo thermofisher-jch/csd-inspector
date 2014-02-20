@@ -9,13 +9,6 @@
 </head>
 <body>
 
-<h2>The log contains the following files:</h2>
-<table id="files" class="table table-striped table-condensed">
-% for file in files:
-	<tr><td>${file}</td></tr>
-% endfor
-</table>
-
 % if errors:
 	% for error in errors:
 		<h3 class="alert alert-danger">${error}</h3>
