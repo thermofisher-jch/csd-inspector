@@ -24,6 +24,7 @@
 ],
 "Ion_Chef": [
     "Alarms",
-    "Notifications"
+    "Notifications",
+    "Chef_Kit"
 ]
 }
