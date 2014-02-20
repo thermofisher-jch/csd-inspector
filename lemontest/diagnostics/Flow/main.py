@@ -6,8 +6,9 @@ import os.path
 from mako.template import Template
 import csv
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-plt.ioff()
 
 if __name__ == "__main__":
     archive, output = sys.argv[1:3]
