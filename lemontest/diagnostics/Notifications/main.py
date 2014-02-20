@@ -13,6 +13,7 @@ if __name__ == "__main__":
     files = []
     headers = []
     warnings = []
+    notifications = []
     xml_path = ''
     rel_xml_path = ''
     errors = []
@@ -38,15 +39,21 @@ if __name__ == "__main__":
             errors.append("Error reading run log: " + str(err))
         else:
             root = tree.getroot()
-            warns = root.findall("System_Run/sys_info")
+            notes = root.findall("System_Run/sys_info")
+            if notes:
+                headers = [t.tag for t in notes[0].getchildren()]
+            for note in notes:
+                notifications.append([t.text for t in notes.getchildren()])
+            warns = root.findall("Warnings_Run/warning")
             if warns:
                 headers = [t.tag for t in warns[0].getchildren()]
             for warn in warns:
                 warnings.append([t.text for t in warn.getchildren()])
+            notifications = sorted(list(set(notifications) - set(warnings)))
 
     context = {
         "files": files,
-        "warnings": warnings,
+        "warnings": notifications,
         "headers": headers,
         "xml_path": rel_xml_path,
         "errors": errors
