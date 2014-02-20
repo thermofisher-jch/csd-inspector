@@ -27,6 +27,7 @@
     "Notifications",
     "Chef_Kit",
     "Chef_Chip",
-    "Chef_Timer"
+    "Chef_Timer",
+    "Flow"
 ]
 }
