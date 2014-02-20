@@ -43,12 +43,12 @@ if __name__ == "__main__":
             if notes:
                 headers = [t.tag for t in notes[0].getchildren()]
             for note in notes:
-                notifications.append([t.text for t in note.getchildren()])
+                notifications.append(tuple([t.text for t in note.getchildren()]))
             warns = root.findall("Warnings_Run/warning")
             if warns:
                 headers = [t.tag for t in warns[0].getchildren()]
             for warn in warns:
-                warnings.append([t.text for t in warn.getchildren()])
+                warnings.append(tuple([t.text for t in warn.getchildren()]))
             notifications = sorted(list(set(notifications) - set(warnings)))
 
     context = {
