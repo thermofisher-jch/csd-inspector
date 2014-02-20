@@ -70,10 +70,10 @@ if __name__ == "__main__":
     if errors:
         print("Alert")
         print("40")
-    elif warnings:
+    elif notifications:
         print("Warning")
         print("30")
-        summary += "{} notifications.".format(len(warnings))
+        summary += "{} notifications.".format(len(notifications))
     else:
         print("OK")
         print("10")
