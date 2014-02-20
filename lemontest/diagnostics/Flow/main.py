@@ -44,7 +44,7 @@ if __name__ == "__main__":
         plt.xlabel("Time")
         plt.ylabel("Flows")
         figure_path = os.path.join(output, "plot.png")
-        plt.savefig()
+        plt.savefig(figure_path, dpi=90)
 
     context = {}
     template = Template(filename="logs.mako")
