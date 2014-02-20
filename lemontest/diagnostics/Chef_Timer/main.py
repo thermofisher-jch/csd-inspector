@@ -49,7 +49,7 @@ if __name__ == "__main__":
                 if hours:
                     summary += "{} Hours ".format(hours)
                 if minutes:
-                    summary += "{} Minutes".format(minutes)
+                    summary += "{} Minutes".format(reminutes)
         except ValueError:
             pass
         print("Info")
