@@ -23,6 +23,7 @@
     "Oil_Pump"
 ],
 "Ion_Chef": [
-    "Alarms"
+    "Alarms",
+    "Notifications"
 ]
 }
