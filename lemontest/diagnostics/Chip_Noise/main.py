@@ -8,7 +8,7 @@ def load_explog(path):
     data = {}
     for line in open(path):
         # Trying extra hard to accomodate formatting issues in explog
-        datum = line.split(": ", 1)
+        datum = line.split(":", 1)
         if len(datum) == 2:
             key, value = datum
             data[key.strip()] = value.strip()
@@ -28,22 +28,45 @@ def validate(archive_path):
     return explog, True
 
 
+def proton_correlated_noise(chip_noise_info):
+    info = dict(x.split(":", 1) for x in chip_noise_info[1].split(" "))
+    return info['Cor']
+
+
 def report(data):
     thresholds = {
         "314": 8.0,
         "316": 10.0,
-        "318": 9.0
+        "318": 9.0,
+        "900": (1.0, 2.0)
     }
     chip_type = data["ChipType"][:3]
-    noise = float(data["Noise_90pct"])
-    if noise > thresholds[chip_type]:
-        print("Alert")
-        print(40)
-        print("Chip noise {:.2f} is too high for a {}.".format(noise, chip_type))
+
+    if chip_type == '900':
+        noise = proton_correlated_noise(data["ChipNoiseInfo"])
+        low, high = thresholds[chip_type]
+        if noise > high:
+            print("Alert")
+            print(40)
+            print("Chip noise {:.2f} is too high.".format(noise))
+        elif noise > low:
+            print("Warning")
+            print(30)
+            print("Chip noise {:.2f} is a little high.".format(noise))
+        else:
+            print("OK")
+            print(20)
+            print("Chip noise {:2.f} is low enough.".format(noise))
     else:
-        print("OK")
-        print(10)
-        print("Chip noise {:.2f} is low enough for a {}.".format(noise, chip_type))
+        noise = float(data["Noise_90pct"])
+        if noise > thresholds[chip_type]:
+            print("Alert")
+            print(40)
+            print("Chip noise {:.2f} is too high for a {}.".format(noise, chip_type))
+        else:
+            print("OK")
+            print(10)
+            print("Chip noise {:.2f} is low enough for a {}.".format(noise, chip_type))
         
 
 def main():

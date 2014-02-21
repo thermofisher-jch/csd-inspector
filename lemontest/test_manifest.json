@@ -28,6 +28,7 @@
     "Chef_Kit",
     "Chef_Chip",
     "Chef_Timer",
-    "Flow"
+    "Flow",
+    "Chip_Noise"
 ]
 }
