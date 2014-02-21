@@ -15,7 +15,7 @@
     "Filter_Metrics",
     "Raw_Trace",
     "Version_Check",
-    "ISP_Loading"
+    "ISP_Loading",
     "Chip_Noise",
     "Proton_Pressure"
 ],
