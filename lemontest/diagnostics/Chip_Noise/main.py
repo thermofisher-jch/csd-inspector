@@ -21,10 +21,15 @@ def validate(archive_path):
         return "explog_final.txt missing", False
 
     explog = load_explog(path)
-    if "Noise_90pct" not in explog:
-        return "Noise_90pct missing from explog_final.txt", False
+
     if "ChipType" not in explog:
         return "ChipType missing from explog_final.txt", False
+    chip_type = data["ChipType"][:3]
+    if chip_type != '900' and "Noise_90pct" not in explog:
+        return "Noise_90pct missing from explog_final.txt", False
+    elif chip_type == '900' and "ChipNoiseInfo" not in explog:
+        return "ChipNoiseInfo missing from explog_final.txt", False
+
     return explog, True
 
 
