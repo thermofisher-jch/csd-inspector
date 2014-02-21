@@ -61,7 +61,7 @@ def report(data):
         else:
             print("OK")
             print(20)
-            print("Chip noise {:2.f} is low enough.".format(noise))
+            print("Chip noise {:.2f} is low enough.".format(noise))
     else:
         noise = float(data["Noise_90pct"])
         if noise > thresholds[chip_type]:
