@@ -16,6 +16,8 @@
     "Raw_Trace",
     "Version_Check",
     "ISP_Loading"
+    "Chip_Noise",
+    "Proton_Pressure"
 ],
 "OT_Log": [
     "Plots",
@@ -28,8 +30,6 @@
     "Chef_Kit",
     "Chef_Chip",
     "Chef_Timer",
-    "Flow",
-    "Chip_Noise",
-    "Proton_Pressure"
+    "Flow"
 ]
 }
