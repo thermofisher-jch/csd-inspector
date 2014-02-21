@@ -60,7 +60,7 @@ def report(data):
             print("Chip noise {:.2f} is a little high.".format(noise))
         else:
             print("OK")
-            print(20)
+            print(10)
             print("Chip noise {:.2f} is low enough.".format(noise))
     else:
         noise = float(data["Noise_90pct"])
