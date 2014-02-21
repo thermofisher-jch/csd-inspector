@@ -29,6 +29,7 @@
     "Chef_Chip",
     "Chef_Timer",
     "Flow",
-    "Chip_Noise"
+    "Chip_Noise",
+    "Proton_Pressure"
 ]
 }
