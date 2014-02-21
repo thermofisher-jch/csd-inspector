@@ -35,7 +35,7 @@ def validate(archive_path):
 
 def proton_correlated_noise(chip_noise_info):
     info = dict(x.split(":", 1) for x in chip_noise_info.split(" "))
-    return info['Cor']
+    return float(info['Cor'])
 
 
 def report(data):
