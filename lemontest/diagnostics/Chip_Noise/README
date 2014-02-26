@@ -1,4 +1,5 @@
 The chip noise should be less than these values for these chip types:
-314: 8.0
-316: 10.0
-318: 9.0
+314: OK <= 8.0 < Alert
+316: OK <= 10.0 < Alert
+318: OK <= 9.0 < Alert
+P1: OK <= 1.0 < Warning <= 2.0 < Alert
