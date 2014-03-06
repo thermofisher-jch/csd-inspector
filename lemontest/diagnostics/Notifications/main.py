@@ -44,7 +44,8 @@ if __name__ == "__main__":
                 warn_headers = [t.tag for t in warns[0].getchildren()]
             for warn in warns:
                 row = [t.text for t in warn.getchildren()]
-                warnings.add((row[0], row[2]))
+                if len(row) >= 3:
+                    warnings.add((row[0], row[2]))
             notes = root.findall("System_Run/sys_info")
             if notes:
                 headers = [t.tag for t in notes[0].getchildren()]

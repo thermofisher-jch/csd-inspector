@@ -42,7 +42,9 @@ if __name__ == "__main__":
             if warns:
                 headers = [t.tag for t in warns[0].getchildren()]
             for warn in warns:
-                warnings.append([t.text for t in warn.getchildren()])
+                record = [t.text for t in warn.getchildren()]
+                if len(record) > 0:
+                    warnings.append(record)
 
     context = {
         "files": files,
