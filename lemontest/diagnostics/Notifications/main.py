@@ -51,7 +51,7 @@ if __name__ == "__main__":
                 headers = [t.tag for t in notes[0].getchildren()]
             for note in notes:
                 row = [t.text for t in note.getchildren()]
-                if tuple(row[:2]) not in warnings:
+                if len(row) >= 3 and tuple(row[:2]) not in warnings:
                     notifications.append(row)
 
     context = {
