@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
-from xml.etree import ElementTree
-import xml.etree 
 import sys
 import os
 import os.path
+import xml.etree 
+from datetime import datetime
+from xml.etree import ElementTree
 from mako.template import Template
 
 if __name__ == "__main__":
@@ -44,6 +45,8 @@ if __name__ == "__main__":
             for warn in warns:
                 record = [t.text for t in warn.getchildren()]
                 if len(record) > 0:
+                    d = datetime.strptime(record[0], "%Y%m%d_%H%M%S")
+                    record[0] = d.strftime("%Y %b %d %H:%M:%S")
                     warnings.append(record)
 
     context = {

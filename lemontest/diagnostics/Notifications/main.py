@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
-from xml.etree import ElementTree
-import xml.etree 
 import sys
 import os
 import os.path
+import xml.etree 
+from datetime import datetime
+from xml.etree import ElementTree
 from mako.template import Template
 
 if __name__ == "__main__":
@@ -43,16 +44,18 @@ if __name__ == "__main__":
             if warns:
                 warn_headers = [t.tag for t in warns[0].getchildren()]
             for warn in warns:
-                row = [t.text for t in warn.getchildren()]
-                if len(row) >= 3:
-                    warnings.add((row[0], row[2]))
+                record = [t.text for t in warn.getchildren()]
+                if len(record) >= 3:
+                    warnings.add((record[0], record[2]))
             notes = root.findall("System_Run/sys_info")
             if notes:
                 headers = [t.tag for t in notes[0].getchildren()]
             for note in notes:
-                row = [t.text for t in note.getchildren()]
-                if len(row) >= 3 and tuple(row[:2]) not in warnings:
-                    notifications.append(row)
+                record = [t.text for t in note.getchildren()]
+                if len(record) >= 3 and tuple(record[:2]) not in warnings:
+                    d = datetime.strptime(record[0], "%Y%m%d_%H%M%S")
+                    record[0] = d.strftime("%Y %b %d %H:%M:%S")
+                    notifications.append(record)
 
     context = {
         "files": files,
