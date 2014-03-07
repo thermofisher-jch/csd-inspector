@@ -16,7 +16,8 @@
     "Version_Check",
     "ISP_Loading",
     "Chip_Noise",
-    "Proton_Pressure"
+    "Proton_Pressure",
+    "Auto_pH"
 ],
 "OT_Log": [
     "Plots",
