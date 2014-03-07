@@ -181,7 +181,7 @@ def check_archive(request):
     basename = os.path.basename(archive.path)
     return {"archive": archive, "basename": basename, 'archive_types': testers.keys(), 
         "status_highlights": status_highlights, "tag_string": " ".join(t.name for t in archive.tags),
-        "download_file": archive_type_files.get(archive.type, "")}
+        "download_file": archive_type_files.get(archive.archive_type, "")}
 
 
 @view_config(route_name="super_delete", request_method="POST",
