@@ -1,1 +1,1 @@
-The Chef can delay it's start by a user configured amount of time.
+The Chef can delay it's final steps by a user configured amount of time which postpones completion of the process at a safe point ~75% of the way through the run.
