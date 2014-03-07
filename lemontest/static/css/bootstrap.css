@@ -6082,6 +6082,7 @@ footer {
   margin-top: 100px;
 }
 
-table.table-hover > tbody > tr:hover td {
+table.table-hover > tbody > tr:hover td,
+table.table-hover > tbody > tr:hover th  {
   background-color: #f2e6c2;
 }

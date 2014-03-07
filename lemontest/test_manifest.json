@@ -21,7 +21,8 @@
 "OT_Log": [
     "Plots",
     "Sample_Pump",
-    "Oil_Pump"
+    "Oil_Pump",
+    "OT_Script"
 ],
 "Ion_Chef": [
     "Alarms",
