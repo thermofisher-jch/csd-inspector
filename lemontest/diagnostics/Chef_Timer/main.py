@@ -48,7 +48,7 @@ if __name__ == "__main__":
                 summary = ""
                 if hours:
                     summary += "{} Hours ".format(hours)
-                if minutes:
+                if reminutes:
                     summary += "{} Minutes".format(reminutes)
         except ValueError:
             pass
