@@ -74,21 +74,21 @@ def run_tester(test, diagnostic_id, archive_path):
         return
     if result is not None:
         stdout, stderr = proc.communicate()
-        open(os.path.join(output_path, "standard_output.log"), 'w').write(stdout)
+        open(os.path.join(output_path, "standard_output.log"), 'wb').write(stdout)
         if stderr:
-            open(os.path.join(output_path, "standard_error.log"), 'w').write(stderr)
+            open(os.path.join(output_path, "standard_error.log"), 'wb').write(stderr)
 
     diagnostic = DBSession.query(Diagnostic).get(diagnostic_id)
     was_exception = ""
     if result is 0:
-        output = stdout.splitlines()
+        output = stdout.decode("utf-8").splitlines()
         try:
             status = output[0]
             priority = int(output[1])
         except ValueError:
-            was_exception = "Line 1 of output was not an integer<br/>"
+            was_exception = u"Line 1 of output was not an integer<br/>"
         except IndexError:
-            was_exception = "Too few lines of output<br/>"
+            was_exception = u"Too few lines of output<br/>"
         else:
             details = "\n".join(output[2:]).rstrip()
             html = os.path.join(output_path, "results.html")
@@ -98,18 +98,18 @@ def run_tester(test, diagnostic_id, archive_path):
 
     if result is not 0 or was_exception:
         if not was_exception:
-            was_exception = "Non-zero exit status"
-        logger.error("Test Broken %s: %s" % (test.name, was_exception))
-        status = "TEST BROKEN"
+            was_exception = u"Non-zero exit status"
+        logger.error(u"Test Broken %s: %s" % (test.name, was_exception))
+        status = u"TEST BROKEN"
         priority = 15
         if result is None:
-            details = "Test %s ran for longer than %d seconds without completing." % (test.name, timeout)
+            details = u"Test %s ran for longer than %d seconds without completing." % (test.name, timeout)
         else:
-            details = "<div>Test %s ended with an error instead of running normally.\n" % test.name
+            details = u"<div>Test %s ended with an error instead of running normally.\n" % test.name
             if stdout:
-                details += "<br/>It output:<pre>%s</pre>" % stdout
+                details += u"<br/>It output:<pre>%s</pre>" % stdout
             else:
-                details += "It output nothing."
+                details += u"It output nothing."
     # Update the record with the results.
     diagnostic.status = unicode(status)
     diagnostic.priority = priority
