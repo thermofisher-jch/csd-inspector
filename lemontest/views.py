@@ -33,6 +33,13 @@ status_highlights = {
     "OK": "success"
 }
 
+archive_type_files = {
+    "PGM_Run": "archive.zip",
+    "Proton": "archive.zip",
+    "Ion_Chef": "logs.tar",
+    "OT_Log": "onetouch.log"
+}
+
 
 def add_helpers(event):
     event['h'] = helpers
@@ -173,7 +180,8 @@ def check_archive(request):
         test.get_readme_path()
     basename = os.path.basename(archive.path)
     return {"archive": archive, "basename": basename, 'archive_types': testers.keys(), 
-        "status_highlights": status_highlights, "tag_string": " ".join(t.name for t in archive.tags)}
+        "status_highlights": status_highlights, "tag_string": " ".join(t.name for t in archive.tags),
+        "download_file": archive_type_files.get(archive.type, "")}
 
 
 @view_config(route_name="super_delete", request_method="POST",

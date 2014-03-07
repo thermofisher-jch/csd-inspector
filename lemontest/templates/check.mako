@@ -61,7 +61,7 @@
         </form>
         <div class="form-actions">
             <div class="pull-left">
-                <a class="btn btn-success" href="/archives/${basename}/archive.zip"><i class="icon-arrow-down icon-white"></i> Download Archive</a>
+                <a class="btn btn-success" href="/archives/${basename}/${download_file}"><i class="icon-arrow-down icon-white"></i> Download Archive</a>
                 <a class="btn" href="/archives/${basename}/"><i class="icon-folder-open"></i> View Files</a>
                 <a id="edit" class="btn" href="#"><i class="icon-pencil"></i> Edit</a>
                 <form method="POST" action="${request.route_url('rerun', archive_id=archive.id)}" style="margin: 0; display: inline">
