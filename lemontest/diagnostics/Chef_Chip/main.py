@@ -36,7 +36,14 @@ if __name__ == "__main__":
         else:
             root = tree.getroot()
             name_tag = root.find("RunInfo/chip")
-            output_name = name_tag.text
+            output_name = name_tag.text.strip()
+            if output_name.isdigit():
+                chip_number = int(output_name)
+                if chip_number < 10:
+                    name_tag = root.find("RunInfo/chipVersion")
+                    version = name_tag.text.strip()
+                    output_name = "P{}v{}".format(chip_number, version)
+
         summary = output_name
         print("Info")
         print("20")
