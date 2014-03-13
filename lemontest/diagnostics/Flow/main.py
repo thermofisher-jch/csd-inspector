@@ -40,9 +40,9 @@ if __name__ == "__main__":
             cols = [(float(r[0]), int(r[7])) for r in reader]
             time, flows = zip(*cols)
         plt.plot(time, flows)
-        plt.title("Chef Flows")
+        plt.title("Ion Chef Liquid Cooling: Flowmeter")
         plt.xlabel("Time")
-        plt.ylabel("Flows")
+        plt.ylabel("Flow Rate in Hz")
         figure_path = os.path.join(output, "plot.png")
         plt.savefig(figure_path, dpi=90)
 
