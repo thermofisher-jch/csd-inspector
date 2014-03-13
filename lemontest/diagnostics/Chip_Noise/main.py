@@ -27,8 +27,15 @@ def validate(archive_path):
     chip_type = explog["ChipType"][:3]
     if chip_type != '900' and "Noise_90pct" not in explog:
         return "Noise_90pct missing from explog_final.txt", False
-    elif chip_type == '900' and "ChipNoiseInfo" not in explog:
-        return "ChipNoiseInfo missing from explog_final.txt", False
+    elif chip_type == '900':
+        if "ChipNoiseInfo" not in explog:
+            return "ChipNoiseInfo missing from explog_final.txt", False
+        else:
+            try:
+                info = explog.get("ChipNoiseInfo", "")
+                noise = proton_correlated_noise(info)
+            except (ValueError, KeyError) as err:
+                return "Correlated chip nouse is missing from explog_final.txt", False
 
     return explog, True
 
