@@ -14,6 +14,7 @@ if __name__ == "__main__":
     output_name = ''
     xml_path = ''
     errors = []
+    error_summary = ""
 
     
     for path, dirs, names in os.walk(archive):
@@ -36,28 +37,34 @@ if __name__ == "__main__":
         else:
             root = tree.getroot()
             name_tag = root.find("RunInfo/mrcoffee")
-            output_name = name_tag.text
-        summary = output_name
-        try:
-            minutes = int(output_name)
-            hours = int(minutes / 60)
-            reminutes = minutes % 60
-            if not (minutes or hours):
-                summary = "No delay."
+            if name_tag is None:
+                error_summary = "No timer info"
             else:
-                summary = ""
-                if hours:
-                    summary += "{} Hours ".format(hours)
-                if reminutes:
-                    summary += "{} Minutes".format(reminutes)
-        except ValueError:
-            pass
-        print("Info")
-        print("20")
-        print(summary)
+                output_name = name_tag.text
+                summary = output_name
+                try:
+                    minutes = int(output_name)
+                    hours = int(minutes / 60)
+                    reminutes = minutes % 60
+                    if not (minutes or hours):
+                        summary = "No delay."
+                    else:
+                        summary = ""
+                        if hours:
+                            summary += "{} Hours ".format(hours)
+                        if reminutes:
+                            summary += "{} Minutes".format(reminutes)
+                except ValueError:
+                    pass
     else:
-        summary = "No Run Log."
+        error_summary = "No Run Log."
+
+    if error_summary:
         print("N/A")
         print("0")
+        print(error_summary)
+    else:
+        print("Info")
+        print("20")
         print(summary)
 

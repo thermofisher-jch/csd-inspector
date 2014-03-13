@@ -14,6 +14,7 @@ if __name__ == "__main__":
     output_name = ''
     xml_path = ''
     errors = []
+    error_summary = ""
 
     
     for path, dirs, names in os.walk(archive):
@@ -36,14 +37,21 @@ if __name__ == "__main__":
         else:
             root = tree.getroot()
             name_tag = root.find("RunInfo/kit")
-            output_name = name_tag.text
+            if name_tag is None:
+                error_summary = "No kit info"
+            else:
+                output_name = name_tag.text
+    else:
+        error_summary = "No Run Log."
+
+    if error_summary:
+        print("N/A")
+        print("0")
+        print(error_summary)
+    else:
         summary = output_name
         print("Info")
         print("20")
         print(summary)
-    else:
-        summary = "No Run Log."
-        print("N/A")
-        print("0")
-        print(summary)
+
 

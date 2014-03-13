@@ -7,6 +7,12 @@ import os
 import os.path
 from mako.template import Template
 
+run_types = {
+    "FactoryTest": "Factory Test",
+    "installtest": "Install Test",
+    "rc": "Run Log"
+}
+
 if __name__ == "__main__":
     archive, output = sys.argv[1:3]
     file_count = 0
@@ -36,17 +42,13 @@ if __name__ == "__main__":
             errors.append("Error reading run log: " + str(err))
         else:
             root = tree.getroot()
-            name_tag = root.find("RunInfo/chip")
+            name_tag = root.find("RunInfo/RunType")
             if name_tag is None:
-                error_summary = "No chip info"
+                error_summary = "No run type"
             else:
                 output_name = name_tag.text.strip()
-                if output_name.isdigit():
-                    chip_number = int(output_name)
-                    if chip_number < 10:
-                        name_tag = root.find("RunInfo/chipVersion")
-                        version = name_tag.text.strip()
-                        output_name = "P{}v{}".format(chip_number, version)
+                if output_name in run_types:
+                    output_name = run_types.get(output_name)
     else:
         error_summary = "No Run Log."
 

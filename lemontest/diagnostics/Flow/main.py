@@ -19,6 +19,7 @@ if __name__ == "__main__":
     csv_path = ''
     rel_csv_path = ''
     errors = []
+    error_summary = ""
     
     for path, dirs, names in os.walk(archive):
         if "test_results" not in path:
@@ -38,19 +39,29 @@ if __name__ == "__main__":
             reader = csv.reader(csvfile)
             header = reader.next()
             cols = [(float(r[0]), int(r[7])) for r in reader]
+        if len(cols) == 0:
+            error_summary = "No flow rate information"
+        else:
             time, flows = zip(*cols)
-        plt.plot(time, flows)
-        plt.title("Ion Chef Liquid Cooling: Flowmeter")
-        plt.xlabel("Time")
-        plt.ylabel("Flow Rate in Hz")
-        figure_path = os.path.join(output, "plot.png")
-        plt.savefig(figure_path, dpi=90)
+            plt.plot(time, flows)
+            plt.title("Ion Chef Liquid Cooling: Flowmeter")
+            plt.xlabel("Time")
+            plt.ylabel("Flow Rate in Hz")
+            figure_path = os.path.join(output, "plot.png")
+            plt.savefig(figure_path, dpi=90)
 
-    context = {}
-    template = Template(filename="logs.mako")
-    result = template.render(**context)
-    with open(os.path.join(output, "results.html"), 'w') as out:
-        out.write(result.encode("UTF-8"))
-    summary = ""
-    print("Info")
-    print("20")
+            context = {}
+            template = Template(filename="logs.mako")
+            result = template.render(**context)
+            with open(os.path.join(output, "results.html"), 'w') as out:
+                out.write(result.encode("UTF-8"))
+    else:
+        error_summary = "No run log CSV"
+
+    if error_summary:
+        print("N/A")
+        print(0)
+        print(error_summary)
+    else:
+        print("Info")
+        print("20")
