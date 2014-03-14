@@ -25,7 +25,7 @@ def plot_fan_speed(time, speed, name):
     ax.plot(time, speed)
     ax.set_title("Ion Chef {} Speed".format(name))
     ax.set_xlabel("Time")
-    ax.set_ylabel("Fan Speed in Hz")
+    ax.set_ylabel("Fan Speed in Revolutions/second")
     path = "{}.png".format(name)
     figure_path = os.path.join(output, path)
     fig.savefig(figure_path, dpi=90)
