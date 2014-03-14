@@ -39,7 +39,9 @@ if __name__ == "__main__":
             os_name = name_tag.text
             name_tag = root.find("Versions/is")
             is_name = name_tag.text
-            output_name = "os: {} is: {}".format(os_name, is_name)
+            name_tag = root.find("Versions/scripts")
+            scripts_name = name_tag.text
+            output_name = "os: {} is: {} scripts: {}".format(os_name, is_name, scripts_name)
 
         summary = output_name
         print("Info")
