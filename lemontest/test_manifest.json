@@ -33,6 +33,7 @@
     "Chef_Timer",
     "Chef_Version",
     "Flow",
-    "Run_Type"
+    "Run_Type",
+    "Fans"
 ]
 }
