@@ -40,7 +40,7 @@ if __name__ == "__main__":
             header = reader.next()
             cols = [(float(r[0]), int(r[7])) for r in reader]
         if len(cols) == 0:
-            error_summary = "No flow rate information"
+            error_summary = "No liquid cooling flow rate information"
         else:
             time, flows = zip(*cols)
             plt.plot(time, flows)
@@ -65,3 +65,4 @@ if __name__ == "__main__":
     else:
         print("Info")
         print("20")
+        print("Liquid cooling flowmeter")
