@@ -20,6 +20,34 @@ logger = logging.getLogger(__name__)
 
 task_logger = get_task_logger(__name__)
 
+
+class ZipArchive(zipfile.ZipFile):
+    """A wrapper around the ZipFile class to present a simple
+    uniform interface for inspecting and decompressing it's contents
+    """
+
+    def __init__(self, data):
+        super(ZipArchive, self).__init__(data, 'r')
+
+    def open(self, key):
+        return super(ZipArchive, self).open(key, 'r')
+
+
+class TarArchive(object):
+    """A wrapper around the TarFile class to present a simple
+    uniform interface for inspecting and decompressing it's contents
+    """
+    
+    def __init__(self, data):
+        self.tar = tarfile.open(fileobj=data, mode='r')
+
+    def open(self, key):
+        return self.tar.extractfile(key)
+
+    def namelist(self):
+        return self.tar.getnames()
+
+
 @worker_init.connect
 def initialize_session(signal, sender):
     from sqlalchemy import engine_from_config
@@ -68,18 +96,18 @@ def make_relative_directories(root, files):
             os.makedirs(path)
 
 
-def unzip_archive(root, data):
-    zip_file = zipfile.ZipFile(data, 'r')
-    namelist = zip_file.namelist()
+def unzip_archive(root, archive_file):
+    namelist = archive_file.namelist()
     namelist = valid_files(namelist)
     prefix, files = get_common_prefix(namelist)
-    make_relative_directories(root, files)
     out_names = [(n, f) for n, f in zip(namelist, files) if
                                                     os.path.basename(f) != '']
+    make_relative_directories(root, files)
+
     for key, out_name in out_names:
         if os.path.basename(out_name) != "":
             full_path = os.path.join(root, out_name)
-            contents = zip_file.open(key, 'r')
+            contents = archive_file.open(key)
             try:
                 output_file = open(full_path, 'wb')
                 output_file.write(contents.read())
@@ -153,7 +181,7 @@ def unzip_csa(archive):
         full_path = os.path.join(archive.path, "archive.zip")
         os.rename(os.path.join(archive.path, "uploaded_file.tmp"), full_path)
         if zipfile.is_zipfile(full_path):
-            archive_file = open(full_path, 'rb')
+            archive_file = ZipArchive(open(full_path, 'rb'))
             unzip_archive(archive.path, archive_file)
             return True
         else:
@@ -172,8 +200,8 @@ def untar_upload(archive):
         full_path = os.path.join(archive.path, "logs.tar")
         os.rename(os.path.join(archive.path, "uploaded_file.tmp"), full_path)
         if tarfile.is_tarfile(full_path):
-            with tarfile.TarFile(full_path) as tar:
-                tar.extractall(archive.path)
+            archive_file = TarArchive(open(full_path, 'rb'))
+            unzip_archive(archive.path, archive_file)
             return True
         else:
             archive.status = u"Error, archive is not a tar file"
