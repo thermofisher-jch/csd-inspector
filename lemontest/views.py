@@ -322,5 +322,5 @@ def not_found(self, request):
 
 @view_config(route_name="old_browser", renderer="old_browser.mako",
     permission='view')
-def documentation(request):
+def old_browser(request):
     return {}

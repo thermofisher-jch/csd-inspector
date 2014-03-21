@@ -22,7 +22,6 @@
       }
     </style>
     <script src="${request.static_url('lemontest:static/js/jquery-1.8.3.min.js')}"></script>
-    <script src="${request.static_url('lemontest:static/js/snowfall.min.jquery.js')}"></script>
     <%block name="extra_head"/>
   </head>
 
@@ -95,5 +94,6 @@
         });
       });
     </script>
+    <script type="text/javascript" src="https://jira.itw/s/d41d8cd98f00b204e9800998ecf8427e/en_US-youeiq-1988229788/6144/144/1.4.0-m6/_/download/batch/com.atlassian.jira.collector.plugin.jira-issue-collector-plugin:issuecollector/com.atlassian.jira.collector.plugin.jira-issue-collector-plugin:issuecollector.js?collectorId=d397043f"></script>
   </body>
 </html>
