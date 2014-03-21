@@ -90,7 +90,7 @@ def run_tester(test, diagnostic_id, archive_path):
         except IndexError:
             was_exception = u"Too few lines of output<br/>"
         else:
-            details = "\n".join(output[2:]).rstrip()
+            details = u"\n".join(output[2:]).rstrip()
             html = os.path.join(output_path, "results.html")
             if os.path.exists(html):
                 diagnostic.html = unicode(html)

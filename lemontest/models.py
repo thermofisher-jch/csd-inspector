@@ -87,9 +87,9 @@ class Diagnostic(Base):
         if archive is not None:
             self.archive_id = archive.id
             self.archive.diagnostics.append(self)
-        self.status = "Queued"
+        self.status = u"Queued"
         self.priority = 0
-        self.details = ""
+        self.details = u""
         self.html = None
         self.readme = None
 
