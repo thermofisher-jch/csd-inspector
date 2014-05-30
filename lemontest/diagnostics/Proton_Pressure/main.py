@@ -36,7 +36,7 @@ def report(data):
         print("Alert")
         print(40)
         print("Pressure {:.2f} is too low.".format(pressure))
-    elif pressure > 11:
+    elif pressure > 8.1:
         print("Alert")
         print(40)
         print("Pressure {:.2f} is high.".format(pressure))
