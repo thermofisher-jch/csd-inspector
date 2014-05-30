@@ -35,7 +35,7 @@ def validate(archive_path):
                 info = explog.get("ChipNoiseInfo", "")
                 noise = proton_correlated_noise(info)
             except (ValueError, KeyError) as err:
-                return "Correlated chip nouse is missing from explog_final.txt", False
+                return "Correlated chip noise is missing from explog_final.txt", False
 
     return explog, True
 
