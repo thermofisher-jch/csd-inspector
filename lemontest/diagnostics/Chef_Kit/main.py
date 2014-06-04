@@ -40,7 +40,7 @@ if __name__ == "__main__":
             if name_tag is None:
                 error_summary = "No kit info"
             else:
-                output_name = name_tag.text
+                output_name = name_tag.text.strip()                
     else:
         error_summary = "No Run Log."
 
