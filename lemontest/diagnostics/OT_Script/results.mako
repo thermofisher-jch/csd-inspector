@@ -21,6 +21,9 @@
 		</tr>
 	% endfor
 </table>
+% if time:
+	<p>Expected run time: ${time}</p>
+% endif
 </div>
 
 </body>

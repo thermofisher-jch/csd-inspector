@@ -8,20 +8,28 @@ from mako.template import Template
 
 
 scripts = {
-    "PGM_20_10_10_98C_30s_denature.txt": "Ion PGM™ Template OT2 200 Kit",
-    "custom_4_98-91C.txt": "Ion PGM™ Template OT2 400 Kit",
-    "OT2_Proton.txt": "Ion Proton™ I Template OT2 Kit",
-    "OT2_Proton_200-v2.txt": "Ion PI™ Template OT2 200 Kit v2",
-    "custom_1_OT2_Proton_200-v2_XT.txt": "Ion PI™ Template OT2 200 Kit v2 with XT",
-    "script_Proton_OT2_200_Kit_v3.txt": "Ion PI™ Template OT2 200 Kit v3",
-    "OT2_Proton.txt": "Ion PI™ Template OT2 200 Kit",
-    "charged_cleaning.txt": "Clean Instrument",
-    "initialize.txt": "Initialize",
-    "centrifuge_proton.txt": "Centrifuge",
-    "tuv_testing.txt": "TUV Test",
-    "initialize_factory.txt": "System test: Prime",
-    "system_test.txt": "System test: Factory Test",
-    "purge.txt": "System test: Purge"
+    "PGM_20_10_10_98C_30s_denature.txt": u"Ion PGM™ Template OT2 200 Kit",
+    "custom_4_98-91C.txt": u"Ion PGM™ Template OT2 400 Kit",
+    "OT2_Proton.txt": u"Ion Proton™ I Template OT2 Kit",
+    "OT2_Proton_200-v2.txt": u"Ion PI™ Template OT2 200 Kit v2",
+    "custom_1_OT2_Proton_200-v2_XT.txt": u"Ion PI™ Template OT2 200 Kit v2 with XT",
+    "script_Proton_OT2_200_Kit_v3.txt": u"Ion PI™ Template OT2 200 Kit v3",
+    "OT2_Proton.txt": u"Ion PI™ Template OT2 200 Kit",
+    "charged_cleaning.txt": u"Clean Instrument",
+    "initialize.txt": u"Initialize",
+    "centrifuge_proton.txt": u"Centrifuge",
+    "tuv_testing.txt": u"TUV Test",
+    "initialize_factory.txt": u"System test: Prime",
+    "system_test.txt": u"System test: Factory Test",
+    "purge.txt": u"System test: Purge"
+}
+
+kit_times = {
+    u"Ion PGM™ Template OT2 200 Kit"            : "5.3 hrs",
+    u"Ion PGM™ Template OT2 400 Kit"            : "7.9 hrs",
+    u"Ion PI™ Template OT2 200 Kit v2"          : "6.6 hrs",
+    u"Ion PI™ Template OT2 200 Kit v2 with XT"  : "9 hrs",
+    u"Ion PI™ Template OT2 200 Kit v3"          : "6.5 hrs"
 }
 
 archive, output = sys.argv[1:3]
@@ -40,9 +48,16 @@ for col in columns:
         row = [r.strip() for r in col.split(":", 1)]
         rows.append(row)
 
+summary = script
+
+time = kit_times.get(script, None)
+if time:
+    summary += ": Expected run time %s" % time
+
 context = {
     "script_line": script_line,
-    "rows": rows
+    "rows": rows,
+    "time": time,
 }
 template = Template(filename="results.mako")
 result = template.render(**context)
@@ -51,4 +66,4 @@ with open(os.path.join(output, "results.html"), 'w') as out:
 
 print("Info")
 print("20")
-print(script)
+print(summary.encode("UTF-8"))
