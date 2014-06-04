@@ -21,7 +21,7 @@ def validate(archive_path):
         return "explog_final.txt missing", False
 
     explog = load_explog(path)
-    if "PGMPressure" not in explog:
+    if "PGMPressure" not in explog and "ProtonPressure" not in explog:
         return "PGMPressure missing from explog_final.txt", False
 
     if explog.get('PGM HW', None) == '1.1':
@@ -31,12 +31,22 @@ def validate(archive_path):
 
 
 def report(data):
-    pressure = float(data["PGMPressure"].split(" ")[1])
-    if pressure < 7.8:
+    if "PGMPressure" in data:
+        pressure = data["PGMPressure"]
+    else:
+        pressure = data["ProtonPressure"]
+    pressure = float(pressure.split(" ")[1])
+
+    if float(data["pres"]) == 8.0:
+        low, high = 7.8, 8.1
+    else:
+        low, high = 10.4, 10.6
+
+    if pressure < low:
         print("Alert")
         print(40)
-        print("Pressure {:.2f} is too low.".format(pressure))
-    elif pressure > 8.1:
+        print("Pressure {:.2f} is too low. (Target ".format(pressure))
+    elif pressure > high:
         print("Alert")
         print(40)
         print("Pressure {:.2f} is high.".format(pressure))
