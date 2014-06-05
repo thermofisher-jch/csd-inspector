@@ -8,7 +8,8 @@
     "PGM_Temperature",
     "PGM_Pressure",
     "Chip_Noise",
-    "Auto_pH"
+    "Auto_pH",
+    "Seq_Kit"
 ],
 "Proton":[
     "Filter_Metrics",
@@ -17,7 +18,8 @@
     "ISP_Loading",
     "Chip_Noise",
     "Proton_Pressure",
-    "Auto_pH"
+    "Auto_pH",
+    "Seq_Kit"
 ],
 "OT_Log": [
     "Plots",
