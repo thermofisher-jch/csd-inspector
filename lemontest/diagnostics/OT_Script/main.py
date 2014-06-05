@@ -25,11 +25,12 @@ scripts = {
 }
 
 kit_times = {
-    u"Ion PGM™ Template OT2 200 Kit"            : "5.3 hrs",
-    u"Ion PGM™ Template OT2 400 Kit"            : "7.9 hrs",
-    u"Ion PI™ Template OT2 200 Kit v2"          : "6.6 hrs",
-    u"Ion PI™ Template OT2 200 Kit v2 with XT"  : "9 hrs",
-    u"Ion PI™ Template OT2 200 Kit v3"          : "6.5 hrs"
+    u"Ion PGM™ Template OT2 200 Kit"            : "5 hr 30 min",
+    u"Ion PGM™ Template OT2 400 Kit"            : "8 hr",
+    u"Ion Proton™ I Template OT2 Kit"           : "6 hr 15 min"
+    u"Ion PI™ Template OT2 200 Kit v2"          : "6 hr 30 min",
+    u"Ion PI™ Template OT2 200 Kit v2 with XT"  : "9 hr",
+    u"Ion PI™ Template OT2 200 Kit v3"          : "6 hr 30 min"
 }
 
 archive, output = sys.argv[1:3]
