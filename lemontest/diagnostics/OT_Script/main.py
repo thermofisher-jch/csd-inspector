@@ -27,7 +27,7 @@ scripts = {
 kit_times = {
     u"Ion PGM™ Template OT2 200 Kit"            : "5 hr 30 min",
     u"Ion PGM™ Template OT2 400 Kit"            : "8 hr",
-    u"Ion Proton™ I Template OT2 Kit"           : "6 hr 15 min"
+    u"Ion Proton™ I Template OT2 Kit"           : "6 hr 15 min",
     u"Ion PI™ Template OT2 200 Kit v2"          : "6 hr 30 min",
     u"Ion PI™ Template OT2 200 Kit v2 with XT"  : "9 hr",
     u"Ion PI™ Template OT2 200 Kit v3"          : "6 hr 30 min"
