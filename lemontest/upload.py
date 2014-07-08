@@ -25,12 +25,7 @@ class ZipArchive(zipfile.ZipFile):
     """A wrapper around the ZipFile class to present a simple
     uniform interface for inspecting and decompressing it's contents
     """
-
-    def __init__(self, data):
-        super(ZipArchive, self).__init__(data, 'r')
-
-    def open(self, key):
-        return super(ZipArchive, self).open(key, 'r')
+    pass
 
 
 class TarArchive(object):
