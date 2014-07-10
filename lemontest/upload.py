@@ -14,7 +14,10 @@ from celery.utils.log import get_task_logger
 from lemontest.models import DBSession
 from lemontest.models import Archive
 from lemontest.models import testers
-from lemontest import diagnostic
+from lemontest.models import MetricsPGM
+from lemontest import diagnostic 
+
+from lemontest.metrics_pgm_tests import Metrics_PGM_Tests
 
 logger = logging.getLogger(__name__)
 
@@ -137,8 +140,8 @@ def natural_size(value, binary=False, gnu=False):
     elif bytes < base and not gnu: return '%d Bytes' % bytes
     elif bytes < base and gnu: return '%dB' % bytes
 
-    for i,s in enumerate(suffix):
-        unit = base ** (i+2)
+    for i, s in enumerate(suffix):
+        unit = base ** (i + 2)
         if bytes < unit and not gnu:
             return '%.1f %s' % ((base * bytes / unit), s)
         elif bytes < unit and gnu:
@@ -242,12 +245,44 @@ def process_archive(archive_id, upload_name, testers):
             transaction.commit()
             jobs = make_diagnostic_jobs(archive, testers)
             run_diagnostics(archive_id, jobs)
+            
+        if archive.archive_type == "PGM_Run":
+            metrics_pgm = MetricsPGM()
+            metrics_pgm.archive_id = archive_id
+            DBSession.add(metrics_pgm)
+            DBSession.flush()
+            set_metrics_pgm.delay(metrics_pgm.id)
+        '''
+        if archive.archive_type == "OT_Log":
+            pass
+        
+        if archive.archive_type == "Proton":
+            pass
+        
+        if archive.archive_type == "Ion Chef":
+            pass
+        '''
+        
     except Exception as err:
         archive = DBSession.query(Archive).get(archive_id)
         archive.status = u"Error processing archive"
         task_logger.exception("Archive {} failed with an error".format(archive_id))
     transaction.commit()
 
+# Author: Anthony Rodriguez
+# Last Modified: 9 July 2014
+@task
+def set_metrics_pgm(metrics_pgm_id):
+    metric = DBSession.query(MetricsPGM).get(metrics_pgm_id)
+    metric_tests = Metrics_PGM_Tests(metric.archive.path, logger)
+    
+    if metric_tests.is_valid():
+        metric.pgm_temperature = metric_tests.get_pgm_temperature()
+        metric.pgm_pressure = metric_tests.get_pgm_pressure()
+        metric.chip_temperature = metric_tests.get_chip_temperature()
+        metric.chip_noise = metric_tests.get_chip_noise()
+    
+    transaction.commit()
 
 @task
 def finalize_report(results, archive_id):

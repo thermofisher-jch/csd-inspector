@@ -8,6 +8,8 @@ import shutil
 import os.path
 from datetime import datetime
 
+from lemontest.models import MetricsPGM
+
 from lemontest.models import DBSession
 from lemontest.models import Archive
 from lemontest.models import Diagnostic
@@ -87,7 +89,7 @@ def upload_validate(data):
 def post_upload_validate(request):
     if request.method == "POST" and upload_validate(request.POST):
         for param in ['name', 'site', 'archive_type']:
-            request.session['upload.'+param] = request.POST.get(param, '')
+            request.session['upload.' + param] = request.POST.get(param, '')
         request.session.save()
         upload_root = request.registry.settings["upload_root"]
         archive = make_archive(request)
@@ -119,8 +121,8 @@ def upload_file(request):
     This displays the extracted files relative paths and file sizes.
     """
     ctx = {
-        'label':request.GET.get("label", ""), 
-        'name': request.GET.get("name", "") or request.session.get("upload.name", ""), 
+        'label':request.GET.get("label", ""),
+        'name': request.GET.get("name", "") or request.session.get("upload.name", ""),
         'site': request.session.get("upload.site", ""),
         'archive_types': testers.keys(),
         'archive_type': request.session.get("upload.archive_type", None),
@@ -165,7 +167,7 @@ def check_archive(request):
     """Show the status of an archive given it's ID."""
     archive_id = int(request.matchdict["archive_id"])
     archive = DBSession.query(Archive).options(subqueryload(
-        Archive.diagnostics)).filter(Archive.id==archive_id).first()
+        Archive.diagnostics)).filter(Archive.id == archive_id).first()
     if not archive:
         raise NotFound()
     if request.POST:
@@ -179,7 +181,7 @@ def check_archive(request):
     for test in archive.diagnostics:
         test.get_readme_path()
     basename = os.path.basename(archive.path)
-    return {"archive": archive, "basename": basename, 'archive_types': testers.keys(), 
+    return {"archive": archive, "basename": basename, 'archive_types': testers.keys(),
         "status_highlights": status_highlights, "tag_string": " ".join(t.name for t in archive.tags),
         "download_file": archive_type_files.get(archive.archive_type, "")}
 
@@ -189,7 +191,7 @@ def check_archive(request):
 def super_delete(request):
     archive_id = int(request.matchdict["archive_id"])
     archive = DBSession.query(Archive).options(subqueryload(
-        Archive.diagnostics)).filter(Archive.id==archive_id).first()
+        Archive.diagnostics)).filter(Archive.id == archive_id).first()
     for diagnostic in archive.diagnostics:
         out = diagnostic.get_output_path()
         if os.path.exists(out):
@@ -205,7 +207,7 @@ def super_delete(request):
 def rerun_archive(request):
     archive_id = int(request.matchdict["archive_id"])
     archive = DBSession.query(Archive).options(subqueryload(
-        Archive.diagnostics)).filter(Archive.id==archive_id).first()
+        Archive.diagnostics)).filter(Archive.id == archive_id).first()
     for diagnostic in archive.diagnostics:
         out = diagnostic.get_output_path()
         if os.path.exists(out):
@@ -273,7 +275,7 @@ def list_reports(request):
         if archives.page >= 2:
             pages.append(archives.page)
 
-        pages.extend(range(archives.page+1, min(archives.page + right_pagius + 1, archives.page_count)))
+        pages.extend(range(archives.page + 1, min(archives.page + right_pagius + 1, archives.page_count)))
 
         if archives.page + right_pagius < archives.page_count - 2:
             pages.append("..")
@@ -324,3 +326,56 @@ def not_found(self, request):
     permission='view')
 def old_browser(request):
     return {}
+
+# Author: Anthony Rodriguez
+# Last Modified: 10 July 2014
+@view_config(route_name="analysis", renderer="analysis.mako", permission="view")
+def analysis(request):
+    
+    search_params = clean_strings({})
+    
+    metrics_query = DBSession.query(MetricsPGM).order_by(MetricsPGM.id.desc())
+    
+    # BEGIN Pager
+    page = int(request.params.get("page", 1))
+    page_url = paginate.PageURL_WebOb(request)
+    
+    metric_pages = paginate.Page(metrics_query, page, items_per_page=100, url=page_url)
+    pages = [metric_pages.first_page]
+    left_pagius = 5
+    right_pagius = 5
+    total = 2 + left_pagius + 1 + right_pagius + 2
+    
+    if metric_pages.page_count <= total:
+        pages = range(1, metric_pages.page_count + 1)
+    else:
+        if metric_pages.page - left_pagius < 3:
+            diff = 3 - (metric_pages.page - left_pagius)
+            right_pagius += diff
+            left_pagius = max(left_pagius - diff, 0)
+        if metric_pages.page + right_pagius > metric_pages.page_count - 2:
+            diff = (metric_pages.page + right_pagius + 1) - (metric_pages.page_count - 1)
+            left_pagius += diff
+            right_pagius = max(right_pagius - diff, 0)
+        if metric_pages.page - left_pagius > 3:
+            pages.append("..")
+        elif metric_pages.page - left_pagius == 3:
+            pages.append("2")
+
+        if metric_pages.page > 2:
+            pages.extend(range(max(metric_pages.page - left_pagius, 3), metric_pages.page))
+        if metric_pages.page >= 2:
+            pages.append(metric_pages.page)
+
+        pages.extend(range(metric_pages.page + 1, min(metric_pages.page + right_pagius + 1, metric_pages.page_count)))
+
+        if metric_pages.page + right_pagius < metric_pages.page_count - 2:
+            pages.append("..")
+        elif metric_pages.page + right_pagius == metric_pages.page_count - 2:
+            pages.append(metric_pages.page_count - 1)
+
+        if metric_pages.page < metric_pages.page_count:
+            pages.append(metric_pages.page_count)
+    # END Pager
+    
+    return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url}

@@ -35,6 +35,7 @@
               <li><a href="${request.route_path('upload')}">Submit Archive</a></li>
               <li><a href="${request.route_path('reports')}">List Reports</a></li>
               <li><a href="${request.route_path('documentation')}">Documentation</a></li>
+              <li><a href="${request.route_path('analysis')}">Analysis</a></li>
             </ul>
             <form id="jump_form" class="navbar-form pull-left">
               <div class="input-append">

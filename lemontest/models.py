@@ -22,6 +22,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.orm import backref
 
 from zope.sqlalchemy import ZopeTransactionExtension
+from sqlalchemy.dialects.drizzle.base import NUMERIC
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +56,8 @@ class Archive(Base):
     summary = Column(Unicode(30), default=u"")
 
     diagnostics = relationship("Diagnostic", order_by="(Diagnostic.priority.desc(), Diagnostic.name.asc())", cascade='all')
+    
+    metrics_pgm = relationship("MetricsPGM", uselist=False, backref="archive")
 
     tags = relationship("Tag", secondary=archive_tags, backref="archives")
 
@@ -66,7 +69,6 @@ class Archive(Base):
         self.path = path
         self.time = datetime.datetime.now()
         self.status = u"Processing newly uploaded archive."
-
 
 class Diagnostic(Base):
     __tablename__ = 'diagnostics'
@@ -103,6 +105,16 @@ class Diagnostic(Base):
             self.readme = None
         return self.readme
 
+# Author: Anthony Rodriguez
+# Last Modified: 9 July 2014
+class MetricsPGM(Base):
+    __tablename__ = "metrics_pgm"
+    id = Column(Integer, primary_key=True)
+    pgm_temperature = Column(NUMERIC(10, 4))
+    pgm_pressure = Column(NUMERIC(10, 4))
+    chip_temperature = Column(NUMERIC(10, 4))
+    chip_noise = Column(NUMERIC(10, 4))
+    archive_id = Column(Integer, ForeignKey('archives.id'))
 
 class Tag(Base):
     __tablename__ = 'tags'

@@ -50,6 +50,9 @@ def main(global_config, **settings):
     
     config.add_route('api_auto_complete', '/api/auto_complete')
     
+    # New things to add
+    config.add_route('analysis', '/analysis')
+    
     # This lets the function 'add_base_template' tack the layout template into
     # the mystical universe of chameleon templating so that the other templates
     # can put themselves inside layout.pt like they're supposed to.
