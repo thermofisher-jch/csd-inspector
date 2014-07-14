@@ -106,14 +106,18 @@ class Diagnostic(Base):
         return self.readme
 
 # Author: Anthony Rodriguez
-# Last Modified: 9 July 2014
+# Last Modified: 11 July 2014
 class MetricsPGM(Base):
     __tablename__ = "metrics_pgm"
     id = Column(Integer, primary_key=True)
-    pgm_temperature = Column(NUMERIC(10, 4))
-    pgm_pressure = Column(NUMERIC(10, 4))
-    chip_temperature = Column(NUMERIC(10, 4))
-    chip_noise = Column(NUMERIC(10, 4))
+    pgm_temperature = Column(NUMERIC(10, 2))
+    pgm_pressure = Column(NUMERIC(10, 2))
+    chip_temperature = Column(NUMERIC(10, 2))
+    chip_noise = Column(NUMERIC(10, 2))
+    seq_kit = Column(Unicode(255))
+    chip_type = Column(Unicode(255))
+    isp_loading = Column(NUMERIC(3, 1))
+    system_snr = Column(NUMERIC(10, 2))
     archive_id = Column(Integer, ForeignKey('archives.id'))
 
 class Tag(Base):

@@ -17,7 +17,9 @@ from lemontest.models import testers
 from lemontest.models import MetricsPGM
 from lemontest import diagnostic 
 
-from lemontest.metrics_pgm_tests import Metrics_PGM_Tests
+from lemontest.metrics_pgm_explog import Metrics_PGM_Explog
+from lemontest.metrics_pgm_quality_summary import Metrics_PGM_Quality_Summary
+from lemontest.metrics_pgm_bfmask_stats import Metrics_PGM_Bfmask_Stats
 
 logger = logging.getLogger(__name__)
 
@@ -270,17 +272,28 @@ def process_archive(archive_id, upload_name, testers):
     transaction.commit()
 
 # Author: Anthony Rodriguez
-# Last Modified: 9 July 2014
+# Last Modified: 11 July 2014
 @task
 def set_metrics_pgm(metrics_pgm_id):
     metric = DBSession.query(MetricsPGM).get(metrics_pgm_id)
-    metric_tests = Metrics_PGM_Tests(metric.archive.path, logger)
+    explog = Metrics_PGM_Explog(metric.archive.path, logger)
+    quality_summary = Metrics_PGM_Quality_Summary(metric.archive.path, logger)
+    bfmask_stats = Metrics_PGM_Bfmask_Stats(metric.archive.path, logger)
     
-    if metric_tests.is_valid():
-        metric.pgm_temperature = metric_tests.get_pgm_temperature()
-        metric.pgm_pressure = metric_tests.get_pgm_pressure()
-        metric.chip_temperature = metric_tests.get_chip_temperature()
-        metric.chip_noise = metric_tests.get_chip_noise()
+    
+    if explog.is_valid():
+        metric.pgm_temperature = explog.get_pgm_temperature()
+        metric.pgm_pressure = explog.get_pgm_pressure()
+        metric.chip_temperature = explog.get_chip_temperature()
+        metric.chip_noise = explog.get_chip_noise()
+        metric.seq_kit = explog.get_seq_kit()
+        metric.chip_type = explog.get_chip_type()
+    
+    if quality_summary.is_valid():
+        metric.system_snr = quality_summary.get_system_snr()
+        
+    if bfmask_stats.is_valid():
+        metric.isp_loading = bfmask_stats.get_isp_loading()
     
     transaction.commit()
 
