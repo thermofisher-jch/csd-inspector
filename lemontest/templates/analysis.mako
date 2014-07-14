@@ -1,3 +1,7 @@
+<%doc>
+	Author: Anthony Rodriguez
+	Last Modified: 14 July 2014
+</%doc>
 <%inherit file="base.mako"/>
 
 <%block name="extra_head">

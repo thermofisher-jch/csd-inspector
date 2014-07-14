@@ -44,7 +44,6 @@ archive_type_files = {
     "OT_Log": "onetouch.log"
 }
 
-
 def add_helpers(event):
     event['h'] = helpers
 
@@ -329,6 +328,8 @@ def not_found(self, request):
 def old_browser(request):
     return {}
 
+# Author: Anthony Rodriguez
+# Last Modified: 14 July 2014
 def filter_query(request):
     search_params = clean_strings({
                                    'chip_type': request.params.get('chip_type', u''),
@@ -350,7 +351,7 @@ def filter_query(request):
     return metrics_query, search_params
 
 # Author: Anthony Rodriguez
-# Last Modified: 11 July 2014
+# Last Modified: 14 July 2014
 @view_config(route_name="analysis", renderer="analysis.mako", permission="view")
 def analysis(request):
 
@@ -433,6 +434,8 @@ def analysis(request):
     return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "pgm_columns": pgm_columns, "chip_types": chip_types, "search": search_params,
             'seq_kit_types': seq_kit_types}
 
+# Author: Anthony Rodriguez
+# Last Modified: 14 July 2014
 @view_config(route_name="analysis_csv", permission="view")
 def analysis_csv(request):
     
