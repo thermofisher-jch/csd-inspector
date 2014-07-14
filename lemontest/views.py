@@ -26,6 +26,8 @@ from webhelpers import paginate
 import upload
 import helpers
 
+from lemontest.csv_support import make_csv
+
 logger = logging.getLogger(__name__)
 
 status_highlights = {
@@ -327,14 +329,64 @@ def not_found(self, request):
 def old_browser(request):
     return {}
 
-# Author: Anthony Rodriguez
-# Last Modified: 10 July 2014
-@view_config(route_name="analysis", renderer="analysis.mako", permission="view")
-def analysis(request):
-    
-    search_params = clean_strings({})
+def filter_query(request):
+    search_params = clean_strings({
+                                   'chip_type': request.params.get('chip_type', u''),
+                                   'seq_kit_type': request.params.get('seq_kit_type', u'')
+                                   })
     
     metrics_query = DBSession.query(MetricsPGM).order_by(MetricsPGM.id.desc())
+    
+    # BEGIN filter by value
+    for column, value in search_params.items():
+        if value:
+            if column == 'chip_type':
+                metrics_query = metrics_query.filter(MetricsPGM.chip_type == value)
+            if column == 'seq_kit_type':
+                metrics_query = metrics_query.filter(MetricsPGM.seq_kit == value)
+    # END filter by value
+    
+    
+    return metrics_query, search_params
+
+# Author: Anthony Rodriguez
+# Last Modified: 11 July 2014
+@view_config(route_name="analysis", renderer="analysis.mako", permission="view")
+def analysis(request):
+
+    pgm_columns = [
+                   "ID",
+                   "Label",
+                   "PGM Temperature",
+                   "PGM Pressure",
+                   "Chip Temperature",
+                   "Chip Noise",
+                   "Sequencing Kit",
+                   "Chip Type",
+                   "ISP Loading",
+                   "Signal To Noise Ratio"
+                   ]
+    
+    chip_types = [
+                  "314 V1",
+                  "314 V2",
+                  "316 V1",
+                  "316 V2",
+                  "318 V1",
+                  "318 V2"
+                  ]
+    
+    seq_kit_types = [
+                     "PGM Seq 100",
+                     "PGM Seq 200",
+                     "PGM Seq 200 IC",
+                     "PGM Seq 200 v2",
+                     "PGM Seq 300",
+                     "PGM Seq 400",
+                     "PGM Seq Hi-Q TA",
+                     ]
+    
+    metrics_query, search_params = filter_query(request)
     
     # BEGIN Pager
     page = int(request.params.get("page", 1))
@@ -378,4 +430,25 @@ def analysis(request):
             pages.append(metric_pages.page_count)
     # END Pager
     
-    return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url}
+    return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "pgm_columns": pgm_columns, "chip_types": chip_types, "search": search_params,
+            'seq_kit_types': seq_kit_types}
+
+@view_config(route_name="analysis_csv", permission="view")
+def analysis_csv(request):
+    
+    pgm_columns = [
+                   "ID",
+                   "Label",
+                   "PGM Temperature",
+                   "PGM Pressure",
+                   "Chip Temperature",
+                   "Chip Noise",
+                   "Sequencing Kit",
+                   "Chip Type",
+                   "ISP Loading",
+                   "Signal To Noise Ratio"
+                   ]
+    
+    metrics_query, search_params = filter_query(request)
+    
+    return Response(make_csv(metrics_query, pgm_columns), content_type="text/csv", content_disposition="attachment; filename=analysis.csv")

@@ -2,13 +2,13 @@
 Author: Anthony Rodriguez
 File: metrics_pgm.py
 Created: 9 July 2014
-Last Modified: 10 July 2014
+Last Modified: 11 July 2014
 '''
 import sys
 import os
 from decimal import Decimal
 
-class Metrics_PGM_Tests(object):
+class Metrics_PGM_Explog(object):
         
     # validate path existence
     def validate_path(self, archive_path):
@@ -96,14 +96,65 @@ class Metrics_PGM_Tests(object):
             noise = Decimal(self.data["Noise_90pct"])
             
             return noise
+    
+    # return sequencing kit information
+    def get_seq_kit(self):
+        if "SeqKitDesc" not in self.data:
+            if "SeqKitPlanDesc" not in self.data:
+                self.logger.warning("Sequencing Kit information missing from explog")
+                return None
+            else:
+                raw_kit = unicode(self.data["SeqKitPlanDesc"]).strip()
+                
+                for kit, value in self.kits.items():
+                    if raw_kit == kit:
+                        seq_kit = value
+                        return value
+        else:
+            raw_kit = unicode(self.data["SeqKitDesc"]).strip()
+            
+            for kit, value in self.kits.items():
+                    if raw_kit == kit:
+                        seq_kit = value
+                        return value
+
+    # return chip type
+    def get_chip_type(self):
+        if "Gain" not in self.data:
+            self.logger.warning("Gain not it data")
+        else:
+            chip_gain = Decimal(self.data["Gain"])
+            
+            if chip_gain >= 0.65:
+                chip_version = unicode("V2")
+            else:
+                chip_version = unicode("V1")
+
+        if "ChipType" not in self.data:
+            self.logger.warning("Chip Type not in data")
+            return None
+        else:
+            chip_type = unicode(self.data["ChipType"][:3] + " " + chip_version).strip()
+            
+            return chip_type
 
     # return True if archive path is valid, and contains explog_final.txt
     # return False otherwise
     def is_valid(self):
         return self.valid
     
-    # Initialize
+    # initialize
     def __init__(self, archive_path, logger):
         self.archive_path = archive_path
         self.logger = logger
         self.data, self.valid = self.validate_path(archive_path)
+        self.kits = {
+                "(100bp) Ion Sequencing Kit": "PGM Seq 100",
+                "(200bp) Ion PGM(tm) 200 Sequencing Kit": "PGM Seq 200",
+                "Ion PGM IC 200 Sequencing Kit": "PGM Seq 200 IC",
+                "Ion PGM Sequencing 200 Kit v2": "PGM Seq 200 v2",
+                "Ion PGM Sequencing 300 Kit": "PGM Seq 300",
+                "Ion PGM Sequencing 400 Kit": "PGM Seq 400",
+                "Ion PGM Hi-Q Tech Access Kit": "PGM Seq Hi-Q TA"
+                }
+        

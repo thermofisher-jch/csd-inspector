@@ -52,6 +52,7 @@ def main(global_config, **settings):
     
     # New things to add
     config.add_route('analysis', '/analysis')
+    config.add_route('analysis_csv', '/analysis.csv')
     
     # This lets the function 'add_base_template' tack the layout template into
     # the mystical universe of chameleon templating so that the other templates

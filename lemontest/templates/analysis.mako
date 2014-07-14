@@ -5,36 +5,42 @@
     tr td:nth-child(3), tr td:nth-child(4) {
         white-space: nowrap;
     }
-    #reports td {
+    #analysis td {
         padding: 0;
     }
-    #reports td a {
+    #analysis td a {
         padding: 12px 8px;
         display: block;
         color: #333333;
     }
-    #reports td a:hover {
+    #analysis td a:hover {
         text-decoration: none;
      }
 
-    #reports thead tr th {
+    #analysis thead tr th {
         border-top: 0 none;
         background-image: linear-gradient(to bottom, white, #EFEFEF);
     }
-    #reports thead tr.filter-row th {
+    #analysis thead tr.filter-row th {
         padding-top: 0;
         background-image: none;
         background-color: #EEEEEE;
     }
-    #reports thead tr th:last-child {
+    #analysis thead tr th:last-child {
         border-right: 0 none;
     }
-    #reports th input, #reports th select {
+    #analysis th input, #analysis th select {
         margin: 0;
         width: auto;
     }
     #filter_name, #filter_site {
         max-width: 150px;
+    }
+    .hide_me {
+    	height: 0px;
+    	width: 0px;
+    	border: none;
+    	padding: 0px;
     }
     </style>
 </%block>
@@ -74,11 +80,55 @@
 </div>
 </%block>
 
+<form id="csv_filter" action="/analysis.csv" method="POST>
+	<div class="buttons">
+	        <div class="pull-right">
+	            <input type="submit" class="btn btn-success" value="Download CSV"/>
+			</div>
+	</div>
+    
+    <input type="hidden" name="chip_type" value="${search['chip_type']}"></input>
+    <input type="hidden" name="seq_kit_type" value="${search['seq_kit_type']}"></input>
+</form>
+
 <form id="filter" action="/analysis" method="GET">
-<table class="table table-striped table-hover" id="reports">
+<table class="table table-striped table-hover" id="analysis">
     <thead>
-        <tr>
-            <th>ID</th><th>Label</th><th>PGM Temperature</th><th>PG Pressure</th><th>Chip Temperature</th><th>Chip Noise</th>
+        <tr>    	
+	    	% for column in pgm_columns:
+	    		<th>${column}</th>
+	    	% endfor
+        </tr>
+        
+        <tr class="filter-row">
+        	<th></th>
+        	<th></th>
+        	<th></th>
+        	<th></th>
+        	<th></th>
+        	<th></th>
+        	<th>
+        		<select name="seq_kit_type" id="seq_kit_type" onchange="$('#filter').submit();">
+        			<option value=""></option>
+        			% for type in seq_kit_types:
+        				<option value="${type}" ${'selected="selected"' if type==search['seq_kit_type'] else ''}>
+        					${type}
+        				</option>
+        			% endfor
+        		</select>
+        	</th>
+        	<th>
+        		<select name="chip_type" id="chipType" onchange="$('#filter').submit();">
+					<option value=""></option>
+			    	% for type in chip_types:
+			        	<option value="${type}" ${'selected="selected"' if type==search['chip_type'] else ''}>
+				            ${type}
+				        </option>
+				    % endfor
+			    </select>
+        	</th>
+        	<th></th>
+        	<th></th>
         </tr>
     </thead>
     <tbody>
@@ -90,9 +140,13 @@
                 <td><a href="${request.route_url('check', archive_id=metric.archive.id)}">${metric.pgm_pressure}</a></td>
                 <td><a href="${request.route_url('check', archive_id=metric.archive.id)}">${metric.chip_temperature}</a></td>
                 <td><a href="${request.route_url('check', archive_id=metric.archive.id)}">${metric.chip_noise}</a></td>
+                <td><a href="${request.route_url('check', archive_id=metric.archive.id)}">${metric.seq_kit}</a></td>
+                <td><a href="${request.route_url('check', archive_id=metric.archive.id)}">${metric.chip_type}</a></td>
+                <td><a href="${request.route_url('check', archive_id=metric.archive.id)}">${metric.isp_loading}</a></td>
+                <td><a href="${request.route_url('check', archive_id=metric.archive.id)}">${metric.system_snr}</a></td>
             </tr>
         % endfor
     </tbody>
 </table>
-<input type="submit" style="height: 0px; width: 0px; border: none; padding: 0px;" hidefocus="true" />
+<input type="submit" class="hide_me">
 </form>
