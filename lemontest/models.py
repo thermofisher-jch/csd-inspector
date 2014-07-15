@@ -58,6 +58,8 @@ class Archive(Base):
     diagnostics = relationship("Diagnostic", order_by="(Diagnostic.priority.desc(), Diagnostic.name.asc())", cascade='all')
     
     metrics_pgm = relationship("MetricsPGM", uselist=False, backref="archive")
+    
+    metrics_proton = relationship("MetricsProton", uselist=False, backref="archive")
 
     tags = relationship("Tag", secondary=archive_tags, backref="archives")
 
@@ -110,14 +112,27 @@ class Diagnostic(Base):
 class MetricsPGM(Base):
     __tablename__ = "metrics_pgm"
     id = Column(Integer, primary_key=True)
-    pgm_temperature = Column(NUMERIC(10, 2))
-    pgm_pressure = Column(NUMERIC(10, 2))
-    chip_temperature = Column(NUMERIC(10, 2))
-    chip_noise = Column(NUMERIC(10, 2))
+    pgm_temperature = Column(NUMERIC(5, 2))
+    pgm_pressure = Column(NUMERIC(5, 2))
+    chip_temperature = Column(NUMERIC(5, 2))
+    chip_noise = Column(NUMERIC(5, 2))
     seq_kit = Column(Unicode(255))
     chip_type = Column(Unicode(255))
     isp_loading = Column(NUMERIC(3, 1))
-    system_snr = Column(NUMERIC(10, 2))
+    system_snr = Column(NUMERIC(5, 2))
+    archive_id = Column(Integer, ForeignKey('archives.id'))
+
+# Author: Anthony Rodriguez
+# Last Modified: 14 July 2014
+class MetricsProton(Base):
+    __tablename__ = "metrics_proton"
+    id = Column(Integer, primary_key=True)
+    version = Column(Unicode(255))
+    isp_loading = Column(NUMERIC(3, 1))
+    chip_noise = Column(NUMERIC(5, 2))
+    proton_pressure = Column(NUMERIC(5, 2))
+    target_pressure = Column(NUMERIC(5, 2))
+    seq_kit = Column(Unicode(255))
     archive_id = Column(Integer, ForeignKey('archives.id'))
 
 class Tag(Base):

@@ -51,7 +51,10 @@ def main(global_config, **settings):
     config.add_route('api_auto_complete', '/api/auto_complete')
     
     # New things to add
-    config.add_route('analysis', '/analysis')
+    config.add_route('analysis_pgm', '/analysis/pgm')
+    config.add_route('analysis_proton', '/analysis/proton')
+    # config.add_route('analysis', '/analysis_pgm')
+    # config.add_route('analysis', '/analysis_pgm')
     config.add_route('analysis_csv', '/analysis.csv')
     
     # This lets the function 'add_base_template' tack the layout template into

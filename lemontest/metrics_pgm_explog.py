@@ -108,15 +108,15 @@ class Metrics_PGM_Explog(object):
                 
                 for kit, value in self.kits.items():
                     if raw_kit == kit:
-                        seq_kit = value
-                        return value
+                        seq_kit = unicode(value)
+                        return seq_kit
         else:
             raw_kit = unicode(self.data["SeqKitDesc"]).strip()
             
             for kit, value in self.kits.items():
-                    if raw_kit == kit:
-                        seq_kit = value
-                        return value
+                if raw_kit == kit:
+                    seq_kit = unicode(value)
+                    return seq_kit
 
     # return chip type
     def get_chip_type(self):

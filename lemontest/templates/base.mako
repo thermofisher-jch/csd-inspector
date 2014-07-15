@@ -22,6 +22,7 @@
       }
     </style>
     <script src="${request.static_url('lemontest:static/js/jquery-1.8.3.min.js')}"></script>
+    <script src="${request.static_url('lemontest:static/js/dropdown.js')}"></script>
     <%block name="extra_head"/>
   </head>
 
@@ -35,7 +36,14 @@
               <li><a href="${request.route_path('upload')}">Submit Archive</a></li>
               <li><a href="${request.route_path('reports')}">List Reports</a></li>
               <li><a href="${request.route_path('documentation')}">Documentation</a></li>
-              <li><a href="${request.route_path('analysis')}">Analysis</a></li>
+              <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Analysis<span class="caret"></span></a>
+              	<ul class="dropdown-menu" role="menu">
+              		<li><a href="${request.route_path('analysis_pgm')}">PGM</a></li>
+              		<li><a>Proton</a></li>
+              		<li><a>Something</a></li>
+              		<li><a>Something Else</a></li>
+              	</ul>
+              </li>
             </ul>
             <form id="jump_form" class="navbar-form pull-left">
               <div class="input-append">

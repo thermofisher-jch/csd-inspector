@@ -9,6 +9,7 @@ import os.path
 from datetime import datetime
 
 from lemontest.models import MetricsPGM
+from lemontest.models import MetricsProton
 
 from lemontest.models import DBSession
 from lemontest.models import Archive
@@ -332,6 +333,9 @@ def old_browser(request):
 # Last Modified: 14 July 2014
 def filter_query(request):
     search_params = clean_strings({
+                                   'min_number': request.params.get('min_number', u''),
+                                   'max_number': request.params.get('max_number', u''),
+                                   'metric_type': request.params.get('metric_type', u''),
                                    'chip_type': request.params.get('chip_type', u''),
                                    'seq_kit_type': request.params.get('seq_kit_type', u'')
                                    })
@@ -345,6 +349,37 @@ def filter_query(request):
                 metrics_query = metrics_query.filter(MetricsPGM.chip_type == value)
             if column == 'seq_kit_type':
                 metrics_query = metrics_query.filter(MetricsPGM.seq_kit == value)
+            if column == 'metric_type':
+                if value == 'PGM Temperature':
+                    if search_params['min_number']:
+                        metrics_query = metrics_query.filter(MetricsPGM.pgm_temperature >= search_params['min_number'])
+                    if search_params['max_number']:
+                        metrics_query = metrics_query.filter(MetricsPGM.pgm_temperature <= search_params['max_number'])
+                if value == 'PGM Pressure':
+                    if search_params['min_number']:
+                        metrics_query = metrics_query.filter(MetricsPGM.pgm_pressure >= search_params['min_number'])
+                    if search_params['max_number']:
+                        metrics_query = metrics_query.filter(MetricsPGM.pgm_pressure <= search_params['max_number'])
+                if value == 'Chip Temperature':
+                    if search_params['min_number']:
+                        metrics_query = metrics_query.filter(MetricsPGM.chip_temperature >= search_params['min_number'])
+                    if search_params['max_number']:
+                        metrics_query = metrics_query.filter(MetricsPGM.chip_temperature <= search_params['max_number'])
+                if value == 'Chip Noise':
+                    if search_params['min_number']:
+                        metrics_query = metrics_query.filter(MetricsPGM.chip_noise >= search_params['min_number'])
+                    if search_params['max_number']:
+                        metrics_query = metrics_query.filter(MetricsPGM.chip_noise <= search_params['max_number'])
+                if value == 'ISP Loading':
+                    if search_params['min_number']:
+                        metrics_query = metrics_query.filter(MetricsPGM.isp_loading >= search_params['min_number'])
+                    if search_params['max_number']:
+                        metrics_query = metrics_query.filter(MetricsPGM.isp_loading <= search_params['max_number'])
+                if value == 'Signal To Noise Ratio':
+                    if search_params['min_number']:
+                        metrics_query = metrics_query.filter(MetricsPGM.system_snr >= search_params['min_number'])
+                    if search_params['max_number']:
+                        metrics_query = metrics_query.filter(MetricsPGM.system_snr <= search_params['max_number'])
     # END filter by value
     
     
@@ -352,7 +387,7 @@ def filter_query(request):
 
 # Author: Anthony Rodriguez
 # Last Modified: 14 July 2014
-@view_config(route_name="analysis", renderer="analysis.mako", permission="view")
+@view_config(route_name="analysis_pgm", renderer="analysis_pgm.mako", permission="view")
 def analysis(request):
 
     pgm_columns = [
@@ -367,6 +402,15 @@ def analysis(request):
                    "ISP Loading",
                    "Signal To Noise Ratio"
                    ]
+    
+    filter_columns = [
+                      "PGM Temperature",
+                      "PGM Pressure",
+                      "Chip Temperature",
+                      "Chip Noise",
+                      "ISP Loading",
+                      "Signal To Noise Ratio"
+                      ]
     
     chip_types = [
                   "314 V1",
@@ -432,7 +476,7 @@ def analysis(request):
     # END Pager
     
     return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "pgm_columns": pgm_columns, "chip_types": chip_types, "search": search_params,
-            'seq_kit_types': seq_kit_types}
+            'seq_kit_types': seq_kit_types, "filter_columns": filter_columns}
 
 # Author: Anthony Rodriguez
 # Last Modified: 14 July 2014

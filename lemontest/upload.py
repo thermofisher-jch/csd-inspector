@@ -15,11 +15,13 @@ from lemontest.models import DBSession
 from lemontest.models import Archive
 from lemontest.models import testers
 from lemontest.models import MetricsPGM
+from lemontest.models import MetricsProton
 from lemontest import diagnostic 
 
 from lemontest.metrics_pgm_explog import Metrics_PGM_Explog
 from lemontest.metrics_pgm_quality_summary import Metrics_PGM_Quality_Summary
 from lemontest.metrics_pgm_bfmask_stats import Metrics_PGM_Bfmask_Stats
+from lemontest.metrics_proton_explog import Metrics_Proton_Explog
 
 logger = logging.getLogger(__name__)
 
@@ -254,13 +256,18 @@ def process_archive(archive_id, upload_name, testers):
             DBSession.add(metrics_pgm)
             DBSession.flush()
             set_metrics_pgm.delay(metrics_pgm.id)
+            
+        if archive.archive_type == "Proton":
+            metrics_proton = MetricsProton()
+            metrics_proton.archive_id = archive_id
+            DBSession.add(metrics_proton)
+            DBSession.flush()
+            set_metrics_proton(metrics_proton.id)
+
         '''
         if archive.archive_type == "OT_Log":
             pass
-        
-        if archive.archive_type == "Proton":
-            pass
-        
+
         if archive.archive_type == "Ion Chef":
             pass
         '''
@@ -294,6 +301,19 @@ def set_metrics_pgm(metrics_pgm_id):
         
     if bfmask_stats.is_valid():
         metric.isp_loading = bfmask_stats.get_isp_loading()
+    
+    transaction.commit()
+
+@task
+def set_metrics_proton(metrics_proton_id):
+    metric = DBSession.query(MetricsProton).get(metrics_proton_id)
+    explog = Metrics_Proton_Explog(metric.archive.path, logger)
+    
+    if explog.is_valid():
+        metric.chip_noise = explog.get_chip_noise()
+        metric.proton_pressure = explog.get_proton_pressure()
+        metric.target_pressure = explog.get_target_pressure()
+        metric.seq_kit = explog.get_seq_kit()
     
     transaction.commit()
 
