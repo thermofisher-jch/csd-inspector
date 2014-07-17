@@ -337,7 +337,7 @@ def filter_query(request, metric_object_type):
                                    'max_number': request.params.get('max_number', u''),
                                    'metric_type': request.params.get('metric_type', u''),
                                    'Chip Type': request.params.get('chip_type', u''),
-                                   'Sequencing Kit': request.params.get('seq_kit_type', u'')
+                                   'Seq Kit': request.params.get('seq_kit_type', u'')
                                    })
     
     metrics_query = DBSession.query(metric_object_type).order_by(metric_object_type.id.desc())

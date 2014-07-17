@@ -79,7 +79,7 @@
 		<select class="form-control" name="seq_kit_type" id="seq_kit_type">
 			<option value=""></option>
 			% for type in metric_object_type.ordered_kits:
-				<option value="${type[0]}" ${'selected="selected"' if type[0]==search['Sequencing Kit'] else ''}>
+				<option value="${type[0]}" ${'selected="selected"' if type[0]==search['Seq Kit'] else ''}>
 					${type[1]}
 				</option>
 			% endfor
@@ -142,16 +142,17 @@
     
     <form id="csv_filter" action="${request.route_path('analysis_csv')}" method="POST">
     	<input type="hidden" name="csrf_token" value="${request.session.get_csrf_token()}"/>
-        <div class="pull-right">
+	    
+	    <input type="hidden" name="chip_type" value="${search['Chip Type']}"/>
+	    <input type="hidden" name="seq_kit_type" value="${search['Seq Kit']}"/>
+	    <input type="hidden" name="metric_type" value="${search['metric_type']}"/>
+	    <input type="hidden" name="min_number" value="${search['min_number']}"/>
+	    <input type="hidden" name="max_number" value="${search['max_number']}"/>
+	    <input type="hidden" name="metric_object_type" value="${request.path}"/>
+	    
+	    <div class="pull-right">
             <input type="submit" class="btn btn-success" value="Download CSV"/>
 		</div>
-	    
-	    <input type="hidden" name="chip_type" value="${search['Chip Type']}"></input>
-	    <input type="hidden" name="seq_kit_type" value="${search['Sequencing Kit']}"></input>
-	    <input type="hidden" name-"metric_type" value="${search['metric_type']}"></input>
-	    <input type="hidden" name="min_number" value="${search['min_number']}"></input>
-	    <input type="hidden" name="max_number" value="${search['max_number']}"></input>
-	    <input type="hidden" name="metric_object_type" value="${request.path}"></input>
 	</form>
 </div>
 </%block>

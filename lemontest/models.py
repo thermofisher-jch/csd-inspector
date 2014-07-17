@@ -144,14 +144,14 @@ class MetricsPGM(Base, PrettyFormatter):
     ordered_columns = [
                        ("ID", "id"),
                        ("Label", ""),
-                       ("PGM Temperature", "pgm_temperature"),
-                       ("PGM Pressure", "pgm_pressure"),
-                       ("Chip Temperature", "chip_temperature"),
+                       ("PGM Temp", "pgm_temperature"),
+                       ("PGM Pres", "pgm_pressure"),
+                       ("Chip Temp", "chip_temperature"),
                        ("Chip Noise", "chip_noise"),
                        ("ISP Loading", "isp_loading"),
-                       ("Signal To Noise Ratio", "system_snr"),
+                       ("SNR", "system_snr"),
                        ("Gain", "gain"),
-                       ("Sequencing Kit", "seq_kit"),
+                       ("Seq Kit", "seq_kit"),
                        ("Chip Type", "chip_type")
                        ]
     
@@ -194,7 +194,7 @@ class MetricsPGM(Base, PrettyFormatter):
     @orm.reconstructor
     def do_onload(self):
         self.pretty_columns = {
-                               "Sequencing Kit": self.format_seq_kit,
+                               "Seq Kit": self.format_seq_kit,
                                "Chip Type": self.format_chip_type,
                                }
         
