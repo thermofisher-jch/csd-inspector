@@ -39,7 +39,7 @@
               <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Analysis<span class="caret"></span></a>
               	<ul class="dropdown-menu" role="menu">
               		<li><a href="${request.route_path('analysis_pgm')}">PGM</a></li>
-              		<li><a>Proton</a></li>
+              		<li><a href="${request.route_path('analysis_proton')}">Proton</a></li>
               		<li><a>Something</a></li>
               		<li><a>Something Else</a></li>
               	</ul>

@@ -10,6 +10,7 @@ from datetime import datetime
 
 from lemontest.models import MetricsPGM
 from lemontest.models import MetricsProton
+from lemontest.csv_support import make_csv
 
 from lemontest.models import DBSession
 from lemontest.models import Archive
@@ -26,8 +27,7 @@ from sqlalchemy.orm import subqueryload
 from webhelpers import paginate
 import upload
 import helpers
-
-from lemontest.csv_support import make_csv
+from sqlalchemy.sql.expression import column
 
 logger = logging.getLogger(__name__)
 
@@ -331,107 +331,41 @@ def old_browser(request):
 
 # Author: Anthony Rodriguez
 # Last Modified: 14 July 2014
-def filter_query(request):
+def filter_query(request, metric_object_type):
     search_params = clean_strings({
                                    'min_number': request.params.get('min_number', u''),
                                    'max_number': request.params.get('max_number', u''),
                                    'metric_type': request.params.get('metric_type', u''),
-                                   'chip_type': request.params.get('chip_type', u''),
-                                   'seq_kit_type': request.params.get('seq_kit_type', u'')
+                                   'Chip Type': request.params.get('chip_type', u''),
+                                   'Sequencing Kit': request.params.get('seq_kit_type', u'')
                                    })
     
-    metrics_query = DBSession.query(MetricsPGM).order_by(MetricsPGM.id.desc())
-    
-    # BEGIN filter by value
+    metrics_query = DBSession.query(metric_object_type).order_by(metric_object_type.id.desc())
+
     for column, value in search_params.items():
-        if value:
-            if column == 'chip_type':
-                metrics_query = metrics_query.filter(MetricsPGM.chip_type == value)
-            if column == 'seq_kit_type':
-                metrics_query = metrics_query.filter(MetricsPGM.seq_kit == value)
+        if value and (column != 'min_number' and column != 'max_number'):
             if column == 'metric_type':
-                if value == 'PGM Temperature':
-                    if search_params['min_number']:
-                        metrics_query = metrics_query.filter(MetricsPGM.pgm_temperature >= search_params['min_number'])
-                    if search_params['max_number']:
-                        metrics_query = metrics_query.filter(MetricsPGM.pgm_temperature <= search_params['max_number'])
-                if value == 'PGM Pressure':
-                    if search_params['min_number']:
-                        metrics_query = metrics_query.filter(MetricsPGM.pgm_pressure >= search_params['min_number'])
-                    if search_params['max_number']:
-                        metrics_query = metrics_query.filter(MetricsPGM.pgm_pressure <= search_params['max_number'])
-                if value == 'Chip Temperature':
-                    if search_params['min_number']:
-                        metrics_query = metrics_query.filter(MetricsPGM.chip_temperature >= search_params['min_number'])
-                    if search_params['max_number']:
-                        metrics_query = metrics_query.filter(MetricsPGM.chip_temperature <= search_params['max_number'])
-                if value == 'Chip Noise':
-                    if search_params['min_number']:
-                        metrics_query = metrics_query.filter(MetricsPGM.chip_noise >= search_params['min_number'])
-                    if search_params['max_number']:
-                        metrics_query = metrics_query.filter(MetricsPGM.chip_noise <= search_params['max_number'])
-                if value == 'ISP Loading':
-                    if search_params['min_number']:
-                        metrics_query = metrics_query.filter(MetricsPGM.isp_loading >= search_params['min_number'])
-                    if search_params['max_number']:
-                        metrics_query = metrics_query.filter(MetricsPGM.isp_loading <= search_params['max_number'])
-                if value == 'Signal To Noise Ratio':
-                    if search_params['min_number']:
-                        metrics_query = metrics_query.filter(MetricsPGM.system_snr >= search_params['min_number'])
-                    if search_params['max_number']:
-                        metrics_query = metrics_query.filter(MetricsPGM.system_snr <= search_params['max_number'])
-    # END filter by value
-    
-    
+                if search_params['min_number']:
+                    metrics_query = metrics_query.filter(metric_object_type.get_column(value) >= search_params['min_number'])
+                if search_params['max_number']:
+                    metrics_query = metrics_query.filter(metric_object_type.get_column(value) <= search_params['max_number'])
+            elif column == 'Chip Type':
+                metrics_query = metrics_query.filter(metric_object_type.get_column(column) == value[:3])
+                if value[3:] == " V2":
+                    metrics_query = metrics_query.filter(metric_object_type.get_column("Gain") >= 0.65)
+                else:
+                    metrics_query = metrics_query.filter(metric_object_type.get_column("Gain") < 0.65)
+            else:
+                metrics_query = metrics_query.filter(metric_object_type.get_column(column) == value)
+
     return metrics_query, search_params
 
 # Author: Anthony Rodriguez
-# Last Modified: 14 July 2014
-@view_config(route_name="analysis_pgm", renderer="analysis_pgm.mako", permission="view")
-def analysis(request):
-
-    pgm_columns = [
-                   "ID",
-                   "Label",
-                   "PGM Temperature",
-                   "PGM Pressure",
-                   "Chip Temperature",
-                   "Chip Noise",
-                   "Sequencing Kit",
-                   "Chip Type",
-                   "ISP Loading",
-                   "Signal To Noise Ratio"
-                   ]
+# Last Modified: 15 July 2014
+@view_config(route_name='analysis_proton', renderer='analysis.mako', permission='view')
+def analysis_proton(request):
     
-    filter_columns = [
-                      "PGM Temperature",
-                      "PGM Pressure",
-                      "Chip Temperature",
-                      "Chip Noise",
-                      "ISP Loading",
-                      "Signal To Noise Ratio"
-                      ]
-    
-    chip_types = [
-                  "314 V1",
-                  "314 V2",
-                  "316 V1",
-                  "316 V2",
-                  "318 V1",
-                  "318 V2"
-                  ]
-    
-    seq_kit_types = [
-                     "PGM Seq 100",
-                     "PGM Seq 200",
-                     "PGM Seq 200 IC",
-                     "PGM Seq 200 v2",
-                     "PGM Seq 300",
-                     "PGM Seq 400",
-                     "PGM Seq Hi-Q TA",
-                     ]
-    
-    metrics_query, search_params = filter_query(request)
+    metrics_query, search_params = filter_query(request, MetricsProton)
     
     # BEGIN Pager
     page = int(request.params.get("page", 1))
@@ -475,27 +409,71 @@ def analysis(request):
             pages.append(metric_pages.page_count)
     # END Pager
     
-    return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "pgm_columns": pgm_columns, "chip_types": chip_types, "search": search_params,
-            'seq_kit_types': seq_kit_types, "filter_columns": filter_columns}
+    return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "search": search_params, "metric_object_type": MetricsProton}
 
 # Author: Anthony Rodriguez
 # Last Modified: 14 July 2014
+@view_config(route_name="analysis_pgm", renderer="analysis.mako", permission="view")
+def analysis_pgm(request):
+
+    metrics_query, search_params = filter_query(request, MetricsPGM)
+    
+    # BEGIN Pager
+    page = int(request.params.get("page", 1))
+    page_url = paginate.PageURL_WebOb(request)
+    
+    metric_pages = paginate.Page(metrics_query, page, items_per_page=100, url=page_url)
+    pages = [metric_pages.first_page]
+    left_pagius = 5
+    right_pagius = 5
+    total = 2 + left_pagius + 1 + right_pagius + 2
+    
+    if metric_pages.page_count <= total:
+        pages = range(1, metric_pages.page_count + 1)
+    else:
+        if metric_pages.page - left_pagius < 3:
+            diff = 3 - (metric_pages.page - left_pagius)
+            right_pagius += diff
+            left_pagius = max(left_pagius - diff, 0)
+        if metric_pages.page + right_pagius > metric_pages.page_count - 2:
+            diff = (metric_pages.page + right_pagius + 1) - (metric_pages.page_count - 1)
+            left_pagius += diff
+            right_pagius = max(right_pagius - diff, 0)
+        if metric_pages.page - left_pagius > 3:
+            pages.append("..")
+        elif metric_pages.page - left_pagius == 3:
+            pages.append("2")
+
+        if metric_pages.page > 2:
+            pages.extend(range(max(metric_pages.page - left_pagius, 3), metric_pages.page))
+        if metric_pages.page >= 2:
+            pages.append(metric_pages.page)
+
+        pages.extend(range(metric_pages.page + 1, min(metric_pages.page + right_pagius + 1, metric_pages.page_count)))
+
+        if metric_pages.page + right_pagius < metric_pages.page_count - 2:
+            pages.append("..")
+        elif metric_pages.page + right_pagius == metric_pages.page_count - 2:
+            pages.append(metric_pages.page_count - 1)
+
+        if metric_pages.page < metric_pages.page_count:
+            pages.append(metric_pages.page_count)
+    # END Pager
+
+    return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "search": search_params, "metric_object_type": MetricsPGM}
+
+# Author: Anthony Rodriguez
+# Last Modified: 17 July 2014
 @view_config(route_name="analysis_csv", permission="view")
 def analysis_csv(request):
     
-    pgm_columns = [
-                   "ID",
-                   "Label",
-                   "PGM Temperature",
-                   "PGM Pressure",
-                   "Chip Temperature",
-                   "Chip Noise",
-                   "Sequencing Kit",
-                   "Chip Type",
-                   "ISP Loading",
-                   "Signal To Noise Ratio"
-                   ]
+    if request.params.get("metric_object_type", u'') == '/analysis/pgm':
+        metric_object_type = MetricsPGM
+    elif request.params.get("metric_object_type", u'') == '/analysis/proton':
+        metric_object_type = MetricsProton
     
-    metrics_query, search_params = filter_query(request)
+    metrics_query, search_params = filter_query(request, metric_object_type)
     
-    return Response(make_csv(metrics_query, pgm_columns), content_type="text/csv", content_disposition="attachment; filename=analysis.csv")
+    columns = [i[0] for i in metric_object_type.ordered_columns]
+    
+    return Response(make_csv(metrics_query, columns), content_type="text/csv", content_disposition="attachment; filename=analysis.csv")

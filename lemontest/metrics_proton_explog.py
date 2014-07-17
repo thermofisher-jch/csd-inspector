@@ -15,6 +15,7 @@ class Metrics_Proton_Explog(object):
         self.archive_path = archive_path
         self.logger = logger
         self.data, self.valid = self.validate_path(archive_path)
+        self.kits = {}
 
     # validate path existence
     def validate_path(self, archive_path):
@@ -28,7 +29,7 @@ class Metrics_Proton_Explog(object):
     def open_explog(self, path):
         data = {}
         for line in open(path):
-            raw_data = line.split(": ", 1)
+            raw_data = line.split(":", 1)
             if len(raw_data) == 2:
                 key, value = raw_data
                 data[key.strip()] = value.strip()
@@ -40,7 +41,7 @@ class Metrics_Proton_Explog(object):
         return self.valid
     
     # get chip noise info
-    def proton_correlated_noise(chip_noise_info):
+    def proton_correlated_noise(self, chip_noise_info):
         info = dict(x.split(":", 1) for x in chip_noise_info.split(" "))
         return Decimal(info['Cor'])
     
@@ -101,7 +102,7 @@ class Metrics_Proton_Explog(object):
     def get_proton_pressure(self):
         if "PGMPressure" not in self.data:
             if "ProtonPressure" not in self.data:
-                self.logger.warning("PGMPressure nor ProtonPressure not in data")
+                self.logger.warning("PGMPressure nor ProtonPressure in data")
                 return None
             else:
                 pressure = self.data["ProtonPressure"]

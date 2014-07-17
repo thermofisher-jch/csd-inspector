@@ -16,21 +16,16 @@ def make_csv(metrics, headers):
     
     csv_writer.writerow(headers)
     
+    row = []
+    
     for metric in metrics:
-        
-        row = [
-               metric.archive.id,
-               metric.archive.label,
-               metric.pgm_temperature,
-               metric.pgm_pressure,
-               metric.chip_temperature,
-               metric.chip_noise,
-               metric.seq_kit,
-               metric.chip_type,
-               metric.isp_loading,
-               metric.system_snr
-               ]
+        for column in metric.ordered_columns:
+            if column[0] == "Label":
+                row.append(metric.archive.label)
+            else:
+                row.append(metric.get_formatted(column[0]))
 
         csv_writer.writerow(row)
+        row = []
         
     return output.getvalue()

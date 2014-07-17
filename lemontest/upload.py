@@ -279,7 +279,7 @@ def process_archive(archive_id, upload_name, testers):
     transaction.commit()
 
 # Author: Anthony Rodriguez
-# Last Modified: 11 July 2014
+# Last Modified: 16 July 2014
 @task
 def set_metrics_pgm(metrics_pgm_id):
     metric = DBSession.query(MetricsPGM).get(metrics_pgm_id)
@@ -293,6 +293,7 @@ def set_metrics_pgm(metrics_pgm_id):
         metric.pgm_pressure = explog.get_pgm_pressure()
         metric.chip_temperature = explog.get_chip_temperature()
         metric.chip_noise = explog.get_chip_noise()
+        metric.gain = explog.get_gain()
         metric.seq_kit = explog.get_seq_kit()
         metric.chip_type = explog.get_chip_type()
     
@@ -304,6 +305,8 @@ def set_metrics_pgm(metrics_pgm_id):
     
     transaction.commit()
 
+# Author: Anthony Rodriguez
+# Last Modified: 14 July 2014
 @task
 def set_metrics_proton(metrics_proton_id):
     metric = DBSession.query(MetricsProton).get(metrics_proton_id)

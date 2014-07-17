@@ -2,7 +2,7 @@
 Author: Anthony Rodriguez
 File: metrics_pgm.py
 Created: 9 July 2014
-Last Modified: 11 July 2014
+Last Modified: 16 July 2014
 '''
 import sys
 import os
@@ -104,39 +104,35 @@ class Metrics_PGM_Explog(object):
                 self.logger.warning("Sequencing Kit information missing from explog")
                 return None
             else:
-                raw_kit = unicode(self.data["SeqKitPlanDesc"]).strip()
+                seq_kit = unicode(self.data["SeqKitPlanDesc"]).strip()
                 
-                for kit, value in self.kits.items():
-                    if raw_kit == kit:
-                        seq_kit = unicode(value)
-                        return seq_kit
+                return seq_kit
+
         else:
-            raw_kit = unicode(self.data["SeqKitDesc"]).strip()
+            seq_kit = unicode(self.data["SeqKitDesc"]).strip()
             
-            for kit, value in self.kits.items():
-                if raw_kit == kit:
-                    seq_kit = unicode(value)
-                    return seq_kit
+            return seq_kit
 
     # return chip type
     def get_chip_type(self):
-        if "Gain" not in self.data:
-            self.logger.warning("Gain not it data")
-        else:
-            chip_gain = Decimal(self.data["Gain"])
-            
-            if chip_gain >= 0.65:
-                chip_version = unicode("V2")
-            else:
-                chip_version = unicode("V1")
-
         if "ChipType" not in self.data:
             self.logger.warning("Chip Type not in data")
             return None
         else:
-            chip_type = unicode(self.data["ChipType"][:3] + " " + chip_version).strip()
+            chip_type = unicode(self.data["ChipType"][:3]).strip()
             
             return chip_type
+
+    # return gain
+    def get_gain(self):
+        if "Gain" not in self.data:
+            self.logger.warning("Gain not it data")
+            return None
+        else:
+            chip_gain = Decimal(self.data["Gain"])
+
+            return chip_gain
+
 
     # return True if archive path is valid, and contains explog_final.txt
     # return False otherwise
