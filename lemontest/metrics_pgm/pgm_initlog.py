@@ -46,18 +46,30 @@ class Metrics_PGM_InitLog(object):
 
     # return starting ph
     def get_start_ph(self):
-        start_ph = Decimal(self.data['start_ph'].split("=")[1])
-
-        return start_ph
+        if 'start_ph' in self.data or not self.data['start_ph'].strip():
+            self.logger.warning("Starting pH information missing from data")
+            return None
+        else:
+            start_ph = Decimal(self.data['start_ph'].split("=")[1])
+    
+            return start_ph
 
     # return end ph
     def get_end_ph(self):
-        end_ph = Decimal(self.data['end_ph'].split(': ')[1])
-
-        return end_ph
+        if 'end_ph' in self.data or not self.data['end_ph'].strip():
+            self.logger.warning("Ending pH information missing from data")
+            return None
+        else:
+            end_ph = Decimal(self.data['end_ph'].split(': ')[1])
+    
+            return end_ph
 
     # return w1 added
     def get_w1_added(self):
-        added = Decimal(self.data['added'].split(' ')[1])
-
-        return added
+        if 'added' in self.data or not self.data['added'].strip():
+            self.logger.warning("Solution Added information missing from data")
+            return None
+        else:
+            added = Decimal(self.data['added'].split(' ')[1])
+    
+            return added
