@@ -9,15 +9,15 @@ import csv
 import StringIO
 
 def make_csv(metrics, headers):
-    
+
     output = StringIO.StringIO()
-    
+
     csv_writer = csv.writer(output, quoting=csv.QUOTE_NONNUMERIC)
-    
+
     csv_writer.writerow(headers)
-    
+
     row = []
-    
+
     for metric in metrics:
         for column in metric.ordered_columns:
             if column[0] == "Label":
@@ -27,5 +27,5 @@ def make_csv(metrics, headers):
 
         csv_writer.writerow(row)
         row = []
-        
+
     return output.getvalue()

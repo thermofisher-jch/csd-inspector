@@ -68,7 +68,7 @@
 	<div class="form-group some-space">
 		<select class="form-control" name="metric_type" id="metric_type">
 			<option value=""></option>
-			% for column in metric_object_type.neumeric_columns:
+			% for column in metric_object_type.numeric_columns:
 				<option value="${column[0]}" ${'selected="selected"' if column[0]==search['metric_type'] else ''}>${column[0]}</option>
 			% endfor
 		</select>
@@ -133,7 +133,6 @@
     </div>
 </div>
 </%block>
-
 <%block name="buttons">
 <div class="row-fluid" style="margin-bottom: 20px;">
 	<button type="button" class="pull-left btn btn-default btn-lg" id="filter_toggle">

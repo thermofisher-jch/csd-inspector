@@ -1,10 +1,6 @@
 '''
 Author: Anthony Rodriguez
-File: metrics_proton_explog.py
-Created: 14 July 2014
-Last Modified: 14 July 2014
 '''
-import sys
 import os
 from decimal import Decimal
 
@@ -15,7 +11,6 @@ class Metrics_Proton_Explog(object):
         self.archive_path = archive_path
         self.logger = logger
         self.data, self.valid = self.validate_path(archive_path)
-        self.kits = {}
 
     # validate path existence
     def validate_path(self, archive_path):
@@ -79,23 +74,18 @@ class Metrics_Proton_Explog(object):
     # return sequencing kit information
     def get_seq_kit(self):
         if "SeqKitDesc" not in self.data:
-            if "SeqKitPlanDesc" not in self.data:
+            if "SeqKitPlanDesc" not in self.data or not self.data['SeqKitPlanDesc']:
                 self.logger.warning("Sequencing Kit information missing from explog")
                 return None
             else:
-                raw_kit = unicode(self.data["SeqKitPlanDesc"]).strip()
+                seq_kit = unicode(self.data["SeqKitPlanDesc"]).strip()
                 
-                for kit, value in self.kits.items():
-                    if raw_kit == kit:
-                        seq_kit = unicode(value)
-                        return seq_kit
+                return seq_kit
+
         else:
-            raw_kit = unicode(self.data["SeqKitDesc"]).strip()
+            seq_kit = unicode(self.data["SeqKitDesc"]).strip()
             
-            for kit, value in self.kits.items():
-                if raw_kit == kit:
-                    seq_kit = unicode(value)
-                    return seq_kit
+            return seq_kit
         
     # return PGM Pressure as a decimal
     # or log error message and return Null value

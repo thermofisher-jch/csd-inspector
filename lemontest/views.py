@@ -330,7 +330,7 @@ def old_browser(request):
     return {}
 
 # Author: Anthony Rodriguez
-# Last Modified: 14 July 2014
+# Last Modified: 16 July 2014
 def filter_query(request, metric_object_type):
     search_params = clean_strings({
                                    'min_number': request.params.get('min_number', u''),
@@ -339,7 +339,7 @@ def filter_query(request, metric_object_type):
                                    'Chip Type': request.params.get('chip_type', u''),
                                    'Seq Kit': request.params.get('seq_kit_type', u'')
                                    })
-    
+
     metrics_query = DBSession.query(metric_object_type).order_by(metric_object_type.id.desc())
 
     for column, value in search_params.items():
@@ -361,22 +361,22 @@ def filter_query(request, metric_object_type):
     return metrics_query, search_params
 
 # Author: Anthony Rodriguez
-# Last Modified: 15 July 2014
+# Last Modified: 16 July 2014
 @view_config(route_name='analysis_proton', renderer='analysis.mako', permission='view')
 def analysis_proton(request):
-    
+
     metrics_query, search_params = filter_query(request, MetricsProton)
-    
+
     # BEGIN Pager
     page = int(request.params.get("page", 1))
     page_url = paginate.PageURL_WebOb(request)
-    
+
     metric_pages = paginate.Page(metrics_query, page, items_per_page=100, url=page_url)
     pages = [metric_pages.first_page]
     left_pagius = 5
     right_pagius = 5
     total = 2 + left_pagius + 1 + right_pagius + 2
-    
+
     if metric_pages.page_count <= total:
         pages = range(1, metric_pages.page_count + 1)
     else:
@@ -408,26 +408,26 @@ def analysis_proton(request):
         if metric_pages.page < metric_pages.page_count:
             pages.append(metric_pages.page_count)
     # END Pager
-    
+
     return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "search": search_params, "metric_object_type": MetricsProton}
 
 # Author: Anthony Rodriguez
-# Last Modified: 14 July 2014
+# Last Modified: 16 July 2014
 @view_config(route_name="analysis_pgm", renderer="analysis.mako", permission="view")
 def analysis_pgm(request):
 
     metrics_query, search_params = filter_query(request, MetricsPGM)
-    
+
     # BEGIN Pager
     page = int(request.params.get("page", 1))
     page_url = paginate.PageURL_WebOb(request)
-    
+
     metric_pages = paginate.Page(metrics_query, page, items_per_page=100, url=page_url)
     pages = [metric_pages.first_page]
     left_pagius = 5
     right_pagius = 5
     total = 2 + left_pagius + 1 + right_pagius + 2
-    
+
     if metric_pages.page_count <= total:
         pages = range(1, metric_pages.page_count + 1)
     else:
@@ -466,14 +466,14 @@ def analysis_pgm(request):
 # Last Modified: 17 July 2014
 @view_config(route_name="analysis_csv", permission="view")
 def analysis_csv(request):
-    
+
     if request.params.get("metric_object_type", u'') == '/analysis/pgm':
         metric_object_type = MetricsPGM
     elif request.params.get("metric_object_type", u'') == '/analysis/proton':
         metric_object_type = MetricsProton
-    
+
     metrics_query, search_params = filter_query(request, metric_object_type)
-    
+
     columns = [i[0] for i in metric_object_type.ordered_columns]
-    
+
     return Response(make_csv(metrics_query, columns), content_type="text/csv", content_disposition="attachment; filename=analysis.csv")

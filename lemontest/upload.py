@@ -1,3 +1,4 @@
+from beaker.container import logger
 __author__ = 'bakennedy'
 
 import logging
@@ -18,10 +19,8 @@ from lemontest.models import MetricsPGM
 from lemontest.models import MetricsProton
 from lemontest import diagnostic 
 
-from lemontest.metrics_pgm_explog import Metrics_PGM_Explog
-from lemontest.metrics_pgm_quality_summary import Metrics_PGM_Quality_Summary
-from lemontest.metrics_pgm_bfmask_stats import Metrics_PGM_Bfmask_Stats
-from lemontest.metrics_proton_explog import Metrics_Proton_Explog
+from lemontest.metrics_pgm import *
+from lemontest.metrics_proton import *
 
 logger = logging.getLogger(__name__)
 
@@ -279,30 +278,55 @@ def process_archive(archive_id, upload_name, testers):
     transaction.commit()
 
 # Author: Anthony Rodriguez
-# Last Modified: 16 July 2014
+# Last Modified: 17 July 2014
 @task
 def set_metrics_pgm(metrics_pgm_id):
     metric = DBSession.query(MetricsPGM).get(metrics_pgm_id)
-    explog = Metrics_PGM_Explog(metric.archive.path, logger)
-    quality_summary = Metrics_PGM_Quality_Summary(metric.archive.path, logger)
-    bfmask_stats = Metrics_PGM_Bfmask_Stats(metric.archive.path, logger)
-    
-    
+
+    explog = pgm_explog.Metrics_PGM_Explog(metric.archive.path, logger)
+    quality_summary = pgm_quality_summary.Metrics_PGM_Quality_Summary(metric.archive.path, logger)
+    bfmask_stats = pgm_bfmask_stats.Metrics_PGM_Bfmask_Stats(metric.archive.path, logger)
+    basecaller_json = pgm_basecaller_json.Metrics_PGM_BaseCaller_JSON(metric.archive.path, logger)
+    datasets_basecaller_json = pgm_datasets_basecaller_json.Metrics_PGM_Datasets_BaseCaller_JSON(metric.archive.path, logger)
+    tfstats_json = pgm_tfstats_json.Metrics_PGM_TFStats_JSON(metric.archive.path, logger)
+
     if explog.is_valid():
         metric.pgm_temperature = explog.get_pgm_temperature()
         metric.pgm_pressure = explog.get_pgm_pressure()
         metric.chip_temperature = explog.get_chip_temperature()
         metric.chip_noise = explog.get_chip_noise()
         metric.gain = explog.get_gain()
+        metric.tss_version = explog.get_tss_version()
+        metric.seq_kit_lot = explog.get_seq_kit_lot()
+        metric.run_type = explog.get_run_type()
         metric.seq_kit = explog.get_seq_kit()
         metric.chip_type = explog.get_chip_type()
-    
+
     if quality_summary.is_valid():
         metric.system_snr = quality_summary.get_system_snr()
-        
+        metric.total_bases = quality_summary.get_total_bases()
+        metric.mean_read_length = quality_summary.get_mean_read_length()
+        metric.total_reads = quality_summary.get_total_reads()
+
     if bfmask_stats.is_valid():
         metric.isp_loading = bfmask_stats.get_isp_loading()
-    
+        metric.isp_wells = bfmask_stats.get_isp_wells()
+        metric.live_wells = bfmask_stats.get_live_wells()
+        metric.library_wells = bfmask_stats.get_library_wells()
+        metric.test_fragment = bfmask_stats.get_test_fragment()
+
+    if basecaller_json.is_valid():
+        metric.polyclonal = basecaller_json.get_polyclonal(metric.library_wells)
+        metric.low_quality = basecaller_json.get_low_quality(metric.library_wells)
+        metric.primer_dimer = basecaller_json.get_primer_dimer(metric.library_wells)
+        metric.usable_reads = basecaller_json.get_usable_reads(metric.library_wells)
+
+    if datasets_basecaller_json.is_valid():
+        metric.barcode_set = datasets_basecaller_json.get_barcode_set()
+
+    if tfstats_json.is_valid():
+        metric._50q17 = tfstats_json.get_50Q17()
+
     transaction.commit()
 
 # Author: Anthony Rodriguez
@@ -310,14 +334,14 @@ def set_metrics_pgm(metrics_pgm_id):
 @task
 def set_metrics_proton(metrics_proton_id):
     metric = DBSession.query(MetricsProton).get(metrics_proton_id)
-    explog = Metrics_Proton_Explog(metric.archive.path, logger)
-    
+    explog = proton_explog.Metrics_Proton_Explog(metric.archive.path, logger)
+
     if explog.is_valid():
         metric.chip_noise = explog.get_chip_noise()
         metric.proton_pressure = explog.get_proton_pressure()
         metric.target_pressure = explog.get_target_pressure()
         metric.seq_kit = explog.get_seq_kit()
-    
+
     transaction.commit()
 
 @task
