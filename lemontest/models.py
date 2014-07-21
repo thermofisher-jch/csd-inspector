@@ -136,7 +136,6 @@ class MetricsPGM(Base, PrettyFormatter):
     pgm_pressure = Column(NUMERIC(5, 2))
     chip_temperature = Column(NUMERIC(5, 2))
     chip_noise = Column(NUMERIC(5, 2))
-    isp_loading = Column(NUMERIC(3, 1))
     system_snr = Column(NUMERIC(5, 2))
     gain = Column(NUMERIC(5, 3))
     test_fragment = Column(NUMERIC(20, 0))
@@ -146,11 +145,15 @@ class MetricsPGM(Base, PrettyFormatter):
     isp_wells = Column(NUMERIC(20, 0))
     live_wells = Column(NUMERIC(20, 0))
     library_wells = Column(NUMERIC(20, 0))
+    isp_loading = Column(NUMERIC(3, 1))
     low_quality = Column(NUMERIC(3, 0))
     polyclonal = Column(NUMERIC(4, 2))
     primer_dimer = Column(NUMERIC(4, 2))
     usable_reads = Column(NUMERIC(4, 2))
     _50q17 = Column(NUMERIC(4, 2))
+    start_ph = Column(NUMERIC(4, 2))
+    end_ph = Column(NUMERIC(4, 2))
+    w1_added = Column(NUMERIC(4, 2))
     barcode_set = Column(Unicode(255))
     run_type = Column(Unicode(255))
     chip_type = Column(Unicode(255))
@@ -165,7 +168,6 @@ class MetricsPGM(Base, PrettyFormatter):
                        ("PGM Pres", "pgm_pressure"),
                        ("Chip Temp", "chip_temperature"),
                        ("Chip Noise", "chip_noise"),
-                       ("ISP Loading (%)", "isp_loading"),
                        ("SNR", "system_snr"),
                        ("Gain", "gain"),
                        ("Test Fragment", "test_fragment"),
@@ -175,11 +177,15 @@ class MetricsPGM(Base, PrettyFormatter):
                        ("ISP Wells", "isp_wells"),
                        ("Live Wells", "live_wells"),
                        ("Lib Wells", "library_wells"),
+                       ("ISP Loading (%)", "isp_loading"),
                        ("Low Quality (%)", "low_quality"),
                        ("Polyclonal (%)", "polyclonal"),
                        ("Primer Dimer (%)", "primer_dimer"),
                        ("Usable Reads (%)", "usable_reads"),
                        ("50Q17 (%)", "_50q17"),
+                       ("Starting pH", "start_ph"),
+                       ("Ending pH", "end_ph"),
+                       ("W1 Added", "w1_added"),
                        ("Barcode Set", "barcode_set"),
                        ("Run Type", "run_type"),
                        ("Chip Type", "chip_type"),
@@ -207,7 +213,7 @@ class MetricsPGM(Base, PrettyFormatter):
                   "318 V2"
                   ]
 
-    numeric_columns = ordered_columns[2:21]
+    numeric_columns = ordered_columns[2:24]
 
     columns = dict(ordered_columns)
 

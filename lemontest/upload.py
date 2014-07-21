@@ -289,6 +289,7 @@ def set_metrics_pgm(metrics_pgm_id):
     basecaller_json = pgm_basecaller_json.Metrics_PGM_BaseCaller_JSON(metric.archive.path, logger)
     datasets_basecaller_json = pgm_datasets_basecaller_json.Metrics_PGM_Datasets_BaseCaller_JSON(metric.archive.path, logger)
     tfstats_json = pgm_tfstats_json.Metrics_PGM_TFStats_JSON(metric.archive.path, logger)
+    initlog = pgm_initlog.Metrics_PGM_InitLog(metric.archive.path, logger)
 
     if explog.is_valid():
         metric.pgm_temperature = explog.get_pgm_temperature()
@@ -326,6 +327,11 @@ def set_metrics_pgm(metrics_pgm_id):
 
     if tfstats_json.is_valid():
         metric._50q17 = tfstats_json.get_50Q17()
+
+    if initlog.is_valid():
+        metric.start_ph = initlog.get_start_ph()
+        metric.end_ph = initlog.get_end_ph()
+        metric.w1_added = initlog.get_w1_added()
 
     transaction.commit()
 
