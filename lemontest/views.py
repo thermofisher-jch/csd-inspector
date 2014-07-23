@@ -6,6 +6,7 @@ import mimetypes
 import os
 import shutil
 import os.path
+import json
 from datetime import datetime
 
 from lemontest.models import MetricsPGM
@@ -340,7 +341,7 @@ def filter_query(request, metric_object_type):
                                    'Seq Kit': request.params.get('seq_kit_type', u'')
                                    })
 
-    metrics_query = DBSession.query(metric_object_type).order_by(metric_object_type.id.desc())
+    metrics_query = DBSession.query(metric_object_type).order_by(metric_object_type.archive_id.desc())
 
     for column, value in search_params.items():
         if value and (column != 'min_number' and column != 'max_number'):
@@ -367,6 +368,14 @@ def analysis_proton(request):
 
     metrics_query, search_params = filter_query(request, MetricsProton)
 
+    show_hide_defaults = {}
+    for columns in MetricsProton.ordered_columns:
+        show_hide_defaults[columns[1]] = "true"
+
+    show_hide_false = {}
+    for columns in MetricsProton.ordered_columns:
+        show_hide_false[columns[1]] = "false"
+
     # BEGIN Pager
     page = int(request.params.get("page", 1))
     page_url = paginate.PageURL_WebOb(request)
@@ -409,7 +418,7 @@ def analysis_proton(request):
             pages.append(metric_pages.page_count)
     # END Pager
 
-    return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "search": search_params, "metric_object_type": MetricsProton}
+    return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "search": search_params, "metric_object_type": MetricsProton, "show_hide_defaults": json.dumps(show_hide_defaults), "show_hide_false": json.dumps(show_hide_false)}
 
 # Author: Anthony Rodriguez
 # Last Modified: 16 July 2014
@@ -418,6 +427,14 @@ def analysis_pgm(request):
 
     metrics_query, search_params = filter_query(request, MetricsPGM)
 
+    show_hide_defaults = {}
+    for columns in MetricsPGM.ordered_columns:
+        show_hide_defaults[columns[1]] = "true"
+
+    show_hide_false = {}
+    for columns in MetricsPGM.ordered_columns:
+        show_hide_false[columns[1]] = "false"
+
     # BEGIN Pager
     page = int(request.params.get("page", 1))
     page_url = paginate.PageURL_WebOb(request)
@@ -460,20 +477,46 @@ def analysis_pgm(request):
             pages.append(metric_pages.page_count)
     # END Pager
 
-    return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "search": search_params, "metric_object_type": MetricsPGM}
+    return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "search": search_params, "metric_object_type": MetricsPGM, "show_hide_defaults": json.dumps(show_hide_defaults), "show_hide_false": json.dumps(show_hide_false)}
+
+@view_config(route_name="analysis_show_hide", renderer="json", permission="view", xhr=True)
+def show_hide_columns(request):
+
+    show_hide_columns = {}
+
+    request_path = request.params.get("metric_type")
+
+    if request_path == '/analysis/pgm':
+        if "show_hide_columns/analysis/pgm" in request.POST and request.POST['show_hide_columns/analysis/pgm']:
+            show_hide_columns = request.params.get("show_hide_columns/analysis/pgm")
+    elif request_path == '/analysis/proton':
+        if "show_hide_columns/analysis/proton" in request.POST and request.POST['show_hide_columns/analysis/proton']:
+            show_hide_columns = request.params.get("show_hide_columns/analysis/proton")
+
+    if request_path == '/analysis/pgm':
+        request.session["show_hide_session/analysis/pgm"]= show_hide_columns
+    elif request_path == '/analysis/proton':
+        request.session["show_hide_session/analysis/proton"]= show_hide_columns
+
+    return {"columns": show_hide_columns}
 
 # Author: Anthony Rodriguez
 # Last Modified: 17 July 2014
 @view_config(route_name="analysis_csv", permission="view")
 def analysis_csv(request):
 
-    if request.params.get("metric_object_type", u'') == '/analysis/pgm':
+    if request.params.get("metric_type", u'') == '/analysis/pgm':
         metric_object_type = MetricsPGM
-    elif request.params.get("metric_object_type", u'') == '/analysis/proton':
+    elif request.params.get("metric_type", u'') == '/analysis/proton':
         metric_object_type = MetricsProton
+
+    show_hide = {}
+
+    if "show_hide" in request.params and request.params['show_hide']:
+        show_hide = json.loads(request.params.get('show_hide'))
+
+    logger.warning("type of show_hide" + str(type(show_hide)))
 
     metrics_query, search_params = filter_query(request, metric_object_type)
 
-    columns = [i[0] for i in metric_object_type.ordered_columns]
-
-    return Response(make_csv(metrics_query, columns), content_type="text/csv", content_disposition="attachment; filename=analysis.csv")
+    return Response(make_csv(metrics_query, metric_object_type, show_hide), content_type="text/csv", content_disposition="attachment; filename=analysis.csv")

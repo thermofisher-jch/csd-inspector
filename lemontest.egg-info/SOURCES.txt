@@ -61,8 +61,8 @@ lemontest/static/js/jquery-1.8.3.min.js
 lemontest/static/js/jquery.js
 lemontest/static/js/modernizr.custom.js
 lemontest/templates/404.mako
-lemontest/templates/analysis_base.mako
 lemontest/templates/analysis_pgm.mako
+lemontest/templates/analysis_proton.mako
 lemontest/templates/auth_base.mako
 lemontest/templates/base.mako
 lemontest/templates/check.mako

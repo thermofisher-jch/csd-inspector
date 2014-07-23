@@ -23,6 +23,7 @@
     </style>
     <script src="${request.static_url('lemontest:static/js/jquery-1.8.3.min.js')}"></script>
     <script src="${request.static_url('lemontest:static/js/dropdown.js')}"></script>
+    <script src="${request.static_url('lemontest:static/js/modal.js')}"></script>
     <%block name="extra_head"/>
   </head>
 

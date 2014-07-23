@@ -1,35 +1,114 @@
 <%doc>
 	Author: Anthony Rodriguez
-	Created: 15 July 2014
-	Last Modified: 15 July 2014
 </%doc>
 
 <%inherit file="base.mako"/>
 
 <%block name="extra_head">
 
-	<script>
+	<script type="text/javascript">
+
 		$(function(){
+			% if '/analysis/pgm' == request.path:
+				% if 'show_hide_session/analysis/pgm' in request.session and request.session['show_hide_session/analysis/pgm']:
+					var show_hide_session = ${request.session['show_hide_session/analysis/pgm'] | n};
+					show_hide_columns(show_hide_session);
+				% else:
+					var show_hide_session = ${show_hide_defaults | n};
+					show_hide_columns(show_hide_session);
+				% endif
+			% elif '/analysis/proton' == request.path:
+				% if 'show_hide_session/analysis/proton' in request.session and request.session['show_hide_session/analysis/proton']:
+					var show_hide_session = ${request.session['show_hide_session/analysis/proton'] | n};
+					show_hide_columns(show_hide_session);
+				% else:
+					var show_hide_session = ${show_hide_defaults | n};
+					show_hide_columns(show_hide_session);
+				% endif
+			% endif
+
 			$("#filter_toggle").click(function(){
 				$(".filter_drawer").slideToggle();
 			});
-		});
-		
 
-		<%doc>
-		% for column in metric_object_type.ordered_columns:
-			$(function(){
-				$("#${column[0].lower().replace(' (%)', '').replace(' ', '_')}").click(function(){
-					$("._${column[0].lower().replace(' (%)', '').replace(' ', '_')}").hide();
-				});
+			$("#show_all").click(function() {
+				all_columns(true);
 			});
-		% endfor
-		</%doc>
+
+			$("#hide_all").click(function() {
+				all_columns(false);
+			});
+
+			$("#")
+
+			$("#show_hide_btn").click(function(){
+
+				show_hide_session = get_shown_columns();
+				show_hide_columns(show_hide_session);
+
+				var csrf_token = '${request.session.get_csrf_token()}';
+				$.ajax({
+				  type: "POST",
+				  url: "${request.route_path('analysis_show_hide')}",
+				  data: {"csrf_token": csrf_token, "metric_type": "${request.path}", "show_hide_columns${request.path}": JSON.stringify(show_hide_session)}
+				}).done(
+						function(data){
+							show_hide_columns(show_hide_session);
+						});
+			});
+		});
+
+		function show_hide_columns(array_of_columns) {
+			for (var item in array_of_columns) {
+				if (array_of_columns[item] == "true") {
+					var elements = document.getElementsByClassName(item);
+					for (i = 0; i < elements.length; i++) {
+						elements[i].style.display = 'table-cell';
+					}
+					document.getElementById(item).checked = true;
+				} else {
+					var elements = document.getElementsByClassName(item);
+					for (i = 0; i < elements.length; i++) {
+						elements[i].style.display = 'none';
+					}
+					document.getElementById(item).checked = false;
+				}
+			}
+		}
+
+		function get_shown_columns(){
+			var array_of_columns = ${show_hide_defaults | n};
+			for (var item in array_of_columns) {
+				var checkbox = document.getElementById(item);
+				if (checkbox.checked) {
+					array_of_columns[item] = "true";
+				} else {
+					array_of_columns[item] = "false";
+				}
+			}
+
+			document.getElementById("show_hide").value = JSON.stringify(array_of_columns);
+
+			return array_of_columns;
+		}
+
+		function all_columns(show){
+			if (show){
+				var array_of_columns = ${show_hide_defaults | n};
+				show_hide_columns(array_of_columns);
+			} else {
+				var array_of_columns = ${show_hide_false | n};
+				show_hide_columns(array_of_columns);
+			}
+		}
 	</script>
 
 	<style type="text/css">
 	tr td:nth-child(3), tr td:nth-child(4) {
 		white-space: nowrap;
+	}
+	.show_hide_table_spacing {
+		padding-right: 20px;
 	}
 	#analysis td {
 		padding: 0;
@@ -150,8 +229,10 @@
 	<button type="button" class="pull-left btn btn-default btn-lg" id="filter_toggle">
 		<span class="caret"></span>
 	</button>
-	
-	<form id="csv_filter" action="${request.route_path('analysis_csv')}" method="POST">
+
+	<button id="ajax_test" class="btn btn-primary" data-toggle="modal" data-target=".show_hide_modal">Show / Hide Columns</button>
+
+	<form id="csv_filter" action="${request.route_path('analysis_csv')}" method="POST" onclick="get_shown_columns()">
 		<input type="hidden" name="csrf_token" value="${request.session.get_csrf_token()}"/>
 		
 		<input type="hidden" name="chip_type" value="${search['Chip Type']}"/>
@@ -159,8 +240,9 @@
 		<input type="hidden" name="metric_type" value="${search['metric_type']}"/>
 		<input type="hidden" name="min_number" value="${search['min_number']}"/>
 		<input type="hidden" name="max_number" value="${search['max_number']}"/>
-		<input type="hidden" name="metric_object_type" value="${request.path}"/>
-		
+		<input type="hidden" name="metric_type" value="${request.path}"/>
+		<input type="hidden" name="show_hide"  id="show_hide" value="" />
+
 		<div class="pull-right">
 			<input type="submit" class="btn btn-success" value="Download CSV"/>
 		</div>
@@ -172,12 +254,10 @@
 <table class="table table-striped table-hover" id="analysis">
 	<thead>
 		<tr>
+			<th>ID</th>
+			<th>Label</th>
 			% for column in metric_object_type.ordered_columns:
-				% if column[0] == 'Label':
-					<th id="${column[0].lower().replace(' (%)', '').replace(' ', '_')}" class="_${column[0].lower().replace(' (%)', '').replace(' ', '_')}">${column[0]}</th>
-				% else:
-					<th id="${column[0].lower().replace(' (%)', '').replace(' ', '_')}" class="_${column[0].lower().replace(' (%)', '').replace(' ', '_')}">${column[0]}</th>
-				% endif:
+				<th class="${column[1]}">${column[0]}</th>
 			% endfor
 		</tr>
 	</thead>
@@ -185,15 +265,77 @@
 	
 		% for metric in metrics:
 			<tr>
+				<td><a class="archive_id" href="${request.route_url('check', archive_id=metric.archive.id)}">${metric.archive.id}</a></td>
+				<td><a class="archive_label" href="${request.route_url('check', archive_id=metric.archive.id)}">${metric.archive.label}</a></td>
 				% for column in metric.ordered_columns:
-					% if column[0] == 'Label':
-						<td class="_${column[0].lower().replace(' (%)', '').replace(' ', '_')}"><a href="${request.route_url('check', archive_id=metric.archive.id)}">${metric.archive.label}</a></td>
-					% else:
-						<td class="_${column[0].lower().replace(' (%)', '').replace(' ', '_')}"><a href="${request.route_url('check', archive_id=metric.archive.id)}">${metric.get_formatted(column[0])}</a></td>
-					% endif
+					<td class="${column[1]}"><a href="${request.route_url('check', archive_id=metric.archive.id)}">${metric.get_formatted(column[0])}</a></td>
 				% endfor
 			</tr>
 		% endfor
 	</tbody>
 </table>
+</%block>
+
+<%block name="shide_show_modal">
+<div class="modal fade show_hide_modal" tabindex="-1" role="dialog" aria-labelledby="show_hide_modal" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Hide / Show Columns</h4>
+			</div>
+			<div class="modal-body">
+				<table>
+					<thead>
+						<tr>
+							<th>Show</th>
+							<th class="show_hide_table_spacing">Column Name</th>
+							<th></th>
+							<th>Show</th>
+							<th class="show_hide_table_spacing">Column Name</th>
+						</tr>
+					</thead>
+					<tbody>
+<!-- 						<tr> -->
+<!-- 							<td> -->
+<!-- 								<input id="archive_id" type="checkbox"/> -->
+<!-- 							</td> -->
+<!-- 							<td>ID</td> -->
+<!-- 							<td> -->
+<!-- 								<input id="archive_label" type="checkbox"/> -->
+<!-- 							</td> -->
+<!-- 							<td>Label</td> -->
+<!-- 						<tr> -->
+						% for column1, column2 in map(None, metric_object_type.ordered_columns[::2], metric_object_type.ordered_columns[1::2]):
+							<tr>
+								% if column1:
+									<td>
+										<input id="${column1[1]}" type="checkbox"/>
+									</td>
+									<td class="show_hide_table_spacing">
+										<span>${column1[0]}</span>
+									</td>
+								% endif
+								<td></td>
+								% if column2:
+									<td>
+										<input id="${column2[1]}" type="checkbox"/>
+									</td>
+									<td class="show_hide_table_spacing">
+										<span>${column2[0]}</span>
+									</td>
+								% endif
+							</tr>
+						% endfor
+					</tbody>
+				</table>
+			</div>
+			<div class="modal-footer">
+				<button type="button" id="show_hide_btn" class="btn btn-success pull-right" data-dismiss="modal">Done</button>
+				<button type="button" id="show_all" class="btn btn-success pull-left">Show All</button>
+				<button type="button" id="hide_all" class="btn btn-success pull-left">Hide All</button>
+			</div>
+		</div>
+	</div>
+</div>
 </%block>

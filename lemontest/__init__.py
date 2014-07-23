@@ -53,7 +53,7 @@ def main(global_config, **settings):
     # New things to add
     config.add_route('analysis_pgm', '/analysis/pgm')
     config.add_route('analysis_proton', '/analysis/proton')
-    # config.add_route('analysis', '/analysis_pgm')
+    config.add_route('analysis_show_hide', '/analysis/showhide')
     # config.add_route('analysis', '/analysis_pgm')
     config.add_route('analysis_csv', '/analysis.csv')
     

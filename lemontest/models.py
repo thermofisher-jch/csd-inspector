@@ -162,8 +162,6 @@ class MetricsPGM(Base, PrettyFormatter):
     seq_kit_lot = Column(Unicode(255))
 
     ordered_columns = [
-                       ("ID", "id"),
-                       ("Label", ""),
                        ("PGM Temp", "pgm_temperature"),
                        ("PGM Pres", "pgm_pressure"),
                        ("Chip Temp", "chip_temperature"),
@@ -213,7 +211,7 @@ class MetricsPGM(Base, PrettyFormatter):
                   "318 V2"
                   ]
 
-    numeric_columns = ordered_columns[2:24]
+    numeric_columns = ordered_columns[0:22]
 
     columns = dict(ordered_columns)
 
@@ -271,8 +269,6 @@ class MetricsProton(Base, PrettyFormatter):
     version = Column(Unicode(255))
 
     ordered_columns = [
-                       ("ID", "id"),
-                       ("Label", ""),
                        ("Proton Pressure", "proton_pressure"),
                        ("Target Pressure", "target_pressure"),
                        ("Chip Noise", "chip_noise"),

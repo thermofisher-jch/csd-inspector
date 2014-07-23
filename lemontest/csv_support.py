@@ -8,21 +8,25 @@ Last Modified: 14 July 2014
 import csv
 import StringIO
 
-def make_csv(metrics, headers):
+def make_csv(metrics, metrics_type, show_hide):
 
     output = StringIO.StringIO()
 
     csv_writer = csv.writer(output, quoting=csv.QUOTE_NONNUMERIC)
 
-    csv_writer.writerow(headers)
+    row = []
+
+    for column in metrics_type.ordered_columns:
+        if show_hide[column[1]] == "true":
+            row.append(column[0])
+
+    csv_writer.writerow(row)
 
     row = []
 
     for metric in metrics:
         for column in metric.ordered_columns:
-            if column[0] == "Label":
-                row.append(metric.archive.label)
-            else:
+            if show_hide[column[1]] == "true":
                 row.append(metric.get_formatted(column[0]))
 
         csv_writer.writerow(row)

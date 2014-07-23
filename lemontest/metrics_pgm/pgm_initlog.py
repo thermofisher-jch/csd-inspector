@@ -46,7 +46,7 @@ class Metrics_PGM_InitLog(object):
 
     # return starting ph
     def get_start_ph(self):
-        if 'start_ph' in self.data or not self.data['start_ph'].strip():
+        if 'start_ph' not in self.data or not self.data['start_ph'].strip():
             self.logger.warning("Starting pH information missing from data")
             return None
         else:
@@ -56,7 +56,7 @@ class Metrics_PGM_InitLog(object):
 
     # return end ph
     def get_end_ph(self):
-        if 'end_ph' in self.data or not self.data['end_ph'].strip():
+        if 'end_ph' not in self.data or not self.data['end_ph'].strip():
             self.logger.warning("Ending pH information missing from data")
             return None
         else:
@@ -66,7 +66,7 @@ class Metrics_PGM_InitLog(object):
 
     # return w1 added
     def get_w1_added(self):
-        if 'added' in self.data or not self.data['added'].strip():
+        if 'added' not in self.data or not self.data['added'].strip():
             self.logger.warning("Solution Added information missing from data")
             return None
         else:
