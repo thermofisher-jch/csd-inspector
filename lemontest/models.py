@@ -138,6 +138,8 @@ class MetricsPGM(Base, PrettyFormatter):
     chip_noise = Column(NUMERIC(5, 2))
     system_snr = Column(NUMERIC(5, 2))
     gain = Column(NUMERIC(5, 3))
+    flows = Column(NUMERIC(5, 0))
+    cycles = Column(NUMERIC(5, 0))
     test_fragment = Column(NUMERIC(20, 0))
     total_bases = Column(NUMERIC(20, 20))
     total_reads = Column(NUMERIC(20, 0))
@@ -157,6 +159,7 @@ class MetricsPGM(Base, PrettyFormatter):
     barcode_set = Column(Unicode(255))
     run_type = Column(Unicode(255))
     chip_type = Column(Unicode(255))
+    sw_version = Column(Unicode(255))
     tss_version = Column(Unicode(255))
     seq_kit = Column(Unicode(255))
     seq_kit_lot = Column(Unicode(255))
@@ -168,6 +171,8 @@ class MetricsPGM(Base, PrettyFormatter):
                        ("Chip Noise", "chip_noise"),
                        ("SNR", "system_snr"),
                        ("Gain", "gain"),
+                       ("Flows", "flows"),
+                       ("Cycles", "cycles"),
                        ("Test Fragment", "test_fragment"),
                        ("Total Bases", "total_bases"),
                        ("Total Reads", "total_reads"),
@@ -187,6 +192,7 @@ class MetricsPGM(Base, PrettyFormatter):
                        ("Barcode Set", "barcode_set"),
                        ("Run Type", "run_type"),
                        ("Chip Type", "chip_type"),
+                       ("SW Version", "sw_version"),
                        ("TSS Version", "tss_version"),
                        ("Seq Kit", "seq_kit"),
                        ("Seq Kit Lot", "seq_kit_lot")
@@ -203,15 +209,18 @@ class MetricsPGM(Base, PrettyFormatter):
                     ]
 
     chip_types = [
+                  "314",
                   "314 V1",
                   "314 V2",
+                  "316",
                   "316 V1",
                   "316 V2",
+                  "318",
                   "318 V1",
                   "318 V2"
                   ]
 
-    numeric_columns = ordered_columns[0:22]
+    numeric_columns = ordered_columns[0:24]
 
     columns = dict(ordered_columns)
 
@@ -223,8 +232,19 @@ class MetricsPGM(Base, PrettyFormatter):
                                "Seq Kit": self.format_seq_kit,
                                "Chip Type": self.format_chip_type,
                                "Seq Kit Lot": self.format_seq_kit_lot,
-                               "Total Bases": self.format_total_bases,
+                               "Total Bases": self.format_large_number,
+                               "Test Fragment": self.format_large_number,
+                               "Total Reads": self.format_large_number,
+                               "ISP Wells": self.format_large_number,
+                               "Live Wells": self.format_large_number,
+                               "Lib Wells": self.format_large_number,
+                               "Flows": self.format_large_number,
                                }
+        self.pretty_columns_csv = {
+                                   "Seq Kit": self.format_seq_kit,
+                                   "Chip Type": self.format_chip_type,
+                                   "Seq Kit Lot": self.format_seq_kit_lot,
+                                   }
 
     # pretty format seq kits
     def format_seq_kit(self, raw_seq_kit):
@@ -235,9 +255,9 @@ class MetricsPGM(Base, PrettyFormatter):
     def format_chip_type(self, raw_chip_type):
         if self.gain:
             if self.gain >= 0.65:
-                return str(self.chip_type) + " V2"
+                return str(self.chip_type)[:3] + " V2"
             else:
-                return str(self.chip_type) + " V1"
+                return str(self.chip_type)[:3] + " V1"
 
     # pretty format seq kit lot
     def format_seq_kit_lot(self, raw_seq_kit_lot):
@@ -246,12 +266,15 @@ class MetricsPGM(Base, PrettyFormatter):
         else:
             return None
 
-    # pretty format total bases
-    def format_total_bases(self, raw_bases):
-        if raw_bases and int(raw_bases) > 1000000:
-            return str(int(raw_bases) / 1000000) + " M"
-        elif raw_bases and int(raw_bases) < 1000000:
-            return str(int(raw_bases))
+    # format large numbers with commas
+    def format_large_number(self, raw_number):
+        if raw_number:
+            if int(raw_number) >= 1000000000:
+                return str(int(raw_number) / 1000000000) + " B" 
+            elif int(raw_number) >= 1000000:
+                return str(int(raw_number) / 1000000) + " M"
+            else:
+                return '{:,}'.format(raw_number)
         else:
             return None
 
@@ -261,27 +284,44 @@ class MetricsProton(Base, PrettyFormatter):
     __tablename__ = "metrics_proton"
     id = Column(Integer, primary_key=True)
     archive_id = Column(Integer, ForeignKey('archives.id'))
+    proton_temperature = Column(NUMERIC(5, 2))
     proton_pressure = Column(NUMERIC(5, 2))
     target_pressure = Column(NUMERIC(5, 2))
+    chip_temperature = Column(NUMERIC(5, 2))
     chip_noise = Column(NUMERIC(5, 2))
+    gain = Column(NUMERIC(5, 2))
+    flows = Column(NUMERIC(5, 0))
+    cycles = Column(NUMERIC(5, 0))
     isp_loading = Column(NUMERIC(3, 1))
+    chip_type = Column(Unicode(255))
+    run_type = Column(Unicode(255))
+    sw_version = Column(Unicode(255))
+    tss_version = Column(Unicode(255))
     seq_kit = Column(Unicode(255))
-    version = Column(Unicode(255))
+    seq_kit_lot = Column(Unicode(255))
 
     ordered_columns = [
-                       ("Proton Pressure", "proton_pressure"),
-                       ("Target Pressure", "target_pressure"),
+                       ("Proton Temp", "proton_temperature"),
+                       ("Proton Pres", "proton_pressure"),
+                       ("Target Pres", "target_pressure"),
+                       ("Chip Temp", "chip_temperature"),
                        ("Chip Noise", "chip_noise"),
+                       ("Gain", "gain"),
+                       ("Flows", "flows"),
+                       ("Cycles", "cycles"),
                        ("ISP Loading", "isp_loading"),
+                       ("Chip Type", "chip_type"),
+                       ("SW Version", "sw_version"),
+                       ("TSS Version", "tss_version"),
                        ("Seq Kit", "seq_kit"),
-                       ("Version", "version")
+                       ("Seq Kit Lot", "seq_kit_lot"),
                        ]
 
     ordered_kits = []
 
     chip_types = []
 
-    numeric_columns = ordered_columns[2:6]
+    numeric_columns = ordered_columns[0:9]
 
     columns = dict(ordered_columns)
 
@@ -292,11 +332,32 @@ class MetricsProton(Base, PrettyFormatter):
         if raw_seq_kit:
             return self.kits[raw_seq_kit]
 
+    # pretty format chip type
+    def format_chip_type(self, raw_chip_type):
+        if raw_chip_type:
+            return ("900 " + str(raw_chip_type)).strip()
+        else:
+            return "900"
+
+    # pretty format seq kit lot
+    def format_seq_kit_lot(self, raw_seq_kit_lot):
+        if raw_seq_kit_lot:
+            return str(raw_seq_kit_lot).upper()
+        else:
+            return None
+
     @orm.reconstructor
     def do_onload(self):
         self.pretty_columns = {
-                               "Seq Kit": self.format_seq_kit,
+                               #"Seq Kit": self.format_seq_kit,
+                               "Chip Type": self.format_chip_type,
+                               "Seq Kit Lot": self.format_seq_kit_lot,
                                }
+        self.pretty_columns_csv = {
+                                   "Seq Kit": self.format_seq_kit,
+                                   "Seq Kit Lot": self.format_seq_kit_lot,
+                                   "Chip Type": self.format_chip_type,
+                                   }
 
 class Tag(Base):
     __tablename__ = 'tags'

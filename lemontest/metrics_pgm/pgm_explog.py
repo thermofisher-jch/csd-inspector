@@ -68,37 +68,12 @@ class Metrics_PGM_Explog(object):
 
             return temperature
 
-    # get chip noise info
-    def proton_correlated_noise(chip_noise_info):
-        info = dict(x.split(":", 1) for x in chip_noise_info.split(" "))
-        return Decimal(info['Cor'])
-
     # return Chip Noise as a decimal
     # or log error message and return Null value
     def get_chip_noise(self):
-        if "ChipType" not in self.data or not self.data['ChipType'].strip():
-            self.logger.warning("Chip Type not in data")
-            return None
-
-        chip_type = self.data["ChipType"].strip()[:3]
-
-        if chip_type != '900' and ("Noise_90pct" not in self.data or not self.data['Noise_90pct'].strip()):
+        if "Noise_90pct" not in self.data or not self.data['Noise_90pct'].strip():
             self.logger.warning("Noise_90pct not in data")
             return None
-
-        elif chip_type == '900':
-            if "ChipNoiseInfo" not in self.data or not self.data['ChipNoiseInfo'].strip():
-                self.logger.warning("Chip Noise Info not in data")
-                return None
-            else:
-                try:
-                    chip_noise_info = self.data.get("ChipNoiseInfo", u'')
-                    noise = self.proton_correlated_noise(chip_noise_info)
-                except (ValueError, KeyError) as err:
-                    self.logger.warning("Correlated Chip Noise Info not in data")
-                    return None
-
-            return noise
         else:
             noise = Decimal(self.data["Noise_90pct"])
 
@@ -141,14 +116,14 @@ class Metrics_PGM_Explog(object):
             return chip_gain
 
     # return TSS Version
-    def get_tss_version(self):
+    def get_sw_version(self):
         if "PGM SW Release" not in self.data or not self.data['PGM SW Release'].strip():
-            self.logger.warning("TSS Version not in data")
+            self.logger.warning("Software Version not in data")
             return None
         else:
-            tss_version = unicode(self.data['PGM SW Release'].strip())
+            sw_version = unicode(self.data['PGM SW Release'].strip())
 
-            return tss_version
+            return sw_version
 
     # return Seq Kit Lot
     def get_seq_kit_lot(self):
@@ -169,3 +144,38 @@ class Metrics_PGM_Explog(object):
             run_type = unicode(self.data["RunType"].strip())
 
             return run_type
+
+    # return Run Type
+    def get_cycles(self):
+        if "Cycles" not in self.data or not self.data['Cycles'].strip():
+            self.logger.warning("Cycles not in data")
+            return None
+        else:
+            run_type = unicode(self.data["Cycles"].strip())
+
+            return run_type
+
+    # return Run Type
+    def get_flows(self):
+        if "Flows" not in self.data or not self.data['Flows'].strip():
+            self.logger.warning("Flows not in data")
+            return None
+        else:
+            run_type = unicode(self.data["Flows"].strip())
+
+            return run_type
+
+    def get_tss_version(self):
+        version_path = os.path.join(self.archive_path, "version.txt")
+        if not os.path.exists(version_path):
+            self.logger.warning("version.txt missing from archive")
+        else:
+            line = open(version_path).readline()
+            version = line.split('=')[-1].strip()
+            version = unicode(version)
+
+        if version:
+            return version
+        else:
+            self.logger.warning("version information missing from version.txt")
+            return None

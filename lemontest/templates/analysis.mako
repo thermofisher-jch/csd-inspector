@@ -59,20 +59,24 @@
 		});
 
 		function show_hide_columns(array_of_columns) {
-			for (var item in array_of_columns) {
-				if (array_of_columns[item] == "true") {
-					var elements = document.getElementsByClassName(item);
-					for (i = 0; i < elements.length; i++) {
-						elements[i].style.display = 'table-cell';
+			try {
+				for (var item in array_of_columns) {
+					if (array_of_columns[item] == "true") {
+						var elements = document.getElementsByClassName(item);
+						for (i = 0; i < elements.length; i++) {
+							elements[i].style.display = 'table-cell';
+						}
+						document.getElementById(item).checked = true;
+					} else {
+						var elements = document.getElementsByClassName(item);
+						for (i = 0; i < elements.length; i++) {
+							elements[i].style.display = 'none';
+						}
+						document.getElementById(item).checked = false;
 					}
-					document.getElementById(item).checked = true;
-				} else {
-					var elements = document.getElementsByClassName(item);
-					for (i = 0; i < elements.length; i++) {
-						elements[i].style.display = 'none';
-					}
-					document.getElementById(item).checked = false;
 				}
+			} catch (err) {
+				//This only happens if there is a session saved version of a renamed column name.
 			}
 		}
 
@@ -156,10 +160,10 @@
 <%block name="filter">
 <form id="filter" class="filter_drawer form-horizontal" action="${request.path}" method="GET">
 	<div class="form-group some-space">
-		<select class="form-control" name="metric_type" id="metric_type">
+		<select class="form-control" name="metric_type_filter" id="metric_type">
 			<option value=""></option>
 			% for column in metric_object_type.numeric_columns:
-				<option value="${column[0]}" ${'selected="selected"' if column[0]==search['metric_type'] else ''}>${column[0]}</option>
+				<option value="${column[0]}" ${'selected="selected"' if column[0]==search['metric_type_filter'] else ''}>${column[0]}</option>
 			% endfor
 		</select>
 		<input type="text" class="form-control" style="width: 6em;" name="min_number" id="min_number" placeholder="Lower Bound" value="${search['min_number']}">

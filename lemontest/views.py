@@ -336,6 +336,7 @@ def filter_query(request, metric_object_type):
     search_params = clean_strings({
                                    'min_number': request.params.get('min_number', u''),
                                    'max_number': request.params.get('max_number', u''),
+                                   'metric_type_filter': request.params.get('metric_type_filter', u''),
                                    'metric_type': request.params.get('metric_type', u''),
                                    'Chip Type': request.params.get('chip_type', u''),
                                    'Seq Kit': request.params.get('seq_kit_type', u'')
@@ -344,18 +345,19 @@ def filter_query(request, metric_object_type):
     metrics_query = DBSession.query(metric_object_type).order_by(metric_object_type.archive_id.desc())
 
     for column, value in search_params.items():
-        if value and (column != 'min_number' and column != 'max_number'):
-            if column == 'metric_type':
+        if value and (column != 'min_number' and column != 'max_number' and column != 'metric_type'): # look at this part of the code for a bug
+            if column == 'metric_type_filter':
                 if search_params['min_number']:
                     metrics_query = metrics_query.filter(metric_object_type.get_column(value) >= search_params['min_number'])
                 if search_params['max_number']:
                     metrics_query = metrics_query.filter(metric_object_type.get_column(value) <= search_params['max_number'])
             elif column == 'Chip Type':
                 metrics_query = metrics_query.filter(metric_object_type.get_column(column) == value[:3])
-                if value[3:] == " V2":
-                    metrics_query = metrics_query.filter(metric_object_type.get_column("Gain") >= 0.65)
-                else:
-                    metrics_query = metrics_query.filter(metric_object_type.get_column("Gain") < 0.65)
+                if len(value.decode('utf-8')) > 3:
+                    if value[3:] == " V2":
+                        metrics_query = metrics_query.filter(metric_object_type.get_column("Gain") >= 0.65)
+                    else:
+                        metrics_query = metrics_query.filter(metric_object_type.get_column("Gain") < 0.65)
             else:
                 metrics_query = metrics_query.filter(metric_object_type.get_column(column) == value)
 

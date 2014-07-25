@@ -297,11 +297,14 @@ def set_metrics_pgm(metrics_pgm_id):
         metric.chip_temperature = explog.get_chip_temperature()
         metric.chip_noise = explog.get_chip_noise()
         metric.gain = explog.get_gain()
+        metric.sw_version = explog.get_sw_version()
         metric.tss_version = explog.get_tss_version()
         metric.seq_kit_lot = explog.get_seq_kit_lot()
         metric.run_type = explog.get_run_type()
         metric.seq_kit = explog.get_seq_kit()
         metric.chip_type = explog.get_chip_type()
+        metric.flows = explog.get_flows()
+        metric.cycles = explog.get_cycles()
 
     if quality_summary.is_valid():
         metric.system_snr = quality_summary.get_system_snr()
@@ -343,10 +346,20 @@ def set_metrics_proton(metrics_proton_id):
     explog = proton_explog.Metrics_Proton_Explog(metric.archive.path, logger)
 
     if explog.is_valid():
-        metric.chip_noise = explog.get_chip_noise()
+        metric.proton_temperature = explog.get_proton_temperature()
         metric.proton_pressure = explog.get_proton_pressure()
         metric.target_pressure = explog.get_target_pressure()
+        metric.chip_temperature = explog.get_chip_temperature()
+        metric.chip_noise = explog.get_chip_noise()
+        metric.chip_type = explog.get_chip_type()
+        metric.gain = explog.get_gain()
         metric.seq_kit = explog.get_seq_kit()
+        metric.seq_kit_lot = explog.get_seq_kit_lot()
+        metric.run_type = explog.get_run_type()
+        metric.tss_version = explog.get_tss_version()
+        metric.sw_version = explog.get_sw_version()
+        metric.flows = explog.get_flows()
+        metric.cycles = explog.get_cycles()
 
     transaction.commit()
 
