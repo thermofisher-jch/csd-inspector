@@ -217,6 +217,12 @@
 
 			<input type="hidden" id="Chip Type_csv" name="Chip Type" value=""/>
 			<input type="hidden" id="Seq Kit_csv" name="Seq Kit" value=""/>
+			<input type="hidden" id="Run Type_csv" name="Run Type" value=""/>
+			<input type="hidden" id="Ref Lib_csv" name="Ref Lib" value=""/>
+			<input type="hidden" id="SW Version_csv" name="SW Version" value=""/>
+			<input type="hidden" id="TSS Version_csv" name="TSS Version" value=""/>
+			<input type="hidden" id="HW Version_csv" name="HW Version" value=""/>
+			<input type="hidden" id="Barcode Set_csv" name="Barcode Set" value=""/>
 			<input type="hidden" id="metric_type_filter0_csv" name="metric_type_filter0" value=""/>
 			<input type="hidden" id="min_number0_csv" name="min_number0" value=""/>
 			<input type="hidden" id="max_number0_csv" name="max_number0" value=""/>
