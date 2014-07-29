@@ -37,7 +37,7 @@ class Metrics_PGM_TFStats_JSON(object):
         return self.valid
 
     # return percent 50Q17
-    def get_50Q17(self):
+    def get_tf_50Q17(self):
         if "TF_A" not in self.data or "50Q17" not in self.data['TF_A'] or "Num" not in self.data['TF_A'] or not self.data['TF_A']['50Q17'] or not self.data['TF_A']['Num']:
             self.logger.warning("50Q17 information missing from data")
             return None

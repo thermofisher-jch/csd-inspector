@@ -23,16 +23,16 @@ def main(global_config, **settings):
 
     # Setup cache configuration
     pyramid_beaker.set_cache_regions_from_settings(settings)
-    
+
     # Create configurator
     config = Configurator(settings=settings)
-    
+
     # Set up session configuration
     session_factory = pyramid_beaker.session_factory_from_settings(settings)
     config.set_session_factory(session_factory)
 
     config.include('apex', route_prefix='/auth')
-    
+
     # configure various URL routes and
     config.add_static_view('static', 'lemontest:static', cache_max_age=3600)
     config.add_static_view('archives', settings["upload_root"])
@@ -47,16 +47,15 @@ def main(global_config, **settings):
     config.add_route('test_readme', '/test/{test_name}/README')
     config.add_route('stats', '/stats')
     config.add_route('old_browser', '/old_browser')
-    
+
     config.add_route('api_auto_complete', '/api/auto_complete')
-    
+
     # New things to add
     config.add_route('analysis_pgm', '/analysis/pgm')
     config.add_route('analysis_proton', '/analysis/proton')
     config.add_route('analysis_show_hide', '/analysis/showhide')
-    # config.add_route('analysis', '/analysis_pgm')
     config.add_route('analysis_csv', '/analysis.csv')
-    
+
     # This lets the function 'add_base_template' tack the layout template into
     # the mystical universe of chameleon templating so that the other templates
     # can put themselves inside layout.pt like they're supposed to.

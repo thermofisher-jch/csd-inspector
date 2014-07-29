@@ -7,6 +7,8 @@ import os
 import shutil
 import os.path
 import json
+import collections
+from operator import itemgetter
 from datetime import datetime
 
 from lemontest.models import MetricsPGM
@@ -29,6 +31,8 @@ from webhelpers import paginate
 import upload
 import helpers
 from sqlalchemy.sql.expression import column
+from collections import OrderedDict
+from sqlalchemy.orm.interfaces import collections
 
 logger = logging.getLogger(__name__)
 
@@ -297,7 +301,6 @@ def list_reports(request):
 def documentation(request):
     return {}
 
-
 @view_config(route_name="test_readme",
     permission='view')
 def test_readme(request):
@@ -330,53 +333,115 @@ def not_found(self, request):
 def old_browser(request):
     return {}
 
-# Author: Anthony Rodriguez
-# Last Modified: 16 July 2014
+# Sort
+def sorted_nicely(l, key):
+    """ Sort the given iterable in the way that humans expect."""
+    convert = lambda text: int(text) if text.isdigit() else text
+    alphanum_key = lambda item: [ convert(c) for c in re.split('([0-9]+)', key(item)) ]
+    return sorted(l, key = alphanum_key)
+
+# filter query by type
 def filter_query(request, metric_object_type):
-    search_params = clean_strings({
-                                   'min_number': request.params.get('min_number', u''),
-                                   'max_number': request.params.get('max_number', u''),
-                                   'metric_type_filter': request.params.get('metric_type_filter', u''),
-                                   'metric_type': request.params.get('metric_type', u''),
-                                   'Chip Type': request.params.get('chip_type', u''),
-                                   'Seq Kit': request.params.get('seq_kit_type', u'')
-                                   })
+    search_params = {}
+    numeric_filters = {}
+    categorical_filters = {}
+
+    categorical_filters, numeric_filters, search_params = separate_filter_types(request)
 
     metrics_query = DBSession.query(metric_object_type).order_by(metric_object_type.archive_id.desc())
 
-    for column, value in search_params.items():
-        if value and (column != 'min_number' and column != 'max_number' and column != 'metric_type'): # look at this part of the code for a bug
-            if column == 'metric_type_filter':
-                if search_params['min_number']:
-                    metrics_query = metrics_query.filter(metric_object_type.get_column(value) >= search_params['min_number'])
-                if search_params['max_number']:
-                    metrics_query = metrics_query.filter(metric_object_type.get_column(value) <= search_params['max_number'])
-            elif column == 'Chip Type':
-                metrics_query = metrics_query.filter(metric_object_type.get_column(column) == value[:3])
-                if len(value.decode('utf-8')) > 3:
-                    if value[3:] == " V2":
-                        metrics_query = metrics_query.filter(metric_object_type.get_column("Gain") >= 0.65)
-                    else:
-                        metrics_query = metrics_query.filter(metric_object_type.get_column("Gain") < 0.65)
-            else:
-                metrics_query = metrics_query.filter(metric_object_type.get_column(column) == value)
+    for filter_column, value in numeric_filters.items():
+        if value[0]:
+            metrics_query = metrics_query.filter(metric_object_type.get_column(filter_column[1]) >= int(value[0]))
+        if value[1]:
+            metrics_query = metrics_query.filter(metric_object_type.get_column(filter_column[1]) <= int(value[1]))
 
-    return metrics_query, search_params
+    for key, value in categorical_filters.items():
+        if key == 'Chip Type':
+            metrics_query = metrics_query.filter(metric_object_type.get_column(key) == value[:3])
+            if len(value.decode('utf-8')) > 3:
+                if value[3:] == " V2":
+                    metrics_query = metrics_query.filter(metric_object_type.get_column("Gain") >= 0.65)
+                else:
+                    metrics_query = metrics_query.filter(metric_object_type.get_column("Gain") < 0.65)
+        else:
+            metrics_query = metrics_query.filter(metric_object_type.get_column(key) == value)
+
+    sorted_numeric_filter_list = sorted_nicely(numeric_filters.keys(), itemgetter(0))
+
+    ordered_numeric_filters = collections.OrderedDict()
+
+    for keys in sorted_numeric_filter_list:
+        ordered_numeric_filters[keys] = numeric_filters[keys]
+
+    numeric_filters = OrderedDict()
+
+    for keys, values in ordered_numeric_filters.items():
+        numeric_filters[keys[0]] = (keys[1], values[0], values[1])
+
+    return metrics_query, search_params, numeric_filters, categorical_filters
+
+# Separate filter types
+def separate_filter_types(request):
+
+    numeric_filter_re = re.compile('metric_type_filter\d+')
+    numeric_filter_re2 = re.compile('.*_number\d+')
+
+    search_params = {}
+    numeric_filters = {}
+    categorical_filters = {}
+
+    # clean up search parameters by eliminating empty searches
+    for key in request.params.keys():
+        if request.params[key].strip():
+            search_params[key] = request.params[key].strip()
+
+    # separate numeric parameters with their respective numeric value
+    for key, value in search_params.items():
+        if numeric_filter_re.match(key):
+            category = numeric_filter_re.match(key).group()
+            category_number = re.findall('\d+', category)
+            min_number = 'min_number' + category_number[0]
+            max_number = 'max_number' + category_number[0]
+
+            if min_number in search_params and max_number in search_params:
+                numeric_filters[(key, value)] = (search_params[min_number], search_params[max_number])
+            elif min_number in search_params and max_number not in search_params:
+                numeric_filters[(key, value)] = (search_params[min_number], '')
+            elif min_number not in search_params and max_number in search_params:
+                numeric_filters[(key, value)] = ('', search_params[max_number])
+
+    # separate categorical parameters
+    # except the ones needed for csrf verification and csv support 
+    for key, value in search_params.items():
+        if not numeric_filter_re.match(key) and not numeric_filter_re2.match(key) and key != 'extra_filter_number' and key != 'show_hide' and key != 'csrf_token' and key != 'metric_type':
+            categorical_filters[key] = value
+
+    for keys, value in request.params.items():
+        search_params[keys] = value
+
+    if 'extra_filter_number' not in search_params:
+        search_params['extra_filter_number'] = u'0'
+
+    return categorical_filters, numeric_filters, search_params
 
 # Author: Anthony Rodriguez
-# Last Modified: 16 July 2014
 @view_config(route_name='analysis_proton', renderer='analysis.mako', permission='view')
 def analysis_proton(request):
 
-    metrics_query, search_params = filter_query(request, MetricsProton)
+    metrics_query, search_params, numeric_filters, categorical_filters = filter_query(request, MetricsProton)
 
     show_hide_defaults = {}
     for columns in MetricsProton.ordered_columns:
         show_hide_defaults[columns[1]] = "true"
 
+    show_hide_defaults_ordered = OrderedDict(sorted(show_hide_defaults.items(), key=lambda t: t[0]))
+
     show_hide_false = {}
     for columns in MetricsProton.ordered_columns:
         show_hide_false[columns[1]] = "false"
+
+    show_hide_false_ordered = OrderedDict(sorted(show_hide_false.items(), key=lambda t: t[0]))
 
     # BEGIN Pager
     page = int(request.params.get("page", 1))
@@ -420,22 +485,28 @@ def analysis_proton(request):
             pages.append(metric_pages.page_count)
     # END Pager
 
-    return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "search": search_params, "metric_object_type": MetricsProton, "show_hide_defaults": json.dumps(show_hide_defaults), "show_hide_false": json.dumps(show_hide_false)}
+    return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "search": search_params, "metric_object_type": MetricsProton,
+            "show_hide_defaults": json.dumps(show_hide_defaults_ordered), "show_hide_false": json.dumps(show_hide_false_ordered),
+            "metric_columns": json.dumps(MetricsProton.numeric_columns), "numeric_filters_json": json.dumps(numeric_filters),
+            'categorical_filters_json': json.dumps(categorical_filters)}
 
 # Author: Anthony Rodriguez
-# Last Modified: 16 July 2014
 @view_config(route_name="analysis_pgm", renderer="analysis.mako", permission="view")
 def analysis_pgm(request):
 
-    metrics_query, search_params = filter_query(request, MetricsPGM)
+    metrics_query, search_params, numeric_filters, categorical_filters = filter_query(request, MetricsPGM)
 
     show_hide_defaults = {}
     for columns in MetricsPGM.ordered_columns:
         show_hide_defaults[columns[1]] = "true"
 
+    show_hide_defaults_ordered = OrderedDict(sorted(show_hide_defaults.items(), key=lambda t: t[0]))
+
     show_hide_false = {}
     for columns in MetricsPGM.ordered_columns:
         show_hide_false[columns[1]] = "false"
+
+    show_hide_false_ordered = OrderedDict(sorted(show_hide_false.items(), key=lambda t: t[0]))
 
     # BEGIN Pager
     page = int(request.params.get("page", 1))
@@ -479,8 +550,12 @@ def analysis_pgm(request):
             pages.append(metric_pages.page_count)
     # END Pager
 
-    return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "search": search_params, "metric_object_type": MetricsPGM, "show_hide_defaults": json.dumps(show_hide_defaults), "show_hide_false": json.dumps(show_hide_false)}
+    return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "search": search_params, "metric_object_type": MetricsPGM,
+            "show_hide_defaults": json.dumps(show_hide_defaults_ordered), "show_hide_false": json.dumps(show_hide_false_ordered),
+            "metric_columns": json.dumps(MetricsPGM.numeric_columns), "numeric_filters_json": json.dumps(numeric_filters),
+            'categorical_filters_json': json.dumps(categorical_filters)}
 
+#Author: Anthony Rodriguez
 @view_config(route_name="analysis_show_hide", renderer="json", permission="view", xhr=True)
 def show_hide_columns(request):
 
@@ -503,7 +578,6 @@ def show_hide_columns(request):
     return {"columns": show_hide_columns}
 
 # Author: Anthony Rodriguez
-# Last Modified: 17 July 2014
 @view_config(route_name="analysis_csv", permission="view")
 def analysis_csv(request):
 
@@ -517,8 +591,6 @@ def analysis_csv(request):
     if "show_hide" in request.params and request.params['show_hide']:
         show_hide = json.loads(request.params.get('show_hide'))
 
-    logger.warning("type of show_hide" + str(type(show_hide)))
-
-    metrics_query, search_params = filter_query(request, metric_object_type)
+    metrics_query, search_params, numeric_filters, categorical_filters = filter_query(request, metric_object_type)
 
     return Response(make_csv(metrics_query, metric_object_type, show_hide), content_type="text/csv", content_disposition="attachment; filename=analysis.csv")

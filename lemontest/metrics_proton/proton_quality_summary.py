@@ -4,7 +4,7 @@ Author: Anthony Rodriguez
 import os
 from decimal import Decimal
 
-class Metrics_PGM_Quality_Summary(object):
+class Metrics_Proton_Quality_Summary(object):
 
     # initialize
     def __init__(self, archive_path, logger):
@@ -19,7 +19,7 @@ class Metrics_PGM_Quality_Summary(object):
             return "quality.summary does not exist", False
         else:
             return self.open_quality_summary(path), True
-    
+
     # open corresponding file
     def open_quality_summary(self, path):
         data = {}

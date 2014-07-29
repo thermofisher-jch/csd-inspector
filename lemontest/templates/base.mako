@@ -24,7 +24,70 @@
     <script src="${request.static_url('lemontest:static/js/jquery-1.8.3.min.js')}"></script>
     <script src="${request.static_url('lemontest:static/js/dropdown.js')}"></script>
     <script src="${request.static_url('lemontest:static/js/modal.js')}"></script>
-    <%block name="extra_head"/>
+    <script src="${request.static_url('lemontest:static/js/fancy_functions.js')}"></script>
+    <style type="text/css">
+		tr td:nth-child(3), tr td:nth-child(4) {
+			white-space: nowrap;
+		}
+		.show_hide_table_spacing {
+			padding-right: 20px;
+		}
+		#analysis td {
+			padding: 0;
+		}
+		#analysis td a {
+			padding: 12px 8px;
+			display: block;
+			color: #333333;
+		}
+		#analysis td a:hover {
+			text-decoration: none;
+		 }
+	
+		#analysis thead tr th {
+			border-top: 0 none;
+			background-image: linear-gradient(to bottom, white, #EFEFEF);
+		}
+		#analysis thead tr.filter-row th {
+			padding-top: 0;
+			background-image: none;
+			background-color: #EEEEEE;
+		}
+		#analysis thead tr th:last-child {
+			border-right: 0 none;
+		}
+		#analysis th input, #analysis th select {
+			margin: 0;
+			width: auto;
+		}
+		.hide_me {
+			height: 0px;
+			width: 0px;
+			border: none;
+			padding: 0px;
+		}
+		.filter_drawer {
+			display: none;
+		}
+		.some_space_below {
+			margin-bottom: 10px;
+		}
+		.some_space_right {
+			margin-right: 10px;
+		}
+		.form_spacing {
+			margin: 0 0 0 0;
+			margin-top: 10px;
+			margin-bottom: 5px;
+		}
+		.label_spacing {
+			margin: 5px 5px;
+		}
+		.form-horizontal .control-label {
+			width: 100px;
+			text-align: inherit;
+		}
+	</style>
   </head>
 
   <body>
@@ -37,7 +100,7 @@
               <li><a href="${request.route_path('upload')}">Submit Archive</a></li>
               <li><a href="${request.route_path('reports')}">List Reports</a></li>
               <li><a href="${request.route_path('documentation')}">Documentation</a></li>
-              <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Analysis<span class="caret"></span></a>
+              <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Analysis <span class="icon-white icon-th-list"></span></a>
               	<ul class="dropdown-menu" role="menu">
               		<li><a href="${request.route_path('analysis_pgm')}">PGM</a></li>
               		<li><a href="${request.route_path('analysis_proton')}">Proton</a></li>

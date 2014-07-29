@@ -141,7 +141,7 @@ class MetricsPGM(Base, PrettyFormatter):
     flows = Column(NUMERIC(5, 0))
     cycles = Column(NUMERIC(5, 0))
     test_fragment = Column(NUMERIC(20, 0))
-    total_bases = Column(NUMERIC(20, 20))
+    total_bases = Column(NUMERIC(20, 0))
     total_reads = Column(NUMERIC(20, 0))
     mean_read_length = Column(NUMERIC(10, 0))
     isp_wells = Column(NUMERIC(20, 0))
@@ -152,7 +152,7 @@ class MetricsPGM(Base, PrettyFormatter):
     polyclonal = Column(NUMERIC(4, 2))
     primer_dimer = Column(NUMERIC(4, 2))
     usable_reads = Column(NUMERIC(4, 2))
-    _50q17 = Column(NUMERIC(4, 2))
+    tf_50q17 = Column(NUMERIC(4, 2))
     start_ph = Column(NUMERIC(4, 2))
     end_ph = Column(NUMERIC(4, 2))
     w1_added = Column(NUMERIC(4, 2))
@@ -185,7 +185,7 @@ class MetricsPGM(Base, PrettyFormatter):
                        ("Polyclonal (%)", "polyclonal"),
                        ("Primer Dimer (%)", "primer_dimer"),
                        ("Usable Reads (%)", "usable_reads"),
-                       ("50Q17 (%)", "_50q17"),
+                       ("TF 50Q17 (%)", "tf_50q17"),
                        ("Starting pH", "start_ph"),
                        ("Ending pH", "end_ph"),
                        ("W1 Added", "w1_added"),
@@ -293,6 +293,10 @@ class MetricsProton(Base, PrettyFormatter):
     flows = Column(NUMERIC(5, 0))
     cycles = Column(NUMERIC(5, 0))
     isp_loading = Column(NUMERIC(3, 1))
+    system_snr = Column(NUMERIC(5, 2))
+    total_bases = Column(NUMERIC(20, 0))
+    total_reads = Column(NUMERIC(20, 0))
+    mean_read_length = Column(NUMERIC(10, 0))
     chip_type = Column(Unicode(255))
     run_type = Column(Unicode(255))
     sw_version = Column(Unicode(255))
@@ -310,6 +314,10 @@ class MetricsProton(Base, PrettyFormatter):
                        ("Flows", "flows"),
                        ("Cycles", "cycles"),
                        ("ISP Loading", "isp_loading"),
+                       ("SNR", "system_snr"),
+                       ("Total Bases", "total_bases"),
+                       ("Total Reads", "total_reads"),
+                       ("Mean Read Len", "mean_read_length"),
                        ("Chip Type", "chip_type"),
                        ("SW Version", "sw_version"),
                        ("TSS Version", "tss_version"),
@@ -321,7 +329,7 @@ class MetricsProton(Base, PrettyFormatter):
 
     chip_types = []
 
-    numeric_columns = ordered_columns[0:9]
+    numeric_columns = ordered_columns[0:13]
 
     columns = dict(ordered_columns)
 
@@ -346,15 +354,34 @@ class MetricsProton(Base, PrettyFormatter):
         else:
             return None
 
+    # format large numbers with commas
+    def format_large_number(self, raw_number):
+        if raw_number:
+            if int(raw_number) >= 1000000000:
+                return str(int(raw_number) / 1000000000) + " B" 
+            elif int(raw_number) >= 1000000:
+                return str(int(raw_number) / 1000000) + " M"
+            else:
+                return '{:,}'.format(raw_number)
+        else:
+            return None
+
     @orm.reconstructor
     def do_onload(self):
         self.pretty_columns = {
                                #"Seq Kit": self.format_seq_kit,
                                "Chip Type": self.format_chip_type,
                                "Seq Kit Lot": self.format_seq_kit_lot,
+                               "Total Bases": self.format_large_number,
+                               "Test Fragment": self.format_large_number,
+                               "Total Reads": self.format_large_number,
+                               "ISP Wells": self.format_large_number,
+                               "Live Wells": self.format_large_number,
+                               "Lib Wells": self.format_large_number,
+                               "Flows": self.format_large_number,
                                }
         self.pretty_columns_csv = {
-                                   "Seq Kit": self.format_seq_kit,
+                                   #"Seq Kit": self.format_seq_kit,
                                    "Seq Kit Lot": self.format_seq_kit_lot,
                                    "Chip Type": self.format_chip_type,
                                    }

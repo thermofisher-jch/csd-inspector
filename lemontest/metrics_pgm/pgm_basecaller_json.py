@@ -24,17 +24,18 @@ class Metrics_PGM_BaseCaller_JSON(object):
     # open BaseCaller.json and load convert to python dict
     def open_basecaller_json(self, path):
         json_data = open(path)
-
         data = json.load(json_data)
-
         json_data.close()
-
         return data
 
     # return True if archive path is valid, and contains BaseCaller.json
     # return False otherwise
     def is_valid(self):
-        return self.valid
+        if self.valid:
+            return self.valid
+        else:
+            self.logger.warning(data)
+            return self.valid
 
     # return Filtered polyclonal
     def get_polyclonal(self, library_wells):

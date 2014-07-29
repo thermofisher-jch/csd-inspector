@@ -329,7 +329,7 @@ def set_metrics_pgm(metrics_pgm_id):
         metric.barcode_set = datasets_basecaller_json.get_barcode_set()
 
     if tfstats_json.is_valid():
-        metric._50q17 = tfstats_json.get_50Q17()
+        metric.tf_50q17 = tfstats_json.get_tf_50Q17()
 
     if initlog.is_valid():
         metric.start_ph = initlog.get_start_ph()
@@ -344,6 +344,7 @@ def set_metrics_pgm(metrics_pgm_id):
 def set_metrics_proton(metrics_proton_id):
     metric = DBSession.query(MetricsProton).get(metrics_proton_id)
     explog = proton_explog.Metrics_Proton_Explog(metric.archive.path, logger)
+    quality_summary = proton_quality_summary.Metrics_Proton_Quality_Summary(metric.archive.path, logger)
 
     if explog.is_valid():
         metric.proton_temperature = explog.get_proton_temperature()
@@ -360,6 +361,12 @@ def set_metrics_proton(metrics_proton_id):
         metric.sw_version = explog.get_sw_version()
         metric.flows = explog.get_flows()
         metric.cycles = explog.get_cycles()
+
+    if quality_summary.is_valid():
+        metric.system_snr = quality_summary.get_system_snr()
+        metric.total_bases = quality_summary.get_total_bases()
+        metric.mean_read_length = quality_summary.get_mean_read_length()
+        metric.total_reads = quality_summary.get_total_reads()
 
     transaction.commit()
 
