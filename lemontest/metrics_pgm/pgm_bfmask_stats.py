@@ -18,7 +18,8 @@ class Metrics_PGM_Bfmask_Stats(object):
         if not os.path.exists(path):
             path = os.path.join(archive_path, "sigproc_results", "bfmask.stats")
             if not os.path.exists(path):
-                return "analysis.bfmask.stats and bfmask.stats both missing", False
+                self.logger.warning("analysis.bfmask.stats and bfmask.stats both missing")
+                return "", False
             else:
                 return self.open_bfmask_stats(path), True
         else:

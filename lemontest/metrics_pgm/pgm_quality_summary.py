@@ -16,7 +16,8 @@ class Metrics_PGM_Quality_Summary(object):
     def validate_path(self, archive_path):
         path = os.path.join(archive_path, "basecaller_results", "quality.summary")
         if not os.path.exists(path):
-            return "quality.summary does not exist", False
+            self.logger.warning("quality.summary does not exist")
+            return "", False
         else:
             return self.open_quality_summary(path), True
     
@@ -33,7 +34,11 @@ class Metrics_PGM_Quality_Summary(object):
     # return True if archive path is valid, and contains quality.summary
     # return False otherwise
     def is_valid(self):
-        return self.valid
+        if self.valid:
+            return self.valid
+        else:
+            self.logger.warning(self.data)
+            return self.valid
 
     # return system signal to noise ratio
     def get_system_snr(self):

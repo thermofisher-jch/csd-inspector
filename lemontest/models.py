@@ -132,70 +132,96 @@ class MetricsPGM(Base, PrettyFormatter):
     __tablename__ = "metrics_pgm"
     id = Column(Integer, primary_key=True)
     archive_id = Column(Integer, ForeignKey('archives.id'))
+
+    '''NUMERIC VALUES'''
+    # analysis.bfmask.stats
+    isp_wells = Column(NUMERIC(20, 0))
+    live_wells = Column(NUMERIC(20, 0))
+    test_fragment = Column(NUMERIC(20, 0))
+    library_wells = Column(NUMERIC(20, 0))
+    isp_loading = Column(NUMERIC(4, 2))
+
+    # basecaller.json
+    polyclonal = Column(NUMERIC(20, 0))
+    polyclonal_pct = Column(NUMERIC(4, 2))
+    primer_dimer = Column(NUMERIC(20, 0))
+    primer_dimer_pct = Column(NUMERIC(4, 2))
+    low_quality = Column(NUMERIC(20, 0))
+    low_quality_pct = Column(NUMERIC(4, 2))
+    usable_reads = Column(NUMERIC(20, 0))
+    usable_reads_pct = Column(NUMERIC(4, 2))
+
+    # explog_final.txt
     pgm_temperature = Column(NUMERIC(5, 2))
     pgm_pressure = Column(NUMERIC(5, 2))
     chip_temperature = Column(NUMERIC(5, 2))
     chip_noise = Column(NUMERIC(5, 2))
-    system_snr = Column(NUMERIC(5, 2))
     gain = Column(NUMERIC(5, 3))
-    flows = Column(NUMERIC(5, 0))
-    cycles = Column(NUMERIC(5, 0))
-    test_fragment = Column(NUMERIC(20, 0))
-    total_bases = Column(NUMERIC(20, 0))
+    cycles = Column(NUMERIC(10, 0))
+    flows = Column(NUMERIC(10, 0))
+
+    # initlog.txt
+    start_ph = Column(NUMERIC(5, 2))
+    end_ph = Column(NUMERIC(5, 2))
+    w1_added = Column(NUMERIC(5, 2))
+
+    # quality.summary
+    system_snr = Column(NUMERIC(5, 1))
+    total_bases = Column(NUMERIC(40, 0))
     total_reads = Column(NUMERIC(20, 0))
     mean_read_length = Column(NUMERIC(10, 0))
-    isp_wells = Column(NUMERIC(20, 0))
-    live_wells = Column(NUMERIC(20, 0))
-    library_wells = Column(NUMERIC(20, 0))
-    isp_loading = Column(NUMERIC(3, 1))
-    low_quality = Column(NUMERIC(3, 0))
-    polyclonal = Column(NUMERIC(4, 2))
-    primer_dimer = Column(NUMERIC(4, 2))
-    usable_reads = Column(NUMERIC(4, 2))
-    tf_50q17 = Column(NUMERIC(4, 2))
-    start_ph = Column(NUMERIC(4, 2))
-    end_ph = Column(NUMERIC(4, 2))
-    w1_added = Column(NUMERIC(4, 2))
+
+    # tfstats.json
+    tf_50q17_pct = Column(NUMERIC(4, 2))
+
+    '''CATEGORICAL VALUES'''
+    # datasets_basecaller.json
     barcode_set = Column(Unicode(255))
-    run_type = Column(Unicode(255))
+
+    # explog_final.txt
     chip_type = Column(Unicode(255))
-    sw_version = Column(Unicode(255))
-    tss_version = Column(Unicode(255))
+    run_type = Column(Unicode(255))
     seq_kit = Column(Unicode(255))
     seq_kit_lot = Column(Unicode(255))
+    sw_version = Column(Unicode(255))
+    tss_version = Column(Unicode(255))
 
     ordered_columns = [
+                       ("ISP Wells", "isp_wells"),
+                       ("Live Wells", "live_wells"),
+                       ("Test Fragment", "test_fragment"),
+                       ("Lib Wells", "library_wells"),
+                       ("ISP Loading (%)", "isp_loading"),
+                       ("Polyclonal", "polyclonal"),
+                       ("Polyclonal (%)", "polyclonal_pct"),
+                       ("Primer Dimer", "primer_dimer"),
+                       ("Primer Dimer (%)", "primer_dimer_pct"),
+                       ("Low Quality", "low_quality"),
+                       ("Low Quality (%)", "low_quality_pct"),
+                       ("Usable Reads", "usable_reads"),
+                       ("Usable Reads (%)", "usable_reads_pct"),
                        ("PGM Temp", "pgm_temperature"),
                        ("PGM Pres", "pgm_pressure"),
                        ("Chip Temp", "chip_temperature"),
                        ("Chip Noise", "chip_noise"),
-                       ("SNR", "system_snr"),
                        ("Gain", "gain"),
-                       ("Flows", "flows"),
                        ("Cycles", "cycles"),
-                       ("Test Fragment", "test_fragment"),
-                       ("Total Bases", "total_bases"),
-                       ("Total Reads", "total_reads"),
-                       ("Mean Read Len", "mean_read_length"),
-                       ("ISP Wells", "isp_wells"),
-                       ("Live Wells", "live_wells"),
-                       ("Lib Wells", "library_wells"),
-                       ("ISP Loading (%)", "isp_loading"),
-                       ("Low Quality (%)", "low_quality"),
-                       ("Polyclonal (%)", "polyclonal"),
-                       ("Primer Dimer (%)", "primer_dimer"),
-                       ("Usable Reads (%)", "usable_reads"),
-                       ("TF 50Q17 (%)", "tf_50q17"),
+                       ("Flows", "flows"),
                        ("Starting pH", "start_ph"),
                        ("Ending pH", "end_ph"),
                        ("W1 Added", "w1_added"),
+                       ("SNR", "system_snr"),
+                       ("Total Bases", "total_bases"),
+                       ("Total Reads", "total_reads"),
+                       ("Mean Read Len", "mean_read_length"),
+                       ("TF 50Q17 (%)", "tf_50q17_pct"),
                        ("Barcode Set", "barcode_set"),
-                       ("Run Type", "run_type"),
                        ("Chip Type", "chip_type"),
+                       ("Run Type", "run_type"),
                        ("SW Version", "sw_version"),
                        ("TSS Version", "tss_version"),
                        ("Seq Kit", "seq_kit"),
-                       ("Seq Kit Lot", "seq_kit_lot")
+                       ("Seq Kit Lot", "seq_kit_lot"),
                        ]
 
     ordered_kits = [
@@ -209,40 +235,48 @@ class MetricsPGM(Base, PrettyFormatter):
                     ]
 
     chip_types = [
-                  "314",
-                  "314 V1",
-                  "314 V2",
-                  "316",
-                  "316 V1",
-                  "316 V2",
-                  "318",
-                  "318 V1",
-                  "318 V2"
+                  #"314",
+                  #"314 V1",
+                  #"314 V2",
+                  #"316",
+                  #"316 V1",
+                  #"316 V2",
+                  #"318",
+                  #"318 V1",
+                  #"318 V2"
                   ]
 
-    numeric_columns = ordered_columns[0:24]
+    numeric_columns = ordered_columns[0:28]
 
     columns = dict(ordered_columns)
 
     kits = dict(ordered_kits)
 
+    suffixes = ('k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
+
     @orm.reconstructor
     def do_onload(self):
         self.pretty_columns = {
                                "Seq Kit": self.format_seq_kit,
-                               "Chip Type": self.format_chip_type,
+                               #"Chip Type": self.format_chip_type,
                                "Seq Kit Lot": self.format_seq_kit_lot,
-                               "Total Bases": self.format_large_number,
-                               "Test Fragment": self.format_large_number,
-                               "Total Reads": self.format_large_number,
-                               "ISP Wells": self.format_large_number,
-                               "Live Wells": self.format_large_number,
-                               "Lib Wells": self.format_large_number,
-                               "Flows": self.format_large_number,
+                               "ISP Wells": self.format_units,
+                               "Live Wells": self.format_units,
+                               "Test Fragment": self.format_units,
+                               "Lib Wells": self.format_units,
+                               "Polyclonal": self.format_units,
+                               "Primer Dimer": self.format_units,
+                               "Low Quality": self.format_units,
+                               "Usable Reads": self.format_units,
+                               "Cycles": self.format_units,
+                               "Flows": self.format_units,
+                               "Total Bases": self.format_units,
+                               "Total Reads": self.format_units,
                                }
+
         self.pretty_columns_csv = {
                                    "Seq Kit": self.format_seq_kit,
-                                   "Chip Type": self.format_chip_type,
+                                   #"Chip Type": self.format_chip_type,
                                    "Seq Kit Lot": self.format_seq_kit_lot,
                                    }
 
@@ -266,15 +300,18 @@ class MetricsPGM(Base, PrettyFormatter):
         else:
             return None
 
-    # format large numbers with commas
-    def format_large_number(self, raw_number):
-        if raw_number:
-            if int(raw_number) >= 1000000000:
-                return str(int(raw_number) / 1000000000) + " B" 
-            elif int(raw_number) >= 1000000:
-                return str(int(raw_number) / 1000000) + " M"
-            else:
-                return '{:,}'.format(raw_number)
+    def format_units(self, quantity, unit="", base=1000):
+        if quantity:
+            quantity = int(quantity)
+            if quantity < base:
+                return '%d  %s' % (quantity, unit)
+        
+            for i, suffix in enumerate(self.suffixes):
+                magnitude = base ** (i + 2)
+                if quantity < magnitude:
+                    return '%.1f %s%s' % ((base * quantity / float(magnitude)), suffix, unit)
+        
+            return '%.1f %s%s' % ((base * quantity / float(magnitude)), suffix, unit)
         else:
             return None
 

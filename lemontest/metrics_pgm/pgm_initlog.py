@@ -17,7 +17,8 @@ class Metrics_PGM_InitLog(object):
     def validate_path(self, archive_path):
         path = os.path.join(archive_path, "InitLog.txt")
         if not os.path.exists(path):
-            return "InitLog.txt does not exist", False
+            self.logger.warning("InitLog.txt does not exist")
+            return "", False
         else:
             return self.open_basecaller_json(path), True
 
@@ -39,10 +40,14 @@ class Metrics_PGM_InitLog(object):
 
         return data
 
-    # return True if archive path is valid, and contains BaseCaller.json
+    # return True if archive path is valid, and contains initlog.txt
     # return False otherwise
     def is_valid(self):
-        return self.valid
+        if self.valid:
+            return self.valid
+        else:
+            self.logger.warning(self.data)
+            return self.valid
 
     # return starting ph
     def get_start_ph(self):

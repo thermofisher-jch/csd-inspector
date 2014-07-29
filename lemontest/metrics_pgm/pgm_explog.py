@@ -16,7 +16,8 @@ class Metrics_PGM_Explog(object):
     def validate_path(self, archive_path):
         path = os.path.join(archive_path, "explog_final.txt")
         if not os.path.exists(path):
-            return "explog_final.txt not found", False
+            self.logger.warning("explog_final.txt not found")
+            return "", False
         else:
             return self.open_explog(path), True
 
@@ -79,32 +80,6 @@ class Metrics_PGM_Explog(object):
 
             return noise
 
-    # return sequencing kit information
-    def get_seq_kit(self):
-        if "SeqKitDesc" not in self.data or not self.data['SeqKitDesc'].strip():
-            if "SeqKitPlanDesc" not in self.data or not self.data['SeqKitPlanDesc'].strip():
-                self.logger.warning("Sequencing Kit information missing from explog")
-                return None
-            else:
-                seq_kit = unicode(self.data["SeqKitPlanDesc"].strip())
-                
-                return seq_kit
-
-        else:
-            seq_kit = unicode(self.data["SeqKitDesc"].strip())
-
-            return seq_kit
-
-    # return chip type
-    def get_chip_type(self):
-        if "ChipType" not in self.data or not self.data['ChipType'].strip():
-            self.logger.warning("Chip Type not in data")
-            return None
-        else:
-            chip_type = unicode(self.data["ChipType"].strip()[:3])
-
-            return chip_type
-
     # return gain
     def get_gain(self):
         if "Gain" not in self.data or not self.data['Gain'].strip():
@@ -114,36 +89,6 @@ class Metrics_PGM_Explog(object):
             chip_gain = Decimal(self.data["Gain"])
 
             return chip_gain
-
-    # return TSS Version
-    def get_sw_version(self):
-        if "PGM SW Release" not in self.data or not self.data['PGM SW Release'].strip():
-            self.logger.warning("Software Version not in data")
-            return None
-        else:
-            sw_version = unicode(self.data['PGM SW Release'].strip())
-
-            return sw_version
-
-    # return Seq Kit Lot
-    def get_seq_kit_lot(self):
-        if "SeqKitLot" not in self.data or not self.data['SeqKitLot'].strip():
-            self.logger.warning("Seq Kit Lot not in data")
-            return None
-        else:
-            seq_kit_lot = unicode(self.data['SeqKitLot'].strip())
-
-            return seq_kit_lot
-
-    # return Run Type
-    def get_run_type(self):
-        if "RunType" not in self.data or not self.data['RunType'].strip():
-            self.logger.warning("Run Type not in data")
-            return None
-        else:
-            run_type = unicode(self.data["RunType"].strip())
-
-            return run_type
 
     # return Run Type
     def get_cycles(self):
@@ -165,6 +110,63 @@ class Metrics_PGM_Explog(object):
 
             return run_type
 
+    # return chip type
+    def get_chip_type(self):
+        if "ChipType" not in self.data or not self.data['ChipType'].strip():
+            self.logger.warning("Chip Type not in data")
+            return None
+        else:
+            chip_type = unicode(self.data["ChipType"].strip())
+
+            return chip_type
+
+    # return Run Type
+    def get_run_type(self):
+        if "RunType" not in self.data or not self.data['RunType'].strip():
+            self.logger.warning("Run Type not in data")
+            return None
+        else:
+            run_type = unicode(self.data["RunType"].strip())
+
+            return run_type
+
+    # return sequencing kit information
+    def get_seq_kit(self):
+        if "SeqKitDesc" not in self.data or not self.data['SeqKitDesc'].strip():
+            if "SeqKitPlanDesc" not in self.data or not self.data['SeqKitPlanDesc'].strip():
+                self.logger.warning("Sequencing Kit information missing from explog")
+                return None
+            else:
+                seq_kit = unicode(self.data["SeqKitPlanDesc"].strip())
+                
+                return seq_kit
+
+        else:
+            seq_kit = unicode(self.data["SeqKitDesc"].strip())
+
+            return seq_kit
+
+    # return Seq Kit Lot
+    def get_seq_kit_lot(self):
+        if "SeqKitLot" not in self.data or not self.data['SeqKitLot'].strip():
+            self.logger.warning("Seq Kit Lot not in data")
+            return None
+        else:
+            seq_kit_lot = unicode(self.data['SeqKitLot'].strip())
+
+            return seq_kit_lot
+
+    # return software Version
+    def get_sw_version(self):
+        if "PGM SW Release" not in self.data or not self.data['PGM SW Release'].strip():
+            self.logger.warning("Software Version not in data")
+            return None
+        else:
+            sw_version = unicode(self.data['PGM SW Release'].strip())
+
+            return sw_version
+
+    # return torrent server version
     def get_tss_version(self):
         version_path = os.path.join(self.archive_path, "version.txt")
         if not os.path.exists(version_path):

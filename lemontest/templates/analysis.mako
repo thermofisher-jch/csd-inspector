@@ -37,6 +37,7 @@
 		// resets filter options before GET method
 		add_filters_onload(${search['extra_filter_number']})
 
+		// add new numerical filter option
 		$("#add_filter").click(function(event){
 			add_new_filter();
 		});

@@ -17,7 +17,8 @@ class Metrics_PGM_Datasets_BaseCaller_JSON(object):
     def validate_path(self, archive_path):
         path = os.path.join(archive_path, "basecaller_results", "datasets_basecaller.json")
         if not os.path.exists(path):
-            return "datasets_basecaller.json does not exist", False
+            self.logger.warning("datasets_basecaller.json does not exist")
+            return "", False
         else:
             return self.open_basecaller_json(path), True
 

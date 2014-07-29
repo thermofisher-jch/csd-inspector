@@ -17,7 +17,8 @@ class Metrics_PGM_TFStats_JSON(object):
     def validate_path(self, archive_path):
         path = os.path.join(archive_path, "basecaller_results", "TFStats.json")
         if not os.path.exists(path):
-            return "TFStats.json does not exist", False
+            self.logger.warning("TFStats.json does not exist")
+            return "", False
         else:
             return self.open_basecaller_json(path), True
 
@@ -37,7 +38,7 @@ class Metrics_PGM_TFStats_JSON(object):
         return self.valid
 
     # return percent 50Q17
-    def get_tf_50Q17(self):
+    def get_tf_50Q17_pct(self):
         if "TF_A" not in self.data or "50Q17" not in self.data['TF_A'] or "Num" not in self.data['TF_A'] or not self.data['TF_A']['50Q17'] or not self.data['TF_A']['Num']:
             self.logger.warning("50Q17 information missing from data")
             return None

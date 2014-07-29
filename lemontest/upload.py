@@ -283,13 +283,33 @@ def process_archive(archive_id, upload_name, testers):
 def set_metrics_pgm(metrics_pgm_id):
     metric = DBSession.query(MetricsPGM).get(metrics_pgm_id)
 
-    explog = pgm_explog.Metrics_PGM_Explog(metric.archive.path, logger)
-    quality_summary = pgm_quality_summary.Metrics_PGM_Quality_Summary(metric.archive.path, logger)
     bfmask_stats = pgm_bfmask_stats.Metrics_PGM_Bfmask_Stats(metric.archive.path, logger)
     basecaller_json = pgm_basecaller_json.Metrics_PGM_BaseCaller_JSON(metric.archive.path, logger)
     datasets_basecaller_json = pgm_datasets_basecaller_json.Metrics_PGM_Datasets_BaseCaller_JSON(metric.archive.path, logger)
-    tfstats_json = pgm_tfstats_json.Metrics_PGM_TFStats_JSON(metric.archive.path, logger)
+    explog = pgm_explog.Metrics_PGM_Explog(metric.archive.path, logger)
     initlog = pgm_initlog.Metrics_PGM_InitLog(metric.archive.path, logger)
+    quality_summary = pgm_quality_summary.Metrics_PGM_Quality_Summary(metric.archive.path, logger)
+    tfstats_json = pgm_tfstats_json.Metrics_PGM_TFStats_JSON(metric.archive.path, logger)
+
+    if bfmask_stats.is_valid():
+        metric.isp_wells = bfmask_stats.get_isp_wells()
+        metric.live_wells = bfmask_stats.get_live_wells()
+        metric.library_wells = bfmask_stats.get_library_wells()
+        metric.isp_loading = bfmask_stats.get_isp_loading()
+        metric.test_fragment = bfmask_stats.get_test_fragment()
+
+    if basecaller_json.is_valid():
+        metric.polyclonal = basecaller_json.get_polyclonal()
+        metric.polyclonal_pct = basecaller_json.get_polyclonal_pct(metric.library_wells)
+        metric.primer_dimer = basecaller_json.get_primer_dimer()
+        metric.primer_dimer_pct = basecaller_json.get_primer_dimer_pct(metric.library_wells)
+        metric.low_quality = basecaller_json.get_low_quality()
+        metric.low_quality_pct = basecaller_json.get_low_quality_pct(metric.library_wells)
+        metric.usable_reads = basecaller_json.get_usable_reads()
+        metric.usable_reads_pct = basecaller_json.get_usable_reads_pct(metric.library_wells)
+
+    if datasets_basecaller_json.is_valid():
+        metric.barcode_set = datasets_basecaller_json.get_barcode_set()
 
     if explog.is_valid():
         metric.pgm_temperature = explog.get_pgm_temperature()
@@ -297,44 +317,28 @@ def set_metrics_pgm(metrics_pgm_id):
         metric.chip_temperature = explog.get_chip_temperature()
         metric.chip_noise = explog.get_chip_noise()
         metric.gain = explog.get_gain()
-        metric.sw_version = explog.get_sw_version()
-        metric.tss_version = explog.get_tss_version()
-        metric.seq_kit_lot = explog.get_seq_kit_lot()
+        metric.cycles = explog.get_cycles()
+        metric.flows = explog.get_flows()
+        metric.chip_type = explog.get_chip_type()
         metric.run_type = explog.get_run_type()
         metric.seq_kit = explog.get_seq_kit()
-        metric.chip_type = explog.get_chip_type()
-        metric.flows = explog.get_flows()
-        metric.cycles = explog.get_cycles()
+        metric.seq_kit_lot = explog.get_seq_kit_lot()
+        metric.sw_version = explog.get_sw_version()
+        metric.tss_version = explog.get_tss_version()
+
+    if initlog.is_valid():
+        metric.start_ph = initlog.get_start_ph()
+        metric.end_ph = initlog.get_end_ph()
+        metric.w1_added = initlog.get_w1_added()
+
+    if tfstats_json.is_valid():
+        metric.tf_50q17_pct = tfstats_json.get_tf_50Q17_pct()
 
     if quality_summary.is_valid():
         metric.system_snr = quality_summary.get_system_snr()
         metric.total_bases = quality_summary.get_total_bases()
         metric.mean_read_length = quality_summary.get_mean_read_length()
         metric.total_reads = quality_summary.get_total_reads()
-
-    if bfmask_stats.is_valid():
-        metric.isp_loading = bfmask_stats.get_isp_loading()
-        metric.isp_wells = bfmask_stats.get_isp_wells()
-        metric.live_wells = bfmask_stats.get_live_wells()
-        metric.library_wells = bfmask_stats.get_library_wells()
-        metric.test_fragment = bfmask_stats.get_test_fragment()
-
-    if basecaller_json.is_valid():
-        metric.polyclonal = basecaller_json.get_polyclonal(metric.library_wells)
-        metric.low_quality = basecaller_json.get_low_quality(metric.library_wells)
-        metric.primer_dimer = basecaller_json.get_primer_dimer(metric.library_wells)
-        metric.usable_reads = basecaller_json.get_usable_reads(metric.library_wells)
-
-    if datasets_basecaller_json.is_valid():
-        metric.barcode_set = datasets_basecaller_json.get_barcode_set()
-
-    if tfstats_json.is_valid():
-        metric.tf_50q17 = tfstats_json.get_tf_50Q17()
-
-    if initlog.is_valid():
-        metric.start_ph = initlog.get_start_ph()
-        metric.end_ph = initlog.get_end_ph()
-        metric.w1_added = initlog.get_w1_added()
 
     transaction.commit()
 
