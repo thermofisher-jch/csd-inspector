@@ -321,6 +321,7 @@ def set_metrics_pgm(metrics_pgm_id):
         metric.flows = explog.get_flows()
         metric.chip_type = explog.get_chip_type()
         metric.run_type = explog.get_run_type()
+        metric.reference = explog.get_reference()
         metric.seq_kit = explog.get_seq_kit()
         metric.seq_kit_lot = explog.get_seq_kit_lot()
         metric.sw_version = explog.get_sw_version()
@@ -347,8 +348,29 @@ def set_metrics_pgm(metrics_pgm_id):
 @task
 def set_metrics_proton(metrics_proton_id):
     metric = DBSession.query(MetricsProton).get(metrics_proton_id)
+
+    bfmask_stats = proton_bfmask_stats.Metrics_Proton_Bfmask_Stats(metric.archive.path, logger)
+    basecaller_json = proton_basecaller_json.Metrics_Proton_BaseCaller_JSON(metric.archive.path, logger)
     explog = proton_explog.Metrics_Proton_Explog(metric.archive.path, logger)
     quality_summary = proton_quality_summary.Metrics_Proton_Quality_Summary(metric.archive.path, logger)
+    tfstats_json = proton_tfstats_json.Metrics_Proton_TFStats_JSON(metric.archive.path, logger)
+
+    if bfmask_stats.is_valid():
+        metric.isp_wells = bfmask_stats.get_isp_wells()
+        metric.live_wells = bfmask_stats.get_live_wells()
+        metric.library_wells = bfmask_stats.get_library_wells()
+        metric.isp_loading = bfmask_stats.get_isp_loading()
+        metric.test_fragment = bfmask_stats.get_test_fragment()
+
+    if basecaller_json.is_valid():
+        metric.polyclonal = basecaller_json.get_polyclonal()
+        metric.polyclonal_pct = basecaller_json.get_polyclonal_pct(metric.library_wells)
+        metric.primer_dimer = basecaller_json.get_primer_dimer()
+        metric.primer_dimer_pct = basecaller_json.get_primer_dimer_pct(metric.library_wells)
+        metric.low_quality = basecaller_json.get_low_quality()
+        metric.low_quality_pct = basecaller_json.get_low_quality_pct(metric.library_wells)
+        metric.usable_reads = basecaller_json.get_usable_reads()
+        metric.usable_reads_pct = basecaller_json.get_usable_reads_pct(metric.library_wells)
 
     if explog.is_valid():
         metric.proton_temperature = explog.get_proton_temperature()
@@ -356,15 +378,19 @@ def set_metrics_proton(metrics_proton_id):
         metric.target_pressure = explog.get_target_pressure()
         metric.chip_temperature = explog.get_chip_temperature()
         metric.chip_noise = explog.get_chip_noise()
-        metric.chip_type = explog.get_chip_type()
         metric.gain = explog.get_gain()
+        metric.cycles = explog.get_cycles()
+        metric.flows = explog.get_flows()
+        metric.chip_type = explog.get_chip_type()
+        metric.run_type = explog.get_run_type()
+        metric.reference = explog.get_reference()
         metric.seq_kit = explog.get_seq_kit()
         metric.seq_kit_lot = explog.get_seq_kit_lot()
-        metric.run_type = explog.get_run_type()
-        metric.tss_version = explog.get_tss_version()
         metric.sw_version = explog.get_sw_version()
-        metric.flows = explog.get_flows()
-        metric.cycles = explog.get_cycles()
+        metric.tss_version = explog.get_tss_version()
+
+    if tfstats_json.is_valid():\
+        metric.tf_50q17_pct = tfstats_json.get_tf_50Q17_pct()
 
     if quality_summary.is_valid():
         metric.system_snr = quality_summary.get_system_snr()

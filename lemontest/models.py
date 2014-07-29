@@ -3,6 +3,9 @@ import json
 import transaction
 import logging
 import os.path
+import math
+
+from decimal import Decimal
 
 from sqlalchemy import Column
 from sqlalchemy import Integer
@@ -181,6 +184,7 @@ class MetricsPGM(Base, PrettyFormatter):
     # explog_final.txt
     chip_type = Column(Unicode(255))
     run_type = Column(Unicode(255))
+    reference = Column(Unicode(255))
     seq_kit = Column(Unicode(255))
     seq_kit_lot = Column(Unicode(255))
     sw_version = Column(Unicode(255))
@@ -218,6 +222,7 @@ class MetricsPGM(Base, PrettyFormatter):
                        ("Barcode Set", "barcode_set"),
                        ("Chip Type", "chip_type"),
                        ("Run Type", "run_type"),
+                       ("Ref Lib", "reference"),
                        ("SW Version", "sw_version"),
                        ("TSS Version", "tss_version"),
                        ("Seq Kit", "seq_kit"),
@@ -272,6 +277,15 @@ class MetricsPGM(Base, PrettyFormatter):
                                "Flows": self.format_units,
                                "Total Bases": self.format_units,
                                "Total Reads": self.format_units,
+                               "PGM Temp": self.format_units_small,
+                               "PGM Pres": self.format_units_small,
+                               "Chip Temp": self.format_units_small,
+                               "Chip Noise": self.format_units_small,
+                               "Gain": self.format_units_small,
+                               "Starting pH": self.format_units_small,
+                               "Ending pH": self.format_units_small,
+                               "W1 Added": self.format_units_small,
+                               "SNR": self.format_units_small,
                                }
 
         self.pretty_columns_csv = {
@@ -315,47 +329,97 @@ class MetricsPGM(Base, PrettyFormatter):
         else:
             return None
 
+    def format_units_small(self, quantity, sig_figs=3):
+        if quantity:
+            quantity = Decimal(quantity)
+            return round(quantity, -int(math.floor(math.log10(abs(quantity))) - (sig_figs - 1)))
+        else:
+            return None
+
 # Author: Anthony Rodriguez
 # Last Modified: 17 July 2014
 class MetricsProton(Base, PrettyFormatter):
     __tablename__ = "metrics_proton"
     id = Column(Integer, primary_key=True)
     archive_id = Column(Integer, ForeignKey('archives.id'))
-    proton_temperature = Column(NUMERIC(5, 2))
-    proton_pressure = Column(NUMERIC(5, 2))
-    target_pressure = Column(NUMERIC(5, 2))
-    chip_temperature = Column(NUMERIC(5, 2))
+
+    '''NUMERIC VALUES'''
+    # analysis.bfmask.stats
+    isp_wells = Column(NUMERIC(20, 0))
+    live_wells = Column(NUMERIC(20, 0))
+    test_fragment = Column(NUMERIC(20, 0))
+    library_wells = Column(NUMERIC(20, 0))
+    isp_loading = Column(NUMERIC(4, 2))
+
+    # basecaller.json
+    polyclonal = Column(NUMERIC(20, 0))
+    polyclonal_pct = Column(NUMERIC(4, 2))
+    primer_dimer = Column(NUMERIC(20, 0))
+    primer_dimer_pct = Column(NUMERIC(4, 2))
+    low_quality = Column(NUMERIC(20, 0))
+    low_quality_pct = Column(NUMERIC(4, 2))
+    usable_reads = Column(NUMERIC(20, 0))
+    usable_reads_pct = Column(NUMERIC(4, 2))
+
+    # explog_final.txt
+    proton_temperature = Column(NUMERIC(10, 6))
+    proton_pressure = Column(NUMERIC(10, 6))
+    target_pressure = Column(NUMERIC(10, 6))
+    chip_temperature = Column(NUMERIC(10, 6))
     chip_noise = Column(NUMERIC(5, 2))
-    gain = Column(NUMERIC(5, 2))
-    flows = Column(NUMERIC(5, 0))
+    gain = Column(NUMERIC(10, 6))
     cycles = Column(NUMERIC(5, 0))
-    isp_loading = Column(NUMERIC(3, 1))
+    flows = Column(NUMERIC(5, 0))
+
+    # quality.summary
     system_snr = Column(NUMERIC(5, 2))
     total_bases = Column(NUMERIC(20, 0))
     total_reads = Column(NUMERIC(20, 0))
     mean_read_length = Column(NUMERIC(10, 0))
+
+    # tfstats.json
+    tf_50q17_pct = Column(NUMERIC(4, 2))
+
+    '''CATEGORICAL VALUES'''
+    # explog_final.txt
     chip_type = Column(Unicode(255))
     run_type = Column(Unicode(255))
-    sw_version = Column(Unicode(255))
-    tss_version = Column(Unicode(255))
+    reference = Column(Unicode(255))
     seq_kit = Column(Unicode(255))
     seq_kit_lot = Column(Unicode(255))
+    sw_version = Column(Unicode(255))
+    tss_version = Column(Unicode(255))
 
     ordered_columns = [
+                       ("ISP Wells", "isp_wells"),
+                       ("Live Wells", "live_wells"),
+                       ("Test Fragment", "test_fragment"),
+                       ("Lib Wells", "library_wells"),
+                       ("ISP Loading (%)", "isp_loading"),
+                       ("Polyclonal", "polyclonal"),
+                       ("Polyclonal (%)", "polyclonal_pct"),
+                       ("Primer Dimer", "primer_dimer"),
+                       ("Primer Dimer (%)", "primer_dimer_pct"),
+                       ("Low Quality", "low_quality"),
+                       ("Low Quality (%)", "low_quality_pct"),
+                       ("Usable Reads", "usable_reads"),
+                       ("Usable Reads (%)", "usable_reads_pct"),
                        ("Proton Temp", "proton_temperature"),
                        ("Proton Pres", "proton_pressure"),
                        ("Target Pres", "target_pressure"),
                        ("Chip Temp", "chip_temperature"),
                        ("Chip Noise", "chip_noise"),
                        ("Gain", "gain"),
-                       ("Flows", "flows"),
                        ("Cycles", "cycles"),
-                       ("ISP Loading", "isp_loading"),
+                       ("Flows", "flows"),
                        ("SNR", "system_snr"),
                        ("Total Bases", "total_bases"),
                        ("Total Reads", "total_reads"),
                        ("Mean Read Len", "mean_read_length"),
+                       ("TF 50Q17 (%)", "tf_50q17_pct"),
                        ("Chip Type", "chip_type"),
+                       ("Run Type", "run_type"),
+                       ("Ref Lib", "reference"),
                        ("SW Version", "sw_version"),
                        ("TSS Version", "tss_version"),
                        ("Seq Kit", "seq_kit"),
@@ -366,11 +430,44 @@ class MetricsProton(Base, PrettyFormatter):
 
     chip_types = []
 
-    numeric_columns = ordered_columns[0:13]
+    numeric_columns = ordered_columns[0:26]
 
     columns = dict(ordered_columns)
 
     kits = dict(ordered_kits)
+
+    suffixes = ('k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
+
+    @orm.reconstructor
+    def do_onload(self):
+        self.pretty_columns = {
+                               #"Seq Kit": self.format_seq_kit,
+                               "Chip Type": self.format_chip_type,
+                               "Seq Kit Lot": self.format_seq_kit_lot,
+                               "ISP Wells": self.format_units,
+                               "Live Wells": self.format_units,
+                               "Test Fragment": self.format_units,
+                               "Lib Wells": self.format_units,
+                               "Polyclonal": self.format_units,
+                               "Primer Dimer": self.format_units,
+                               "Low Quality": self.format_units,
+                               "Usable Reads": self.format_units,
+                               "Cycles": self.format_units,
+                               "Flows": self.format_units,
+                               "Total Bases": self.format_units,
+                               "Total Reads": self.format_units,
+                               "Proton Temp": self.format_units_small,
+                               "Proton Pres": self.format_units_small,
+                               "Target Pres": self.format_units_small,
+                               "Chip Temp": self.format_units_small,
+                               "Gain": self.format_units_small,
+                               "SNR": self.format_units_small,
+                               }
+        self.pretty_columns_csv = {
+                                   #"Seq Kit": self.format_seq_kit,
+                                   "Seq Kit Lot": self.format_seq_kit_lot,
+                                   "Chip Type": self.format_chip_type,
+                                   }
 
     # pretty format seq kits
     def format_seq_kit(self, raw_seq_kit):
@@ -391,37 +488,27 @@ class MetricsProton(Base, PrettyFormatter):
         else:
             return None
 
-    # format large numbers with commas
-    def format_large_number(self, raw_number):
-        if raw_number:
-            if int(raw_number) >= 1000000000:
-                return str(int(raw_number) / 1000000000) + " B" 
-            elif int(raw_number) >= 1000000:
-                return str(int(raw_number) / 1000000) + " M"
-            else:
-                return '{:,}'.format(raw_number)
+    def format_units(self, quantity, unit="", base=1000):
+        if quantity:
+            quantity = int(quantity)
+            if quantity < base:
+                return '%d  %s' % (quantity, unit)
+        
+            for i, suffix in enumerate(self.suffixes):
+                magnitude = base ** (i + 2)
+                if quantity < magnitude:
+                    return '%.1f %s%s' % ((base * quantity / float(magnitude)), suffix, unit)
+        
+            return '%.1f %s%s' % ((base * quantity / float(magnitude)), suffix, unit)
         else:
             return None
 
-    @orm.reconstructor
-    def do_onload(self):
-        self.pretty_columns = {
-                               #"Seq Kit": self.format_seq_kit,
-                               "Chip Type": self.format_chip_type,
-                               "Seq Kit Lot": self.format_seq_kit_lot,
-                               "Total Bases": self.format_large_number,
-                               "Test Fragment": self.format_large_number,
-                               "Total Reads": self.format_large_number,
-                               "ISP Wells": self.format_large_number,
-                               "Live Wells": self.format_large_number,
-                               "Lib Wells": self.format_large_number,
-                               "Flows": self.format_large_number,
-                               }
-        self.pretty_columns_csv = {
-                                   #"Seq Kit": self.format_seq_kit,
-                                   "Seq Kit Lot": self.format_seq_kit_lot,
-                                   "Chip Type": self.format_chip_type,
-                                   }
+    def format_units_small(self, quantity, sig_figs=3):
+        if quantity:
+            quantity = Decimal(quantity)
+            return round(quantity, -int(math.floor(math.log10(abs(quantity))) - (sig_figs - 1)))
+        else:
+            return None
 
 class Tag(Base):
     __tablename__ = 'tags'

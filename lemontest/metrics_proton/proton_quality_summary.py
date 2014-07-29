@@ -16,7 +16,8 @@ class Metrics_Proton_Quality_Summary(object):
     def validate_path(self, archive_path):
         path = os.path.join(archive_path, "basecaller_results", "quality.summary")
         if not os.path.exists(path):
-            return "quality.summary does not exist", False
+            self.logger.warning("quality.summary does not exist")
+            return "", False
         else:
             return self.open_quality_summary(path), True
 

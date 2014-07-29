@@ -16,7 +16,8 @@ class Metrics_Proton_Explog(object):
     def validate_path(self, archive_path):
         path = os.path.join(archive_path, "explog_final.txt")
         if not os.path.exists(path):
-            return "explog_final.txt not found", False
+            self.logger.warning("explog_final.txt not found")
+            return "", False
         else:
             return self.open_explog(path), True
 
@@ -105,21 +106,35 @@ class Metrics_Proton_Explog(object):
 
                 return noise
 
-    # return sequencing kit information
-    def get_seq_kit(self):
-        if "SeqKitDesc" not in self.data or not self.data['SeqKitDesc'].strip():
-            if "SeqKitPlanDesc" not in self.data or not self.data['SeqKitPlanDesc'].strip():
-                self.logger.warning("Sequencing Kit information missing from explog")
-                return None
-            else:
-                seq_kit = unicode(self.data["SeqKitPlanDesc"].strip())
-
-                return seq_kit
-
+    # return chip gain
+    def get_gain(self):
+        if "ChipGain" not in self.data or not self.data['ChipGain'].strip():
+            self.logger.warning("Chip Gain not in data")
+            return None
         else:
-            seq_kit = unicode(self.data["SeqKitDesc"].strip())
+            gain = Decimal(self.data['ChipGain'])
 
-            return seq_kit
+            return gain
+
+    # return Run Type
+    def get_flows(self):
+        if "Flows" not in self.data or not self.data['Flows'].strip():
+            self.logger.warning("Flows not in data")
+            return None
+        else:
+            run_type = unicode(self.data["Flows"].strip())
+
+            return run_type
+
+    # return Run Type
+    def get_cycles(self):
+        if "Cycles" not in self.data or not self.data['Cycles'].strip():
+            self.logger.warning("Cycles not in data")
+            return None
+        else:
+            run_type = unicode(self.data["Cycles"].strip())
+
+            return run_type
 
     # return chip type
     def get_chip_type(self):
@@ -146,25 +161,41 @@ class Metrics_Proton_Explog(object):
 
             return chip_type
 
-    # return chip gain
-    def get_gain(self):
-        if "ChipGain" not in self.data or not self.data['ChipGain'].strip():
-            self.logger.warning("Chip Gain not in data")
+    # return Run Type
+    def get_run_type(self):
+        if "RunType" not in self.data or not self.data['RunType'].strip():
+            self.logger.warning("Run Type not in data")
             return None
         else:
-            gain = Decimal(self.data['ChipGain'])
+            run_type = unicode(self.data["RunType"].strip())
 
-            return gain
+            return run_type
 
-    # return software version
-    def get_sw_version(self):
-        if "Proton Release" not in self.data or not self.data['Proton Release'].strip():
-            self.logger.warning("Proton SW version not in data")
+    # return reference library
+    def get_reference(self):
+        if 'Library' not in self.data or not self.data['Library'].strip():
+            self.logger.warning("Reference Library Info not in data")
             return None
         else:
-            sw_version = unicode(self.data['Proton Release'].strip())
-            return sw_version
+            reference = unicode(self.data['Library'].strip())
 
+            return reference
+
+    # return sequencing kit information
+    def get_seq_kit(self):
+        if "SeqKitDesc" not in self.data or not self.data['SeqKitDesc'].strip():
+            if "SeqKitPlanDesc" not in self.data or not self.data['SeqKitPlanDesc'].strip():
+                self.logger.warning("Sequencing Kit information missing from explog")
+                return None
+            else:
+                seq_kit = unicode(self.data["SeqKitPlanDesc"].strip())
+
+                return seq_kit
+
+        else:
+            seq_kit = unicode(self.data["SeqKitDesc"].strip())
+
+            return seq_kit
 
 # return Seq Kit Lot
     def get_seq_kit_lot(self):
@@ -176,35 +207,14 @@ class Metrics_Proton_Explog(object):
 
             return seq_kit_lot
 
-    # return Run Type
-    def get_run_type(self):
-        if "RunType" not in self.data or not self.data['RunType'].strip():
-            self.logger.warning("Run Type not in data")
+    # return software version
+    def get_sw_version(self):
+        if "Proton Release" not in self.data or not self.data['Proton Release'].strip():
+            self.logger.warning("Proton SW version not in data")
             return None
         else:
-            run_type = unicode(self.data["RunType"].strip())
-
-            return run_type
-
-    # return Run Type
-    def get_cycles(self):
-        if "Cycles" not in self.data or not self.data['Cycles'].strip():
-            self.logger.warning("Cycles not in data")
-            return None
-        else:
-            run_type = unicode(self.data["Cycles"].strip())
-
-            return run_type
-
-    # return Run Type
-    def get_flows(self):
-        if "Flows" not in self.data or not self.data['Flows'].strip():
-            self.logger.warning("Flows not in data")
-            return None
-        else:
-            run_type = unicode(self.data["Flows"].strip())
-
-            return run_type
+            sw_version = unicode(self.data['Proton Release'].strip())
+            return sw_version
 
     # return tss version
     def get_tss_version(self):

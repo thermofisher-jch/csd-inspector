@@ -1,1 +1,1 @@
-__all__ = ["proton_explog", "proton_quality_summary"]
+__all__ = ["proton_explog", "proton_quality_summary", "proton_bfmask_stats", "proton_basecaller_json", "proton_tfstats_json"]

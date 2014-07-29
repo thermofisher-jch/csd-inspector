@@ -20,7 +20,7 @@ class Metrics_PGM_Quality_Summary(object):
             return "", False
         else:
             return self.open_quality_summary(path), True
-    
+
     # open corresponding file
     def open_quality_summary(self, path):
         data = {}
@@ -34,11 +34,7 @@ class Metrics_PGM_Quality_Summary(object):
     # return True if archive path is valid, and contains quality.summary
     # return False otherwise
     def is_valid(self):
-        if self.valid:
-            return self.valid
-        else:
-            self.logger.warning(self.data)
-            return self.valid
+        return self.valid
 
     # return system signal to noise ratio
     def get_system_snr(self):

@@ -130,6 +130,16 @@ class Metrics_PGM_Explog(object):
 
             return run_type
 
+    # return reference library
+    def get_reference(self):
+        if 'Library' not in self.data or not self.data['Library'].strip():
+            self.logger.warning("Reference Library Info not in data")
+            return None
+        else:
+            reference = unicode(self.data['Library'].strip())
+
+            return reference
+
     # return sequencing kit information
     def get_seq_kit(self):
         if "SeqKitDesc" not in self.data or not self.data['SeqKitDesc'].strip():
