@@ -167,6 +167,16 @@ class Metrics_PGM_Explog(object):
 
             return seq_kit_lot
 
+    # return hardware version
+    def get_hw_version(self):
+        if "PGM HW" not in self.data or not self.data['PGM HW'].strip():
+            self.logger.warning("PGM HW not in data")
+            return None
+        else:
+            pgm_hw = unicode(self.data['PGM HW'].strip())
+
+            return pgm_hw
+
     # return software Version
     def get_sw_version(self):
         if "PGM SW Release" not in self.data or not self.data['PGM SW Release'].strip():

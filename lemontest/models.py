@@ -189,6 +189,7 @@ class MetricsPGM(Base, PrettyFormatter):
     seq_kit_lot = Column(Unicode(255))
     sw_version = Column(Unicode(255))
     tss_version = Column(Unicode(255))
+    hw_version = Column(Unicode(255))
     start_time = Column(Unicode(255))
     end_time = Column(Unicode(255))
 
@@ -227,6 +228,7 @@ class MetricsPGM(Base, PrettyFormatter):
                        ("Ref Lib", "reference"),
                        ("SW Version", "sw_version"),
                        ("TSS Version", "tss_version"),
+                       ("HW Version", "hw_version"),
                        ("Seq Kit", "seq_kit"),
                        ("Seq Kit Lot", "seq_kit_lot"),
                        ("Start Time", "start_time"),

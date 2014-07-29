@@ -81,6 +81,7 @@
 <%block name="filter">
 <!-- <form id="filter" class="filter_drawer form-horizontal" action="${request.path}" method="GET"> -->
 <form id="filter" class="filter_drawer form-horizontal" action="${request.path}" method="GET" onclick="get_extra_filter_number()">
+	<!-- BEGIN NUMERICAL FILTERS -->
 	<div class="form-group some_space_below">
 		<h5 class="pull-left label_spacing control-label"> Metric Type </h5>
 		<select id="metric_type_filter0" class="form-control" name="metric_type_filter0">
@@ -96,6 +97,9 @@
 		<button type="button" id="add_filter" class="btn btn-info btn-mini"><span class="icon-white icon-plus"></span></button>
 	</div>
 	<div id="dynamic_filters" class="form-group some_space_below"></div>
+	<!-- END NUMERICAL FILTERS -->
+
+	<!-- BEGIN CATEGORICAL FILTERS -->
 	<div class="form-group some_space_below">
 	<h5 class="pull-left label_spacing control-label"> Seq Kit Type </h5>
 		<select class="form-control" name="Seq Kit" id="Seq Kit">
@@ -107,6 +111,7 @@
 			% endfor
 		</select>
 	</div>
+
 	<div class="form-group some_space_below">
 	<h5 class="pull-left label_spacing control-label"> Chip Type </h5>
 		<select class="form-control" name="Chip Type" id="Chip Type">
@@ -118,6 +123,81 @@
 			% endfor
 		</select>
 	</div>
+
+	<div class="form-group some_space_below">
+	<h5 class="pull-left label_spacing control-label"> Run Type </h5>
+		<select class="form-control" name="Run Type" id="Run Type">
+			<option value=""></option>
+			% for type in run_types:
+				<option class="filter_option" value="${type}">
+					${type}
+				</option>
+			% endfor
+		</select>
+	</div>
+
+	<div class="form-group some_space_below">
+	<h5 class="pull-left label_spacing control-label"> Reference Library </h5>
+		<select class="form-control" name="Ref Lib" id="Ref Lib">
+			<option value=""></option>
+			% for type in reference_libs:
+				<option class="filter_option" value="${type}">
+					${type}
+				</option>
+			% endfor
+		</select>
+	</div>
+
+	<div class="form-group some_space_below">
+	<h5 class="pull-left label_spacing control-label"> SW Version </h5>
+		<select class="form-control" name="SW Version" id="SW Version">
+			<option value=""></option>
+			% for type in sw_versions:
+				<option class="filter_option" value="${type}">
+					${type}
+				</option>
+			% endfor
+		</select>
+	</div>
+
+	<div class="form-group some_space_below">
+	<h5 class="pull-left label_spacing control-label"> TSS Version </h5>
+		<select class="form-control" name="TSS Version" id="TSS Version">
+			<option value=""></option>
+			% for type in tss_versions:
+				<option class="filter_option" value="${type}">
+					${type}
+				</option>
+			% endfor
+		</select>
+	</div>
+
+	<div class="form-group some_space_below">
+	<h5 class="pull-left label_spacing control-label"> HW Version </h5>
+		<select class="form-control" name="HW Version" id="HW Version">
+			<option value=""></option>
+			% for type in hw_versions:
+				<option class="filter_option" value="${type}">
+					${type}
+				</option>
+			% endfor
+		</select>
+	</div>
+
+	<div class="form-group some_space_below">
+	<h5 class="pull-left label_spacing control-label"> Barcode Set </h5>
+		<select class="form-control" name="Barcode Set" id="Barcode Set">
+			<option value=""></option>
+			% for type in barcode_sets:
+				<option class="filter_option" value="${type}">
+					${type}
+				</option>
+			% endfor
+		</select>
+	</div>
+
+	<!-- END CATEGORICAL FILTERS -->
+
 	<button type="submit" class="btn btn-info">Filter</button>
 	<button type="button" class="btn btn-info">Clear Filters</button>
 </form>

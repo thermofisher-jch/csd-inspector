@@ -426,6 +426,33 @@ def separate_filter_types(request):
     return categorical_filters, numeric_filters, search_params
 
 # Author: Anthony Rodriguez
+def get_filterable_categories_pgm():
+    run_types = []
+    reference_libs = []
+    sw_versions = []
+    tss_versions = []
+    hw_versions = []
+    barcode_sets = []
+
+    metrics_query = DBSession.query(MetricsPGM)
+
+    for metric in metrics_query:
+        if metric.run_type and metric.run_type not in run_types:
+            run_types.append(metric.run_type)
+        if metric.reference and metric.reference not in reference_libs:
+            reference_libs.append(metric.reference)
+        if metric.sw_version and metric.sw_version not in sw_versions:
+            sw_versions.append(metric.sw_version)
+        if metric.tss_version and metric.tss_version not in tss_versions:
+            tss_versions.append(metric.tss_version)
+        if metric.hw_version and metric.hw_version not in hw_versions:
+            hw_versions.append(metric.hw_version)
+        if metric.barcode_set and metric.barcode_set not in barcode_sets:
+            barcode_sets.append(metric.barcode_set)
+
+    return run_types, reference_libs, sw_versions, tss_versions, hw_versions, barcode_sets
+
+# Author: Anthony Rodriguez
 @view_config(route_name='analysis_proton', renderer='analysis.mako', permission='view')
 def analysis_proton(request):
 
@@ -442,6 +469,13 @@ def analysis_proton(request):
         show_hide_false[columns[1]] = "false"
 
     show_hide_false_ordered = OrderedDict(sorted(show_hide_false.items(), key=lambda t: t[0]))
+
+    run_types = []
+    reference_libs = []
+    sw_versions = []
+    tss_versions = []
+    hw_versions = []
+    barcode_sets = []
 
     # BEGIN Pager
     page = int(request.params.get("page", 1))
@@ -488,7 +522,8 @@ def analysis_proton(request):
     return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "search": search_params, "metric_object_type": MetricsProton,
             "show_hide_defaults": json.dumps(show_hide_defaults_ordered), "show_hide_false": json.dumps(show_hide_false_ordered),
             "metric_columns": json.dumps(MetricsProton.numeric_columns), "numeric_filters_json": json.dumps(numeric_filters),
-            'categorical_filters_json': json.dumps(categorical_filters)}
+            'categorical_filters_json': json.dumps(categorical_filters), "run_types": run_types, "reference_libs": reference_libs, "sw_versions": sw_versions, "tss_versions": tss_versions,
+            "hw_versions": hw_versions, "barcode_sets": barcode_sets}
 
 # Author: Anthony Rodriguez
 @view_config(route_name="analysis_pgm", renderer="analysis.mako", permission="view")
@@ -507,6 +542,15 @@ def analysis_pgm(request):
         show_hide_false[columns[1]] = "false"
 
     show_hide_false_ordered = OrderedDict(sorted(show_hide_false.items(), key=lambda t: t[0]))
+
+    run_types = []
+    reference_libs = []
+    sw_versions = []
+    tss_versions = []
+    hw_versions = []
+    barcode_sets = []
+
+    run_types, reference_libs, sw_versions, tss_versions, hw_versions, barcode_sets = get_filterable_categories_pgm()
 
     # BEGIN Pager
     page = int(request.params.get("page", 1))
@@ -553,7 +597,8 @@ def analysis_pgm(request):
     return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "search": search_params, "metric_object_type": MetricsPGM,
             "show_hide_defaults": json.dumps(show_hide_defaults_ordered), "show_hide_false": json.dumps(show_hide_false_ordered),
             "metric_columns": json.dumps(MetricsPGM.numeric_columns), "numeric_filters_json": json.dumps(numeric_filters),
-            'categorical_filters_json': json.dumps(categorical_filters)}
+            'categorical_filters_json': json.dumps(categorical_filters), "run_types": run_types, "reference_libs": reference_libs, "sw_versions": sw_versions, "tss_versions": tss_versions,
+            "hw_versions": hw_versions, "barcode_sets": barcode_sets}
 
 #Author: Anthony Rodriguez
 @view_config(route_name="analysis_show_hide", renderer="json", permission="view", xhr=True)

@@ -84,7 +84,7 @@
 			margin: 5px 5px;
 		}
 		.form-horizontal .control-label {
-			width: 100px;
+			width: 160px;
 			text-align: inherit;
 		}
 	</style>
