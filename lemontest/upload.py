@@ -326,6 +326,8 @@ def set_metrics_pgm(metrics_pgm_id):
         metric.seq_kit_lot = explog.get_seq_kit_lot()
         metric.sw_version = explog.get_sw_version()
         metric.tss_version = explog.get_tss_version()
+        metric.start_time = explog.get_start_time()
+        metric.end_time = explog.get_end_time()
 
     if initlog.is_valid():
         metric.start_ph = initlog.get_start_ph()
@@ -388,6 +390,8 @@ def set_metrics_proton(metrics_proton_id):
         metric.seq_kit_lot = explog.get_seq_kit_lot()
         metric.sw_version = explog.get_sw_version()
         metric.tss_version = explog.get_tss_version()
+        metric.start_time = explog.get_start_time()
+        metric.end_time = explog.get_end_time()
 
     if tfstats_json.is_valid():\
         metric.tf_50q17_pct = tfstats_json.get_tf_50Q17_pct()

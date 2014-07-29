@@ -3,6 +3,7 @@ Author: Anthony Rodriguez
 '''
 import os
 from decimal import Decimal
+from datetime import datetime
 
 class Metrics_Proton_Explog(object):
 
@@ -214,6 +215,7 @@ class Metrics_Proton_Explog(object):
             return None
         else:
             sw_version = unicode(self.data['Proton Release'].strip())
+
             return sw_version
 
     # return tss version
@@ -232,3 +234,27 @@ class Metrics_Proton_Explog(object):
         else:
             self.logger.warning("version information missing from version.txt")
             return None
+
+    # return start time
+    def get_start_time(self):
+        if "Start Time" not in self.data or not self.data['Start Time'].strip():
+            self.logger.warning("Start Time not in data")
+            return None
+        else:
+            start_time = unicode(self.data['Start Time'].strip())
+            start_time_obj = datetime.strptime(start_time, '%m/%d/%Y %H:%M:%S')
+            start_time = unicode(start_time_obj.strftime('%d %b %Y %H:%M:%S'))
+
+            return start_time
+
+    # return start time
+    def get_end_time(self):
+        if "End Time" not in self.data or not self.data['End Time'].strip():
+            self.logger.warning("End Time not in data")
+            return None
+        else:
+            end_time = unicode(self.data['End Time'].strip())
+            end_time_obj = datetime.strptime(end_time, '%m/%d/%Y %H:%M:%S')
+            end_time = unicode(end_time_obj.strftime('%d %b %Y %H:%M:%S'))
+
+            return end_time

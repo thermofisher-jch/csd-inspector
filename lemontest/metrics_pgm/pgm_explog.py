@@ -3,6 +3,7 @@ Author: Anthony Rodriguez
 '''
 import os
 from decimal import Decimal
+from datetime import datetime
 
 class Metrics_PGM_Explog(object):
 
@@ -148,7 +149,7 @@ class Metrics_PGM_Explog(object):
                 return None
             else:
                 seq_kit = unicode(self.data["SeqKitPlanDesc"].strip())
-                
+
                 return seq_kit
 
         else:
@@ -181,6 +182,7 @@ class Metrics_PGM_Explog(object):
         version_path = os.path.join(self.archive_path, "version.txt")
         if not os.path.exists(version_path):
             self.logger.warning("version.txt missing from archive")
+            return None
         else:
             line = open(version_path).readline()
             version = line.split('=')[-1].strip()
@@ -191,3 +193,27 @@ class Metrics_PGM_Explog(object):
         else:
             self.logger.warning("version information missing from version.txt")
             return None
+
+    # return start time
+    def get_start_time(self):
+        if "Start Time" not in self.data or not self.data['Start Time'].strip():
+            self.logger.warning("Start Time not in data")
+            return None
+        else:
+            start_time = unicode(self.data['Start Time'].strip())
+            start_time_obj = datetime.strptime(start_time, '%c')
+            start_time = unicode(start_time_obj.strftime('%d %b %Y %H:%M:%S'))
+
+            return start_time
+
+    # return start time
+    def get_end_time(self):
+        if "End Time" not in self.data or not self.data['End Time'].strip():
+            self.logger.warning("End Time not in data")
+            return None
+        else:
+            end_time = unicode(self.data['End Time'].strip())
+            end_time_obj = datetime.strptime(end_time, '%c')
+            end_time = unicode(end_time_obj.strftime('%d %b %Y %H:%M:%S'))
+
+            return end_time

@@ -201,7 +201,11 @@
 				<td><a class="archive_id" href="${request.route_url('check', archive_id=metric.archive.id)}">${metric.archive.id}</a></td>
 				<td><a class="archive_label" href="${request.route_url('check', archive_id=metric.archive.id)}">${metric.archive.label}</a></td>
 				% for column in metric.ordered_columns:
-					<td class="${column[1]}"><a href="${request.route_url('check', archive_id=metric.archive.id)}">${metric.get_formatted(column[0])}</a></td>
+					% if column[1] == 'start_time' or column[1] == 'end_time':
+						<td title="${metric.get_formatted(column[0])}" class="${column[1]}"><a href="${request.route_url('check', archive_id=metric.archive.id)}">${metric.get_formatted(column[0])[:11]}</a></td>
+					% else:
+						<td class="${column[1]}"><a href="${request.route_url('check', archive_id=metric.archive.id)}">${metric.get_formatted(column[0])}</a></td>
+					% endif
 				% endfor
 			</tr>
 		% endfor
