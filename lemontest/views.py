@@ -453,6 +453,30 @@ def get_filterable_categories_pgm():
     return run_types, reference_libs, sw_versions, tss_versions, hw_versions, barcode_sets
 
 # Author: Anthony Rodriguez
+def get_filterable_categories_proton():
+    run_types = []
+    reference_libs = []
+    sw_versions = []
+    tss_versions = []
+    barcode_sets = []
+
+    metrics_query = DBSession.query(MetricsProton)
+
+    for metric in metrics_query:
+        if metric.run_type and metric.run_type not in run_types:
+            run_types.append(metric.run_type)
+        if metric.reference and metric.reference not in reference_libs:
+            reference_libs.append(metric.reference)
+        if metric.sw_version and metric.sw_version not in sw_versions:
+            sw_versions.append(metric.sw_version)
+        if metric.tss_version and metric.tss_version not in tss_versions:
+            tss_versions.append(metric.tss_version)
+        if metric.barcode_set and metric.barcode_set not in barcode_sets:
+            barcode_sets.append(metric.barcode_set)
+
+    return run_types, reference_libs, sw_versions, tss_versions, barcode_sets
+
+# Author: Anthony Rodriguez
 @view_config(route_name='analysis_proton', renderer='analysis.mako', permission='view')
 def analysis_proton(request):
 
@@ -470,12 +494,9 @@ def analysis_proton(request):
 
     show_hide_false_ordered = OrderedDict(sorted(show_hide_false.items(), key=lambda t: t[0]))
 
-    run_types = []
-    reference_libs = []
-    sw_versions = []
-    tss_versions = []
     hw_versions = []
-    barcode_sets = []
+
+    run_types, reference_libs, sw_versions, tss_versions, barcode_sets = get_filterable_categories_proton()
 
     # BEGIN Pager
     page = int(request.params.get("page", 1))
@@ -542,13 +563,6 @@ def analysis_pgm(request):
         show_hide_false[columns[1]] = "false"
 
     show_hide_false_ordered = OrderedDict(sorted(show_hide_false.items(), key=lambda t: t[0]))
-
-    run_types = []
-    reference_libs = []
-    sw_versions = []
-    tss_versions = []
-    hw_versions = []
-    barcode_sets = []
 
     run_types, reference_libs, sw_versions, tss_versions, hw_versions, barcode_sets = get_filterable_categories_pgm()
 

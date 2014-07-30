@@ -387,6 +387,9 @@ class MetricsProton(Base, PrettyFormatter):
     tf_50q17_pct = Column(NUMERIC(4, 2))
 
     '''CATEGORICAL VALUES'''
+    # datasets_basecaller.json
+    barcode_set = Column(Unicode(255))
+    
     # explog_final.txt
     chip_type = Column(Unicode(255))
     run_type = Column(Unicode(255))
@@ -425,6 +428,7 @@ class MetricsProton(Base, PrettyFormatter):
                        ("Total Reads", "total_reads"),
                        ("Mean Read Len", "mean_read_length"),
                        ("TF 50Q17 (%)", "tf_50q17_pct"),
+                       ("Barcode Set", "barcode_set"),
                        ("Chip Type", "chip_type"),
                        ("Run Type", "run_type"),
                        ("Ref Lib", "reference"),
