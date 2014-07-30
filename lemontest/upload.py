@@ -228,7 +228,6 @@ archive_handlers = {
     "Ion_Chef": untar_upload,
 }
 
-
 @task
 def process_archive(archive_id, upload_name, testers):
     """This is an external, celery task which unzips the file, restructures
@@ -261,7 +260,7 @@ def process_archive(archive_id, upload_name, testers):
             metrics_proton.archive_id = archive_id
             DBSession.add(metrics_proton)
             DBSession.flush()
-            set_metrics_proton(metrics_proton.id)
+            set_metrics_proton.delay(metrics_proton.id)
 
         '''
         if archive.archive_type == "OT_Log":
