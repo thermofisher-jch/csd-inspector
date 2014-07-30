@@ -5,7 +5,7 @@ import os
 import re
 from decimal import Decimal
 
-class Metrics_PGM_InitLog(object):
+class Metrics_Proton_InitLog(object):
 
     # initialize
     def __init__(self, archive_path, logger):
@@ -34,9 +34,8 @@ class Metrics_PGM_InitLog(object):
 
     # open initlog and load convert to python dict
     def open_initlog(self, path):
-        start_ph = re.compile('1\) W2 pH=\d+\.\d+')
+        start_ph = re.compile('Initial W2 pH=\d+\.\d+')
         w1_added = re.compile('Added \d+\.\d+ mL of W1 to W2')
-        end_ph = re.compile('RawTraces W2: \d+\.\d+')
 
         data = {}
 
@@ -45,8 +44,6 @@ class Metrics_PGM_InitLog(object):
                 data["start_ph"] = start_ph.match(line).group()
             elif w1_added.match(line):
                 data["added"] = w1_added.match(line).group()
-            elif end_ph.match(line):
-                data["end_ph"] = end_ph.match(line).group()
 
         return data
 

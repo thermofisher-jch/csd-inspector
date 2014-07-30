@@ -177,6 +177,9 @@ class MetricsPGM(Base, PrettyFormatter):
     # tfstats.json
     tf_50q17_pct = Column(NUMERIC(4, 2))
 
+    # basecaller.log
+    num_barcodes = Column(NUMERIC(5, 0))
+
     '''CATEGORICAL VALUES'''
     # datasets_basecaller.json
     barcode_set = Column(Unicode(255))
@@ -222,6 +225,7 @@ class MetricsPGM(Base, PrettyFormatter):
                        ("Total Reads", "total_reads"),
                        ("Mean Read Len", "mean_read_length"),
                        ("TF 50Q17 (%)", "tf_50q17_pct"),
+                       ("Num of Barcodes", "num_barcodes"),
                        ("Barcode Set", "barcode_set"),
                        ("Chip Type", "chip_type"),
                        ("Run Type", "run_type"),
@@ -257,7 +261,7 @@ class MetricsPGM(Base, PrettyFormatter):
                   #"318 V2"
                   ]
 
-    numeric_columns = ordered_columns[0:28]
+    numeric_columns = ordered_columns[0:29]
 
     columns = dict(ordered_columns)
 
@@ -377,6 +381,11 @@ class MetricsProton(Base, PrettyFormatter):
     cycles = Column(NUMERIC(5, 0))
     flows = Column(NUMERIC(5, 0))
 
+    # initlog.txt
+    start_ph = Column(NUMERIC(5, 2))
+    end_ph = Column(NUMERIC(5, 2))
+    w1_added = Column(NUMERIC(5, 2))
+
     # quality.summary
     system_snr = Column(NUMERIC(5, 2))
     total_bases = Column(NUMERIC(20, 0))
@@ -386,10 +395,13 @@ class MetricsProton(Base, PrettyFormatter):
     # tfstats.json
     tf_50q17_pct = Column(NUMERIC(4, 2))
 
+    # basecaller.log
+    num_barcodes = Column(NUMERIC(5, 0))
+
     '''CATEGORICAL VALUES'''
     # datasets_basecaller.json
     barcode_set = Column(Unicode(255))
-    
+
     # explog_final.txt
     chip_type = Column(Unicode(255))
     run_type = Column(Unicode(255))
@@ -423,11 +435,15 @@ class MetricsProton(Base, PrettyFormatter):
                        ("Gain", "gain"),
                        ("Cycles", "cycles"),
                        ("Flows", "flows"),
+                       ("Starting pH", "start_ph"),
+                       ("Ending pH", "end_ph"),
+                       ("W1 Added", "w1_added"),
                        ("SNR", "system_snr"),
                        ("Total Bases", "total_bases"),
                        ("Total Reads", "total_reads"),
                        ("Mean Read Len", "mean_read_length"),
                        ("TF 50Q17 (%)", "tf_50q17_pct"),
+                       ("Num of Barcodes", "num_barcodes"),
                        ("Barcode Set", "barcode_set"),
                        ("Chip Type", "chip_type"),
                        ("Run Type", "run_type"),
@@ -444,7 +460,7 @@ class MetricsProton(Base, PrettyFormatter):
 
     chip_types = []
 
-    numeric_columns = ordered_columns[0:26]
+    numeric_columns = ordered_columns[0:30]
 
     columns = dict(ordered_columns)
 

@@ -258,3 +258,13 @@ class Metrics_Proton_Explog(object):
             end_time = unicode(end_time_obj.strftime('%d %b %Y %H:%M:%S'))
 
             return end_time
+
+    # return barcode id
+    def get_barcode_set(self):
+        if "barcodeId" not in self.data or not self.data['barcodeId'].strip():
+            self.logger.warning('barcodeId not in data')
+            return None
+        else:
+            barcode_set = unicode(self.data['barcodeId'].strip())
+
+            return barcode_set

@@ -330,10 +330,13 @@ def set_metrics_pgm(metrics_pgm_id):
         metric.start_time = explog.get_start_time()
         metric.end_time = explog.get_end_time()
 
-    if initlog.is_valid():
+    if initlog.is_initlog_valid():
         metric.start_ph = initlog.get_start_ph()
         metric.end_ph = initlog.get_end_ph()
         metric.w1_added = initlog.get_w1_added()
+
+    if initlog.is_basecaller_valid():
+        metric.num_barcodes = initlog.get_num_barcodes()
 
     if tfstats_json.is_valid():
         metric.tf_50q17_pct = tfstats_json.get_tf_50Q17_pct()
@@ -354,8 +357,8 @@ def set_metrics_proton(metrics_proton_id):
 
     bfmask_stats = proton_bfmask_stats.Metrics_Proton_Bfmask_Stats(metric.archive.path, logger)
     basecaller_json = proton_basecaller_json.Metrics_Proton_BaseCaller_JSON(metric.archive.path, logger)
-    datasets_basecaller_json = proton_datasets_basecaller_json.Metrics_Proton_Datasets_BaseCaller_JSON(metric.archive.path, logger)
     explog = proton_explog.Metrics_Proton_Explog(metric.archive.path, logger)
+    initlog = proton_initlog.Metrics_Proton_InitLog(metric.archive.path, logger)
     quality_summary = proton_quality_summary.Metrics_Proton_Quality_Summary(metric.archive.path, logger)
     tfstats_json = proton_tfstats_json.Metrics_Proton_TFStats_JSON(metric.archive.path, logger)
 
@@ -376,9 +379,6 @@ def set_metrics_proton(metrics_proton_id):
         metric.usable_reads = basecaller_json.get_usable_reads()
         metric.usable_reads_pct = basecaller_json.get_usable_reads_pct(metric.library_wells)
 
-    if datasets_basecaller_json.is_valid():
-        metric.barcode_set = datasets_basecaller_json.get_barcode_set()
-
     if explog.is_valid():
         metric.proton_temperature = explog.get_proton_temperature()
         metric.proton_pressure = explog.get_proton_pressure()
@@ -397,6 +397,15 @@ def set_metrics_proton(metrics_proton_id):
         metric.tss_version = explog.get_tss_version()
         metric.start_time = explog.get_start_time()
         metric.end_time = explog.get_end_time()
+        metric.barcode_set = explog.get_barcode_set()
+
+    if initlog.is_initlog_valid():
+        metric.start_ph = initlog.get_start_ph()
+        metric.end_ph = initlog.get_end_ph()
+        metric.w1_added = initlog.get_w1_added()
+
+    if initlog.is_basecaller_valid():
+        metric.num_barcodes = initlog.get_num_barcodes()
 
     if tfstats_json.is_valid():\
         metric.tf_50q17_pct = tfstats_json.get_tf_50Q17_pct()
