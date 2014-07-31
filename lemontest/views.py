@@ -352,20 +352,12 @@ def filter_query(request, metric_object_type):
 
     for filter_column, value in numeric_filters.items():
         if value[0]:
-            metrics_query = metrics_query.filter(metric_object_type.get_column(filter_column[1]) >= int(value[0]))
+            metrics_query = metrics_query.filter(metric_object_type.get_column(filter_column[1]) >= float(value[0]))
         if value[1]:
-            metrics_query = metrics_query.filter(metric_object_type.get_column(filter_column[1]) <= int(value[1]))
+            metrics_query = metrics_query.filter(metric_object_type.get_column(filter_column[1]) <= float(value[1]))
 
     for key, value in categorical_filters.items():
-        if key == 'Chip Type':
-            metrics_query = metrics_query.filter(metric_object_type.get_column(key) == value[:3])
-            if len(value.decode('utf-8')) > 3:
-                if value[3:] == " V2":
-                    metrics_query = metrics_query.filter(metric_object_type.get_column("Gain") >= 0.65)
-                else:
-                    metrics_query = metrics_query.filter(metric_object_type.get_column("Gain") < 0.65)
-        else:
-            metrics_query = metrics_query.filter(metric_object_type.get_column(key) == value)
+        metrics_query = metrics_query.filter(metric_object_type.get_column(key) == value)
 
     sorted_numeric_filter_list = sorted_nicely(numeric_filters.keys(), itemgetter(0))
 
@@ -427,6 +419,8 @@ def separate_filter_types(request):
 
 # Author: Anthony Rodriguez
 def get_filterable_categories_pgm():
+    chip_types = []
+    seq_kits = []
     run_types = []
     reference_libs = []
     sw_versions = []
@@ -437,6 +431,10 @@ def get_filterable_categories_pgm():
     metrics_query = DBSession.query(MetricsPGM)
 
     for metric in metrics_query:
+        if metric.chip_type and metric.chip_type not in chip_types:
+            chip_types.append(metric.chip_type)
+        if metric.seq_kit and metric.seq_kit not in seq_kits:
+            seq_kits.append(metric.seq_kit)
         if metric.run_type and metric.run_type not in run_types:
             run_types.append(metric.run_type)
         if metric.reference and metric.reference not in reference_libs:
@@ -450,10 +448,12 @@ def get_filterable_categories_pgm():
         if metric.barcode_set and metric.barcode_set not in barcode_sets:
             barcode_sets.append(metric.barcode_set)
 
-    return run_types, reference_libs, sw_versions, tss_versions, hw_versions, barcode_sets
+    return chip_types, seq_kits, run_types, reference_libs, sw_versions, tss_versions, hw_versions, barcode_sets
 
 # Author: Anthony Rodriguez
 def get_filterable_categories_proton():
+    chip_types = []
+    seq_kits = []
     run_types = []
     reference_libs = []
     sw_versions = []
@@ -463,6 +463,10 @@ def get_filterable_categories_proton():
     metrics_query = DBSession.query(MetricsProton)
 
     for metric in metrics_query:
+        if metric.chip_type and metric.chip_type not in chip_types:
+            chip_types.append(metric.chip_type)
+        if metric.seq_kit and metric.seq_kit not in seq_kits:
+            seq_kits.append(metric.seq_kit)
         if metric.run_type and metric.run_type not in run_types:
             run_types.append(metric.run_type)
         if metric.reference and metric.reference not in reference_libs:
@@ -474,7 +478,7 @@ def get_filterable_categories_proton():
         if metric.barcode_set and metric.barcode_set not in barcode_sets:
             barcode_sets.append(metric.barcode_set)
 
-    return run_types, reference_libs, sw_versions, tss_versions, barcode_sets
+    return chip_types, seq_kits, run_types, reference_libs, sw_versions, tss_versions, barcode_sets
 
 # Author: Anthony Rodriguez
 @view_config(route_name='analysis_proton', renderer='analysis.mako', permission='view')
@@ -496,7 +500,7 @@ def analysis_proton(request):
 
     hw_versions = []
 
-    run_types, reference_libs, sw_versions, tss_versions, barcode_sets = get_filterable_categories_proton()
+    chip_types, seq_kits, run_types, reference_libs, sw_versions, tss_versions, barcode_sets = get_filterable_categories_proton()
 
     # BEGIN Pager
     page = int(request.params.get("page", 1))
@@ -543,7 +547,8 @@ def analysis_proton(request):
     return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "search": search_params, "metric_object_type": MetricsProton,
             "show_hide_defaults": json.dumps(show_hide_defaults_ordered), "show_hide_false": json.dumps(show_hide_false_ordered),
             "metric_columns": json.dumps(MetricsProton.numeric_columns), "numeric_filters_json": json.dumps(numeric_filters),
-            'categorical_filters_json': json.dumps(categorical_filters), "run_types": run_types, "reference_libs": reference_libs, "sw_versions": sw_versions, "tss_versions": tss_versions,
+            'categorical_filters_json': json.dumps(categorical_filters), 'chip_types': chip_types, 'seq_kits': seq_kits,
+            "run_types": run_types, "reference_libs": reference_libs, "sw_versions": sw_versions, "tss_versions": tss_versions,
             "hw_versions": hw_versions, "barcode_sets": barcode_sets}
 
 # Author: Anthony Rodriguez
@@ -564,7 +569,7 @@ def analysis_pgm(request):
 
     show_hide_false_ordered = OrderedDict(sorted(show_hide_false.items(), key=lambda t: t[0]))
 
-    run_types, reference_libs, sw_versions, tss_versions, hw_versions, barcode_sets = get_filterable_categories_pgm()
+    chip_types, seq_kits, run_types, reference_libs, sw_versions, tss_versions, hw_versions, barcode_sets = get_filterable_categories_pgm()
 
     # BEGIN Pager
     page = int(request.params.get("page", 1))
@@ -611,7 +616,8 @@ def analysis_pgm(request):
     return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "search": search_params, "metric_object_type": MetricsPGM,
             "show_hide_defaults": json.dumps(show_hide_defaults_ordered), "show_hide_false": json.dumps(show_hide_false_ordered),
             "metric_columns": json.dumps(MetricsPGM.numeric_columns), "numeric_filters_json": json.dumps(numeric_filters),
-            'categorical_filters_json': json.dumps(categorical_filters), "run_types": run_types, "reference_libs": reference_libs, "sw_versions": sw_versions, "tss_versions": tss_versions,
+            'categorical_filters_json': json.dumps(categorical_filters), 'chip_types': chip_types, 'seq_kits': seq_kits,
+            "run_types": run_types, "reference_libs": reference_libs, "sw_versions": sw_versions, "tss_versions": tss_versions,
             "hw_versions": hw_versions, "barcode_sets": barcode_sets}
 
 #Author: Anthony Rodriguez

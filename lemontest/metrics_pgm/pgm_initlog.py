@@ -35,7 +35,7 @@ class Metrics_PGM_InitLog(object):
     # open initlog and load convert to python dict
     def open_initlog(self, path):
         start_ph = re.compile('1\) W2 pH=\d+\.\d+')
-        w1_added = re.compile('Added \d+\.\d+ mL of W1 to W2')
+        w1_added = re.compile('Added \d+\.\d+.*of W1 to W2')
         end_ph = re.compile('RawTraces W2: \d+\.\d+')
 
         data = {}

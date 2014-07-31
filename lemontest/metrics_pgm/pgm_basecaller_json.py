@@ -37,7 +37,7 @@ class Metrics_PGM_BaseCaller_JSON(object):
     # return filtered polyclonal
     def get_polyclonal(self):
         if "BeadSummary" not in self.data or "lib" not in self.data["BeadSummary"] or "polyclonal" not in self.data["BeadSummary"]["lib"] or not self.data["BeadSummary"]["lib"]["polyclonal"]:
-            self.logger.warning("Information missing from BaseCaller.json")
+            self.logger.warning("Polyclonal Information missing from BaseCaller.json")
             return None
         else:
             polyclonal = Decimal(self.data["BeadSummary"]["lib"]["polyclonal"])
@@ -48,7 +48,7 @@ class Metrics_PGM_BaseCaller_JSON(object):
     def get_polyclonal_pct(self, library_wells):
         if library_wells and library_wells != 0:
             if "BeadSummary" not in self.data or "lib" not in self.data["BeadSummary"] or "polyclonal" not in self.data["BeadSummary"]["lib"] or not self.data["BeadSummary"]["lib"]["polyclonal"]:
-                self.logger.warning("Information missing from BaseCaller.json")
+                self.logger.warning("Polyclonal Information missing from BaseCaller.json")
                 return None
             else:
                 polyclonal = Decimal(self.data["BeadSummary"]["lib"]["polyclonal"])
@@ -62,7 +62,7 @@ class Metrics_PGM_BaseCaller_JSON(object):
     # return filtered primer dimer
     def get_primer_dimer(self):
         if "Filtering" not in self.data or "LibraryReport" not in self.data["Filtering"] or "filtered_primer_dimer" not in self.data["Filtering"]["LibraryReport"] or not self.data["Filtering"]["LibraryReport"]["filtered_primer_dimer"]:
-            self.logger.warning("Information missing from BaseCaller.json")
+            self.logger.warning("Primer Dimer Information missing from BaseCaller.json")
             return None
         else:
             primer_dimer = Decimal(self.data["Filtering"]["LibraryReport"]["filtered_primer_dimer"])
@@ -73,7 +73,7 @@ class Metrics_PGM_BaseCaller_JSON(object):
     def get_primer_dimer_pct(self, library_wells):
         if library_wells and library_wells != 0:
             if "Filtering" not in self.data or "LibraryReport" not in self.data["Filtering"] or "filtered_primer_dimer" not in self.data["Filtering"]["LibraryReport"] or not self.data["Filtering"]["LibraryReport"]["filtered_primer_dimer"]:
-                self.logger.warning("Information missing from BaseCaller.json")
+                self.logger.warning("Primer Dimer Information missing from BaseCaller.json")
                 return None
             else:
                 primer_dimer = Decimal(self.data["Filtering"]["LibraryReport"]["filtered_primer_dimer"])
@@ -87,7 +87,7 @@ class Metrics_PGM_BaseCaller_JSON(object):
     # return filtered low quality
     def get_low_quality(self):
         if "Filtering" not in self.data or "LibraryReport" not in self.data["Filtering"] or "filtered_low_quality" not in self.data["Filtering"]["LibraryReport"] or not self.data["Filtering"]["LibraryReport"]["filtered_low_quality"]:
-            self.logger.warning("Information missing from BaseCaller.json")
+            self.logger.warning("Low Quality Information missing from BaseCaller.json")
             return None
         else:
             low_quality = Decimal(self.data["Filtering"]["LibraryReport"]["filtered_low_quality"])
@@ -98,7 +98,7 @@ class Metrics_PGM_BaseCaller_JSON(object):
     def get_low_quality_pct(self, library_wells):
         if library_wells and library_wells != 0:
             if "Filtering" not in self.data or "LibraryReport" not in self.data["Filtering"] or "filtered_low_quality" not in self.data["Filtering"]["LibraryReport"] or not self.data["Filtering"]["LibraryReport"]["filtered_low_quality"]:
-                self.logger.warning("Information missing from BaseCaller.json")
+                self.logger.warning("Low Quality Information missing from BaseCaller.json")
                 return None
             else:
                 low_quality = Decimal(self.data["Filtering"]["LibraryReport"]["filtered_low_quality"])
@@ -112,7 +112,7 @@ class Metrics_PGM_BaseCaller_JSON(object):
     # return filtered usable reads
     def get_usable_reads(self):
         if "Filtering" not in self.data or "LibraryReport" not in self.data["Filtering"] or "final_library_reads" not in self.data["Filtering"]["LibraryReport"] or not self.data["Filtering"]["LibraryReport"]["final_library_reads"]:
-            self.logger.warning("Information missing from BaseCaller.json")
+            self.logger.warning("Usable Reads Information missing from BaseCaller.json")
             return None
         else:
             useable_reads = Decimal(self.data["Filtering"]["LibraryReport"]["final_library_reads"])
@@ -123,7 +123,7 @@ class Metrics_PGM_BaseCaller_JSON(object):
     def get_usable_reads_pct(self, library_wells):
         if library_wells and library_wells != 0:
             if "Filtering" not in self.data or "LibraryReport" not in self.data["Filtering"] or "final_library_reads" not in self.data["Filtering"]["LibraryReport"] or not self.data["Filtering"]["LibraryReport"]["final_library_reads"]:
-                self.logger.warning("Information missing from BaseCaller.json")
+                self.logger.warning("Usable Reads Information missing from BaseCaller.json")
                 return None
             else:
                 library_reads = Decimal(self.data["Filtering"]["LibraryReport"]["final_library_reads"])

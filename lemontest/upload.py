@@ -310,7 +310,7 @@ def set_metrics_pgm(metrics_pgm_id):
     if datasets_basecaller_json.is_valid():
         metric.barcode_set = datasets_basecaller_json.get_barcode_set()
 
-    if explog.is_valid():
+    if explog.is_explog_valid():
         metric.pgm_temperature = explog.get_pgm_temperature()
         metric.pgm_pressure = explog.get_pgm_pressure()
         metric.chip_temperature = explog.get_chip_temperature()
@@ -324,10 +324,12 @@ def set_metrics_pgm(metrics_pgm_id):
         metric.seq_kit = explog.get_seq_kit()
         metric.seq_kit_lot = explog.get_seq_kit_lot()
         metric.sw_version = explog.get_sw_version()
-        metric.tss_version = explog.get_tss_version()
         metric.hw_version = explog.get_hw_version()
         metric.start_time = explog.get_start_time()
         metric.end_time = explog.get_end_time()
+
+    if explog.is_version_valid():
+        metric.tss_version = explog.get_tss_version()
 
     if initlog.is_initlog_valid():
         metric.start_ph = initlog.get_start_ph()
@@ -378,7 +380,7 @@ def set_metrics_proton(metrics_proton_id):
         metric.usable_reads = basecaller_json.get_usable_reads()
         metric.usable_reads_pct = basecaller_json.get_usable_reads_pct(metric.library_wells)
 
-    if explog.is_valid():
+    if explog.is_explog_valid():
         metric.proton_temperature = explog.get_proton_temperature()
         metric.proton_pressure = explog.get_proton_pressure()
         metric.target_pressure = explog.get_target_pressure()
@@ -393,10 +395,12 @@ def set_metrics_proton(metrics_proton_id):
         metric.seq_kit = explog.get_seq_kit()
         metric.seq_kit_lot = explog.get_seq_kit_lot()
         metric.sw_version = explog.get_sw_version()
-        metric.tss_version = explog.get_tss_version()
         metric.start_time = explog.get_start_time()
         metric.end_time = explog.get_end_time()
         metric.barcode_set = explog.get_barcode_set()
+
+    if explog.is_version_valid():
+        metric.tss_version = explog.get_tss_version()
 
     if initlog.is_initlog_valid():
         metric.start_ph = initlog.get_start_ph()

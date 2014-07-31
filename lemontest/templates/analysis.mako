@@ -104,9 +104,9 @@
 	<h5 class="pull-left label_spacing control-label"> Seq Kit Type </h5>
 		<select class="form-control" name="Seq Kit" id="Seq Kit">
 			<option value=""></option>
-			% for type in metric_object_type.ordered_kits:
-				<option class="filter_option" value="${type[0]}">
-					${type[1]}
+			% for type in seq_kits:
+				<option class="filter_option" value="${type}">
+					${type}
 				</option>
 			% endfor
 		</select>
@@ -116,7 +116,7 @@
 	<h5 class="pull-left label_spacing control-label"> Chip Type </h5>
 		<select class="form-control" name="Chip Type" id="Chip Type">
 			<option value=""></option>
-			% for type in metric_object_type.chip_types:
+			% for type in chip_types:
 				<option class="filter_option" value="${type}">
 					${type}
 				</option>
@@ -287,7 +287,7 @@
 				<td><a class="archive_id" href="${request.route_url('check', archive_id=metric.archive.id)}">${metric.archive.id}</a></td>
 				<td><a class="archive_label" href="${request.route_url('check', archive_id=metric.archive.id)}">${metric.archive.label}</a></td>
 				% for column in metric.ordered_columns:
-					% if column[1] == 'start_time' or column[1] == 'end_time':
+					% if (column[1] == 'start_time' or column[1] == 'end_time') and metric.get_formatted(column[0]):
 						<td title="${metric.get_formatted(column[0])}" class="${column[1]}"><a href="${request.route_url('check', archive_id=metric.archive.id)}">${metric.get_formatted(column[0])[:11]}</a></td>
 					% else:
 						<td class="${column[1]}"><a href="${request.route_url('check', archive_id=metric.archive.id)}">${metric.get_formatted(column[0])}</a></td>

@@ -239,40 +239,16 @@ class MetricsPGM(Base, PrettyFormatter):
                        ("End Time", "end_time"),
                        ]
 
-    ordered_kits = [
-                    ("(100bp) Ion Sequencing Kit", "PGM Seq 100"),
-                    ("(200bp) Ion PGM(tm) 200 Sequencing Kit", "PGM Seq 200"),
-                    ("Ion PGM IC 200 Sequencing Kit", "PGM Seq 200 IC"),
-                    ("Ion PGM Sequencing 200 Kit v2", "PGM Seq 200 v2"),
-                    ("Ion PGM Sequencing 300 Kit", "PGM Seq 300"),
-                    ("Ion PGM Sequencing 400 Kit", "PGM Seq 400"),
-                    ("Ion PGM Hi-Q Tech Access Kit", "PGM Seq Hi-Q TA")
-                    ]
-
-    chip_types = [
-                  #"314",
-                  #"314 V1",
-                  #"314 V2",
-                  #"316",
-                  #"316 V1",
-                  #"316 V2",
-                  #"318",
-                  #"318 V1",
-                  #"318 V2"
-                  ]
-
     numeric_columns = ordered_columns[0:29]
 
     columns = dict(ordered_columns)
-
-    kits = dict(ordered_kits)
 
     suffixes = ('k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
 
     @orm.reconstructor
     def do_onload(self):
         self.pretty_columns = {
-                               "Seq Kit": self.format_seq_kit,
+                               #"Seq Kit": self.format_seq_kit,
                                #"Chip Type": self.format_chip_type,
                                "Seq Kit Lot": self.format_seq_kit_lot,
                                "ISP Wells": self.format_units,
@@ -299,7 +275,7 @@ class MetricsPGM(Base, PrettyFormatter):
                                }
 
         self.pretty_columns_csv = {
-                                   "Seq Kit": self.format_seq_kit,
+                                   #"Seq Kit": self.format_seq_kit,
                                    #"Chip Type": self.format_chip_type,
                                    "Seq Kit Lot": self.format_seq_kit_lot,
                                    }
@@ -456,15 +432,9 @@ class MetricsProton(Base, PrettyFormatter):
                        ("End Time", "end_time"),
                        ]
 
-    ordered_kits = []
-
-    chip_types = []
-
     numeric_columns = ordered_columns[0:30]
 
     columns = dict(ordered_columns)
-
-    kits = dict(ordered_kits)
 
     suffixes = ('k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
 
@@ -472,7 +442,7 @@ class MetricsProton(Base, PrettyFormatter):
     def do_onload(self):
         self.pretty_columns = {
                                #"Seq Kit": self.format_seq_kit,
-                               "Chip Type": self.format_chip_type,
+                               #"Chip Type": self.format_chip_type,
                                "Seq Kit Lot": self.format_seq_kit_lot,
                                "ISP Wells": self.format_units,
                                "Live Wells": self.format_units,
@@ -495,8 +465,8 @@ class MetricsProton(Base, PrettyFormatter):
                                }
         self.pretty_columns_csv = {
                                    #"Seq Kit": self.format_seq_kit,
-                                   "Seq Kit Lot": self.format_seq_kit_lot,
-                                   "Chip Type": self.format_chip_type,
+                                   #"Seq Kit Lot": self.format_seq_kit_lot,
+                                   #"Chip Type": self.format_chip_type,
                                    }
 
     # pretty format seq kits
