@@ -327,6 +327,7 @@ def set_metrics_pgm(metrics_pgm_id):
         metric.hw_version = explog.get_hw_version()
         metric.start_time = explog.get_start_time()
         metric.end_time = explog.get_end_time()
+        metric.sn_number = explog.get_sn_number()
 
     if explog.is_version_valid():
         metric.tss_version = explog.get_tss_version()
@@ -398,6 +399,7 @@ def set_metrics_proton(metrics_proton_id):
         metric.start_time = explog.get_start_time()
         metric.end_time = explog.get_end_time()
         metric.barcode_set = explog.get_barcode_set()
+        metric.sn_number = explog.get_sn_number()
 
     if explog.is_version_valid():
         metric.tss_version = explog.get_tss_version()

@@ -17,14 +17,14 @@ function show_hide_columns(array_of_columns) {
 			}
 		}
 	} catch (err) {
-		// error
+		alert(err);
 	}
 }
 
 // returns array of shown and hidden columns to be saved in the session
 function get_shown_columns() {
-	var array_of_columns = global_columns_default;
-	for ( var item in array_of_columns) {
+	var array_of_columns = {};
+	for ( var item in global_columns_default) {
 		var checkbox = document.getElementById(item);
 		if (checkbox.checked) {
 			array_of_columns[item] = "true";
@@ -68,9 +68,13 @@ function get_shown_columns_csv() {
 function all_columns(show) {
 	if (show) {
 		var array_of_columns = global_columns_default;
+		for (var item in global_columns_default) {
+			console.log(item);
+			console.log(global_columns_default[item]);
+		}
 		show_hide_columns(array_of_columns);
 	} else {
-		var array_of_columns = global_columns_false;
+		array_of_columns = global_columns_false;
 		show_hide_columns(array_of_columns);
 	}
 }
@@ -218,4 +222,15 @@ function fill_filters() {
 	} catch(err) {
 		//error
 	}
+}
+
+function sort_by(thing) {
+	var input = document.getElementsByName(thing.id);
+	if (input[0].value == "desc"){
+		input[0].value = "asc";
+	} else {
+		input[0].value = "desc";
+	}
+
+	input[0].parentNode.submit()
 }

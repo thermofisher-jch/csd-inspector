@@ -209,11 +209,14 @@
 		</div>
 		<!-- END NUMERICAL FILTERS -->
 	</div>
+	<input type="hidden" id="upload_time_sort" name="upload_time_sort" value="" />
+	<input type="hidden" id="start_time_sort" name="start_time_sort" value="" />
+	<input type="hidden" id="end_time_sort" name="end_time_sort" value="" />
 </form>
 </%block>
 
 <%block name="buttons">
-<div class="row-fluid" style="margin-bottom: 15px;">
+<div class="row-fluid" style="margin-bottom: 5px;">
 	<div class="btn-group pull-left">
 		<button type="button" class="btn btn-default btn-lg some_space_right" id="filter_toggle">Filter <span class="caret"></span></button>
 		<button type="button" class="btn btn-default" data-toggle="modal" data-target=".show_hide_modal">Show / Hide Columns</button>
@@ -285,8 +288,13 @@
 		<tr>
 			<th>ID</th>
 			<th>Label</th>
+			<th>Upload Time <span id="upload_time_sort" onclick="sort_by(this);" class="caret"></span></th>
 			% for column in metric_object_type.ordered_columns:
-				<th class="${column[1]}">${column[0]}</th>
+				% if column[0] == "Start Time" or column[0] == "End Time":
+					<th class="${column[1]}">${column[0]} <span id="${column[1]}_sort" onclick="sort_by(this);" class="caret"></span></th>
+				% else:
+					<th class="${column[1]}">${column[0]}</th>
+				%endif
 			% endfor
 		</tr>
 	</thead>
@@ -295,9 +303,10 @@
 			<tr>
 				<td><a class="archive_id" href="${request.route_url('check', archive_id=metric.archive.id)}">${metric.archive.id}</a></td>
 				<td><a class="archive_label" href="${request.route_url('check', archive_id=metric.archive.id)}">${metric.archive.label}</a></td>
+				<td><a title="${metric.archive.time.strftime('%d %b %Y %H:%M:%S')}" class="archive_upload_time" href="${request.route_url('check', archive_id=metric.archive.id)}">${metric.archive.time.strftime('%d %b %Y')}</a></td>
 				% for column in metric.ordered_columns:
 					% if (column[1] == 'start_time' or column[1] == 'end_time') and metric.get_formatted(column[0]):
-						<td title="${metric.get_formatted(column[0])}" class="${column[1]}"><a href="${request.route_url('check', archive_id=metric.archive.id)}">${metric.get_formatted(column[0])[:11]}</a></td>
+						<td title="${metric.get_formatted(column[0]).strftime('%d %b %Y %H:%M:%S')}" class="${column[1]}"><a href="${request.route_url('check', archive_id=metric.archive.id)}">${metric.get_formatted(column[0]).strftime('%d %b %Y')}</a></td>
 					% else:
 						<td class="${column[1]}"><a href="${request.route_url('check', archive_id=metric.archive.id)}">${metric.get_formatted(column[0])}</a></td>
 					% endif
@@ -307,7 +316,6 @@
 	</tbody>
 </table>
 </%block>
-
 <%block name="shide_show_modal">
 <div class="modal fade show_hide_modal" tabindex="-1" role="dialog" aria-labelledby="show_hide_modal" aria-hidden="true">
 	<div class="modal-dialog modal-lg">

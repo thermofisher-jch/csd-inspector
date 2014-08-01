@@ -35,6 +35,7 @@ class Metrics_Proton_InitLog(object):
     # open initlog and load convert to python dict
     def open_initlog(self, path):
         start_ph = re.compile('Initial W2 pH=\d+\.\d+')
+        end_ph = re.compile('.*W2pH:.*\d+.\d+')
         w1_added = re.compile('Added \d+\.\d+ mL of W1 to W2')
 
         data = {}
@@ -42,6 +43,8 @@ class Metrics_Proton_InitLog(object):
         for line in open(path):
             if start_ph.match(line):
                 data["start_ph"] = start_ph.match(line).group()
+            elif end_ph.match(line):
+                data['end_ph'] = end_ph.match(line).group()
             elif w1_added.match(line):
                 data["added"] = w1_added.match(line).group()
 

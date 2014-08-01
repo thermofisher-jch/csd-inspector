@@ -11,7 +11,7 @@ import collections
 from operator import itemgetter
 from datetime import datetime
 
-from lemontest.models import MetricsPGM
+from lemontest.models import MetricsPGM, Archive
 from lemontest.models import MetricsProton
 from lemontest.csv_support import make_csv
 
@@ -350,6 +350,22 @@ def filter_query(request, metric_object_type):
 
     metrics_query = DBSession.query(metric_object_type).order_by(metric_object_type.archive_id.desc())
 
+    if search_params.get('upload_time_sort', ''):
+        if search_params['upload_time_sort'] == "desc":
+            metrics_query = DBSession.query(metric_object_type).join(Archive).order_by(Archive.time.desc())
+        elif search_params['upload_time_sort'] == "asc":
+            metrics_query = DBSession.query(metric_object_type).join(Archive).order_by(Archive.time.asc())
+    elif search_params.get('start_time_sort', ''):
+        if search_params['start_time_sort'] == "desc":
+            metrics_query = DBSession.query(metric_object_type).order_by(metric_object_type.start_time.desc())
+        elif search_params['start_time_sort'] == "asc":
+            metrics_query = DBSession.query(metric_object_type).order_by(metric_object_type.start_time.asc())
+    elif search_params.get('end_time_sort', ''):
+        if search_params['end_time_sort'] == "desc":
+            metrics_query = DBSession.query(metric_object_type).order_by(metric_object_type.end_time.desc())
+        elif search_params['end_time_sort'] == "asc":
+            metrics_query = DBSession.query(metric_object_type).order_by(metric_object_type.end_time.asc())
+
     for filter_column, value in numeric_filters.items():
         if value[0]:
             metrics_query = metrics_query.filter(metric_object_type.get_column(filter_column[1]) >= float(value[0]))
@@ -378,6 +394,7 @@ def separate_filter_types(request):
 
     numeric_filter_re = re.compile('metric_type_filter\d+')
     numeric_filter_re2 = re.compile('.*_number\d+')
+    sorting_filter_re = re.compile('.*_sort')
 
     search_params = {}
     numeric_filters = {}
@@ -406,7 +423,7 @@ def separate_filter_types(request):
     # separate categorical parameters
     # except the ones needed for csrf verification and csv support
     for key, value in search_params.items():
-        if not numeric_filter_re.match(key) and not numeric_filter_re2.match(key) and key != 'extra_filter_number' and key != 'show_hide' and key != 'csrf_token' and key != 'metric_type':
+        if not numeric_filter_re.match(key) and not numeric_filter_re2.match(key) and not sorting_filter_re.match(key) and key != 'extra_filter_number' and key != 'show_hide' and key != 'csrf_token' and key != 'metric_type':
             categorical_filters[key] = value
 
     for keys, value in request.params.items():
@@ -640,7 +657,7 @@ def show_hide_columns(request):
     elif request_path == '/analysis/proton':
         request.session["show_hide_session/analysis/proton"]= show_hide_columns
 
-    return {"columns": show_hide_columns}
+    return {"status": 200}
 
 # Author: Anthony Rodriguez
 @view_config(route_name="analysis_csv", permission="view")

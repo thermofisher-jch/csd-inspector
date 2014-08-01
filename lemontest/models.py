@@ -193,8 +193,9 @@ class MetricsPGM(Base, PrettyFormatter):
     sw_version = Column(Unicode(255))
     tss_version = Column(Unicode(255))
     hw_version = Column(Unicode(255))
-    start_time = Column(Unicode(255))
-    end_time = Column(Unicode(255))
+    start_time = Column(DateTime)
+    end_time = Column(DateTime)
+    sn_number = Column(Unicode(255))
 
     ordered_columns = [
                        ("ISP Wells", "isp_wells"),
@@ -230,11 +231,12 @@ class MetricsPGM(Base, PrettyFormatter):
                        ("Chip Type", "chip_type"),
                        ("Run Type", "run_type"),
                        ("Ref Lib", "reference"),
+                       ("Seq Kit", "seq_kit"),
+                       ("Seq Kit Lot", "seq_kit_lot"),
                        ("SW Version", "sw_version"),
                        ("TSS Version", "tss_version"),
                        ("HW Version", "hw_version"),
-                       ("Seq Kit", "seq_kit"),
-                       ("Seq Kit Lot", "seq_kit_lot"),
+                       ("Serial Num", "sn_number"),
                        ("Start Time", "start_time"),
                        ("End Time", "end_time"),
                        ]
@@ -386,8 +388,9 @@ class MetricsProton(Base, PrettyFormatter):
     seq_kit_lot = Column(Unicode(255))
     sw_version = Column(Unicode(255))
     tss_version = Column(Unicode(255))
-    start_time = Column(Unicode(255))
-    end_time = Column(Unicode(255))
+    start_time = Column(DateTime)
+    end_time = Column(DateTime)
+    sn_number = Column(Unicode(255))
 
     ordered_columns = [
                        ("ISP Wells", "isp_wells"),
@@ -424,10 +427,11 @@ class MetricsProton(Base, PrettyFormatter):
                        ("Chip Type", "chip_type"),
                        ("Run Type", "run_type"),
                        ("Ref Lib", "reference"),
-                       ("SW Version", "sw_version"),
-                       ("TSS Version", "tss_version"),
                        ("Seq Kit", "seq_kit"),
                        ("Seq Kit Lot", "seq_kit_lot"),
+                       ("SW Version", "sw_version"),
+                       ("TSS Version", "tss_version"),
+                       ("Serial Num", "sn_number"),
                        ("Start Time", "start_time"),
                        ("End Time", "end_time"),
                        ]

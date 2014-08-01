@@ -111,6 +111,11 @@
 		.form-group-column3 {
 			margin-right: 20px;
 		}
+		.form-hidden {
+			height: 0px;
+			width: 0px;
+			margin: 0px;
+		}
 	</style>
   </head>
 

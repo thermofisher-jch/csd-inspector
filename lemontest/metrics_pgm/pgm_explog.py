@@ -164,6 +164,8 @@ class Metrics_PGM_Explog(object):
             return None
         else:
             reference = unicode(self.explog_data['Library'].strip())
+            if reference == 'none':
+                return None
 
             return reference
 
@@ -234,7 +236,8 @@ class Metrics_PGM_Explog(object):
                  start_time_obj = datetime.strptime(start_time, '%c')
             except ValueError:
                 start_time_obj = datetime.strptime(start_time, '%Y-%m-%d %H:%M:%S')
-            start_time = unicode(start_time_obj.strftime('%d %b %Y %H:%M:%S'))
+
+            start_time = start_time_obj
 
             return start_time
 
@@ -249,6 +252,17 @@ class Metrics_PGM_Explog(object):
                 end_time_obj = datetime.strptime(end_time, '%c')
             except ValueError:
                 end_time_obj = datetime.strptime(end_time, '%Y-%m-%d %H:%M:%S')
-            end_time = unicode(end_time_obj.strftime('%d %b %Y %H:%M:%S'))
+
+            end_time = end_time_obj
 
             return end_time
+
+    # return machine serial number
+    def get_sn_number(self):
+        if 'Serial Number' not in self.explog_data or not self.explog_data['Serial Number'].strip():
+            self.logger.warning("Serial Number not in data")
+            return None
+        else:
+            sn_number = unicode(self.explog_data['Serial Number'].strip())
+
+            return sn_number
