@@ -247,14 +247,14 @@ def process_archive(archive_id, upload_name, testers):
             transaction.commit()
             jobs = make_diagnostic_jobs(archive, testers)
             run_diagnostics(archive_id, jobs)
-            
+
         if archive.archive_type == "PGM_Run":
             metrics_pgm = MetricsPGM()
             metrics_pgm.archive_id = archive_id
             DBSession.add(metrics_pgm)
             DBSession.flush()
             set_metrics_pgm.delay(metrics_pgm.id)
-            
+
         if archive.archive_type == "Proton":
             metrics_proton = MetricsProton()
             metrics_proton.archive_id = archive_id
@@ -269,7 +269,7 @@ def process_archive(archive_id, upload_name, testers):
         if archive.archive_type == "Ion Chef":
             pass
         '''
-        
+
     except Exception as err:
         archive = DBSession.query(Archive).get(archive_id)
         archive.status = u"Error processing archive"

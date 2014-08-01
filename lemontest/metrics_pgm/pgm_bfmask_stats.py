@@ -65,7 +65,7 @@ class Metrics_PGM_Bfmask_Stats(object):
             return None
         else:
             isp_wells = Decimal(self.data["Bead Wells"])
-            
+
             return isp_wells
 
     # return Live Wells

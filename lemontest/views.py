@@ -404,7 +404,7 @@ def separate_filter_types(request):
                 numeric_filters[(key, value)] = ('', search_params[max_number])
 
     # separate categorical parameters
-    # except the ones needed for csrf verification and csv support 
+    # except the ones needed for csrf verification and csv support
     for key, value in search_params.items():
         if not numeric_filter_re.match(key) and not numeric_filter_re2.match(key) and key != 'extra_filter_number' and key != 'show_hide' and key != 'csrf_token' and key != 'metric_type':
             categorical_filters[key] = value

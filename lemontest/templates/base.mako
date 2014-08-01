@@ -43,7 +43,7 @@
 		#analysis td a:hover {
 			text-decoration: none;
 		 }
-	
+
 		#analysis thead tr th {
 			border-top: 0 none;
 			background-image: linear-gradient(to bottom, white, #EFEFEF);
@@ -87,6 +87,30 @@
 			width: 160px;
 			text-align: inherit;
 		}
+		.form-inline .form-group {
+			vertical-align: top;
+		}
+		.form-inline .control-label {
+			width: 150px;
+		}
+		.form-inline .form-control select {
+			width: 220px;
+		}
+		.form-inline .numeric_label {
+			width: 100px;
+		}
+		.form-group-column1 {
+			margin-right: 20px;
+		}
+		.form-group-column2 .control-label {
+			width: 100px;
+		}
+		.form-group-column2 {
+			margin-right: 20px;
+		}
+		.form-group-column3 {
+			margin-right: 20px;
+		}
 	</style>
   </head>
 
@@ -101,12 +125,12 @@
               <li><a href="${request.route_path('reports')}">List Reports</a></li>
               <li><a href="${request.route_path('documentation')}">Documentation</a></li>
               <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Analysis <span class="icon-white icon-th-list"></span></a>
-              	<ul class="dropdown-menu" role="menu">
-              		<li><a href="${request.route_path('analysis_pgm')}">PGM</a></li>
-              		<li><a href="${request.route_path('analysis_proton')}">Proton</a></li>
-              		<li><a>Something</a></li>
-              		<li><a>Something Else</a></li>
-              	</ul>
+                <ul class="dropdown-menu" role="menu">
+                    <li><a href="${request.route_path('analysis_pgm')}">PGM</a></li>
+                    <li><a href="${request.route_path('analysis_proton')}">Proton</a></li>
+                    <li><a>Something</a></li>
+                    <li><a>Something Else</a></li>
+                </ul>
               </li>
             </ul>
             <form id="jump_form" class="navbar-form pull-left">

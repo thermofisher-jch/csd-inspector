@@ -11,7 +11,7 @@ class Metrics_PGM_Datasets_BaseCaller_JSON(object):
     def __init__(self, archive_path, logger):
         self.archive_path = archive_path
         self.logger = logger
-        self.data, self.valid = self.validate_path(archive_path) 
+        self.data, self.valid = self.validate_path(archive_path)
 
     # validate archive path
     def validate_path(self, archive_path):

@@ -181,7 +181,7 @@ class Metrics_Proton_Explog(object):
             else:
                 chip_type = unicode(self.explog_data['ChipVersion'].strip().split('.')[0])
 
-                return chip_type                
+                return chip_type
         else:
             chip_type = unicode(self.explog_data['ChipMainVersion'].strip().split('.')[0])
 

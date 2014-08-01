@@ -305,12 +305,12 @@ class MetricsPGM(Base, PrettyFormatter):
             quantity = int(quantity)
             if quantity < base:
                 return '%d  %s' % (quantity, unit)
-        
+
             for i, suffix in enumerate(self.suffixes):
                 magnitude = base ** (i + 2)
                 if quantity < magnitude:
                     return '%.1f %s%s' % ((base * quantity / float(magnitude)), suffix, unit)
-        
+
             return '%.1f %s%s' % ((base * quantity / float(magnitude)), suffix, unit)
         else:
             return None
@@ -493,12 +493,12 @@ class MetricsProton(Base, PrettyFormatter):
             quantity = int(quantity)
             if quantity < base:
                 return '%d  %s' % (quantity, unit)
-        
+
             for i, suffix in enumerate(self.suffixes):
                 magnitude = base ** (i + 2)
                 if quantity < magnitude:
                     return '%.1f %s%s' % ((base * quantity / float(magnitude)), suffix, unit)
-        
+
             return '%.1f %s%s' % ((base * quantity / float(magnitude)), suffix, unit)
         else:
             return None

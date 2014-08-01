@@ -17,8 +17,7 @@ function show_hide_columns(array_of_columns) {
 			}
 		}
 	} catch (err) {
-		// This only happens if there is a session saved version of a renamed
-		// column name.
+		// error
 	}
 }
 
@@ -81,10 +80,10 @@ function all_columns(show) {
 function add_new_filter() {
 	var label = document.createElement('h5');
 	label.innerHTML = " Metric Type ";
-	label.className = "pull-left control-label label_spacing"
+	label.className = "pull-left control-label label_spacing numeric_label"
 
 	var new_filter = document.createElement('div');
-	new_filter.className = "form-group some_space_below";
+	new_filter.className = "some_space_below";
 	new_filter.id = "extra_filter" + filter_id
 
 	new_filter.appendChild(label);
@@ -126,7 +125,7 @@ function add_new_filter() {
 	new_filter_input2.name = "max_number" + filter_id;
 	new_filter_input2.id = new_filter_input2.name;
 	new_filter_input2.placeholder = "Upper Bound";
-	
+
 	var delete_filter_btn = document.createElement('span');
 	delete_filter_btn.innerHTML = '<button type="button" class="btn btn-info btn-mini" onclick="remove_filter(\'extra_filter' + filter_id + '\')"><span class="icon-white icon-minus"></span></button>';
 
@@ -144,12 +143,12 @@ function add_new_filter() {
 	input_metric_type.type = "hidden";
 	input_metric_type.name = "metric_type_filter" + filter_id;
 	input_metric_type.id = "metric_type_filter" + filter_id + "_csv";
-	
+
 	var input_metric_min = document.createElement('input');
 	input_metric_min.type = "hidden";
 	input_metric_min.name = "min_number" + filter_id;
 	input_metric_min.id = "min_number" + filter_id + "_csv";
-	
+
 	var input_metric_max = document.createElement('input');
 	input_metric_max.type = "hidden";
 	input_metric_max.name = "max_number" + filter_id;
