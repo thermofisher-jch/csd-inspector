@@ -417,7 +417,7 @@ def separate_filter_types(request):
     # separate categorical parameters
     # except the ones needed for csrf verification and csv support
     for key, value in search_params.items():
-        if not numeric_filter_re.match(key) and not numeric_filter_re2.match(key) and not sorting_filter_re.match(key) and key != 'extra_filter_number' and key != 'show_hide' and key != 'csrf_token' and key != 'metric_type':
+        if not numeric_filter_re.match(key) and not numeric_filter_re2.match(key) and not sorting_filter_re.match(key) and key != 'extra_filter_number' and key != 'show_hide' and key != 'csrf_token' and key != 'metric_type' and key != 'page':
             categorical_filters[key] = value
 
     for keys, value in request.params.items():
