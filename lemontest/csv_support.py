@@ -14,7 +14,7 @@ def make_csv(metrics, metrics_type, show_hide):
 
     csv_writer = csv.writer(output, quoting=csv.QUOTE_NONNUMERIC)
 
-    row = ["ID", "Label"]
+    row = ["ID", "Label", "Upload Time"]
 
     for column in metrics_type.ordered_columns:
         if show_hide[column[1]] == "true":
@@ -26,13 +26,16 @@ def make_csv(metrics, metrics_type, show_hide):
 
     for metric in metrics:
         row.append(metric.archive.id)
-        row.append(metric.archive.label)
+        row.append((metric.archive.label).encode('UTF-8'))
+        row.append(metric.archive.time)
         for column in metric.ordered_columns:
             if show_hide[column[1]] == "true":
-                if column[0] in metric.pretty_columns_csv:
-                    row.append(metric.get_formatted(column[0]))
+                row_entry = metric.get_value(column[0])
+                if isinstance(row_entry, unicode):
+                    row_entry = row_entry.encode('UTF-8')
+                    row.append(row_entry)
                 else:
-                    row.append(metric.get_value(column[0]))
+                    row.append(row_entry)
 
         csv_writer.writerow(row)
         row = []

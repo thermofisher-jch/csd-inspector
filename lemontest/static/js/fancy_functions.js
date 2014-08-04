@@ -226,11 +226,7 @@ function fill_filters() {
 
 function sort_by(thing) {
 	var input = document.getElementsByName(thing.id);
-	if (input[0].value == "desc"){
-		input[0].value = "asc";
-	} else {
-		input[0].value = "desc";
-	}
+	input[0].value = "desc";
 
 	input[0].parentNode.submit()
 }

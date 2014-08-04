@@ -348,23 +348,17 @@ def filter_query(request, metric_object_type):
 
     categorical_filters, numeric_filters, search_params = separate_filter_types(request)
 
-    metrics_query = DBSession.query(metric_object_type).order_by(metric_object_type.archive_id.desc())
+    metrics_query = DBSession.query(metric_object_type).join(Archive).order_by(Archive.id.desc())
 
     if search_params.get('upload_time_sort', ''):
         if search_params['upload_time_sort'] == "desc":
             metrics_query = DBSession.query(metric_object_type).join(Archive).order_by(Archive.time.desc())
-        elif search_params['upload_time_sort'] == "asc":
-            metrics_query = DBSession.query(metric_object_type).join(Archive).order_by(Archive.time.asc())
     elif search_params.get('start_time_sort', ''):
         if search_params['start_time_sort'] == "desc":
             metrics_query = DBSession.query(metric_object_type).order_by(metric_object_type.start_time.desc())
-        elif search_params['start_time_sort'] == "asc":
-            metrics_query = DBSession.query(metric_object_type).order_by(metric_object_type.start_time.asc())
     elif search_params.get('end_time_sort', ''):
         if search_params['end_time_sort'] == "desc":
             metrics_query = DBSession.query(metric_object_type).order_by(metric_object_type.end_time.desc())
-        elif search_params['end_time_sort'] == "asc":
-            metrics_query = DBSession.query(metric_object_type).order_by(metric_object_type.end_time.asc())
 
     for filter_column, value in numeric_filters.items():
         if value[0]:
