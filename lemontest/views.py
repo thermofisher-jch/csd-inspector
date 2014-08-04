@@ -26,7 +26,7 @@ from pyramid.response import Response
 from pyramid.httpexceptions import HTTPFound
 from pyramid.httpexceptions import HTTPNotFound
 from pyramid.exceptions import NotFound
-from sqlalchemy.orm import subqueryload
+from sqlalchemy.orm import subqueryload, joinedload
 from webhelpers import paginate
 import upload
 import helpers
@@ -348,7 +348,7 @@ def filter_query(request, metric_object_type):
 
     categorical_filters, numeric_filters, search_params = separate_filter_types(request)
 
-    metrics_query = DBSession.query(metric_object_type).join(Archive).order_by(Archive.id.desc())
+    metrics_query = DBSession.query(metric_object_type).options(joinedload('archive')).join(Archive).order_by(Archive.id.desc())
 
     if search_params.get('upload_time_sort', ''):
         if search_params['upload_time_sort'] == "desc":
