@@ -225,6 +225,16 @@ class Metrics_Proton_Explog(object):
 
             return seq_kit
 
+    # return scripts version
+    def get_scripts_version(self):
+        if "Scripts version" not in self.explog_data or not self.explog_data['Scripts version'].strip():
+            self.logger.warning("Scripts version not in data")
+            return None
+        else:
+            script_version = unicode(self.explog_data['Scripts version'].strip())
+
+            return script_version
+
 # return Seq Kit Lot
     def get_seq_kit_lot(self):
         if "SeqKitLot" not in self.explog_data or not self.explog_data['SeqKitLot'].strip():

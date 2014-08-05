@@ -388,6 +388,7 @@ class MetricsProton(Base, PrettyFormatter):
     seq_kit_lot = Column(Unicode(255))
     sw_version = Column(Unicode(255))
     tss_version = Column(Unicode(255))
+    scripts_version = Column(Unicode(255))
     start_time = Column(DateTime)
     end_time = Column(DateTime)
     sn_number = Column(Unicode(255))
@@ -431,6 +432,7 @@ class MetricsProton(Base, PrettyFormatter):
                        ("Seq Kit Lot", "seq_kit_lot"),
                        ("SW Version", "sw_version"),
                        ("TSS Version", "tss_version"),
+                       ("Script Version", "scripts_version"),
                        ("Serial Num", "sn_number"),
                        ("Start Time", "start_time"),
                        ("End Time", "end_time"),

@@ -400,6 +400,7 @@ def set_metrics_proton(metrics_proton_id):
         metric.end_time = explog.get_end_time()
         metric.barcode_set = explog.get_barcode_set()
         metric.sn_number = explog.get_sn_number()
+        metric.scripts_version = explog.get_scripts_version()
 
     if explog.is_version_valid():
         metric.tss_version = explog.get_tss_version()
