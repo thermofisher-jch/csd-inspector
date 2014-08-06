@@ -1,7 +1,7 @@
 // shows and hides columns
 function show_hide_columns(array_of_columns) {
 	try {
-		for ( var item in array_of_columns) {
+		for (var item in array_of_columns) {
 			if (array_of_columns[item] == "true") {
 				var elements = document.getElementsByClassName(item);
 				for (i = 0; i < elements.length; i++) {
@@ -17,7 +17,7 @@ function show_hide_columns(array_of_columns) {
 			}
 		}
 	} catch (err) {
-		alert(err);
+		//Some error
 	}
 }
 
@@ -38,8 +38,8 @@ function get_shown_columns() {
 
 // sets proper values for the hidden inputs used for csv support
 function get_shown_columns_csv() {
-	var array_of_columns = global_columns_default;
-	for (var item in array_of_columns) {
+	var array_of_columns = {};
+	for (var item in global_columns_default) {
 		var checkbox = document.getElementById(item);
 		if (checkbox.checked) {
 			array_of_columns[item] = "true";
@@ -67,15 +67,9 @@ function get_shown_columns_csv() {
 // show or hide all columns at once
 function all_columns(show) {
 	if (show) {
-		var array_of_columns = global_columns_default;
-		for (var item in global_columns_default) {
-			console.log(item);
-			console.log(global_columns_default[item]);
-		}
-		show_hide_columns(array_of_columns);
+		show_hide_columns(global_columns_default);
 	} else {
-		array_of_columns = global_columns_false;
-		show_hide_columns(array_of_columns);
+		show_hide_columns(global_columns_false);
 	}
 }
 
