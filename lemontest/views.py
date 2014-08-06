@@ -367,7 +367,10 @@ def filter_query(request, metric_object_type):
             metrics_query = metrics_query.filter(metric_object_type.get_column(filter_column[1]) <= float(value[1]))
 
     for key, value in categorical_filters.items():
-        metrics_query = metrics_query.filter(metric_object_type.get_column(key) == value)
+        if value == 'None':
+            metrics_query = metrics_query.filter(metric_object_type.get_column(key) == None)
+        else:
+            metrics_query = metrics_query.filter(metric_object_type.get_column(key) == value)
 
     sorted_numeric_filter_list = sorted_nicely(numeric_filters.keys(), itemgetter(0))
 
@@ -441,23 +444,37 @@ def get_filterable_categories_pgm():
 
     metrics_query = DBSession.query(MetricsPGM)
 
-    for metric in metrics_query:
-        if metric.chip_type and metric.chip_type not in chip_types:
-            chip_types.append(metric.chip_type)
-        if metric.seq_kit and metric.seq_kit not in seq_kits:
-            seq_kits.append(metric.seq_kit)
-        if metric.run_type and metric.run_type not in run_types:
-            run_types.append(metric.run_type)
-        if metric.reference and metric.reference not in reference_libs:
-            reference_libs.append(metric.reference)
-        if metric.sw_version and metric.sw_version not in sw_versions:
-            sw_versions.append(metric.sw_version)
-        if metric.tss_version and metric.tss_version not in tss_versions:
-            tss_versions.append(metric.tss_version)
-        if metric.hw_version and metric.hw_version not in hw_versions:
-            hw_versions.append(metric.hw_version)
-        if metric.barcode_set and metric.barcode_set not in barcode_sets:
-            barcode_sets.append(metric.barcode_set)
+    # Distinct Chip Types in database
+    chip_types = metrics_query.distinct().order_by(MetricsPGM.chip_type).values(MetricsPGM.chip_type)
+    chip_types = [x[0] for x in chip_types]
+
+    # Distinct Seq Kits in database
+    seq_kits = metrics_query.distinct().order_by(MetricsPGM.seq_kit).values(MetricsPGM.seq_kit)
+    seq_kits = [x[0] for x in seq_kits]
+
+    # Distinct Run Types in database
+    run_types = metrics_query.distinct().order_by(MetricsPGM.run_type).values(MetricsPGM.run_type)
+    run_types = [x[0] for x in run_types]
+
+    # Distinct Reference Libraries in database
+    reference_libs = metrics_query.distinct().order_by(MetricsPGM.reference).values(MetricsPGM.reference)
+    reference_libs = [x[0] for x in reference_libs]
+
+    # Distinct SW Versions in database
+    sw_versions = metrics_query.distinct().order_by(MetricsPGM.sw_version).values(MetricsPGM.sw_version)
+    sw_versions = [x[0] for x in sw_versions]
+
+    # Distinct TSS Versions in database
+    tss_versions = metrics_query.distinct().order_by(MetricsPGM.tss_version).values(MetricsPGM.tss_version)
+    tss_versions = [x[0] for x in tss_versions]
+
+    # Distinct HW Versions in database
+    hw_versions = metrics_query.distinct().order_by(MetricsPGM.hw_version).values(MetricsPGM.hw_version)
+    hw_versions = [x[0] for x in hw_versions]
+
+    # Distinct Barcode Sets in database
+    barcode_sets = metrics_query.distinct().order_by(MetricsPGM.barcode_set).values(MetricsPGM.barcode_set)
+    barcode_sets = [x[0] for x in barcode_sets]
 
     return chip_types, seq_kits, run_types, reference_libs, sw_versions, tss_versions, hw_versions, barcode_sets
 
@@ -473,21 +490,33 @@ def get_filterable_categories_proton():
 
     metrics_query = DBSession.query(MetricsProton)
 
-    for metric in metrics_query:
-        if metric.chip_type and metric.chip_type not in chip_types:
-            chip_types.append(metric.chip_type)
-        if metric.seq_kit and metric.seq_kit not in seq_kits:
-            seq_kits.append(metric.seq_kit)
-        if metric.run_type and metric.run_type not in run_types:
-            run_types.append(metric.run_type)
-        if metric.reference and metric.reference not in reference_libs:
-            reference_libs.append(metric.reference)
-        if metric.sw_version and metric.sw_version not in sw_versions:
-            sw_versions.append(metric.sw_version)
-        if metric.tss_version and metric.tss_version not in tss_versions:
-            tss_versions.append(metric.tss_version)
-        if metric.barcode_set and metric.barcode_set not in barcode_sets:
-            barcode_sets.append(metric.barcode_set)
+    # Distinct Chip Types in database
+    chip_types = metrics_query.distinct().order_by(MetricsProton.chip_type).values(MetricsProton.chip_type)
+    chip_types = [x[0] for x in chip_types]
+
+    # Distinct Seq Kits in database
+    seq_kits = metrics_query.distinct().order_by(MetricsProton.seq_kit).values(MetricsProton.seq_kit)
+    seq_kits = [x[0] for x in seq_kits]
+
+    # Distinct Run Types in database
+    run_types = metrics_query.distinct().order_by(MetricsProton.run_type).values(MetricsProton.run_type)
+    run_types = [x[0] for x in run_types]
+
+    # Distinct Reference Libraries in database
+    reference_libs = metrics_query.distinct().order_by(MetricsProton.reference).values(MetricsProton.reference)
+    reference_libs = [x[0] for x in reference_libs]
+
+    # Distinct SW Versions in database
+    sw_versions = metrics_query.distinct().order_by(MetricsProton.sw_version).values(MetricsProton.sw_version)
+    sw_versions = [x[0] for x in sw_versions]
+
+    # Distinct TSS Versions in database
+    tss_versions = metrics_query.distinct().order_by(MetricsProton.tss_version).values(MetricsProton.tss_version)
+    tss_versions = [x[0] for x in tss_versions]
+
+    # Distinct Barcode Sets in database
+    barcode_sets = metrics_query.distinct().order_by(MetricsProton.barcode_set).values(MetricsProton.barcode_set)
+    barcode_sets = [x[0] for x in barcode_sets]
 
     return chip_types, seq_kits, run_types, reference_libs, sw_versions, tss_versions, barcode_sets
 

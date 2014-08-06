@@ -144,6 +144,8 @@ class Metrics_PGM_Explog(object):
             return None
         else:
             chip_type = unicode(self.explog_data["ChipType"].strip())
+            if chip_type.startswith('"') and chip_type.endswith('"'):
+                chip_type = chip_type[1:-1]
 
             return chip_type
 
