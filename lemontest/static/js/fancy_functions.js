@@ -180,6 +180,27 @@ function get_extra_filter_number() {
 	document.getElementById('extra_filter_number').value = filter_id - 1;
 }
 
+function clear_filters() {
+	try {
+		var all_selects = document.getElementsByTagName('select');
+		for (var i = 0; i < all_selects.length; i++) {
+			var options = all_selects[i].options;
+			for (var j = 0; j < options.length; j++) {
+				options.selectedIndex = 0;
+			}
+		}
+
+		var all_inputs = document.getElementsByTagName('input');
+		for (var i = 0; i < all_inputs.length; i++) {
+			if (all_inputs[i].type == "text" && all_inputs[i].className == "form-control") {
+				all_inputs[i].value = "";
+			}
+		}
+	} catch(err) {
+		console.log(err);
+	}
+}
+
 // fills all the numeric and categorical filter options
 function fill_filters() {
 	try {

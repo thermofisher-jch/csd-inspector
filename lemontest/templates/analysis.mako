@@ -37,6 +37,10 @@
 		// resets filter options before GET method
 		add_filters_onload(${search['extra_filter_number']})
 
+		$('#clear_filters').click(function(){
+			clear_filters();
+		});
+
 		// add new numerical filter option
 		$("#add_filter").click(function(event){
 			add_new_filter();
@@ -184,7 +188,7 @@
 
 			<div class="pull-right" id="filter_buttons" style="position: relative;">
 				<button type="submit" class="btn btn-info">Filter</button>
-				<button type="button" class="btn btn-info">Clear Filters</button>
+				<button id="clear_filters" type="button" class="btn btn-info">Clear Filters</button>
 			</div>
 		</div>
 		<!-- END CATEGORICAL FILTERS -->
