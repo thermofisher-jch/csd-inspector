@@ -133,8 +133,8 @@
                 <ul class="dropdown-menu" role="menu">
                     <li><a href="${request.route_path('analysis_pgm')}">PGM</a></li>
                     <li><a href="${request.route_path('analysis_proton')}">Proton</a></li>
-                    <li><a>Something</a></li>
-                    <li><a>Something Else</a></li>
+                    <li class="disabled"><a>OT Log</a></li>
+                    <li class="disabled"><a>Ion Chef</a></li>
                 </ul>
               </li>
             </ul>

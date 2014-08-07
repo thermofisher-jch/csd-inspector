@@ -220,9 +220,9 @@
 	<div class="btn-group pull-left">
 		<button type="button" class="btn btn-default btn-lg some_space_right" id="filter_toggle">Filter <span class="caret"></span></button>
 		<button type="button" class="btn btn-default" data-toggle="modal" data-target=".show_hide_modal">Show / Hide Columns</button>
-
-		<%block name="download_csv_form">
-		<form class="form_spacing" id="csv_filter" action="${request.route_path('analysis_csv')}" method="POST" onclick="get_shown_columns_csv()">
+	</div>
+	<%block name="download_csv_form">
+		<form class="pull-right" id="csv_filter" action="${request.route_path('analysis_csv')}" method="POST" onclick="get_shown_columns_csv()">
 			<input type="hidden" name="csrf_token" value="${request.session.get_csrf_token()}"/>
 			<input type="hidden" name="metric_type" value="${request.path}"/>
 			<input type="hidden" name="show_hide"  id="show_hide" value="" />
@@ -243,7 +243,6 @@
 			<button type="submit" class="btn btn-success">Download CSV <span class="icon-white icon-download"></span></button>
 		</form>
 		</%block>
-	</div>
 </div>
 </%block>
 
