@@ -129,7 +129,7 @@
               <li><a href="${request.route_path('upload')}">Submit Archive</a></li>
               <li><a href="${request.route_path('reports')}">List Reports</a></li>
               <li><a href="${request.route_path('documentation')}">Documentation</a></li>
-              <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Analysis <span class="icon-white icon-th-list"></span></a>
+              <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Ion Trace <span class="icon-white icon-th-list"></span></a>
                 <ul class="dropdown-menu" role="menu">
                     <li><a href="${request.route_path('analysis_pgm')}">PGM</a></li>
                     <li><a href="${request.route_path('analysis_proton')}">Proton</a></li>

@@ -187,7 +187,7 @@
 			</div>
 
 			<div class="pull-right" id="filter_buttons" style="position: relative;">
-				<button type="submit" class="btn btn-info">Filter</button>
+				<button type="submit" class="btn btn-info">Apply Filters</button>
 				<button id="clear_filters" type="button" class="btn btn-info">Clear Filters</button>
 			</div>
 		</div>
