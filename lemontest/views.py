@@ -11,21 +11,28 @@ import collections
 from operator import itemgetter
 from datetime import datetime
 
-from lemontest.models import MetricsPGM, Archive
+from lemontest.models import MetricsPGM
 from lemontest.models import MetricsProton
-from lemontest.csv_support import make_csv
+from lemontest.models import Saved_Filters_PGM
+from lemontest.models import Saved_Filters_Proton
+from lemontest.models import FileProgress
 
 from lemontest.models import DBSession
 from lemontest.models import Archive
 from lemontest.models import Diagnostic
 from lemontest.models import Tag
 from lemontest.models import testers
+
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
 from pyramid.response import Response
 from pyramid.httpexceptions import HTTPFound
 from pyramid.httpexceptions import HTTPNotFound
+from pyramid.httpexceptions import HTTPInternalServerError
 from pyramid.exceptions import NotFound
+
+from pyramid.response import FileResponse
+
 from sqlalchemy.orm import subqueryload, joinedload
 from webhelpers import paginate
 import upload
@@ -33,6 +40,7 @@ import helpers
 from sqlalchemy.sql.expression import column
 from collections import OrderedDict
 from sqlalchemy.orm.interfaces import collections
+import lemontest
 
 logger = logging.getLogger(__name__)
 
@@ -333,76 +341,21 @@ def not_found(self, request):
 def old_browser(request):
     return {}
 
-# Sort
-def sorted_nicely(l, key):
-    """ Sort the given iterable in the way that humans expect."""
-    convert = lambda text: int(text) if text.isdigit() else text
-    alphanum_key = lambda item: [ convert(c) for c in re.split('([0-9]+)', key(item)) ]
-    return sorted(l, key = alphanum_key)
-
-# filter query by type
-def filter_query(request, metric_object_type):
-    search_params = {}
-    numeric_filters = {}
-    categorical_filters = {}
-
-    categorical_filters, numeric_filters, search_params = separate_filter_types(request)
-
-    metrics_query = DBSession.query(metric_object_type).options(joinedload('archive')).join(Archive).order_by(Archive.id.desc())
-
-    if search_params.get('upload_time_sort', ''):
-        if search_params['upload_time_sort'] == "desc":
-            metrics_query = DBSession.query(metric_object_type).options(joinedload('archive')).join(Archive).order_by(Archive.time.desc())
-    elif search_params.get('start_time_sort', ''):
-        if search_params['start_time_sort'] == "desc":
-            metrics_query = DBSession.query(metric_object_type).options(joinedload('archive')).order_by(metric_object_type.start_time.desc())
-    elif search_params.get('end_time_sort', ''):
-        if search_params['end_time_sort'] == "desc":
-            metrics_query = DBSession.query(metric_object_type).options(joinedload('archive')).order_by(metric_object_type.end_time.desc())
-
-    for filter_column, value in numeric_filters.items():
-        if value[0]:
-            metrics_query = metrics_query.filter(metric_object_type.get_column(filter_column[1]) >= float(value[0]))
-        if value[1]:
-            metrics_query = metrics_query.filter(metric_object_type.get_column(filter_column[1]) <= float(value[1]))
-
-    for key, value in categorical_filters.items():
-        if value == 'None':
-            metrics_query = metrics_query.filter(metric_object_type.get_column(key) == None)
-        else:
-            metrics_query = metrics_query.filter(metric_object_type.get_column(key) == value)
-
-    sorted_numeric_filter_list = sorted_nicely(numeric_filters.keys(), itemgetter(0))
-
-    ordered_numeric_filters = collections.OrderedDict()
-
-    for keys in sorted_numeric_filter_list:
-        ordered_numeric_filters[keys] = numeric_filters[keys]
-
-    numeric_filters = OrderedDict()
-
-    for keys, values in ordered_numeric_filters.items():
-        numeric_filters[keys[0]] = (keys[1], values[0], values[1])
-
-    return metrics_query, search_params, numeric_filters, categorical_filters
-
-# Separate filter types
-def separate_filter_types(request):
-
+# validate filter parameters
+def validate_filter_params(request, params_only=False):
     numeric_filter_re = re.compile('metric_type_filter\d+')
     numeric_filter_re2 = re.compile('.*_number\d+')
     sorting_filter_re = re.compile('.*_sort')
 
+    extra_params = {}
     search_params = {}
     numeric_filters = {}
     categorical_filters = {}
 
-    # clean up search parameters by eliminating empty searches
-    for key in request.params.keys():
-        if request.params[key].strip():
-            search_params[key] = request.params[key].strip()
+    for key in request.keys():
+        if request[key].strip():
+            search_params[key] = request[key].strip()
 
-    # separate numeric parameters with their respective numeric value
     for key, value in search_params.items():
         if numeric_filter_re.match(key):
             category = numeric_filter_re.match(key).group()
@@ -411,25 +364,115 @@ def separate_filter_types(request):
             max_number = 'max_number' + category_number[0]
 
             if min_number in search_params and max_number in search_params:
-                numeric_filters[(key, value)] = (search_params[min_number], search_params[max_number])
+                numeric_filters[key] = {'type': value, 'min': search_params[min_number], 'max': search_params[max_number]}
+                search_params[min_number] = ''
+                search_params[max_number] = ''
             elif min_number in search_params and max_number not in search_params:
-                numeric_filters[(key, value)] = (search_params[min_number], '')
+                numeric_filters[key] = {'type': value, 'min': search_params[min_number], 'max': ''}
+                search_params[min_number] = ''
             elif min_number not in search_params and max_number in search_params:
-                numeric_filters[(key, value)] = ('', search_params[max_number])
+                numeric_filters[key] = {'type': value, 'min': '', 'max': search_params[max_number]}
+                search_params[max_number] = ''
+            search_params[key] = ''
+
+    if 'extra_filter_number' not in search_params:
+        numeric_filters['extra_filters'] = u'0'
+        extra_params['extra_filters_template'] = u'0'
+    else:
+        numeric_filters['extra_filters'] = search_params['extra_filter_number']
+        extra_params['extra_filters_template'] = search_params['extra_filter_number']
+        search_params['extra_filter_number'] = ''
+
+    if 'filterid' not in search_params:
+        extra_params['filterid'] = ''
+    else:
+        extra_params['filterid'] = search_params['filterid']
+        search_params['filterid'] = ''
+
+    if 'show_hide' in search_params:
+        extra_params['show_hide'] = search_params['show_hide']
+        search_params['show_hide'] = ''
+    if 'csrf_token' in search_params:
+        extra_params['csrf_token'] = search_params['csrf_token']
+        search_params['csrf_token'] = ''
+    if 'metric_type' in search_params:
+        extra_params['metric_type'] = search_params['metric_type']
+        search_params['metric_type'] = ''
+    if 'page' in search_params:
+        extra_params['page'] = search_params['page']
+        search_params['page'] = ''
+    if 'current_selected_filter' in search_params:
+        extra_params['current_selected_filter'] = search_params['current_selected_filter']
+        search_params['current_selected_filter'] = ''
+    if 'saved_filter_name' in search_params:
+        extra_params['saved_filter_name'] = search_params['saved_filter_name']
+        search_params['saved_filter_name'] = ''
+    if 'saved_filters' in search_params:
+        extra_params['saved_filters'] = search_params['saved_filters']
+        search_params['saved_filters'] = ''
+    if 'taskid' in search_params:
+        extra_params['taskid'] = search_params['taskid']
+        search_params['taskid'] = ''
+
+    temp = {}
+    for key in search_params.keys():
+        if search_params[key]:
+            temp[key] = search_params[key]
+    search_params = temp
 
     # separate categorical parameters
     # except the ones needed for csrf verification and csv support
     for key, value in search_params.items():
-        if not numeric_filter_re.match(key) and not numeric_filter_re2.match(key) and not sorting_filter_re.match(key) and key != 'extra_filter_number' and key != 'show_hide' and key != 'csrf_token' and key != 'metric_type' and key != 'page':
+        if not sorting_filter_re.match(key):
             categorical_filters[key] = value
 
-    for keys, value in request.params.items():
-        search_params[keys] = value
+    if params_only:
+        return extra_params
+    else:
+        return categorical_filters, numeric_filters, extra_params
 
-    if 'extra_filter_number' not in search_params:
-        search_params['extra_filter_number'] = u'0'
+# create filter object
+def get_db_queries(request, metric_object_type=None):
 
-    return categorical_filters, numeric_filters, search_params
+    categorical_filters, numeric_filters, extra_params = validate_filter_params(request)
+
+    if not metric_object_type:
+        if 'metric_type' not in extra_params or not extra_params['metric_type']:
+            return HTTPInternalServerError()
+        else:
+            metric_type = extra_params['metric_type']
+
+        if metric_type == '/trace/pgm':
+            metric_object_type = MetricsPGM
+        elif metric_type == '/trace/proton':
+            metric_object_type = MetricsProton
+
+    if metric_object_type == MetricsPGM:
+        if 'filterid' in extra_params and extra_params['filterid'] and extra_params['filterid'] != 'blank':
+            filter_obj = DBSession.query(Saved_Filters_PGM).filter(Saved_Filters_PGM.id == int(extra_params['filterid'])).first()
+            extra_params['current_selected_filter'] = filter_obj.name
+        else:
+            filter_obj = Saved_Filters_PGM('temp', json.dumps(numeric_filters), json.dumps(categorical_filters))
+            extra_params['current_selected_filter'] = 'None'
+        if not filter_obj:
+            filter_obj = Saved_Filters_PGM('not_found', json.dumps(numeric_filters), json.dumps(categorical_filters))
+            extra_params['current_selected_filter'] = 'None'
+
+        saved_filters = DBSession.query(Saved_Filters_PGM).order_by(Saved_Filters_PGM.id.desc())
+    elif metric_object_type == MetricsProton:
+        if 'filterid' in extra_params and extra_params['filterid'] and extra_params['filterid'] != 'blank':
+            filter_obj = DBSession.query(Saved_Filters_Proton).filter(Saved_Filters_Proton.id == int(extra_params['filterid'])).first()
+            extra_params['current_selected_filter'] = filter_obj.name
+        else:
+            filter_obj = Saved_Filters_Proton('temp', json.dumps(numeric_filters), json.dumps(categorical_filters))
+            extra_params['current_selected_filter'] = 'None'
+        if not filter_obj:
+            filter_obj = Saved_Filters_Proton('not_found', json.dumps(numeric_filters), json.dumps(categorical_filters))
+            extra_params['current_selected_filter'] = 'None'
+
+        saved_filters = DBSession.query(Saved_Filters_Proton).order_by(Saved_Filters_Proton.id.desc())
+
+    return filter_obj, saved_filters, extra_params
 
 # Author: Anthony Rodriguez
 def get_filterable_categories_pgm():
@@ -523,95 +566,12 @@ def get_filterable_categories_proton():
 # Author: Anthony Rodriguez
 @view_config(route_name='analysis_proton', renderer='analysis.mako', permission='view')
 def analysis_proton(request):
+    filter_obj, saved_filters, extra_params = get_db_queries(request.params, MetricsProton)
 
-    metrics_query, search_params, numeric_filters, categorical_filters = filter_query(request, MetricsProton)
-
-    show_hide_defaults = {}
-    for columns in MetricsProton.ordered_columns:
-        show_hide_defaults[columns[1]] = "true"
-
-    show_hide_defaults_ordered = OrderedDict(sorted(show_hide_defaults.items(), key=lambda t: t[0]))
-
-    show_hide_false = {}
-    for columns in MetricsProton.ordered_columns:
-        show_hide_false[columns[1]] = "false"
-
-    show_hide_false_ordered = OrderedDict(sorted(show_hide_false.items(), key=lambda t: t[0]))
-
-    hw_versions = []
-
-    chip_types, seq_kits, run_types, reference_libs, sw_versions, tss_versions, barcode_sets = get_filterable_categories_proton()
-
-    # BEGIN Pager
-    page = int(request.params.get("page", 1))
-    page_url = paginate.PageURL_WebOb(request)
-
-    metric_pages = paginate.Page(metrics_query, page, items_per_page=100, url=page_url)
-    pages = [metric_pages.first_page]
-    left_pagius = 5
-    right_pagius = 5
-    total = 2 + left_pagius + 1 + right_pagius + 2
-
-    if metric_pages.page_count <= total:
-        pages = range(1, metric_pages.page_count + 1)
-    else:
-        if metric_pages.page - left_pagius < 3:
-            diff = 3 - (metric_pages.page - left_pagius)
-            right_pagius += diff
-            left_pagius = max(left_pagius - diff, 0)
-        if metric_pages.page + right_pagius > metric_pages.page_count - 2:
-            diff = (metric_pages.page + right_pagius + 1) - (metric_pages.page_count - 1)
-            left_pagius += diff
-            right_pagius = max(right_pagius - diff, 0)
-        if metric_pages.page - left_pagius > 3:
-            pages.append("..")
-        elif metric_pages.page - left_pagius == 3:
-            pages.append("2")
-
-        if metric_pages.page > 2:
-            pages.extend(range(max(metric_pages.page - left_pagius, 3), metric_pages.page))
-        if metric_pages.page >= 2:
-            pages.append(metric_pages.page)
-
-        pages.extend(range(metric_pages.page + 1, min(metric_pages.page + right_pagius + 1, metric_pages.page_count)))
-
-        if metric_pages.page + right_pagius < metric_pages.page_count - 2:
-            pages.append("..")
-        elif metric_pages.page + right_pagius == metric_pages.page_count - 2:
-            pages.append(metric_pages.page_count - 1)
-
-        if metric_pages.page < metric_pages.page_count:
-            pages.append(metric_pages.page_count)
-    # END Pager
-
-    return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "search": search_params, "metric_object_type": MetricsProton,
-            "show_hide_defaults": json.dumps(show_hide_defaults_ordered), "show_hide_false": json.dumps(show_hide_false_ordered),
-            "metric_columns": json.dumps(MetricsProton.numeric_columns), "numeric_filters_json": json.dumps(numeric_filters),
-            'categorical_filters_json': json.dumps(categorical_filters), 'chip_types': chip_types, 'seq_kits': seq_kits,
-            "run_types": run_types, "reference_libs": reference_libs, "sw_versions": sw_versions, "tss_versions": tss_versions,
-            "hw_versions": hw_versions, "barcode_sets": barcode_sets}
-
-# Author: Anthony Rodriguez
-@view_config(route_name="analysis_pgm", renderer="analysis.mako", permission="view")
-def analysis_pgm(request):
-
-    metrics_query, search_params, numeric_filters, categorical_filters = filter_query(request, MetricsPGM)
-
-    show_hide_defaults = {}
-    for columns in MetricsPGM.ordered_columns:
-        show_hide_defaults[columns[1]] = "true"
-
-    show_hide_defaults_ordered = OrderedDict(sorted(show_hide_defaults.items(), key=lambda t: t[0]))
-
-    show_hide_false = {}
-    for columns in MetricsPGM.ordered_columns:
-        show_hide_false[columns[1]] = "false"
-
-    show_hide_false_ordered = OrderedDict(sorted(show_hide_false.items(), key=lambda t: t[0]))
+    metrics_query = filter_obj.get_query()
 
     chip_types, seq_kits, run_types, reference_libs, sw_versions, tss_versions, hw_versions, barcode_sets = get_filterable_categories_pgm()
 
-    # BEGIN Pager
     page = int(request.params.get("page", 1))
     page_url = paginate.PageURL_WebOb(request)
 
@@ -651,14 +611,69 @@ def analysis_pgm(request):
 
         if metric_pages.page < metric_pages.page_count:
             pages.append(metric_pages.page_count)
-    # END Pager
 
-    return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "search": search_params, "metric_object_type": MetricsPGM,
-            "show_hide_defaults": json.dumps(show_hide_defaults_ordered), "show_hide_false": json.dumps(show_hide_false_ordered),
-            "metric_columns": json.dumps(MetricsPGM.numeric_columns), "numeric_filters_json": json.dumps(numeric_filters),
-            'categorical_filters_json': json.dumps(categorical_filters), 'chip_types': chip_types, 'seq_kits': seq_kits,
+    return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "search": extra_params, "metric_object_type": MetricsProton,
+            "show_hide_defaults": json.dumps(MetricsProton.show_hide_defaults), "show_hide_false": json.dumps(MetricsProton.show_hide_false),
+            "metric_columns": json.dumps(MetricsProton.numeric_columns), "filter_name": filter_obj.name, "numeric_filters_json": filter_obj.numeric_filters,
+            'categorical_filters_json': filter_obj.categorical_filters, 'chip_types': chip_types, 'seq_kits': seq_kits,
             "run_types": run_types, "reference_libs": reference_libs, "sw_versions": sw_versions, "tss_versions": tss_versions,
-            "hw_versions": hw_versions, "barcode_sets": barcode_sets}
+            "hw_versions": hw_versions, "barcode_sets": barcode_sets, "saved_filters": saved_filters}
+
+# Author: Anthony Rodriguez
+@view_config(route_name='analysis_pgm', renderer="analysis.mako", permission="view")
+def analysis_pgm(request):
+    filter_obj, saved_filters, extra_params = get_db_queries(request.params, MetricsPGM)
+
+    metrics_query = filter_obj.get_query()
+
+    chip_types, seq_kits, run_types, reference_libs, sw_versions, tss_versions, hw_versions, barcode_sets = get_filterable_categories_pgm()
+
+    page = int(request.params.get("page", 1))
+    page_url = paginate.PageURL_WebOb(request)
+
+    metric_pages = paginate.Page(metrics_query, page, items_per_page=100, url=page_url)
+    pages = [metric_pages.first_page]
+    left_pagius = 5
+    right_pagius = 5
+    total = 2 + left_pagius + 1 + right_pagius + 2
+
+    if metric_pages.page_count <= total:
+        pages = range(1, metric_pages.page_count + 1)
+    else:
+        if metric_pages.page - left_pagius < 3:
+            diff = 3 - (metric_pages.page - left_pagius)
+            right_pagius += diff
+            left_pagius = max(left_pagius - diff, 0)
+        if metric_pages.page + right_pagius > metric_pages.page_count - 2:
+            diff = (metric_pages.page + right_pagius + 1) - (metric_pages.page_count - 1)
+            left_pagius += diff
+            right_pagius = max(right_pagius - diff, 0)
+        if metric_pages.page - left_pagius > 3:
+            pages.append("..")
+        elif metric_pages.page - left_pagius == 3:
+            pages.append("2")
+
+        if metric_pages.page > 2:
+            pages.extend(range(max(metric_pages.page - left_pagius, 3), metric_pages.page))
+        if metric_pages.page >= 2:
+            pages.append(metric_pages.page)
+
+        pages.extend(range(metric_pages.page + 1, min(metric_pages.page + right_pagius + 1, metric_pages.page_count)))
+
+        if metric_pages.page + right_pagius < metric_pages.page_count - 2:
+            pages.append("..")
+        elif metric_pages.page + right_pagius == metric_pages.page_count - 2:
+            pages.append(metric_pages.page_count - 1)
+
+        if metric_pages.page < metric_pages.page_count:
+            pages.append(metric_pages.page_count)
+
+    return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "search": extra_params, "metric_object_type": MetricsPGM,
+            "show_hide_defaults": json.dumps(MetricsPGM.show_hide_defaults), "show_hide_false": json.dumps(MetricsPGM.show_hide_false),
+            "metric_columns": json.dumps(MetricsPGM.numeric_columns), "filter_name": filter_obj.name, "numeric_filters_json": filter_obj.numeric_filters,
+            'categorical_filters_json': filter_obj.categorical_filters, 'chip_types': chip_types, 'seq_kits': seq_kits,
+            "run_types": run_types, "reference_libs": reference_libs, "sw_versions": sw_versions, "tss_versions": tss_versions,
+            "hw_versions": hw_versions, "barcode_sets": barcode_sets, "saved_filters": saved_filters}
 
 #Author: Anthony Rodriguez
 @view_config(route_name="analysis_show_hide", renderer="json", permission="view", xhr=True)
@@ -668,34 +683,161 @@ def show_hide_columns(request):
 
     request_path = request.params.get("metric_type")
 
-    if request_path == '/analysis/pgm':
-        if "show_hide_columns/analysis/pgm" in request.POST and request.POST['show_hide_columns/analysis/pgm']:
-            show_hide_columns = request.params.get("show_hide_columns/analysis/pgm")
-    elif request_path == '/analysis/proton':
-        if "show_hide_columns/analysis/proton" in request.POST and request.POST['show_hide_columns/analysis/proton']:
-            show_hide_columns = request.params.get("show_hide_columns/analysis/proton")
+    if request_path == '/trace/pgm':
+        if "show_hide_columns/trace/pgm" in request.POST and request.POST['show_hide_columns/trace/pgm']:
+            show_hide_columns = request.params.get("show_hide_columns/trace/pgm")
+    elif request_path == '/trace/proton':
+        if "show_hide_columns/trace/proton" in request.POST and request.POST['show_hide_columns/trace/proton']:
+            show_hide_columns = request.params.get("show_hide_columns/trace/proton")
 
-    if request_path == '/analysis/pgm':
-        request.session["show_hide_session/analysis/pgm"]= show_hide_columns
-    elif request_path == '/analysis/proton':
-        request.session["show_hide_session/analysis/proton"]= show_hide_columns
+    if request_path == '/trace/pgm':
+        request.session["show_hide_session/trace/pgm"]= show_hide_columns
+    elif request_path == '/trace/proton':
+        request.session["show_hide_session/trace/proton"]= show_hide_columns
 
     return {"status": 200}
+
+def does_filter_exist(filter_object):
+    '''
+    check hash of filter_object to see if it already exists in the db
+    if it does exist return true and the id, else false and empty string
+    '''
+    return False, ''
+
+@view_config(context=HTTPInternalServerError, renderer='404.mako')
+def server_error(self, request):
+    request.response.status = 500
+    return {}
 
 # Author: Anthony Rodriguez
 @view_config(route_name="analysis_csv", permission="view")
 def analysis_csv(request):
+    filter_obj, saved_filters, extra_params = get_db_queries(request.params)
 
-    if request.params.get("metric_type", u'') == '/analysis/pgm':
+    if 'metric_type' not in extra_params or not extra_params['metric_type']:
+        return HTTPInternalServerError()
+    else:
+        metric_type = extra_params['metric_type']
+
+    if metric_type == '/trace/pgm':
         metric_object_type = MetricsPGM
-    elif request.params.get("metric_type", u'') == '/analysis/proton':
+        filter_object_type = Saved_Filters_PGM
+    elif metric_type == '/trace/proton':
         metric_object_type = MetricsProton
+        filter_object_type = Saved_Filters_Proton
 
-    show_hide = {}
+    file_progress = FileProgress('csv')
+    DBSession.add(file_progress)
+    transaction.commit()
 
-    if "show_hide" in request.params and request.params['show_hide']:
-        show_hide = json.loads(request.params.get('show_hide'))
+    '''
+    if the filter_object hash already exists, query db and pass id to celery task
+    else pass entire request to celery task so that the task can create the filter object
+    '''
+    filter_exists, filter_id = does_filter_exist(filter_obj)
 
-    metrics_query, search_params, numeric_filters, categorical_filters = filter_query(request, metric_object_type)
+    if not filter_exists:
+        filter_id = extra_params['filterid']
 
-    return Response(make_csv(metrics_query, metric_object_type, show_hide), content_type="text/csv", content_disposition="attachment; filename=analysis.csv")
+    if filter_exists or filter_id:
+        filter_obj = DBSession.query(filter_object_type).filter(filter_object_type.id == filter_id).first()
+        celery_task = lemontest.csv_support.make_csv.delay(metric_object_type, filter_object_type, file_progress.id, extra_params['show_hide'], filter_id=filter_obj.id)
+    else:
+        celery_task = lemontest.csv_support.make_csv.delay(metric_object_type, filter_object_type, file_progress.id, extra_params['show_hide'], request=request.params)
+
+    url = request.route_url('analysis_csv_update')
+    url += '?taskid=' + str(celery_task.id)
+    url += '&metric_type=' + metric_type
+    return HTTPFound(location=url)
+
+@view_config(route_name='analysis_csv_update', renderer='json', permission='view')
+def check_csv_file(request):
+
+    extra_params = validate_filter_params(request.params, params_only=True)
+
+    task_id = extra_params.get('taskid', '')
+    metric_type = extra_params.get('metric_type', '')
+    if not task_id:
+        task_id = request.session['file_pending' + metric_type]
+    else:
+        request.session['file_pending' + metric_type] = task_id
+
+    file_progress = DBSession.query(FileProgress).filter(FileProgress.celery_id == unicode(task_id)).first()
+
+    if file_progress:
+        if file_progress.status != "Done":
+            return {'status': 'pending', 'task_id': task_id}
+        else:
+            return {'status': 'done', 'id': file_progress.id}
+    else:
+        return {'status': 'pending', 'task_id': task_id}
+
+@view_config(route_name='analysis_serve_csv', renderer='json', permission='view')
+def serve_csv_file(request):
+    metric_type = request.params.get('metric_type', '')
+
+    request.session['file_pending' + metric_type] = ''
+
+    file = DBSession.query(FileProgress).filter(FileProgress.id == request.params['file_id']).first()
+    response = FileResponse(file.path, request=request, content_type='text/csv')
+    response.headers['Content-Disposition'] = "attachment; filename=analysis.csv"
+    return response
+
+@view_config(route_name='analysis_apply_filter', renderer="json", permission='view')
+def apply_filter(request):
+    if 'metric_type' in request.params and request.params['metric_type'].strip() == '/trace/pgm':
+        url = request.route_url('analysis_pgm')
+        url += '?filterid=' + request.params['filterid']
+    elif 'metric_type' in request.params and request.params['metric_type'].strip() == '/trace/proton':
+        url = request.route_url('analysis_proton')
+        url += '?filterid=' + request.params['filterid']
+
+    return HTTPFound(location=url)
+
+@view_config(route_name="analysis_save_filter", renderer="json", permission="view")
+def save_filter(request):
+    if 'metric_type' in request.params and request.params['metric_type'].strip() == '/trace/pgm':
+        filter_obj, saved_filters, extra_params = get_db_queries(request.params, MetricsPGM)
+        filter_obj.name = extra_params['saved_filter_name']
+        if (len(filter_obj.numeric_filters_json) > 1) or filter_obj.categorical_filters_json:
+            DBSession.add(filter_obj)
+            DBSession.flush()
+            url = request.route_url('analysis_pgm')
+            url += '?filterid=' + str(filter_obj.id)
+            transaction.commit()
+        else:
+            url = request.route_url('analysis_pgm')
+            url += '?filterid=blank'
+    elif 'metric_type' in request.params and request.params['metric_type'].strip() == '/trace/proton':
+        filter_obj, saved_filters, extra_params = get_db_queries(request.params, MetricsProton)
+        filter_obj.name = extra_params['saved_filter_name']
+        if (len(filter_obj.numeric_filters_json) > 1) or filter_obj.categorical_filters_json:
+            DBSession.add(filter_obj)
+            DBSession.flush()
+            url = request.route_url('analysis_proton')
+            url += '?filterid=' + str(filter_obj.id)
+            transaction.commit()
+        else:
+            url = request.route_url('analysis_proton')
+            url += '?filterid=blank'
+
+    return HTTPFound(location=url)
+
+@view_config(route_name='analysis_delete_saved_filter', renderer='json', permission='view')
+def delete_saved_filter(request):
+    filter_id = request.params.get('filter_to_delete', '')
+    filter_type = request.params.get('metric_type', '')
+
+    if filter_id:
+        if filter_type == '/trace/pgm':
+            url = request.route_url('analysis_pgm')
+            filter = DBSession.query(Saved_Filters_PGM).filter(Saved_Filters_PGM.id == filter_id).first()
+            DBSession.delete(filter)
+            transaction.commit()
+        elif filter_type == '/trace/proton':
+            url = request.route_url('analysis_proton')
+            filter = DBSession.query(Saved_Filters_Proton).filter(Saved_Filters_Proton.id == filter_id).first()
+            DBSession.delete(filter)
+            transaction.commit()
+
+    return HTTPFound(location=url)

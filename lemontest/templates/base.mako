@@ -14,6 +14,7 @@
 
     <!-- Le styles -->
     <link href="${request.static_url('lemontest:static/css/bootstrap.css')}" rel="stylesheet">
+    <link href="${request.static_url('lemontest:static/css/ladda-themeless.css')}" rel="stylesheet">
     <link rel="icon" href="/static/img/inspector_background.png" type="image/png" />
     <style type="text/css">
       body {
@@ -24,7 +25,11 @@
     <script src="${request.static_url('lemontest:static/js/jquery-1.8.3.min.js')}"></script>
     <script src="${request.static_url('lemontest:static/js/dropdown.js')}"></script>
     <script src="${request.static_url('lemontest:static/js/modal.js')}"></script>
+    <script src="${request.static_url('lemontest:static/js/json2.js')}"></script>
     <script src="${request.static_url('lemontest:static/js/fancy_functions.js')}"></script>
+    <script src="${request.static_url('lemontest:static/js/spin.min.js')}"></script>
+    <script src="${request.static_url('lemontest:static/js/ladda.min.js')}"></script>
+    <script src="${request.static_url('lemontest:static/js/ladda.jquery.min.js')}"></script>
     <style type="text/css">
 		tr td:nth-child(3), tr td:nth-child(4) {
 			white-space: nowrap;
@@ -96,25 +101,34 @@
 		.form-inline .form-control select {
 			width: 220px;
 		}
-		.form-inline .numeric_label {
-			width: 100px;
-		}
 		.form-group-column1 {
-			margin-right: 20px;
+			margin-right: 120px;
 		}
 		.form-group-column2 .control-label {
 			width: 100px;
-		}
-		.form-group-column2 {
-			margin-right: 20px;
-		}
-		.form-group-column3 {
-			margin-right: 20px;
 		}
 		.form-hidden {
 			height: 0px;
 			width: 0px;
 			margin: 0px;
+		}
+		.saved_filters {
+			display: inline-block;
+			vertical-align: top;
+			margin-left: 20px;
+			width: 600px;
+		}
+		.saved_filters table {
+			display: inline-block;
+			height: 200px;
+			overflow: auto;
+			margin-bottom: 0px;
+		}
+		.saved_filters table td:first-child {
+			width: 600px;
+		}
+		.saved_filters table td:last-child {
+			width: 5%;
 		}
 	</style>
   </head>

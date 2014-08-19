@@ -4,13 +4,47 @@ File: metrics_pgm.py
 Created: 11 July 2014
 Last Modified: 14 July 2014
 '''
+from lemontest.views import get_db_queries
+from lemontest.models import DBSession
+from lemontest.models import FileProgress
 
+from celery import task
+
+import os
 import csv
-import StringIO
+import json
+import tempfile
+import transaction
 
-def make_csv(metrics, metrics_type, show_hide):
+@task
+def make_csv(metrics_type, filter_type, file_progress_id, show_hide_string, filter_id=None, request=None):
+    file_progress_obj = DBSession.query(FileProgress).filter(FileProgress.id == file_progress_id).first()
+    file_progress_obj.status = "Running"
+    file_progress_obj.celery_id = unicode(make_csv.request.id)
+    transaction.commit()
 
-    output = StringIO.StringIO()
+    if filter_id:
+        filter_obj = DBSession.query(filter_type).filter(filter_type.id == filter_id).first()
+    elif request:
+        filter_obj, saved_filters, extra_params = get_db_queries(request, metrics_type)
+        filter_obj.type = "temp"
+        DBSession.add(filter_obj)
+        DBSession.flush()
+
+    filter_obj.file_progress_id = file_progress_id
+    transaction.commit()
+
+    show_hide = json.loads(show_hide_string)
+
+    metrics_query = filter_obj.get_query()
+
+    tempfile.tempdir = '/tmp/'
+    fd, name = tempfile.mkstemp('.analysis')
+    output = os.fdopen(fd, 'a')
+
+    file_progress_obj = DBSession.query(FileProgress).filter(FileProgress.id == file_progress_id).first()
+    file_progress_obj.path = name
+    transaction.commit()
 
     csv_writer = csv.writer(output, quoting=csv.QUOTE_NONNUMERIC)
 
@@ -24,7 +58,7 @@ def make_csv(metrics, metrics_type, show_hide):
 
     row = []
 
-    for metric in metrics:
+    for metric in metrics_query:
         row.append(metric.archive.id)
         row.append((metric.archive.label).encode('UTF-8'))
         row.append(metric.archive.time)
@@ -40,4 +74,14 @@ def make_csv(metrics, metrics_type, show_hide):
         csv_writer.writerow(row)
         row = []
 
-    return output.getvalue()
+    output.close()
+
+    file_progress_obj = DBSession.query(FileProgress).filter(FileProgress.id == file_progress_id).first()
+    file_progress_obj.status = "Done"
+    file_progress_obj.path = name
+    transaction.commit()
+
+    if filter_obj.type == 'temp':
+        DBSession.delete(filter_obj)
+
+    transaction.commit()

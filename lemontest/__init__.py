@@ -51,10 +51,15 @@ def main(global_config, **settings):
     config.add_route('api_auto_complete', '/api/auto_complete')
 
     # New things to add
-    config.add_route('analysis_pgm', '/analysis/pgm')
-    config.add_route('analysis_proton', '/analysis/proton')
+    config.add_route('analysis_pgm', '/trace/pgm')
+    config.add_route('analysis_proton', '/trace/proton')
     config.add_route('analysis_show_hide', '/analysis/showhide')
     config.add_route('analysis_csv', '/analysis.csv')
+    config.add_route('analysis_save_filter', '/trace/save_filter')
+    config.add_route('analysis_apply_filter', '/trace/apply_filter')
+    config.add_route('analysis_delete_saved_filter', '/trace/delete_saved_filter')
+    config.add_route('analysis_csv_update', '/trace/csv_update')
+    config.add_route('analysis_serve_csv','/trace/csv')
 
     # This lets the function 'add_base_template' tack the layout template into
     # the mystical universe of chameleon templating so that the other templates

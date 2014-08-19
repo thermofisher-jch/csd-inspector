@@ -24,6 +24,7 @@ from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import backref
+from sqlalchemy.orm import joinedload
 
 from zope.sqlalchemy import ZopeTransactionExtension
 from sqlalchemy.dialects.drizzle.base import NUMERIC
@@ -245,13 +246,19 @@ class MetricsPGM(Base, PrettyFormatter):
 
     columns = dict(ordered_columns)
 
+    show_hide_defaults = {}
+    for column in ordered_columns:
+        show_hide_defaults[column[1]] = "true"
+
+    show_hide_false = {}
+    for column in ordered_columns:
+        show_hide_false[column[1]] = "false"
+
     suffixes = ('k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
 
     @orm.reconstructor
     def do_onload(self):
         self.pretty_columns = {
-                               #"Seq Kit": self.format_seq_kit,
-                               #"Chip Type": self.format_chip_type,
                                "Seq Kit Lot": self.format_seq_kit_lot,
                                "ISP Wells": self.format_units,
                                "Live Wells": self.format_units,
@@ -275,25 +282,6 @@ class MetricsPGM(Base, PrettyFormatter):
                                "W1 Added": self.format_units_small,
                                "SNR": self.format_units_small,
                                }
-
-        self.pretty_columns_csv = {
-                                   #"Seq Kit": self.format_seq_kit,
-                                   #"Chip Type": self.format_chip_type,
-                                   "Seq Kit Lot": self.format_seq_kit_lot,
-                                   }
-
-    # pretty format seq kits
-    def format_seq_kit(self, raw_seq_kit):
-        if raw_seq_kit:
-            return self.kits[raw_seq_kit]
-
-    # pretty format chip type
-    def format_chip_type(self, raw_chip_type):
-        if self.gain:
-            if self.gain >= 0.65:
-                return str(self.chip_type)[:3] + " V2"
-            else:
-                return str(self.chip_type)[:3] + " V1"
 
     # pretty format seq kit lot
     def format_seq_kit_lot(self, raw_seq_kit_lot):
@@ -389,9 +377,9 @@ class MetricsProton(Base, PrettyFormatter):
     sw_version = Column(Unicode(255))
     tss_version = Column(Unicode(255))
     scripts_version = Column(Unicode(255))
+    sn_number = Column(Unicode(255))
     start_time = Column(DateTime)
     end_time = Column(DateTime)
-    sn_number = Column(Unicode(255))
 
     ordered_columns = [
                        ("ISP Wells", "isp_wells"),
@@ -442,13 +430,19 @@ class MetricsProton(Base, PrettyFormatter):
 
     columns = dict(ordered_columns)
 
+    show_hide_defaults = {}
+    for column in ordered_columns:
+        show_hide_defaults[column[1]] = "true"
+
+    show_hide_false = {}
+    for column in ordered_columns:
+        show_hide_false[column[1]] = "false"
+
     suffixes = ('k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
 
     @orm.reconstructor
     def do_onload(self):
         self.pretty_columns = {
-                               #"Seq Kit": self.format_seq_kit,
-                               #"Chip Type": self.format_chip_type,
                                "Seq Kit Lot": self.format_seq_kit_lot,
                                "ISP Wells": self.format_units,
                                "Live Wells": self.format_units,
@@ -469,23 +463,6 @@ class MetricsProton(Base, PrettyFormatter):
                                "Gain": self.format_units_small,
                                "SNR": self.format_units_small,
                                }
-        self.pretty_columns_csv = {
-                                   #"Seq Kit": self.format_seq_kit,
-                                   #"Seq Kit Lot": self.format_seq_kit_lot,
-                                   #"Chip Type": self.format_chip_type,
-                                   }
-
-    # pretty format seq kits
-    def format_seq_kit(self, raw_seq_kit):
-        if raw_seq_kit:
-            return self.kits[raw_seq_kit]
-
-    # pretty format chip type
-    def format_chip_type(self, raw_chip_type):
-        if raw_chip_type:
-            return ("900 " + str(raw_chip_type)).strip()
-        else:
-            return "900"
 
     # pretty format seq kit lot
     def format_seq_kit_lot(self, raw_seq_kit_lot):
@@ -515,6 +492,95 @@ class MetricsProton(Base, PrettyFormatter):
             return round(quantity, -int(math.floor(math.log10(abs(quantity))) - (sig_figs - 1)))
         else:
             return None
+
+class Saved_Filters_PGM(Base):
+    __tablename__ = 'saved_filters_pgm'
+    id = Column(Integer, primary_key=True)
+    name = Column(Unicode(255))
+    numeric_filters = Column(Text)
+    categorical_filters = Column(Text)
+    file_progress = Column(Integer, ForeignKey('fileprogress.id'))
+    type = Column(Unicode(255))
+
+    def __init__(self, name, numeric_filters, categorical_filters):
+        self.name = name
+        self.numeric_filters = numeric_filters
+        self.categorical_filters = categorical_filters
+        self.numeric_filters_json = json.loads(numeric_filters)
+        self.categorical_filters_json = json.loads(categorical_filters)
+
+    @orm.reconstructor
+    def do_onload(self):
+        self.numeric_filters_json = json.loads(self.numeric_filters)
+        self.categorical_filters_json = json.loads(self.categorical_filters)
+
+    def get_query(self):
+        metrics_query = DBSession.query(MetricsPGM).options(joinedload('archive')).join(Archive).order_by(Archive.id.desc())
+
+        for num_filter, params in self.numeric_filters_json.items():
+            if num_filter != 'extra_filters':
+                if params['max']:
+                    metrics_query = metrics_query.filter(MetricsPGM.get_column(params['type']) <= float(params['max']))
+                if params['min']:
+                    metrics_query = metrics_query.filter(MetricsPGM.get_column(params['type']) >= float(params['min']))
+        for cat_filter, value in self.categorical_filters_json.items():
+            if value == 'None':
+                metrics_query = metrics_query.filter(MetricsPGM.get_column(cat_filter) == None)
+            else:
+                metrics_query = metrics_query.filter(MetricsPGM.get_column(cat_filter) == value)
+
+        return metrics_query
+
+class Saved_Filters_Proton(Base):
+    __tablename__ = 'saved_filters_proton'
+    id = Column(Integer, primary_key=True)
+    name = Column(Unicode(255))
+    numeric_filters = Column(Text)
+    categorical_filters = Column(Text)
+    file_progress_id = Column(Integer, ForeignKey('fileprogress.id'))
+    type = Column(Unicode(255))
+
+    def __init__(self, name, numeric_filters, categorical_filters):
+        self.name = name
+        self.numeric_filters = numeric_filters
+        self.categorical_filters = categorical_filters
+        self.numeric_filters_json = json.loads(numeric_filters)
+        self.categorical_filters_json = json.loads(categorical_filters)
+
+    @orm.reconstructor
+    def do_onload(self):
+        self.numeric_filters_json = json.loads(self.numeric_filters)
+        self.categorical_filters_json = json.loads(self.categorical_filters)
+
+    def get_query(self):
+        metrics_query = DBSession.query(MetricsProton).options(joinedload('archive')).join(Archive).order_by(Archive.id.desc())
+
+        for num_filter, params in self.numeric_filters_json.items():
+            if num_filter != 'extra_filters':
+                if params['max']:
+                    metrics_query = metrics_query.filter(MetricsProton.get_column(params['type']) <= float(params['max']))
+                if params['min']:
+                    metrics_query = metrics_query.filter(MetricsProton.get_column(params['type']) >= float(params['min']))
+        for cat_filter, value in self.categorical_filters_json.items():
+            if value == 'None':
+                metrics_query = metrics_query.filter(MetricsProton.get_column(cat_filter) == None)
+            else:
+                metrics_query = metrics_query.filter(MetricsProton.get_column(cat_filter) == value)
+
+        return metrics_query
+
+class FileProgress(Base):
+    __tablename__ = 'fileprogress'
+    id = Column(Integer, primary_key=True)
+    celery_id = Column(Unicode(255))
+    file_type = Column(Unicode(255))
+    status = Column(Unicode(255))
+    path = Column(Unicode(255))
+
+    def __init__(self, file_type, celery_id=None, status="Queued"):
+        self.celery_id = celery_id
+        self.file_type = file_type
+        self.status = status
 
 class Tag(Base):
     __tablename__ = 'tags'

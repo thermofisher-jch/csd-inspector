@@ -38,30 +38,72 @@ function get_shown_columns() {
 
 // sets proper values for the hidden inputs used for csv support
 function get_shown_columns_csv() {
-	var array_of_columns = {};
+	var arguments = {};
 	for (var item in global_columns_default) {
 		var checkbox = document.getElementById(item);
 		if (checkbox.checked) {
-			array_of_columns[item] = "true";
+			arguments[item] = "true";
 		} else {
-			array_of_columns[item] = "false";
+			arguments[item] = "false";
 		}
 	}
 
-	document.getElementById("show_hide").value = JSON.stringify(array_of_columns);
+	return JSON.stringify(arguments);
+}
 
-	for (var item in numeric_filters_obj) {
-		var element = document.getElementById(item + "_csv");
-		var number = item.replace( /^\D+/g, '');
-		element.value = numeric_filters_obj[item][0];
-		document.getElementById("min_number" + number + "_csv").value = numeric_filters_obj[item][1];
-		document.getElementById("max_number" + number + "_csv").value = numeric_filters_obj[item][2];
+function get_csv_params() {
+	var filter_id_re = /\d+/
+
+	var csv_form = document.createElement('form');
+	csv_form.action = '/analysis.csv';
+
+	if (filter_id_re.test(document.getElementById('filterid').value)) {
+		var input = document.createElement('input');
+		input.name = "filterid";
+		input.value = document.getElementById('filterid').value;
+
+		csv_form.appendChild(input);
+	} else {
+		var numeric_filter_re = /metric_type_filter\d+/
+		var all_selects = document.getElementsByTagName('select');
+
+		for (var i = 0; i < all_selects.length; i++) {
+			var input = document.createElement('select');
+			input.name = all_selects[i].name;
+
+			var option = document.createElement('option');
+			option.value = document.getElementById(input.name).options[document.getElementById(input.name).options.selectedIndex].value;
+
+			if (numeric_filter_re.test(all_selects[i].id)) {
+				var number = all_selects[i].id.replace(/^\D+/g, '');
+				var min = document.createElement('input');
+				min.type = 'text';
+				min.name = 'min_number' + number;
+				min.value = document.getElementById('min_number' + number).value;
+
+				var max = document.createElement('input');
+				max.type = 'text';
+				max.name = 'max_number' + number;
+				max.value = document.getElementById('max_number' + number).value;
+
+				input.appendChild(option);
+				csv_form.appendChild(input);
+				csv_form.appendChild(min);
+				csv_form.appendChild(max);
+			} else {
+				input.appendChild(option);
+				csv_form.appendChild(input);
+			}
+		}
 	}
 
-	for (var item in categorical_filters_obj) {
-		var element = document.getElementById(item + "_csv");
-		element.value = categorical_filters_obj[item];
-	}
+	var input = document.createElement('input');
+	input.type = 'hidden';
+	input.name = 'show_hide';
+	input.value = get_shown_columns_csv();
+	csv_form.appendChild(input);
+
+	return csv_form
 }
 
 // show or hide all columns at once
@@ -82,15 +124,15 @@ function add_new_filter() {
 
 	var new_filter = document.createElement('div');
 	new_filter.className = "some_space_below";
-	new_filter.id = "extra_filter" + filter_id
+	new_filter.id = "extra_filter" + extra_filters
 
 	new_filter.appendChild(label);
 	new_filter.innterHTML = " ";
 
 	var new_filter_select = document.createElement('select');
 	new_filter_select.className = "form-control";
-	new_filter_select.name = "metric_type_filter" + filter_id;
-	new_filter_select.id = "metric_type_filter" + filter_id;
+	new_filter_select.name = "metric_type_filter" + extra_filters;
+	new_filter_select.id = "metric_type_filter" + extra_filters;
 
 	var new_filter_select_option0 = document.createElement('option');
 	new_filter_select_option0.value = "";
@@ -112,7 +154,7 @@ function add_new_filter() {
 	new_filter_input1.type = "text";
 	new_filter_input1.className = "form-control";
 	new_filter_input1.style.width = "6em";
-	new_filter_input1.name = "min_number" + filter_id;
+	new_filter_input1.name = "min_number" + extra_filters;
 	new_filter_input1.id = new_filter_input1.name;
 	new_filter_input1.placeholder = "Lower Bound";
 
@@ -120,12 +162,12 @@ function add_new_filter() {
 	new_filter_input2.type = "text";
 	new_filter_input2.className = "form-control";
 	new_filter_input2.style.width = "6em";
-	new_filter_input2.name = "max_number" + filter_id;
+	new_filter_input2.name = "max_number" + extra_filters;
 	new_filter_input2.id = new_filter_input2.name;
 	new_filter_input2.placeholder = "Upper Bound";
 
 	var delete_filter_btn = document.createElement('span');
-	delete_filter_btn.innerHTML = '<button type="button" class="btn btn-info btn-mini" onclick="remove_filter(\'extra_filter' + filter_id + '\')"><span class="icon-white icon-minus"></span></button>';
+	delete_filter_btn.innerHTML = '<button type="button" class="btn btn-info btn-mini" onclick="remove_filter(\'extra_filter' + extra_filters + '\')"><span class="icon-white icon-minus"></span></button>';
 
 	new_filter.appendChild(new_filter_input1);
 	new_filter.innerHTML += " ";
@@ -139,24 +181,24 @@ function add_new_filter() {
 	var csv_form = document.getElementById('csv_filter_extras');
 	var input_metric_type = document.createElement('input');
 	input_metric_type.type = "hidden";
-	input_metric_type.name = "metric_type_filter" + filter_id;
-	input_metric_type.id = "metric_type_filter" + filter_id + "_csv";
+	input_metric_type.name = "metric_type_filter" + extra_filters;
+	input_metric_type.id = "metric_type_filter" + extra_filters + "_csv";
 
 	var input_metric_min = document.createElement('input');
 	input_metric_min.type = "hidden";
-	input_metric_min.name = "min_number" + filter_id;
-	input_metric_min.id = "min_number" + filter_id + "_csv";
+	input_metric_min.name = "min_number" + extra_filters;
+	input_metric_min.id = "min_number" + extra_filters + "_csv";
 
 	var input_metric_max = document.createElement('input');
 	input_metric_max.type = "hidden";
-	input_metric_max.name = "max_number" + filter_id;
-	input_metric_max.id = "max_number" + filter_id + "_csv";
+	input_metric_max.name = "max_number" + extra_filters;
+	input_metric_max.id = "max_number" + extra_filters + "_csv";
 
 	csv_form.appendChild(input_metric_type);
 	csv_form.appendChild(input_metric_min);
 	csv_form.appendChild(input_metric_max);
 
-	filter_id++;
+	extra_filters++;
 }
 
 // sets filter options
@@ -172,22 +214,36 @@ function remove_filter(id) {
 	var child = document.getElementById(id);
 	child.parentNode.removeChild(child);
 
-	filter_id--;
+	extra_filters--;
 }
 
 // sets hidden input to value of how many extra dynamic numeric filter parameters the user created
 function get_extra_filter_number() {
-	document.getElementById('extra_filter_number').value = filter_id - 1;
+	document.getElementById('extra_filter_number').value = extra_filters - 1;
+	return (extra_filters - 1)
+}
+
+function has_filters() {
+	try {
+		var all_selects = document.getElementsByTagName('select');
+		for (var i = 0; i < all_selects.length; i++) {
+			if (all_selects[i].options.selectedIndex != 0) {
+				return true;
+			}
+		}
+
+		return false;
+
+	} catch(err) {
+		console.log(err);
+	}
 }
 
 function clear_filters() {
 	try {
 		var all_selects = document.getElementsByTagName('select');
 		for (var i = 0; i < all_selects.length; i++) {
-			var options = all_selects[i].options;
-			for (var j = 0; j < options.length; j++) {
-				options.selectedIndex = 0;
-			}
+			all_selects[i].options.selectedIndex = 0;
 		}
 
 		var all_inputs = document.getElementsByTagName('input');
@@ -196,6 +252,53 @@ function clear_filters() {
 				all_inputs[i].value = "";
 			}
 		}
+
+		for (var i = get_extra_filter_number(); i > 0; i--) {
+			remove_filter('extra_filter' + i);
+		}
+
+	} catch(err) {
+		console.log(err);
+	}
+}
+
+function apply_saved_filter(id) {
+	var apply_filter_form = document.createElement('form');
+	apply_filter_form.action = '/trace/apply_filter';
+
+	var extra_input1 = document.createElement('input');
+	extra_input1.type = 'hidden';
+	extra_input1.name = 'filterid';
+	extra_input1.value = id;
+	apply_filter_form.appendChild(extra_input1);
+
+	var extra_input2 = document.createElement('input');
+	extra_input2.type = 'hidden';
+	extra_input2.name = 'metric_type';
+	extra_input2.value = document.getElementById('metric_type_input').value;
+	apply_filter_form.appendChild(extra_input2);
+
+	apply_filter_form.submit();
+}
+
+function save_filters() {
+	try {
+		var current_filters = document.getElementById('filter_form');
+
+		var extra_input1 = document.createElement('input');
+		extra_input1.type = 'hidden';
+		extra_input1.name = 'saved_filter_name';
+		extra_input1.value = document.getElementById('saved_filter_name').value;
+		current_filters.appendChild(extra_input1);
+
+		var extra_input2 = document.createElement('input');
+		extra_input2.type = 'hidden';
+		extra_input2.name = 'metric_type';
+		extra_input2.value = document.getElementById('metric_type_input').value;
+		current_filters.appendChild(extra_input2);
+
+		current_filters.action = '/trace/save_filter';
+		current_filters.submit();
 	} catch(err) {
 		console.log(err);
 	}
@@ -205,16 +308,18 @@ function clear_filters() {
 function fill_filters() {
 	try {
 		for (var item in numeric_filters_obj) {
-			var element = document.getElementById(item);
-			var options = element.getElementsByTagName('option');
-			var inputs = element.parentNode.getElementsByTagName('input');
+			if (item != 'extra_filters') {
+				var element = document.getElementById(item);
+				var options = element.getElementsByTagName('option');
+				var inputs = element.parentNode.getElementsByTagName('input');
 
-			for (var i = 0; i < options.length; i++) {
-				if (options[i].value == numeric_filters_obj[item][0]) {
-					options[i].selected = true;
-					inputs[0].value = numeric_filters_obj[item][1];
-					inputs[1].value = numeric_filters_obj[item][2];
-					break;
+				for (var i = 0; i < options.length; i++) {
+					if (options[i].value == numeric_filters_obj[item]['type']) {
+						options[i].selected = true;
+						inputs[0].value = numeric_filters_obj[item]['min'];
+						inputs[1].value = numeric_filters_obj[item]['max'];
+						break;
+					}
 				}
 			}
 		}
