@@ -120,7 +120,7 @@ function all_columns(show) {
 function add_new_filter() {
 	var label = document.createElement('h5');
 	label.innerHTML = " Metric Type ";
-	label.className = "pull-left control-label label_spacing numeric_label"
+	label.className = "pull-left control-label label_spacing"
 
 	var new_filter = document.createElement('div');
 	new_filter.className = "some_space_below";
@@ -219,7 +219,7 @@ function remove_filter(id) {
 
 // sets hidden input to value of how many extra dynamic numeric filter parameters the user created
 function get_extra_filter_number() {
-	document.getElementById('extra_filter_number').value = extra_filters - 1;
+	document.getElementById('extra_filters_template').value = extra_filters - 1;
 	return (extra_filters - 1)
 }
 

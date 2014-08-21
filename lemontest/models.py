@@ -16,6 +16,7 @@ from sqlalchemy import UnicodeText
 from sqlalchemy import ForeignKey
 from sqlalchemy import Table
 from sqlalchemy import orm
+from sqlalchemy import inspect
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
@@ -94,6 +95,11 @@ class Archive(Base):
         self.path = path
         self.time = datetime.datetime.now()
         self.status = u"Processing newly uploaded archive."
+
+    # useful when trying to see what is in the DB
+    '''def inspect(self):
+        mapper = inspect(type(self))
+        return mapper.attrs'''
 
 class Diagnostic(Base):
     __tablename__ = 'diagnostics'
@@ -283,6 +289,11 @@ class MetricsPGM(Base, PrettyFormatter):
                                "SNR": self.format_units_small,
                                }
 
+    # useful when trying to see what is in the DB
+    '''def inspect(self):
+        mapper = inspect(type(self))
+        return mapper.attrs'''
+
     # pretty format seq kit lot
     def format_seq_kit_lot(self, raw_seq_kit_lot):
         if raw_seq_kit_lot:
@@ -464,6 +475,11 @@ class MetricsProton(Base, PrettyFormatter):
                                "SNR": self.format_units_small,
                                }
 
+    # useful when trying to see what is in the DB
+    '''def inspect(self):
+        mapper = inspect(type(self))
+        return mapper.attrs'''
+
     # pretty format seq kit lot
     def format_seq_kit_lot(self, raw_seq_kit_lot):
         if raw_seq_kit_lot:
@@ -514,6 +530,11 @@ class Saved_Filters_PGM(Base):
         self.numeric_filters_json = json.loads(self.numeric_filters)
         self.categorical_filters_json = json.loads(self.categorical_filters)
 
+    # useful when trying to see what is in the DB
+    '''def inspect(self):
+        mapper = inspect(type(self))
+        return mapper.attrs'''
+
     def get_query(self):
         metrics_query = DBSession.query(MetricsPGM).options(joinedload('archive')).join(Archive).order_by(Archive.id.desc())
 
@@ -552,6 +573,11 @@ class Saved_Filters_Proton(Base):
         self.numeric_filters_json = json.loads(self.numeric_filters)
         self.categorical_filters_json = json.loads(self.categorical_filters)
 
+    # useful when trying to see what is in the DB
+    '''def inspect(self):
+        mapper = inspect(type(self))
+        return mapper.attrs'''
+
     def get_query(self):
         metrics_query = DBSession.query(MetricsProton).options(joinedload('archive')).join(Archive).order_by(Archive.id.desc())
 
@@ -575,7 +601,13 @@ class FileProgress(Base):
     celery_id = Column(Unicode(255))
     file_type = Column(Unicode(255))
     status = Column(Unicode(255))
+    progress = Column(Unicode(255))
     path = Column(Unicode(255))
+
+    # useful when trying to see what is in the DB
+    '''def inspect(self):
+        mapper = inspect(type(self))
+        return mapper.attrs'''
 
     def __init__(self, file_type, celery_id=None, status="Queued"):
         self.celery_id = celery_id

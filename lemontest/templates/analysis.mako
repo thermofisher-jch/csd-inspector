@@ -16,19 +16,24 @@
 
 	$(function(){
 
-		var check_for_updates = function(l, task_id) {
+		var check_for_updates = function(l, fileprogress_id) {
 			var interval = setInterval(function(){
 				$.ajax({
 					type: "GET",
 					url: "${request.route_path('analysis_csv_update')}",
-					data: {'taskid': task_id}
+					data: {'fileprogress_id': fileprogress_id, "metric_type": "${request.path | n}"}
 				}).done(function(data){
 					if (data.status == "done") {
 						clearInterval(interval);
+						l.setProgress(data.progress);
 						l.stop();
-						window.location.href = ("${request.route_path('analysis_serve_csv')}" + "?file_id=" + data.id + "&metric_type=" + '${request.path}');
+						window.location.href = ("${request.route_path('analysis_serve_csv')}" + "?file_id=" + data.fileprogress_id + "&metric_type=" + '${request.path |n}');
+					} else if (data.status == "error"){
+						clearInterval(interval);
+						l.stop();
+						console.log(data);
 					} else {
-						console.log("pending");
+						l.setProgress(data.progress);
 					}
 				});
 			}, 1000);
@@ -65,7 +70,6 @@
 			% endif
 		% endif
 
-		// resets filter options before GET method
 		add_filters_onload(${search['extra_filters_template']})
 
 		if (has_filters()) {
@@ -94,8 +98,13 @@
 				url: "${request.route_path('analysis_csv')}" + "?" + serialized,
 				data: {"metric_type": "${request.path}"}
 			}).done(function(data) {
-				var task_id = data.task_id;
-				check_for_updates(l, task_id);
+				if (data.status == 'ok'){
+					var fileprogress_id = data.fileprogress_id;
+					check_for_updates(l, fileprogress_id);
+				} else {
+					l.stop();
+					console.log(data);
+				}
 			});
 		});
 
@@ -282,7 +291,7 @@
 			<!-- BEGIN NUMERICAL FILTERS -->
 			<div class="form-group form-group-column3" style="display: block;">
 				<div class="some_space_below">
-					<h5 class="pull-left label_spacing control-label numeric_label"> Metric Type </h5>
+					<h5 class="pull-left label_spacing control-label"> Metric Type </h5>
 					<select id="metric_type_filter0" class="form-control" name="metric_type_filter0">
 						<option value=""></option>
 						% for column in metric_object_type.numeric_columns:
@@ -291,7 +300,7 @@
 					</select>
 					<input type="text" class="form-control" style="width: 6em;" name="min_number0" id="min_number0" placeholder="Lower Bound" value="">
 					<input type="text" class="form-control" style="width: 6em;" name="max_number0" id="max_number0" placeholder="Upper Bound" value="">
-					<input type="hidden" id="extra_filter_number" name="extra_filter_number" value="">
+					<input type="hidden" id="extra_filters_template" name="extra_filters_template" value="">
 
 					<button type="button" id="add_filter" class="btn btn-info btn-mini"><span class="icon-white icon-plus"></span></button>
 				</div>
@@ -353,6 +362,7 @@
 		<button id="csv_download" type="button" class="btn btn-success ladda-button pull-right" data-style="expand-left">
 			<span class="ladda-label">Download CSV</span>
 			<span class="ladda-spinner"></span>
+			<span class="ladda-progress"></span>
 			<span class="icon-white icon-download"></span>
 		</button>
 	</%block>
@@ -429,7 +439,7 @@
 </table>
 </%block>
 
-<%block name="shide_show_modal">
+<%block name="hide_show_modal">
 <div class="modal fade show_hide_modal" tabindex="-1" role="dialog" aria-labelledby="show_hide_modal" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
@@ -502,7 +512,6 @@
 				<form id="save_filters_form" action="${request.route_path('analysis_save_filter')}" method="POST">
 					<input type="hidden" name="csrf_token" value="${request.session.get_csrf_token()}"/>
 					<input type="hidden" id="metric_type_input" name="metric_type" value="${request.path}"/>
-					<input type="hidden" id="saved_filters" name="saved_filters" value=""/>
 					<button type="button" id="save_filters" class="btn btn-success pull-right" data-dismiss="modal" disabled>Save</button>
 					<button type="button" id="cancel_save_filters" class="btn btn-success pull-left" data-dismiss="modal">Cancel</button>
 				</form>

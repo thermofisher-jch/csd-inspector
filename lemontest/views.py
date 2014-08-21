@@ -343,6 +343,25 @@ def old_browser(request):
 
 # validate filter parameters
 def validate_filter_params(request, params_only=False):
+
+    # parameters that the template is expecting will always be there and default values if not found
+    required_params = {
+                       "extra_filters_template": u'0',
+                       "filterid": '',
+                       }
+
+    # parameters that are used throughout the app
+    used_params = [
+                   'show_hide',
+                   'csrf_token',
+                   'metric_type',
+                   'page',
+                   'current_selected_filter',
+                   'saved_filter_name',
+                   'saved_filters',
+                   'fileprogress_id',
+                   ]
+
     numeric_filter_re = re.compile('metric_type_filter\d+')
     numeric_filter_re2 = re.compile('.*_number\d+')
     sorting_filter_re = re.compile('.*_sort')
@@ -352,10 +371,13 @@ def validate_filter_params(request, params_only=False):
     numeric_filters = {}
     categorical_filters = {}
 
+    # grab only non-empty parameters
     for key in request.keys():
         if request[key].strip():
             search_params[key] = request[key].strip()
 
+    # find all parameters for numeric filters
+    # remove them from search_params after use
     for key, value in search_params.items():
         if numeric_filter_re.match(key):
             category = numeric_filter_re.match(key).group()
@@ -375,45 +397,25 @@ def validate_filter_params(request, params_only=False):
                 search_params[max_number] = ''
             search_params[key] = ''
 
-    if 'extra_filter_number' not in search_params:
-        numeric_filters['extra_filters'] = u'0'
-        extra_params['extra_filters_template'] = u'0'
-    else:
-        numeric_filters['extra_filters'] = search_params['extra_filter_number']
-        extra_params['extra_filters_template'] = search_params['extra_filter_number']
-        search_params['extra_filter_number'] = ''
+    # look for all required params and set to default value if not found
+    for param, default_value in required_params.items():
+        if param not in search_params:
+            extra_params[param] = default_value
+        else:
+            extra_params[param] = search_params[param]
+            search_params[param] = ''
 
-    if 'filterid' not in search_params:
-        extra_params['filterid'] = ''
-    else:
-        extra_params['filterid'] = search_params['filterid']
-        search_params['filterid'] = ''
+    # default value for all numeric filters
+    numeric_filters['extra_filters'] = extra_params['extra_filters_template']
 
-    if 'show_hide' in search_params:
-        extra_params['show_hide'] = search_params['show_hide']
-        search_params['show_hide'] = ''
-    if 'csrf_token' in search_params:
-        extra_params['csrf_token'] = search_params['csrf_token']
-        search_params['csrf_token'] = ''
-    if 'metric_type' in search_params:
-        extra_params['metric_type'] = search_params['metric_type']
-        search_params['metric_type'] = ''
-    if 'page' in search_params:
-        extra_params['page'] = search_params['page']
-        search_params['page'] = ''
-    if 'current_selected_filter' in search_params:
-        extra_params['current_selected_filter'] = search_params['current_selected_filter']
-        search_params['current_selected_filter'] = ''
-    if 'saved_filter_name' in search_params:
-        extra_params['saved_filter_name'] = search_params['saved_filter_name']
-        search_params['saved_filter_name'] = ''
-    if 'saved_filters' in search_params:
-        extra_params['saved_filters'] = search_params['saved_filters']
-        search_params['saved_filters'] = ''
-    if 'taskid' in search_params:
-        extra_params['taskid'] = search_params['taskid']
-        search_params['taskid'] = ''
+    # separate all non filter params out
+    for param in used_params:
+        if param in search_params:
+            extra_params[param] = search_params[param]
+            search_params[param] = ''
 
+    # keep all non empty params
+    # at this point it will be all categorical parameters
     temp = {}
     for key in search_params.keys():
         if search_params[key]:
@@ -421,7 +423,6 @@ def validate_filter_params(request, params_only=False):
     search_params = temp
 
     # separate categorical parameters
-    # except the ones needed for csrf verification and csv support
     for key, value in search_params.items():
         if not sorting_filter_re.match(key):
             categorical_filters[key] = value
@@ -448,28 +449,43 @@ def get_db_queries(request, metric_object_type=None):
             metric_object_type = MetricsProton
 
     if metric_object_type == MetricsPGM:
+        # if request is for an existing saved filter, query db and return that filter
         if 'filterid' in extra_params and extra_params['filterid'] and extra_params['filterid'] != 'blank':
             filter_obj = DBSession.query(Saved_Filters_PGM).filter(Saved_Filters_PGM.id == int(extra_params['filterid'])).first()
-            extra_params['current_selected_filter'] = filter_obj.name
+            # prevents user from putting in random filterid=\D+ parameter where filterid does not exist in db part 1
+            if filter_obj:
+                extra_params['current_selected_filter'] = filter_obj.name
+        # else create temporary filter for this search
         else:
             filter_obj = Saved_Filters_PGM('temp', json.dumps(numeric_filters), json.dumps(categorical_filters))
             extra_params['current_selected_filter'] = 'None'
+
+        # prevents user from putting in random filterid=\D+ parameter where filterid does not exist in db part 2 enables error message 
         if not filter_obj:
             filter_obj = Saved_Filters_PGM('not_found', json.dumps(numeric_filters), json.dumps(categorical_filters))
             extra_params['current_selected_filter'] = 'None'
 
+        # gets all saved filters from bd
         saved_filters = DBSession.query(Saved_Filters_PGM).order_by(Saved_Filters_PGM.id.desc())
+
     elif metric_object_type == MetricsProton:
+        # if request is for an existing saved filter, query db and return that filter
         if 'filterid' in extra_params and extra_params['filterid'] and extra_params['filterid'] != 'blank':
             filter_obj = DBSession.query(Saved_Filters_Proton).filter(Saved_Filters_Proton.id == int(extra_params['filterid'])).first()
-            extra_params['current_selected_filter'] = filter_obj.name
+            # prevents user from putting in random filterid=\D+ parameter where filterid does not exist in db part 1
+            if filter_obj:
+                extra_params['current_selected_filter'] = filter_obj.name
+        # else create temporary filter for this search
         else:
             filter_obj = Saved_Filters_Proton('temp', json.dumps(numeric_filters), json.dumps(categorical_filters))
             extra_params['current_selected_filter'] = 'None'
+
+        # prevents user from putting in random filterid=\D+ parameter where filterid does not exist in db part 2 enables error message 
         if not filter_obj:
             filter_obj = Saved_Filters_Proton('not_found', json.dumps(numeric_filters), json.dumps(categorical_filters))
             extra_params['current_selected_filter'] = 'None'
 
+        # gets all saved filters from bd
         saved_filters = DBSession.query(Saved_Filters_Proton).order_by(Saved_Filters_Proton.id.desc())
 
     return filter_obj, saved_filters, extra_params
@@ -529,6 +545,7 @@ def get_filterable_categories_proton():
     reference_libs = []
     sw_versions = []
     tss_versions = []
+    hw_versions = []
     barcode_sets = []
 
     metrics_query = DBSession.query(MetricsProton)
@@ -561,7 +578,7 @@ def get_filterable_categories_proton():
     barcode_sets = metrics_query.distinct().order_by(MetricsProton.barcode_set).values(MetricsProton.barcode_set)
     barcode_sets = [x[0] for x in barcode_sets]
 
-    return chip_types, seq_kits, run_types, reference_libs, sw_versions, tss_versions, barcode_sets
+    return chip_types, seq_kits, run_types, reference_libs, sw_versions, tss_versions, hw_versions, barcode_sets
 
 # Author: Anthony Rodriguez
 @view_config(route_name='analysis_proton', renderer='analysis.mako', permission='view')
@@ -570,7 +587,7 @@ def analysis_proton(request):
 
     metrics_query = filter_obj.get_query()
 
-    chip_types, seq_kits, run_types, reference_libs, sw_versions, tss_versions, hw_versions, barcode_sets = get_filterable_categories_pgm()
+    chip_types, seq_kits, run_types, reference_libs, sw_versions, tss_versions, hw_versions, barcode_sets = get_filterable_categories_proton()
 
     page = int(request.params.get("page", 1))
     page_url = paginate.PageURL_WebOb(request)
@@ -668,6 +685,9 @@ def analysis_pgm(request):
         if metric_pages.page < metric_pages.page_count:
             pages.append(metric_pages.page_count)
 
+    #commented out but used to reset user session
+    #request.session.invalidate()
+
     return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "search": extra_params, "metric_object_type": MetricsPGM,
             "show_hide_defaults": json.dumps(MetricsPGM.show_hide_defaults), "show_hide_false": json.dumps(MetricsPGM.show_hide_false),
             "metric_columns": json.dumps(MetricsPGM.numeric_columns), "filter_name": filter_obj.name, "numeric_filters_json": filter_obj.numeric_filters,
@@ -710,12 +730,12 @@ def server_error(self, request):
     return {}
 
 # Author: Anthony Rodriguez
-@view_config(route_name="analysis_csv", permission="view")
+@view_config(route_name="analysis_csv", renderer='json', permission="view")
 def analysis_csv(request):
     filter_obj, saved_filters, extra_params = get_db_queries(request.params)
 
     if 'metric_type' not in extra_params or not extra_params['metric_type']:
-        return HTTPInternalServerError()
+        return {'status': 'error', 'message': 'metric type not in data'}
     else:
         metric_type = extra_params['metric_type']
 
@@ -730,6 +750,8 @@ def analysis_csv(request):
     DBSession.add(file_progress)
     transaction.commit()
 
+    file_progress_id = file_progress.id
+
     '''
     if the filter_object hash already exists, query db and pass id to celery task
     else pass entire request to celery task so that the task can create the filter object
@@ -741,36 +763,47 @@ def analysis_csv(request):
 
     if filter_exists or filter_id:
         filter_obj = DBSession.query(filter_object_type).filter(filter_object_type.id == filter_id).first()
-        celery_task = lemontest.csv_support.make_csv.delay(metric_object_type, filter_object_type, file_progress.id, extra_params['show_hide'], filter_id=filter_obj.id)
+        celery_task = lemontest.csv_support.make_csv.delay(metric_object_type, filter_object_type, file_progress_id, extra_params['show_hide'], filter_id=filter_obj.id)
     else:
-        celery_task = lemontest.csv_support.make_csv.delay(metric_object_type, filter_object_type, file_progress.id, extra_params['show_hide'], request=request.params)
+        celery_task = lemontest.csv_support.make_csv.delay(metric_object_type, filter_object_type, file_progress_id, extra_params['show_hide'], request=request.params)
 
-    url = request.route_url('analysis_csv_update')
-    url += '?taskid=' + str(celery_task.id)
-    url += '&metric_type=' + metric_type
-    return HTTPFound(location=url)
+    file_progress = DBSession.query(FileProgress).filter(FileProgress.id == file_progress_id).first()
+    file_progress.celery_id = celery_task.id
+    transaction.commit()
+
+    request.session['file_pending' + metric_type] = file_progress_id
+
+    return {'status': 'ok', 'fileprogress_id': file_progress_id}
 
 @view_config(route_name='analysis_csv_update', renderer='json', permission='view')
 def check_csv_file(request):
+    file_pending_re = re.compile('file_pending.*')
 
     extra_params = validate_filter_params(request.params, params_only=True)
 
-    task_id = extra_params.get('taskid', '')
-    metric_type = extra_params.get('metric_type', '')
-    if not task_id:
-        task_id = request.session['file_pending' + metric_type]
-    else:
-        request.session['file_pending' + metric_type] = task_id
+    if 'fileprogress_id' not in extra_params or not extra_params['fileprogress_id']:
+        for key in request.session.keys():
+            if file_pending_re.match(key):
+                request.session[key] = ''
+        return {'status': 'error', 'request': request.params.items()}
+    if 'metric_type' not in extra_params or not extra_params['metric_type']:
+        for key in request.session.keys():
+            if file_pending_re.match(key):
+                request.session[key] = ''
+        return {'status': 'error', 'request': request.params.items()}
 
-    file_progress = DBSession.query(FileProgress).filter(FileProgress.celery_id == unicode(task_id)).first()
+    fileprogress_id = extra_params['fileprogress_id']
+    metric_type = extra_params['metric_type']
 
-    if file_progress:
-        if file_progress.status != "Done":
-            return {'status': 'pending', 'task_id': task_id}
+    file_progress_obj = DBSession.query(FileProgress).filter(FileProgress.id == fileprogress_id).first()
+
+    if file_progress_obj:
+        if file_progress_obj.status != "Done":
+            return {'status': 'pending', 'fileprogress_id': file_progress_obj.id, 'progress': file_progress_obj.progress}
         else:
-            return {'status': 'done', 'id': file_progress.id}
+            return {'status': 'done', 'fileprogress_id': file_progress_obj.id, 'progress': 1}
     else:
-        return {'status': 'pending', 'task_id': task_id}
+        return {'status': 'pending', 'fileprogress_id': file_progress_obj.id, 'progress': 0}
 
 @view_config(route_name='analysis_serve_csv', renderer='json', permission='view')
 def serve_csv_file(request):
@@ -822,6 +855,20 @@ def save_filter(request):
             url += '?filterid=blank'
 
     return HTTPFound(location=url)
+
+# useful when trying to see what is in the DB
+'''@view_config(route_name='db_query', renderer='db_objects.mako', permission='view')
+def db_query(request):
+    file_progress_query = DBSession.query(FileProgress).all()
+    saved_filters_pgm = DBSession.query(Saved_Filters_PGM).all()
+    saved_filters_proton = DBSession.query(Saved_Filters_Proton).all()
+    archive_query = DBSession.query(Archive).all()
+    metrics_pgm_query = DBSession.query(MetricsPGM).all()
+    metrics_proton_query = DBSession.query(MetricsProton).all()
+
+    return {'file_progress_query': file_progress_query, 'saved_filters_pgm': saved_filters_pgm,
+            'saved_filters_proton': saved_filters_proton, 'archive_query': archive_query,
+            'metrics_pgm_query': metrics_pgm_query, 'metrics_proton_query': metrics_proton_query}'''
 
 @view_config(route_name='analysis_delete_saved_filter', renderer='json', permission='view')
 def delete_saved_filter(request):

@@ -60,6 +60,8 @@ def main(global_config, **settings):
     config.add_route('analysis_delete_saved_filter', '/trace/delete_saved_filter')
     config.add_route('analysis_csv_update', '/trace/csv_update')
     config.add_route('analysis_serve_csv','/trace/csv')
+    # useful when trying to see what is in the DB
+    '''config.add_route('db_query', '/db_query')'''
 
     # This lets the function 'add_base_template' tack the layout template into
     # the mystical universe of chameleon templating so that the other templates

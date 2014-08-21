@@ -20,7 +20,6 @@ import transaction
 def make_csv(metrics_type, filter_type, file_progress_id, show_hide_string, filter_id=None, request=None):
     file_progress_obj = DBSession.query(FileProgress).filter(FileProgress.id == file_progress_id).first()
     file_progress_obj.status = "Running"
-    file_progress_obj.celery_id = unicode(make_csv.request.id)
     transaction.commit()
 
     if filter_id:
@@ -37,6 +36,10 @@ def make_csv(metrics_type, filter_type, file_progress_id, show_hide_string, filt
     show_hide = json.loads(show_hide_string)
 
     metrics_query = filter_obj.get_query()
+
+    total_count = metrics_query.count()
+    total_progress = 0
+    progress_interval = .01
 
     tempfile.tempdir = '/tmp/'
     fd, name = tempfile.mkstemp('.analysis')
@@ -70,6 +73,12 @@ def make_csv(metrics_type, filter_type, file_progress_id, show_hide_string, filt
                     row.append(row_entry)
                 else:
                     row.append(row_entry)
+        total_progress += 1
+        if ((total_progress / float(total_count)) >= progress_interval):
+            file_progress_obj = DBSession.query(FileProgress).filter(FileProgress.id == file_progress_id).first()
+            file_progress_obj.progress = unicode(total_progress / float(total_count))
+            transaction.commit()
+            progress_interval = (total_progress / float(total_count)) + .01
 
         csv_writer.writerow(row)
         row = []
@@ -78,6 +87,7 @@ def make_csv(metrics_type, filter_type, file_progress_id, show_hide_string, filt
 
     file_progress_obj = DBSession.query(FileProgress).filter(FileProgress.id == file_progress_id).first()
     file_progress_obj.status = "Done"
+    file_progress_obj.progress = unicode(1.00)
     file_progress_obj.path = name
     transaction.commit()
 
