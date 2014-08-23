@@ -50,18 +50,32 @@ def main(global_config, **settings):
 
     config.add_route('api_auto_complete', '/api/auto_complete')
 
-    # New things to add
-    config.add_route('analysis_pgm', '/trace/pgm')
-    config.add_route('analysis_proton', '/trace/proton')
-    config.add_route('analysis_show_hide', '/analysis/showhide')
-    config.add_route('analysis_csv', '/analysis.csv')
-    config.add_route('analysis_save_filter', '/trace/save_filter')
-    config.add_route('analysis_apply_filter', '/trace/apply_filter')
-    config.add_route('analysis_delete_saved_filter', '/trace/delete_saved_filter')
-    config.add_route('analysis_csv_update', '/trace/csv_update')
-    config.add_route('analysis_serve_csv','/trace/csv')
+    # Metric Pages
+    config.add_route('trace_pgm', '/trace/pgm')
+    config.add_route('trace_proton', '/trace/proton')
+    config.add_route('trace_otlog', '/trace/otlog')
+    #config.add_route('trace_ionchef', '/trace/chef') currently inactive
+
+    # Filters
+    config.add_route('trace_apply_filter', '/trace/apply_filter')
+    config.add_route('trace_save_filter', '/trace/save_filter')
+    config.add_route('trace_delete_saved_filter', '/trace/delete_saved_filter')
+
+    # CSV support
+    config.add_route('trace_show_hide', '/trace/show_hide')
+    config.add_route('trace_request_csv', '/trace/request_csv')
+    config.add_route('trace_serve_csv','/trace/trace.csv')
+
+    # Plot support
+    config.add_route('trace_request_plot', '/trace/request_plot')
+    config.add_route('trace_show_plot', '/trace/plot')
+    config.add_route('trace_serve_plot','/trace/trace.png')
+
+    # Check file progress
+    config.add_route('trace_check_file_update', '/trace/check_file_update')
+
     # useful when trying to see what is in the DB
-    '''config.add_route('db_query', '/db_query')'''
+    config.add_route('db_query', '/db_query')
 
     # This lets the function 'add_base_template' tack the layout template into
     # the mystical universe of chameleon templating so that the other templates

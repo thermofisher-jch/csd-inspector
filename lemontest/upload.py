@@ -15,8 +15,11 @@ from celery.utils.log import get_task_logger
 from lemontest.models import DBSession
 from lemontest.models import Archive
 from lemontest.models import testers
+
 from lemontest.models import MetricsPGM
 from lemontest.models import MetricsProton
+from lemontest.models import MetricsOTLog
+
 from lemontest import diagnostic 
 
 from lemontest.metrics_pgm import *
@@ -262,10 +265,14 @@ def process_archive(archive_id, upload_name, testers):
             DBSession.flush()
             set_metrics_proton.delay(metrics_proton.id)
 
-        '''
         if archive.archive_type == "OT_Log":
-            pass
+            metrics_otlog = MetricsOTLog()
+            metrics_otlog.archive_id = archive_id
+            DBSession.add(metrics_otlog)
+            DBSession.flush()
+            set_metrics_otlog.delay(metrics_otlog.id)
 
+        '''
         if archive.archive_type == "Ion Chef":
             pass
         '''
@@ -423,6 +430,10 @@ def set_metrics_proton(metrics_proton_id):
         metric.total_reads = quality_summary.get_total_reads()
 
     transaction.commit()
+
+@task
+def set_metrics_otlog(metrics_otlog_id):
+    metric = DBSession.query(MetricsOTLog).get(metrics_otlog_id)
 
 @task
 def finalize_report(results, archive_id):

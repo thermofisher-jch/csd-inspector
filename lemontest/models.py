@@ -85,6 +85,8 @@ class Archive(Base):
 
     metrics_proton = relationship("MetricsProton", uselist=False, backref="archive")
 
+    metrics_otlog = relationship("MetricsOTLog", uselist=False, backref="archive")
+
     tags = relationship("Tag", secondary=archive_tags, backref="archives")
 
     def __init__(self, submitter_name, label, site, archive_type, path=""):
@@ -97,9 +99,9 @@ class Archive(Base):
         self.status = u"Processing newly uploaded archive."
 
     # useful when trying to see what is in the DB
-    '''def inspect(self):
+    def inspect(self):
         mapper = inspect(type(self))
-        return mapper.attrs'''
+        return mapper.attrs
 
 class Diagnostic(Base):
     __tablename__ = 'diagnostics'
@@ -290,9 +292,9 @@ class MetricsPGM(Base, PrettyFormatter):
                                }
 
     # useful when trying to see what is in the DB
-    '''def inspect(self):
+    def inspect(self):
         mapper = inspect(type(self))
-        return mapper.attrs'''
+        return mapper.attrs
 
     # pretty format seq kit lot
     def format_seq_kit_lot(self, raw_seq_kit_lot):
@@ -476,9 +478,9 @@ class MetricsProton(Base, PrettyFormatter):
                                }
 
     # useful when trying to see what is in the DB
-    '''def inspect(self):
+    def inspect(self):
         mapper = inspect(type(self))
-        return mapper.attrs'''
+        return mapper.attrs
 
     # pretty format seq kit lot
     def format_seq_kit_lot(self, raw_seq_kit_lot):
@@ -486,6 +488,58 @@ class MetricsProton(Base, PrettyFormatter):
             return str(raw_seq_kit_lot).upper()
         else:
             return None
+
+    def format_units(self, quantity, unit="", base=1000):
+        if quantity:
+            quantity = int(quantity)
+            if quantity < base:
+                return '%d  %s' % (quantity, unit)
+
+            for i, suffix in enumerate(self.suffixes):
+                magnitude = base ** (i + 2)
+                if quantity < magnitude:
+                    return '%.1f %s%s' % ((base * quantity / float(magnitude)), suffix, unit)
+
+            return '%.1f %s%s' % ((base * quantity / float(magnitude)), suffix, unit)
+        else:
+            return None
+
+    def format_units_small(self, quantity, sig_figs=3):
+        if quantity:
+            quantity = Decimal(quantity)
+            return round(quantity, -int(math.floor(math.log10(abs(quantity))) - (sig_figs - 1)))
+        else:
+            return None
+
+class MetricsOTLog(Base):
+    __tablename__ = 'metrics_otlog'
+    id = Column(Integer, primary_key=True)
+    archive_id = Column(Integer, ForeignKey('archives.id'))
+
+    ordered_columns = []
+
+    numeric_columns = ordered_columns
+
+    columns = dict(ordered_columns)
+
+    show_hide_defaults = {}
+    for column in ordered_columns:
+        show_hide_defaults[column[1]] = "true"
+
+    show_hide_false = {}
+    for column in ordered_columns:
+        show_hide_false[column[1]] = "false"
+
+    suffixes = ('k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
+
+    @orm.reconstructor
+    def do_onload(self):
+        self.pretty_columns = {}
+
+    # useful when trying to see what is in the DB
+    def inspect(self):
+        mapper = inspect(type(self))
+        return mapper.attrs
 
     def format_units(self, quantity, unit="", base=1000):
         if quantity:
@@ -531,9 +585,9 @@ class Saved_Filters_PGM(Base):
         self.categorical_filters_json = json.loads(self.categorical_filters)
 
     # useful when trying to see what is in the DB
-    '''def inspect(self):
+    def inspect(self):
         mapper = inspect(type(self))
-        return mapper.attrs'''
+        return mapper.attrs
 
     def get_query(self):
         metrics_query = DBSession.query(MetricsPGM).options(joinedload('archive')).join(Archive).order_by(Archive.id.desc())
@@ -574,9 +628,9 @@ class Saved_Filters_Proton(Base):
         self.categorical_filters_json = json.loads(self.categorical_filters)
 
     # useful when trying to see what is in the DB
-    '''def inspect(self):
+    def inspect(self):
         mapper = inspect(type(self))
-        return mapper.attrs'''
+        return mapper.attrs
 
     def get_query(self):
         metrics_query = DBSession.query(MetricsProton).options(joinedload('archive')).join(Archive).order_by(Archive.id.desc())
@@ -595,6 +649,49 @@ class Saved_Filters_Proton(Base):
 
         return metrics_query
 
+class Saved_Filters_OTLog(Base):
+    __tablename__ = 'saved_filters_otlog'
+    id = Column(Integer, primary_key=True)
+    name = Column(Unicode(255))
+    numeric_filters = Column(Text)
+    categorical_filters = Column(Text)
+    file_progress_id = Column(Integer, ForeignKey('fileprogress.id'))
+    type = Column(Unicode(255))
+
+    def __init__(self, name, numeric_filters, categorical_filters):
+        self.name = name
+        self.numeric_filters = numeric_filters
+        self.categorical_filters = categorical_filters
+        self.numeric_filters_json = json.loads(numeric_filters)
+        self.categorical_filters_json = json.loads(categorical_filters)
+
+    @orm.reconstructor
+    def do_onload(self):
+        self.numeric_filters_json = json.loads(self.numeric_filters)
+        self.categorical_filters_json = json.loads(self.categorical_filters)
+
+    # useful when trying to see what is in the DB
+    def inspect(self):
+        mapper = inspect(type(self))
+        return mapper.attrs
+
+    def get_query(self):
+        metrics_query = DBSession.query(MetricsOTLog).options(joinedload('archive')).join(Archive).order_by(Archive.id.desc())
+
+        for num_filter, params in self.numeric_filters_json.items():
+            if num_filter != 'extra_filters':
+                if params['max']:
+                    metrics_query = metrics_query.filter(MetricsOTLog.get_column(params['type']) <= float(params['max']))
+                if params['min']:
+                    metrics_query = metrics_query.filter(MetricsOTLog.get_column(params['type']) >= float(params['min']))
+        for cat_filter, value in self.categorical_filters_json.items():
+            if value == 'None':
+                metrics_query = metrics_query.filter(MetricsOTLog.get_column(cat_filter) == None)
+            else:
+                metrics_query = metrics_query.filter(MetricsOTLog.get_column(cat_filter) == value)
+
+        return metrics_query
+
 class FileProgress(Base):
     __tablename__ = 'fileprogress'
     id = Column(Integer, primary_key=True)
@@ -605,9 +702,9 @@ class FileProgress(Base):
     path = Column(Unicode(255))
 
     # useful when trying to see what is in the DB
-    '''def inspect(self):
+    def inspect(self):
         mapper = inspect(type(self))
-        return mapper.attrs'''
+        return mapper.attrs
 
     def __init__(self, file_type, celery_id=None, status="Queued"):
         self.celery_id = celery_id

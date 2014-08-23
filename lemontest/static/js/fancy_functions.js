@@ -55,7 +55,7 @@ function get_csv_params() {
 	var filter_id_re = /\d+/
 
 	var csv_form = document.createElement('form');
-	csv_form.action = '/analysis.csv';
+	csv_form.action = '/trace/request_csv';
 
 	if (filter_id_re.test(document.getElementById('filterid').value)) {
 		var input = document.createElement('input');

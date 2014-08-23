@@ -5,8 +5,17 @@ Created: 11 July 2014
 Last Modified: 14 July 2014
 '''
 from lemontest.views import get_db_queries
+
 from lemontest.models import DBSession
 from lemontest.models import FileProgress
+
+from lemontest.models import MetricsPGM
+from lemontest.models import MetricsProton
+from lemontest.models import MetricsOTLog
+
+from lemontest.models import Saved_Filters_PGM
+from lemontest.models import Saved_Filters_Proton
+from lemontest.models import Saved_Filters_OTLog
 
 from celery import task
 
@@ -16,19 +25,22 @@ import json
 import tempfile
 import transaction
 
+mapping = {
+           'pgm': (MetricsPGM, Saved_Filters_PGM),
+           'proton': (MetricsProton, Saved_Filters_Proton),
+           'otlog': (MetricsOTLog, Saved_Filters_OTLog)
+           }
+
 @task
-def make_csv(metrics_type, filter_type, file_progress_id, show_hide_string, filter_id=None, request=None):
+def make_csv(metric_type, file_progress_id, filter_id, show_hide_string):
     file_progress_obj = DBSession.query(FileProgress).filter(FileProgress.id == file_progress_id).first()
     file_progress_obj.status = "Running"
     transaction.commit()
 
-    if filter_id:
-        filter_obj = DBSession.query(filter_type).filter(filter_type.id == filter_id).first()
-    elif request:
-        filter_obj, saved_filters, extra_params = get_db_queries(request, metrics_type)
-        filter_obj.type = "temp"
-        DBSession.add(filter_obj)
-        DBSession.flush()
+    filter_type = mapping[metric_type][1]
+    metric_type = mapping[metric_type][0]
+
+    filter_obj = DBSession.query(filter_type).filter(filter_type.id == filter_id).first()
 
     filter_obj.file_progress_id = file_progress_id
     transaction.commit()
@@ -53,7 +65,7 @@ def make_csv(metrics_type, filter_type, file_progress_id, show_hide_string, filt
 
     row = ["ID", "Label", "Upload Time"]
 
-    for column in metrics_type.ordered_columns:
+    for column in metric_type.ordered_columns:
         if show_hide[column[1]] == "true":
             row.append(column[0])
 

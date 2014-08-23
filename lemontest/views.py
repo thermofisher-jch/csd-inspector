@@ -8,13 +8,16 @@ import shutil
 import os.path
 import json
 import collections
-from operator import itemgetter
 from datetime import datetime
 
 from lemontest.models import MetricsPGM
 from lemontest.models import MetricsProton
+from lemontest.models import MetricsOTLog
+
 from lemontest.models import Saved_Filters_PGM
 from lemontest.models import Saved_Filters_Proton
+from lemontest.models import Saved_Filters_OTLog
+
 from lemontest.models import FileProgress
 
 from lemontest.models import DBSession
@@ -341,16 +344,248 @@ def not_found(self, request):
 def old_browser(request):
     return {}
 
-# validate filter parameters
-def validate_filter_params(request, params_only=False):
+'''BEGIN METRIC PAGE VIEWS'''
+# Author: Anthony Rodriguez
+@view_config(route_name='trace_pgm', renderer="trace.pgm.mako", permission="view")
+def trace_pgm(request):
+    '''create filter object, get saved filters in db, and all extra parameters that were not used'''
+    filter_obj, saved_filters, extra_params = get_db_queries(request.params, MetricsPGM)
 
-    # parameters that the template is expecting will always be there and default values if not found
+    '''get query set that corresponds with filter object'''
+    metrics_query = filter_obj.get_query()
+
+    '''get categorical values from the database'''
+    chip_types, seq_kits, run_types, reference_libs, sw_versions, tss_versions, hw_versions, barcode_sets = get_filterable_categories_pgm()
+
+    '''BEGIN PAGINATE QUERY RESULTS'''
+    page = int(request.params.get("page", 1))
+    page_url = paginate.PageURL_WebOb(request)
+
+    metric_pages = paginate.Page(metrics_query, page, items_per_page=100, url=page_url)
+    pages = [metric_pages.first_page]
+    left_pagius = 5
+    right_pagius = 5
+    total = 2 + left_pagius + 1 + right_pagius + 2
+
+    if metric_pages.page_count <= total:
+        pages = range(1, metric_pages.page_count + 1)
+    else:
+        if metric_pages.page - left_pagius < 3:
+            diff = 3 - (metric_pages.page - left_pagius)
+            right_pagius += diff
+            left_pagius = max(left_pagius - diff, 0)
+        if metric_pages.page + right_pagius > metric_pages.page_count - 2:
+            diff = (metric_pages.page + right_pagius + 1) - (metric_pages.page_count - 1)
+            left_pagius += diff
+            right_pagius = max(right_pagius - diff, 0)
+        if metric_pages.page - left_pagius > 3:
+            pages.append("..")
+        elif metric_pages.page - left_pagius == 3:
+            pages.append("2")
+
+        if metric_pages.page > 2:
+            pages.extend(range(max(metric_pages.page - left_pagius, 3), metric_pages.page))
+        if metric_pages.page >= 2:
+            pages.append(metric_pages.page)
+
+        pages.extend(range(metric_pages.page + 1, min(metric_pages.page + right_pagius + 1, metric_pages.page_count)))
+
+        if metric_pages.page + right_pagius < metric_pages.page_count - 2:
+            pages.append("..")
+        elif metric_pages.page + right_pagius == metric_pages.page_count - 2:
+            pages.append(metric_pages.page_count - 1)
+
+        if metric_pages.page < metric_pages.page_count:
+            pages.append(metric_pages.page_count)
+    '''END PAGINATE QUERY RESULTS'''
+
+    return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "search": extra_params, "metric_object_type": MetricsPGM,
+            "show_hide_defaults": json.dumps(MetricsPGM.show_hide_defaults), "show_hide_false": json.dumps(MetricsPGM.show_hide_false),
+            "metric_columns": json.dumps(MetricsPGM.numeric_columns), "filter_name": filter_obj.name, "numeric_filters_json": filter_obj.numeric_filters,
+            'categorical_filters_json': filter_obj.categorical_filters, 'chip_types': chip_types, 'seq_kits': seq_kits,
+            "run_types": run_types, "reference_libs": reference_libs, "sw_versions": sw_versions, "tss_versions": tss_versions,
+            "hw_versions": hw_versions, "barcode_sets": barcode_sets, "saved_filters": saved_filters}
+
+# Author: Anthony Rodriguez
+@view_config(route_name='trace_proton', renderer='trace.proton.mako', permission='view')
+def trace_proton(request):
+    '''create filter object, get saved filters in db, and all extra parameters that were not used'''
+    filter_obj, saved_filters, extra_params = get_db_queries(request.params, MetricsProton)
+
+    '''get query set that corresponds with filter object'''
+    metrics_query = filter_obj.get_query()
+
+    '''get categorical values from the database'''
+    chip_types, seq_kits, run_types, reference_libs, sw_versions, tss_versions, hw_versions, barcode_sets = get_filterable_categories_proton()
+
+    '''BEGIN PAGINATE QUERY RESULTS'''
+    page = int(request.params.get("page", 1))
+    page_url = paginate.PageURL_WebOb(request)
+
+    metric_pages = paginate.Page(metrics_query, page, items_per_page=100, url=page_url)
+    pages = [metric_pages.first_page]
+    left_pagius = 5
+    right_pagius = 5
+    total = 2 + left_pagius + 1 + right_pagius + 2
+
+    if metric_pages.page_count <= total:
+        pages = range(1, metric_pages.page_count + 1)
+    else:
+        if metric_pages.page - left_pagius < 3:
+            diff = 3 - (metric_pages.page - left_pagius)
+            right_pagius += diff
+            left_pagius = max(left_pagius - diff, 0)
+        if metric_pages.page + right_pagius > metric_pages.page_count - 2:
+            diff = (metric_pages.page + right_pagius + 1) - (metric_pages.page_count - 1)
+            left_pagius += diff
+            right_pagius = max(right_pagius - diff, 0)
+        if metric_pages.page - left_pagius > 3:
+            pages.append("..")
+        elif metric_pages.page - left_pagius == 3:
+            pages.append("2")
+
+        if metric_pages.page > 2:
+            pages.extend(range(max(metric_pages.page - left_pagius, 3), metric_pages.page))
+        if metric_pages.page >= 2:
+            pages.append(metric_pages.page)
+
+        pages.extend(range(metric_pages.page + 1, min(metric_pages.page + right_pagius + 1, metric_pages.page_count)))
+
+        if metric_pages.page + right_pagius < metric_pages.page_count - 2:
+            pages.append("..")
+        elif metric_pages.page + right_pagius == metric_pages.page_count - 2:
+            pages.append(metric_pages.page_count - 1)
+
+        if metric_pages.page < metric_pages.page_count:
+            pages.append(metric_pages.page_count)
+    '''END PAGINATE QUERY RESULTS'''
+
+    return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "search": extra_params, "metric_object_type": MetricsProton,
+            "show_hide_defaults": json.dumps(MetricsProton.show_hide_defaults), "show_hide_false": json.dumps(MetricsProton.show_hide_false),
+            "metric_columns": json.dumps(MetricsProton.numeric_columns), "filter_name": filter_obj.name, "numeric_filters_json": filter_obj.numeric_filters,
+            'categorical_filters_json': filter_obj.categorical_filters, 'chip_types': chip_types, 'seq_kits': seq_kits,
+            "run_types": run_types, "reference_libs": reference_libs, "sw_versions": sw_versions, "tss_versions": tss_versions,
+            "hw_versions": hw_versions, "barcode_sets": barcode_sets, "saved_filters": saved_filters}
+
+# Author: Anthony Rodriguez
+@view_config(route_name='trace_otlog', renderer='trace.otlog.mako', permission='view')
+def trace_otlog(request):
+    '''create filter object, get saved filters in db, and all extra parameters that were not used'''
+    filter_obj, saved_filters, extra_params = get_db_queries(request.params, MetricsOTLog)
+
+    '''get query set that corresponds with filter object'''
+    metrics_query = filter_obj.get_query()
+
+    '''get categorical values from the database'''
+    cat1 = get_filterable_categories_otlog()
+
+    '''BEGIN PAGINATE QUERY RESULTS'''
+    page = int(request.params.get("page", 1))
+    page_url = paginate.PageURL_WebOb(request)
+
+    metric_pages = paginate.Page(metrics_query, page, items_per_page=100, url=page_url)
+    pages = [metric_pages.first_page]
+    left_pagius = 5
+    right_pagius = 5
+    total = 2 + left_pagius + 1 + right_pagius + 2
+
+    if metric_pages.page_count <= total:
+        pages = range(1, metric_pages.page_count + 1)
+    else:
+        if metric_pages.page - left_pagius < 3:
+            diff = 3 - (metric_pages.page - left_pagius)
+            right_pagius += diff
+            left_pagius = max(left_pagius - diff, 0)
+        if metric_pages.page + right_pagius > metric_pages.page_count - 2:
+            diff = (metric_pages.page + right_pagius + 1) - (metric_pages.page_count - 1)
+            left_pagius += diff
+            right_pagius = max(right_pagius - diff, 0)
+        if metric_pages.page - left_pagius > 3:
+            pages.append("..")
+        elif metric_pages.page - left_pagius == 3:
+            pages.append("2")
+
+        if metric_pages.page > 2:
+            pages.extend(range(max(metric_pages.page - left_pagius, 3), metric_pages.page))
+        if metric_pages.page >= 2:
+            pages.append(metric_pages.page)
+
+        pages.extend(range(metric_pages.page + 1, min(metric_pages.page + right_pagius + 1, metric_pages.page_count)))
+
+        if metric_pages.page + right_pagius < metric_pages.page_count - 2:
+            pages.append("..")
+        elif metric_pages.page + right_pagius == metric_pages.page_count - 2:
+            pages.append(metric_pages.page_count - 1)
+
+        if metric_pages.page < metric_pages.page_count:
+            pages.append(metric_pages.page_count)
+    '''END PAGINATE QUERY RESULTS'''
+
+    return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "search": extra_params, "metric_object_type": MetricsOTLog,
+            "show_hide_defaults": json.dumps(MetricsOTLog.show_hide_defaults), "show_hide_false": json.dumps(MetricsOTLog.show_hide_false),
+            "metric_columns": json.dumps(MetricsOTLog.numeric_columns), "filter_name": filter_obj.name, "numeric_filters_json": filter_obj.numeric_filters,
+            'categorical_filters_json': filter_obj.categorical_filters, 'cat1': cat1, "saved_filters": saved_filters}
+
+'''END METRIC PAGE VIEWS'''
+
+#Author: Anthony Rodriguez
+# create filter object
+def get_db_queries(request, metric_object_type=None):
+    '''validate request parameters'''
+    categorical_filters, numeric_filters, extra_params = validate_filter_params(request)
+
+    '''metric_object_type is not set on AJAX requests, but they do set metric_type'''
+    if not metric_object_type:
+        if 'metric_type' not in extra_params or not extra_params['metric_type']:
+            return HTTPInternalServerError()
+        else:
+            metric_type = extra_params['metric_type']
+
+        if metric_type == 'pgm':
+            metric_object_type = MetricsPGM
+        elif metric_type == 'proton':
+            metric_object_type = MetricsProton
+        elif metric_type == 'otlog':
+            metric_object_type = MetricsOTLog
+
+    '''once metric_object_type is set, we set corresponding saved_filter_object'''
+    if metric_object_type == MetricsPGM:
+        saved_filter_object_type = Saved_Filters_PGM
+    elif metric_object_type == MetricsProton:
+        saved_filter_object_type = Saved_Filters_Proton
+    elif metric_object_type == MetricsOTLog:
+        saved_filter_object_type = Saved_Filters_OTLog
+
+    '''if request is for an existing saved filter, query db and return that filter
+    filterid could be set to blank if user tries to save an empty filterset'''
+    if 'filterid' in extra_params and extra_params['filterid'] and extra_params['filterid'] != 'blank':
+        filter_obj = DBSession.query(saved_filter_object_type).filter(saved_filter_object_type.id == int(extra_params['filterid'])).first()
+
+        if filter_obj:
+            extra_params['current_selected_filter'] = filter_obj.name
+        else:
+            filter_obj = saved_filter_object_type('not_found', json.dumps(numeric_filters), json.dumps(categorical_filters))
+            extra_params['current_selected_filter'] = 'None'
+    else:
+        filter_obj = saved_filter_object_type('None', json.dumps(numeric_filters), json.dumps(categorical_filters))
+        filter_obj.type = 'temp'
+        extra_params['current_selected_filter'] = 'None'
+
+    '''gets all saved filters from bd'''
+    saved_filters = DBSession.query(saved_filter_object_type).order_by(saved_filter_object_type.id.desc())
+
+    return filter_obj, saved_filters, extra_params
+
+#Author: Anthony Rodriguez
+# validate parameters
+def validate_filter_params(request, params_only=False):
+    '''parameters that the template is expecting will always be there and default values if not found'''
     required_params = {
                        "extra_filters_template": u'0',
                        "filterid": '',
                        }
 
-    # parameters that are used throughout the app
+    '''parameters that are used throughout the app'''
     used_params = [
                    'show_hide',
                    'csrf_token',
@@ -362,6 +597,7 @@ def validate_filter_params(request, params_only=False):
                    'fileprogress_id',
                    ]
 
+    '''regular expression to find numeric filter parameters'''
     numeric_filter_re = re.compile('metric_type_filter\d+')
     numeric_filter_re2 = re.compile('.*_number\d+')
     sorting_filter_re = re.compile('.*_sort')
@@ -371,13 +607,13 @@ def validate_filter_params(request, params_only=False):
     numeric_filters = {}
     categorical_filters = {}
 
-    # grab only non-empty parameters
+    '''grab only non-empty parameters'''
     for key in request.keys():
         if request[key].strip():
             search_params[key] = request[key].strip()
 
-    # find all parameters for numeric filters
-    # remove them from search_params after use
+    '''find all parameters for numeric filters
+    remove them from search_params after use'''
     for key, value in search_params.items():
         if numeric_filter_re.match(key):
             category = numeric_filter_re.match(key).group()
@@ -397,7 +633,7 @@ def validate_filter_params(request, params_only=False):
                 search_params[max_number] = ''
             search_params[key] = ''
 
-    # look for all required params and set to default value if not found
+    '''look for all required params and set to default value if not found'''
     for param, default_value in required_params.items():
         if param not in search_params:
             extra_params[param] = default_value
@@ -405,90 +641,33 @@ def validate_filter_params(request, params_only=False):
             extra_params[param] = search_params[param]
             search_params[param] = ''
 
-    # default value for all numeric filters
+    '''needed param for numeric filters'''
     numeric_filters['extra_filters'] = extra_params['extra_filters_template']
 
-    # separate all non filter params out
+    '''separate all non filter params out'''
     for param in used_params:
         if param in search_params:
             extra_params[param] = search_params[param]
             search_params[param] = ''
 
     # keep all non empty params
-    # at this point it will be all categorical parameters
+    '''at this point it will be all categorical parameters and time sorting that is currently not implemented'''
     temp = {}
     for key in search_params.keys():
         if search_params[key]:
             temp[key] = search_params[key]
     search_params = temp
 
-    # separate categorical parameters
+    '''separate categorical parameters'''
     for key, value in search_params.items():
         if not sorting_filter_re.match(key):
             categorical_filters[key] = value
 
+    '''if params_only flag is set, returns only extra_params'''
     if params_only:
         return extra_params
     else:
         return categorical_filters, numeric_filters, extra_params
-
-# create filter object
-def get_db_queries(request, metric_object_type=None):
-
-    categorical_filters, numeric_filters, extra_params = validate_filter_params(request)
-
-    if not metric_object_type:
-        if 'metric_type' not in extra_params or not extra_params['metric_type']:
-            return HTTPInternalServerError()
-        else:
-            metric_type = extra_params['metric_type']
-
-        if metric_type == '/trace/pgm':
-            metric_object_type = MetricsPGM
-        elif metric_type == '/trace/proton':
-            metric_object_type = MetricsProton
-
-    if metric_object_type == MetricsPGM:
-        # if request is for an existing saved filter, query db and return that filter
-        if 'filterid' in extra_params and extra_params['filterid'] and extra_params['filterid'] != 'blank':
-            filter_obj = DBSession.query(Saved_Filters_PGM).filter(Saved_Filters_PGM.id == int(extra_params['filterid'])).first()
-            # prevents user from putting in random filterid=\D+ parameter where filterid does not exist in db part 1
-            if filter_obj:
-                extra_params['current_selected_filter'] = filter_obj.name
-        # else create temporary filter for this search
-        else:
-            filter_obj = Saved_Filters_PGM('temp', json.dumps(numeric_filters), json.dumps(categorical_filters))
-            extra_params['current_selected_filter'] = 'None'
-
-        # prevents user from putting in random filterid=\D+ parameter where filterid does not exist in db part 2 enables error message 
-        if not filter_obj:
-            filter_obj = Saved_Filters_PGM('not_found', json.dumps(numeric_filters), json.dumps(categorical_filters))
-            extra_params['current_selected_filter'] = 'None'
-
-        # gets all saved filters from bd
-        saved_filters = DBSession.query(Saved_Filters_PGM).order_by(Saved_Filters_PGM.id.desc())
-
-    elif metric_object_type == MetricsProton:
-        # if request is for an existing saved filter, query db and return that filter
-        if 'filterid' in extra_params and extra_params['filterid'] and extra_params['filterid'] != 'blank':
-            filter_obj = DBSession.query(Saved_Filters_Proton).filter(Saved_Filters_Proton.id == int(extra_params['filterid'])).first()
-            # prevents user from putting in random filterid=\D+ parameter where filterid does not exist in db part 1
-            if filter_obj:
-                extra_params['current_selected_filter'] = filter_obj.name
-        # else create temporary filter for this search
-        else:
-            filter_obj = Saved_Filters_Proton('temp', json.dumps(numeric_filters), json.dumps(categorical_filters))
-            extra_params['current_selected_filter'] = 'None'
-
-        # prevents user from putting in random filterid=\D+ parameter where filterid does not exist in db part 2 enables error message 
-        if not filter_obj:
-            filter_obj = Saved_Filters_Proton('not_found', json.dumps(numeric_filters), json.dumps(categorical_filters))
-            extra_params['current_selected_filter'] = 'None'
-
-        # gets all saved filters from bd
-        saved_filters = DBSession.query(Saved_Filters_Proton).order_by(Saved_Filters_Proton.id.desc())
-
-    return filter_obj, saved_filters, extra_params
 
 # Author: Anthony Rodriguez
 def get_filterable_categories_pgm():
@@ -503,35 +682,35 @@ def get_filterable_categories_pgm():
 
     metrics_query = DBSession.query(MetricsPGM)
 
-    # Distinct Chip Types in database
+    '''Distinct Chip Types in database'''
     chip_types = metrics_query.distinct().order_by(MetricsPGM.chip_type).values(MetricsPGM.chip_type)
     chip_types = [x[0] for x in chip_types]
 
-    # Distinct Seq Kits in database
+    '''Distinct Seq Kits in database'''
     seq_kits = metrics_query.distinct().order_by(MetricsPGM.seq_kit).values(MetricsPGM.seq_kit)
     seq_kits = [x[0] for x in seq_kits]
 
-    # Distinct Run Types in database
+    '''Distinct Run Types in database'''
     run_types = metrics_query.distinct().order_by(MetricsPGM.run_type).values(MetricsPGM.run_type)
     run_types = [x[0] for x in run_types]
 
-    # Distinct Reference Libraries in database
+    '''Distinct Reference Libraries in database'''
     reference_libs = metrics_query.distinct().order_by(MetricsPGM.reference).values(MetricsPGM.reference)
     reference_libs = [x[0] for x in reference_libs]
 
-    # Distinct SW Versions in database
+    '''Distinct SW Versions in database'''
     sw_versions = metrics_query.distinct().order_by(MetricsPGM.sw_version).values(MetricsPGM.sw_version)
     sw_versions = [x[0] for x in sw_versions]
 
-    # Distinct TSS Versions in database
+    '''Distinct TSS Versions in database'''
     tss_versions = metrics_query.distinct().order_by(MetricsPGM.tss_version).values(MetricsPGM.tss_version)
     tss_versions = [x[0] for x in tss_versions]
 
-    # Distinct HW Versions in database
+    '''Distinct HW Versions in database'''
     hw_versions = metrics_query.distinct().order_by(MetricsPGM.hw_version).values(MetricsPGM.hw_version)
     hw_versions = [x[0] for x in hw_versions]
 
-    # Distinct Barcode Sets in database
+    '''Distinct Barcode Sets in database'''
     barcode_sets = metrics_query.distinct().order_by(MetricsPGM.barcode_set).values(MetricsPGM.barcode_set)
     barcode_sets = [x[0] for x in barcode_sets]
 
@@ -550,188 +729,47 @@ def get_filterable_categories_proton():
 
     metrics_query = DBSession.query(MetricsProton)
 
-    # Distinct Chip Types in database
+    '''Distinct Chip Types in database'''
     chip_types = metrics_query.distinct().order_by(MetricsProton.chip_type).values(MetricsProton.chip_type)
     chip_types = [x[0] for x in chip_types]
 
-    # Distinct Seq Kits in database
+    '''Distinct Seq Kits in database'''
     seq_kits = metrics_query.distinct().order_by(MetricsProton.seq_kit).values(MetricsProton.seq_kit)
     seq_kits = [x[0] for x in seq_kits]
 
-    # Distinct Run Types in database
+    '''Distinct Run Types in database'''
     run_types = metrics_query.distinct().order_by(MetricsProton.run_type).values(MetricsProton.run_type)
     run_types = [x[0] for x in run_types]
 
-    # Distinct Reference Libraries in database
+    '''Distinct Reference Libraries in database'''
     reference_libs = metrics_query.distinct().order_by(MetricsProton.reference).values(MetricsProton.reference)
     reference_libs = [x[0] for x in reference_libs]
 
-    # Distinct SW Versions in database
+    '''Distinct SW Versions in database'''
     sw_versions = metrics_query.distinct().order_by(MetricsProton.sw_version).values(MetricsProton.sw_version)
     sw_versions = [x[0] for x in sw_versions]
 
-    # Distinct TSS Versions in database
+    '''Distinct TSS Versions in database'''
     tss_versions = metrics_query.distinct().order_by(MetricsProton.tss_version).values(MetricsProton.tss_version)
     tss_versions = [x[0] for x in tss_versions]
 
-    # Distinct Barcode Sets in database
+    '''Distinct Barcode Sets in database'''
     barcode_sets = metrics_query.distinct().order_by(MetricsProton.barcode_set).values(MetricsProton.barcode_set)
     barcode_sets = [x[0] for x in barcode_sets]
 
     return chip_types, seq_kits, run_types, reference_libs, sw_versions, tss_versions, hw_versions, barcode_sets
 
-# Author: Anthony Rodriguez
-@view_config(route_name='analysis_proton', renderer='analysis.mako', permission='view')
-def analysis_proton(request):
-    filter_obj, saved_filters, extra_params = get_db_queries(request.params, MetricsProton)
-
-    metrics_query = filter_obj.get_query()
-
-    chip_types, seq_kits, run_types, reference_libs, sw_versions, tss_versions, hw_versions, barcode_sets = get_filterable_categories_proton()
-
-    page = int(request.params.get("page", 1))
-    page_url = paginate.PageURL_WebOb(request)
-
-    metric_pages = paginate.Page(metrics_query, page, items_per_page=100, url=page_url)
-    pages = [metric_pages.first_page]
-    left_pagius = 5
-    right_pagius = 5
-    total = 2 + left_pagius + 1 + right_pagius + 2
-
-    if metric_pages.page_count <= total:
-        pages = range(1, metric_pages.page_count + 1)
-    else:
-        if metric_pages.page - left_pagius < 3:
-            diff = 3 - (metric_pages.page - left_pagius)
-            right_pagius += diff
-            left_pagius = max(left_pagius - diff, 0)
-        if metric_pages.page + right_pagius > metric_pages.page_count - 2:
-            diff = (metric_pages.page + right_pagius + 1) - (metric_pages.page_count - 1)
-            left_pagius += diff
-            right_pagius = max(right_pagius - diff, 0)
-        if metric_pages.page - left_pagius > 3:
-            pages.append("..")
-        elif metric_pages.page - left_pagius == 3:
-            pages.append("2")
-
-        if metric_pages.page > 2:
-            pages.extend(range(max(metric_pages.page - left_pagius, 3), metric_pages.page))
-        if metric_pages.page >= 2:
-            pages.append(metric_pages.page)
-
-        pages.extend(range(metric_pages.page + 1, min(metric_pages.page + right_pagius + 1, metric_pages.page_count)))
-
-        if metric_pages.page + right_pagius < metric_pages.page_count - 2:
-            pages.append("..")
-        elif metric_pages.page + right_pagius == metric_pages.page_count - 2:
-            pages.append(metric_pages.page_count - 1)
-
-        if metric_pages.page < metric_pages.page_count:
-            pages.append(metric_pages.page_count)
-
-    return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "search": extra_params, "metric_object_type": MetricsProton,
-            "show_hide_defaults": json.dumps(MetricsProton.show_hide_defaults), "show_hide_false": json.dumps(MetricsProton.show_hide_false),
-            "metric_columns": json.dumps(MetricsProton.numeric_columns), "filter_name": filter_obj.name, "numeric_filters_json": filter_obj.numeric_filters,
-            'categorical_filters_json': filter_obj.categorical_filters, 'chip_types': chip_types, 'seq_kits': seq_kits,
-            "run_types": run_types, "reference_libs": reference_libs, "sw_versions": sw_versions, "tss_versions": tss_versions,
-            "hw_versions": hw_versions, "barcode_sets": barcode_sets, "saved_filters": saved_filters}
-
-# Author: Anthony Rodriguez
-@view_config(route_name='analysis_pgm', renderer="analysis.mako", permission="view")
-def analysis_pgm(request):
-    filter_obj, saved_filters, extra_params = get_db_queries(request.params, MetricsPGM)
-
-    metrics_query = filter_obj.get_query()
-
-    chip_types, seq_kits, run_types, reference_libs, sw_versions, tss_versions, hw_versions, barcode_sets = get_filterable_categories_pgm()
-
-    page = int(request.params.get("page", 1))
-    page_url = paginate.PageURL_WebOb(request)
-
-    metric_pages = paginate.Page(metrics_query, page, items_per_page=100, url=page_url)
-    pages = [metric_pages.first_page]
-    left_pagius = 5
-    right_pagius = 5
-    total = 2 + left_pagius + 1 + right_pagius + 2
-
-    if metric_pages.page_count <= total:
-        pages = range(1, metric_pages.page_count + 1)
-    else:
-        if metric_pages.page - left_pagius < 3:
-            diff = 3 - (metric_pages.page - left_pagius)
-            right_pagius += diff
-            left_pagius = max(left_pagius - diff, 0)
-        if metric_pages.page + right_pagius > metric_pages.page_count - 2:
-            diff = (metric_pages.page + right_pagius + 1) - (metric_pages.page_count - 1)
-            left_pagius += diff
-            right_pagius = max(right_pagius - diff, 0)
-        if metric_pages.page - left_pagius > 3:
-            pages.append("..")
-        elif metric_pages.page - left_pagius == 3:
-            pages.append("2")
-
-        if metric_pages.page > 2:
-            pages.extend(range(max(metric_pages.page - left_pagius, 3), metric_pages.page))
-        if metric_pages.page >= 2:
-            pages.append(metric_pages.page)
-
-        pages.extend(range(metric_pages.page + 1, min(metric_pages.page + right_pagius + 1, metric_pages.page_count)))
-
-        if metric_pages.page + right_pagius < metric_pages.page_count - 2:
-            pages.append("..")
-        elif metric_pages.page + right_pagius == metric_pages.page_count - 2:
-            pages.append(metric_pages.page_count - 1)
-
-        if metric_pages.page < metric_pages.page_count:
-            pages.append(metric_pages.page_count)
-
-    #commented out but used to reset user session
-    #request.session.invalidate()
-
-    return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "search": extra_params, "metric_object_type": MetricsPGM,
-            "show_hide_defaults": json.dumps(MetricsPGM.show_hide_defaults), "show_hide_false": json.dumps(MetricsPGM.show_hide_false),
-            "metric_columns": json.dumps(MetricsPGM.numeric_columns), "filter_name": filter_obj.name, "numeric_filters_json": filter_obj.numeric_filters,
-            'categorical_filters_json': filter_obj.categorical_filters, 'chip_types': chip_types, 'seq_kits': seq_kits,
-            "run_types": run_types, "reference_libs": reference_libs, "sw_versions": sw_versions, "tss_versions": tss_versions,
-            "hw_versions": hw_versions, "barcode_sets": barcode_sets, "saved_filters": saved_filters}
-
 #Author: Anthony Rodriguez
-@view_config(route_name="analysis_show_hide", renderer="json", permission="view", xhr=True)
-def show_hide_columns(request):
+def get_filterable_categories_otlog():
+    cat1 = []
 
-    show_hide_columns = {}
+    return cat1
 
-    request_path = request.params.get("metric_type")
-
-    if request_path == '/trace/pgm':
-        if "show_hide_columns/trace/pgm" in request.POST and request.POST['show_hide_columns/trace/pgm']:
-            show_hide_columns = request.params.get("show_hide_columns/trace/pgm")
-    elif request_path == '/trace/proton':
-        if "show_hide_columns/trace/proton" in request.POST and request.POST['show_hide_columns/trace/proton']:
-            show_hide_columns = request.params.get("show_hide_columns/trace/proton")
-
-    if request_path == '/trace/pgm':
-        request.session["show_hide_session/trace/pgm"]= show_hide_columns
-    elif request_path == '/trace/proton':
-        request.session["show_hide_session/trace/proton"]= show_hide_columns
-
-    return {"status": 200}
-
-def does_filter_exist(filter_object):
-    '''
-    check hash of filter_object to see if it already exists in the db
-    if it does exist return true and the id, else false and empty string
-    '''
-    return False, ''
-
-@view_config(context=HTTPInternalServerError, renderer='404.mako')
-def server_error(self, request):
-    request.response.status = 500
-    return {}
-
+'''BEGIN CSV SUPPORT'''
 # Author: Anthony Rodriguez
-@view_config(route_name="analysis_csv", renderer='json', permission="view")
-def analysis_csv(request):
+@view_config(route_name="trace_request_csv", renderer='json', permission="view")
+def request_csv(request):
+    '''create filter object, get saved filters in db, and all extra parameters that were not used'''
     filter_obj, saved_filters, extra_params = get_db_queries(request.params)
 
     if 'metric_type' not in extra_params or not extra_params['metric_type']:
@@ -739,64 +777,130 @@ def analysis_csv(request):
     else:
         metric_type = extra_params['metric_type']
 
-    if metric_type == '/trace/pgm':
-        metric_object_type = MetricsPGM
-        filter_object_type = Saved_Filters_PGM
-    elif metric_type == '/trace/proton':
-        metric_object_type = MetricsProton
-        filter_object_type = Saved_Filters_Proton
-
+    '''create file_progress object to track file progress'''
     file_progress = FileProgress('csv')
     DBSession.add(file_progress)
+    DBSession.flush()
+    file_progress_id = file_progress.id
     transaction.commit()
 
-    file_progress_id = file_progress.id
+    '''if the file is a temporary file we want to add it to the DB here
+    so that we can pass the id to celery tasks'''
+    if filter_obj.type == 'temp':
+        DBSession.add(filter_obj)
 
-    '''
-    if the filter_object hash already exists, query db and pass id to celery task
-    else pass entire request to celery task so that the task can create the filter object
-    '''
-    filter_exists, filter_id = does_filter_exist(filter_obj)
+    '''sets relational ids on filter object for future use'''
+    filter_obj.progress_id = file_progress_id
+    DBSession.flush()
+    filter_object_id = filter_obj.id
+    transaction.commit()
 
-    if not filter_exists:
-        filter_id = extra_params['filterid']
+    '''calls celery task'''
+    celery_task = lemontest.csv_support.make_csv.delay(metric_type, file_progress_id, filter_object_id, extra_params['show_hide'])
 
-    if filter_exists or filter_id:
-        filter_obj = DBSession.query(filter_object_type).filter(filter_object_type.id == filter_id).first()
-        celery_task = lemontest.csv_support.make_csv.delay(metric_object_type, filter_object_type, file_progress_id, extra_params['show_hide'], filter_id=filter_obj.id)
-    else:
-        celery_task = lemontest.csv_support.make_csv.delay(metric_object_type, filter_object_type, file_progress_id, extra_params['show_hide'], request=request.params)
-
+    '''sets celery task id for file progress object'''
     file_progress = DBSession.query(FileProgress).filter(FileProgress.id == file_progress_id).first()
     file_progress.celery_id = celery_task.id
     transaction.commit()
 
-    request.session['file_pending' + metric_type] = file_progress_id
+    '''creates a pending file in session for the user'''
+    request.session['file_pending_' + metric_type] = file_progress_id
 
     return {'status': 'ok', 'fileprogress_id': file_progress_id}
 
-@view_config(route_name='analysis_csv_update', renderer='json', permission='view')
-def check_csv_file(request):
+# Author: Anthony Rodriguez
+@view_config(route_name='trace_serve_csv', renderer='json', permission='view')
+def serve_csv(request):
+    metric_type = request.params.get('metric_type', '')
+
+    request.session['file_pending_' + metric_type] = ''
+
+    file = DBSession.query(FileProgress).filter(FileProgress.id == request.params['file_id']).first()
+    response = FileResponse(file.path, request=request, content_type='text/csv')
+    response.headers['Content-Disposition'] = "attachment; filename=trace.csv"
+    return response
+'''END CSV SUPPORT'''
+
+'''BEGIN PLOT SUPPORT'''
+# Author: Anthony Rodriguez
+@view_config(route_name='trace_request_plot', renderer='json', permission='view')
+def request_plot(request):
+    '''create filter object, get saved filters in db, and all extra parameters that were not used'''
+    filter_obj, saved_filters, extra_params = get_db_queries(request.params)
+
+    if 'metric_type' not in extra_params or not extra_params['metric_type']:
+        return {'status': 'error', 'message': 'metric type not in data'}
+    else:
+        metric_type = extra_params['metric_type']
+
+    '''create file_progress object to track file progress'''
+    file_progress = FileProgress('plot')
+    DBSession.add(file_progress)
+    DBSession.flush()
+    file_progress_id = file_progress.id
+    transaction.commit()
+
+    '''if the file is a temporary file we want to add it to the DB here
+    so that we can pass the id to celery tasks'''
+    if filter_obj.type == 'temp':
+        DBSession.add(filter_obj)
+
+    '''sets relational ids on filter object for future use'''
+    filter_obj.progress_id = file_progress_id
+    DBSession.flush()
+    filter_object_id = filter_obj.id
+    transaction.commit()
+
+    '''calls celery task'''
+    celery_task = lemontest.plots_support.box_plot.delay(metric_type, file_progress_id, filter_object_id, 'isp_loading')
+
+    '''sets celery task id for file progress object'''
+    file_progress = DBSession.query(FileProgress).filter(FileProgress.id == file_progress_id).first()
+    file_progress.celery_id = celery_task.id
+    transaction.commit()
+
+    request.session['plot_pending_' + metric_type] = file_progress_id
+
+    return {'status': 'ok', 'fileprogress_id': file_progress_id}
+
+# Author: Anthony Rodriguez
+@view_config(route_name='trace_show_plot', renderer='pgm.plots.mako', permission='view')
+def show_plot(request):
+    metric_type = request.params.get('metric_type', '')
+
+    request.session['plot_pending_' + metric_type] = ''
+
+    file = DBSession.query(FileProgress).filter(FileProgress.id == request.params['file_id']).first()
+    return {'isp_loading': file.path}
+'''END PLOT SUPPORT'''
+
+# Author: Anthony Rodriguez
+@view_config(route_name='trace_check_file_update', renderer='json', permission='view')
+def check_file_update(request):
     file_pending_re = re.compile('file_pending.*')
+    plot_pending_re = re.compile('plot_pending.*')
 
     extra_params = validate_filter_params(request.params, params_only=True)
 
+    '''if for some reason we loose the progress id, we send back an error and clear user session'''
     if 'fileprogress_id' not in extra_params or not extra_params['fileprogress_id']:
         for key in request.session.keys():
-            if file_pending_re.match(key):
+            if file_pending_re.match(key) or plot_pending_re.match(key):
                 request.session[key] = ''
         return {'status': 'error', 'request': request.params.items()}
     if 'metric_type' not in extra_params or not extra_params['metric_type']:
         for key in request.session.keys():
-            if file_pending_re.match(key):
+            if file_pending_re.match(key) or plot_pending_re.match(key):
                 request.session[key] = ''
         return {'status': 'error', 'request': request.params.items()}
 
     fileprogress_id = extra_params['fileprogress_id']
     metric_type = extra_params['metric_type']
 
+    '''find file progress object'''
     file_progress_obj = DBSession.query(FileProgress).filter(FileProgress.id == fileprogress_id).first()
 
+    '''if one exists we check its status, and update UI'''
     if file_progress_obj:
         if file_progress_obj.status != "Done":
             return {'status': 'pending', 'fileprogress_id': file_progress_obj.id, 'progress': file_progress_obj.progress}
@@ -805,86 +909,106 @@ def check_csv_file(request):
     else:
         return {'status': 'pending', 'fileprogress_id': file_progress_obj.id, 'progress': 0}
 
-@view_config(route_name='analysis_serve_csv', renderer='json', permission='view')
-def serve_csv_file(request):
-    metric_type = request.params.get('metric_type', '')
+#Author: Anthony Rodriguez
+@view_config(route_name="trace_show_hide", renderer="json", permission="view", xhr=True)
+def show_hide_columns(request):
 
-    request.session['file_pending' + metric_type] = ''
+    show_hide_columns = {}
 
-    file = DBSession.query(FileProgress).filter(FileProgress.id == request.params['file_id']).first()
-    response = FileResponse(file.path, request=request, content_type='text/csv')
-    response.headers['Content-Disposition'] = "attachment; filename=analysis.csv"
-    return response
+    metric_type = request.params.get("metric_type")
 
-@view_config(route_name='analysis_apply_filter', renderer="json", permission='view')
+    if metric_type == 'pgm':
+        if "show_hide_columns_pgm" in request.POST and request.POST['show_hide_columns_pgm']:
+            show_hide_columns = request.params.get("show_hide_columns_pgm")
+    elif metric_type == 'proton':
+        if "show_hide_columns_proton" in request.POST and request.POST['show_hide_columns_proton']:
+            show_hide_columns = request.params.get("show_hide_columns_proton")
+
+    if metric_type == 'pgm':
+        request.session["show_hide_session_pgm"]= show_hide_columns
+    elif metric_type == 'proton':
+        request.session["show_hide_session_proton"]= show_hide_columns
+
+    return {"status": 200}
+
+#Author: Anthony Rodriguez
+@view_config(route_name='trace_apply_filter', renderer="json", permission='view')
 def apply_filter(request):
-    if 'metric_type' in request.params and request.params['metric_type'].strip() == '/trace/pgm':
-        url = request.route_url('analysis_pgm')
+    if 'metric_type' in request.params and request.params['metric_type'].strip() == 'pgm':
+        url = request.route_url('trace_pgm')
         url += '?filterid=' + request.params['filterid']
-    elif 'metric_type' in request.params and request.params['metric_type'].strip() == '/trace/proton':
-        url = request.route_url('analysis_proton')
+    elif 'metric_type' in request.params and request.params['metric_type'].strip() == 'proton':
+        url = request.route_url('trace_proton')
         url += '?filterid=' + request.params['filterid']
 
     return HTTPFound(location=url)
 
-@view_config(route_name="analysis_save_filter", renderer="json", permission="view")
+#Author: Anthony Rodriguez
+@view_config(route_name="trace_save_filter", renderer="json", permission="view")
 def save_filter(request):
-    if 'metric_type' in request.params and request.params['metric_type'].strip() == '/trace/pgm':
-        filter_obj, saved_filters, extra_params = get_db_queries(request.params, MetricsPGM)
-        filter_obj.name = extra_params['saved_filter_name']
-        if (len(filter_obj.numeric_filters_json) > 1) or filter_obj.categorical_filters_json:
-            DBSession.add(filter_obj)
-            DBSession.flush()
-            url = request.route_url('analysis_pgm')
-            url += '?filterid=' + str(filter_obj.id)
-            transaction.commit()
-        else:
-            url = request.route_url('analysis_pgm')
-            url += '?filterid=blank'
-    elif 'metric_type' in request.params and request.params['metric_type'].strip() == '/trace/proton':
-        filter_obj, saved_filters, extra_params = get_db_queries(request.params, MetricsProton)
-        filter_obj.name = extra_params['saved_filter_name']
-        if (len(filter_obj.numeric_filters_json) > 1) or filter_obj.categorical_filters_json:
-            DBSession.add(filter_obj)
-            DBSession.flush()
-            url = request.route_url('analysis_proton')
-            url += '?filterid=' + str(filter_obj.id)
-            transaction.commit()
-        else:
-            url = request.route_url('analysis_proton')
-            url += '?filterid=blank'
+
+    filter_obj, saved_filters, extra_params = get_db_queries(request.params)
+
+    if 'metric_type' not in extra_params or not extra_params['metric_type']:
+        return HTTPInternalServerError()
+    else:
+        metric_type = extra_params['metric_type']
+
+    if metric_type == 'pgm':
+        url = request.route_url('trace_pgm')
+    elif metric_type == 'proton':
+        url = request.route_url('trace_proton')
+    elif metric_type == 'otlog':
+        url = request.route_url('trace_otlog')
+
+    filter_obj.name = extra_params['saved_filter_name']
+    if (len(filter_obj.numeric_filters_json) > 1) or filter_obj.categorical_filters_json:
+        DBSession.add(filter_obj)
+        DBSession.flush()
+        url += '?filterid=' + str(filter_obj.id)
+        transaction.commit()
+    else:
+        url += '?filterid=blank'
 
     return HTTPFound(location=url)
 
-# useful when trying to see what is in the DB
-'''@view_config(route_name='db_query', renderer='db_objects.mako', permission='view')
-def db_query(request):
-    file_progress_query = DBSession.query(FileProgress).all()
-    saved_filters_pgm = DBSession.query(Saved_Filters_PGM).all()
-    saved_filters_proton = DBSession.query(Saved_Filters_Proton).all()
-    archive_query = DBSession.query(Archive).all()
-    metrics_pgm_query = DBSession.query(MetricsPGM).all()
-    metrics_proton_query = DBSession.query(MetricsProton).all()
-
-    return {'file_progress_query': file_progress_query, 'saved_filters_pgm': saved_filters_pgm,
-            'saved_filters_proton': saved_filters_proton, 'archive_query': archive_query,
-            'metrics_pgm_query': metrics_pgm_query, 'metrics_proton_query': metrics_proton_query}'''
-
-@view_config(route_name='analysis_delete_saved_filter', renderer='json', permission='view')
+#Author: Anthony Rodriguez
+@view_config(route_name='trace_delete_saved_filter', renderer='json', permission='view')
 def delete_saved_filter(request):
     filter_id = request.params.get('filter_to_delete', '')
     filter_type = request.params.get('metric_type', '')
 
     if filter_id:
-        if filter_type == '/trace/pgm':
-            url = request.route_url('analysis_pgm')
+        if filter_type == 'pgm':
+            url = request.route_url('trace_pgm')
             filter = DBSession.query(Saved_Filters_PGM).filter(Saved_Filters_PGM.id == filter_id).first()
             DBSession.delete(filter)
             transaction.commit()
-        elif filter_type == '/trace/proton':
-            url = request.route_url('analysis_proton')
+        elif filter_type == 'proton':
+            url = request.route_url('trace_proton')
             filter = DBSession.query(Saved_Filters_Proton).filter(Saved_Filters_Proton.id == filter_id).first()
             DBSession.delete(filter)
             transaction.commit()
 
     return HTTPFound(location=url)
+
+'''DEBUG'''
+#Author: Anthony Rodriguez
+# useful when trying to see what is in the DB
+@view_config(route_name='db_query', renderer='db_objects.mako', permission='view')
+def db_query(request):
+    file_progress_query = DBSession.query(FileProgress).all()
+    saved_filters_pgm = DBSession.query(Saved_Filters_PGM).all()
+    saved_filters_proton = DBSession.query(Saved_Filters_Proton).all()
+    saved_filters_otlog = DBSession.query(Saved_Filters_OTLog).all()
+    archive_query = DBSession.query(Archive).all()
+    metrics_pgm_query = DBSession.query(MetricsPGM).all()
+    metrics_proton_query = DBSession.query(MetricsProton).all()
+    metrics_otlog_query = DBSession.query(MetricsOTLog).all()
+
+    #commented out but used to reset user session
+    #request.session.invalidate()
+
+    return {'file_progress_query': file_progress_query, 'saved_filters_pgm': saved_filters_pgm,
+            'saved_filters_proton': saved_filters_proton, 'saved_filters_otlog': saved_filters_otlog ,'archive_query': archive_query,
+            'metrics_pgm_query': metrics_pgm_query, 'metrics_proton_query': metrics_proton_query, 'metrics_otlog_query': metrics_otlog_query}

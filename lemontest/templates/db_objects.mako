@@ -113,7 +113,33 @@
 			</tbody>
 		</table>
 	</div>
-	
+
+	<div class="container">
+		<h4>Saved Filters OTLog</h4>
+		<table class="table table-hover table-striped" width="800">
+			<thead>
+				<tr>
+					% if saved_filters_otlog:
+						% for column in saved_filters_otlog[0].inspect():
+							<th>${str(column).split('.')[1]}</th>
+						% endfor
+					% endif
+				</tr>
+			</thead>
+			<tbody>
+				% if saved_filters_otlog:
+					% for each in saved_filters_otlog:
+						<tr>
+							% for column in each.inspect():
+								<td>${getattr(each, str(column).split('.')[1])}</td>
+							% endfor
+						</tr>
+					% endfor
+				% endif
+			</tbody>
+		</table>
+	</div>
+
 	<div class="container">
 		<h4>Archive</h4>
 		<table class="table table-hover table-striped" width="800">
@@ -181,6 +207,32 @@
 			<tbody>
 				% if metrics_proton_query:
 					% for each in metrics_proton_query:
+						<tr>
+							% for column in each.inspect():
+								<td>${getattr(each, str(column).split('.')[1])}</td>
+							% endfor
+						</tr>
+					% endfor
+				% endif
+			</tbody>
+		</table>
+	</div>
+
+	<div class="container">
+		<h4>Metrics OTLog</h4>
+		<table class="table table-hover table-striped" width="800">
+			<thead>
+				<tr>
+					% if metrics_otlog_query:
+						% for column in metrics_otlog_query[0].inspect():
+							<th>${str(column).split('.')[1]}</th>
+						% endfor
+					% endif
+				</tr>
+			</thead>
+			<tbody>
+				% if metrics_otlog_query:
+					% for each in metrics_otlog_query:
 						<tr>
 							% for column in each.inspect():
 								<td>${getattr(each, str(column).split('.')[1])}</td>
