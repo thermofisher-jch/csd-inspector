@@ -18,6 +18,8 @@ from lemontest.models import Saved_Filters_OTLog
 
 from celery import task
 
+from pyramid import threadlocal
+
 import os
 import csv
 import json
@@ -83,9 +85,8 @@ def box_plot(column, data):
     progress_interval = .01'''
 
     '''make unique temporary file'''
-    tempfile.tempdir = '/tmp/plots'
+    tempfile.tempdir = threadlocal.get_current_registry().settings['plots_dir']
     fd, name = tempfile.mkstemp('.png', 'metric_plot')
-    save_dir = '/home/rodriga/inspector/lemontest/static/img/plots/'
 
     '''create instance of a figure'''
     fig = plt.figure()
@@ -97,15 +98,14 @@ def box_plot(column, data):
 
     plt.boxplot(data)
 
-    fig.savefig(save_dir + name.split('/')[-1])
+    fig.savefig(name)
 
     return name
 
 def histogram(column, data):
     '''make unique temporary file'''
-    tempfile.tempdir = '/tmp/plots'
+    tempfile.tempdir = threadlocal.get_current_registry().settings['plots_dir']
     fd, name = tempfile.mkstemp('.png', 'metric_plot')
-    save_dir = '/home/rodriga/inspector/lemontest/static/img/plots/'
 
     '''create instance of a figure'''
     fig = plt.figure()
@@ -117,6 +117,6 @@ def histogram(column, data):
 
     plt.hist(data)
 
-    fig.savefig(save_dir + name.split('/')[-1])
+    fig.savefig(name)
 
     return name

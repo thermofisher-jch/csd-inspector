@@ -6,6 +6,7 @@ from sqlalchemy import engine_from_config
 
 from lemontest.models import initialize_sql
 from lemontest.models import initialize_testers
+from apex.tests import settings
 
 
 def main(global_config, **settings):
@@ -20,6 +21,7 @@ def main(global_config, **settings):
     settings["upload_root"] = os.path.abspath(settings["upload_root"])
     settings["test_root"] = os.path.abspath(settings["test_root"])
     settings["test_manifest"] = os.path.abspath(settings["test_manifest"])
+    settings["plots_dir"] = os.path.abspath(settings["plots_dir"])
 
     # Setup cache configuration
     pyramid_beaker.set_cache_regions_from_settings(settings)
