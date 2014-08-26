@@ -29,6 +29,8 @@ mapping = {
            'pgm': (MetricsPGM, Saved_Filters_PGM),
            'proton': (MetricsProton, Saved_Filters_Proton),
            'otlog': (MetricsOTLog, Saved_Filters_OTLog),
+           #'boxplot': box_plot,
+           #'histogram': histogram
            }
 
 @task

@@ -70,8 +70,14 @@
 			$('#blank_error').slideDown();
 		}
 
+		$('#show_plot_modal').click(function() {
+			$('.show_plot_modal').modal('show');
+		});
+
 		$('#show_plot').click(function(event) {
-			var l = Ladda.create(this);
+			$('.show_plot_modal').modal('hide');
+
+			var l = Ladda.create(document.getElementById('show_plot_modal'));
 			l.start();
 
 			var params = get_csv_params();
@@ -80,7 +86,7 @@
 			$.ajax({
 				type: "GET",
 				url: "${request.route_path('trace_request_plot')}" + "?" + serialized,
-				data: {"metric_type": "proton"}
+				data: {"metric_type": "proton", 'graph_column_name': document.getElementById('graph_column_name').value}
 			}).done(function(data) {
 				if (data.status == 'ok'){
 					var fileprogress_id = data.fileprogress_id;
@@ -367,11 +373,11 @@
 
 	<div class="form-group pull-right">
 		<%block name="plot_this_buttons">
-			<button id="show_plot" type="button" class="btn btn-success ladda-button" data-style="expand-left">
+			<button id="show_plot_modal" type="button" class="btn btn-success ladda-button" data-style="expand-left">
 				<span class="ladda-label">Plot this data</span>
 				<span class="ladda-spinner"></span>
 				<span class="ladda-progress"></span>
-				<span class="icon-white icon-download"></span>
+				<span class="icon-white icon-picture"></span>
 			</button>
 		</%block>
 	
@@ -555,6 +561,41 @@
 					<button id="filter_delete_modal_btn" type="submit" class="btn btn-danger pull-right">Delete</button>
 					<button data-dismiss="modal" class="btn btn-info pull-left">Cancel</button>
 				</form>
+			</div>
+		</div>
+	</div>
+</div>
+</%block>
+
+<%block name="show_plot_modal">
+<div class="modal fade show_plot_modal" tableindex="-1" role="dialog" aria-labelledby="remove_confirmation" aria-hidden="true">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Graph Options</h4>
+			</div>
+			<div class="modal-body text-center">
+				<div class="some_space_below">
+					<h5 class="label_spacing control-label" style="margin-right: 20px; vertical-align: top; display: inline-block;"> Metric Type </h5>
+					<select class="form-control" id="graph_column_name" name="graph_column_name">
+						<option value=""></option>
+						% for column in metric_object_type.numeric_columns:
+							<option class="filter_option" value="${column[0]}">${column[0]}</option>
+						% endfor
+					</select>
+				</div>
+				<div class="some_space_below">
+					<h5 class="label_spacing control-label" style="margin-right: 20px; vertical-align: top; display: inline-block;"> Graph Type </h5>
+					<select class="form-control" id="graph_type" name="graph_type">
+						<option value=""></option>
+						<option class="filter_option" value="boxplot">Box Plot</option>
+						<option class="filter_option" value="histogram">Histogram</option>
+					</select>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" id="show_plot" class="btn btn-success">Graph</button>
 			</div>
 		</div>
 	</div>
