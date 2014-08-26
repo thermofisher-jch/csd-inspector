@@ -595,6 +595,8 @@ def validate_filter_params(request, params_only=False):
                    'saved_filter_name',
                    'saved_filters',
                    'fileprogress_id',
+                   'graph_column_name',
+                   'graph_type'
                    ]
 
     '''regular expression to find numeric filter parameters'''
@@ -833,6 +835,16 @@ def request_plot(request):
     else:
         metric_type = extra_params['metric_type']
 
+    if 'graph_column_name' not in extra_params or not extra_params['graph_column_name']:
+        return {'status': 'error', 'message': 'metric column not in data'}
+    else:
+        column = extra_params['graph_column_name']
+
+    if "graph_type" not in extra_params or not extra_params['graph_type']:
+        return {'status': 'error', 'message': 'graph type not in data'}
+    else:
+        graph_type = extra_params['graph_type']
+
     '''create file_progress object to track file progress'''
     file_progress = FileProgress('plot')
     DBSession.add(file_progress)
@@ -852,7 +864,7 @@ def request_plot(request):
     transaction.commit()
 
     '''calls celery task'''
-    celery_task = lemontest.plots_support.box_plot.delay(metric_type, file_progress_id, filter_object_id, 'isp_loading')
+    celery_task = lemontest.plots_support.make_plot.delay(metric_type, file_progress_id, filter_object_id, graph_type ,column)
 
     '''sets celery task id for file progress object'''
     file_progress = DBSession.query(FileProgress).filter(FileProgress.id == file_progress_id).first()
