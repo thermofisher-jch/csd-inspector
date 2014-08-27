@@ -86,7 +86,7 @@
 			$.ajax({
 				type: "GET",
 				url: "${request.route_path('trace_request_plot')}" + "?" + serialized,
-				data: {"metric_type": "pgm", 'graph_column_name': document.getElementById('graph_column_name').value}
+				data: {"metric_type": "pgm", 'graph_column_name': document.getElementById('graph_column_name').value, 'graph_type': document.getElementById('graph_type').value}
 			}).done(function(data) {
 				if (data.status == 'ok'){
 					var fileprogress_id = data.fileprogress_id;

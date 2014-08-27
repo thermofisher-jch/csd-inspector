@@ -563,26 +563,37 @@ class MetricsOTLog(Base):
         else:
             return None
 
-class Saved_Filters_PGM(Base):
-    __tablename__ = 'saved_filters_pgm'
+class SavedFilters(Base):
+    __tablename__ = 'saved_filters'
     id = Column(Integer, primary_key=True)
     name = Column(Unicode(255))
+    metric_type = Column(Unicode(255))
     numeric_filters = Column(Text)
     categorical_filters = Column(Text)
-    file_progress = Column(Integer, ForeignKey('fileprogress.id'))
     type = Column(Unicode(255))
 
-    def __init__(self, name, numeric_filters, categorical_filters):
+    def __init__(self, name, metric_type, numeric_filters, categorical_filters):
         self.name = name
+        self.metric_type = metric_type
         self.numeric_filters = numeric_filters
         self.categorical_filters = categorical_filters
         self.numeric_filters_json = json.loads(numeric_filters)
         self.categorical_filters_json = json.loads(categorical_filters)
+        self.mapping = {
+           'pgm': MetricsPGM,
+           'proton': MetricsProton,
+           'otlog': MetricsOTLog,
+           }
 
     @orm.reconstructor
     def do_onload(self):
         self.numeric_filters_json = json.loads(self.numeric_filters)
         self.categorical_filters_json = json.loads(self.categorical_filters)
+        self.mapping = {
+           'pgm': MetricsPGM,
+           'proton': MetricsProton,
+           'otlog': MetricsOTLog,
+           }
 
     # useful when trying to see what is in the DB
     def inspect(self):
@@ -590,105 +601,21 @@ class Saved_Filters_PGM(Base):
         return mapper.attrs
 
     def get_query(self):
-        metrics_query = DBSession.query(MetricsPGM).options(joinedload('archive')).join(Archive).order_by(Archive.id.desc())
+        metric_object_type = self.mapping[self.metric_type]
+
+        metrics_query = DBSession.query(metric_object_type).options(joinedload('archive')).join(Archive).order_by(Archive.id.desc())
 
         for num_filter, params in self.numeric_filters_json.items():
             if num_filter != 'extra_filters':
                 if params['max']:
-                    metrics_query = metrics_query.filter(MetricsPGM.get_column(params['type']) <= float(params['max']))
+                    metrics_query = metrics_query.filter(metric_object_type.get_column(params['type']) <= float(params['max']))
                 if params['min']:
-                    metrics_query = metrics_query.filter(MetricsPGM.get_column(params['type']) >= float(params['min']))
+                    metrics_query = metrics_query.filter(metric_object_type.get_column(params['type']) >= float(params['min']))
         for cat_filter, value in self.categorical_filters_json.items():
             if value == 'None':
-                metrics_query = metrics_query.filter(MetricsPGM.get_column(cat_filter) == None)
+                metrics_query = metrics_query.filter(metric_object_type.get_column(cat_filter) == None)
             else:
-                metrics_query = metrics_query.filter(MetricsPGM.get_column(cat_filter) == value)
-
-        return metrics_query
-
-class Saved_Filters_Proton(Base):
-    __tablename__ = 'saved_filters_proton'
-    id = Column(Integer, primary_key=True)
-    name = Column(Unicode(255))
-    numeric_filters = Column(Text)
-    categorical_filters = Column(Text)
-    file_progress_id = Column(Integer, ForeignKey('fileprogress.id'))
-    type = Column(Unicode(255))
-
-    def __init__(self, name, numeric_filters, categorical_filters):
-        self.name = name
-        self.numeric_filters = numeric_filters
-        self.categorical_filters = categorical_filters
-        self.numeric_filters_json = json.loads(numeric_filters)
-        self.categorical_filters_json = json.loads(categorical_filters)
-
-    @orm.reconstructor
-    def do_onload(self):
-        self.numeric_filters_json = json.loads(self.numeric_filters)
-        self.categorical_filters_json = json.loads(self.categorical_filters)
-
-    # useful when trying to see what is in the DB
-    def inspect(self):
-        mapper = inspect(type(self))
-        return mapper.attrs
-
-    def get_query(self):
-        metrics_query = DBSession.query(MetricsProton).options(joinedload('archive')).join(Archive).order_by(Archive.id.desc())
-
-        for num_filter, params in self.numeric_filters_json.items():
-            if num_filter != 'extra_filters':
-                if params['max']:
-                    metrics_query = metrics_query.filter(MetricsProton.get_column(params['type']) <= float(params['max']))
-                if params['min']:
-                    metrics_query = metrics_query.filter(MetricsProton.get_column(params['type']) >= float(params['min']))
-        for cat_filter, value in self.categorical_filters_json.items():
-            if value == 'None':
-                metrics_query = metrics_query.filter(MetricsProton.get_column(cat_filter) == None)
-            else:
-                metrics_query = metrics_query.filter(MetricsProton.get_column(cat_filter) == value)
-
-        return metrics_query
-
-class Saved_Filters_OTLog(Base):
-    __tablename__ = 'saved_filters_otlog'
-    id = Column(Integer, primary_key=True)
-    name = Column(Unicode(255))
-    numeric_filters = Column(Text)
-    categorical_filters = Column(Text)
-    file_progress_id = Column(Integer, ForeignKey('fileprogress.id'))
-    type = Column(Unicode(255))
-
-    def __init__(self, name, numeric_filters, categorical_filters):
-        self.name = name
-        self.numeric_filters = numeric_filters
-        self.categorical_filters = categorical_filters
-        self.numeric_filters_json = json.loads(numeric_filters)
-        self.categorical_filters_json = json.loads(categorical_filters)
-
-    @orm.reconstructor
-    def do_onload(self):
-        self.numeric_filters_json = json.loads(self.numeric_filters)
-        self.categorical_filters_json = json.loads(self.categorical_filters)
-
-    # useful when trying to see what is in the DB
-    def inspect(self):
-        mapper = inspect(type(self))
-        return mapper.attrs
-
-    def get_query(self):
-        metrics_query = DBSession.query(MetricsOTLog).options(joinedload('archive')).join(Archive).order_by(Archive.id.desc())
-
-        for num_filter, params in self.numeric_filters_json.items():
-            if num_filter != 'extra_filters':
-                if params['max']:
-                    metrics_query = metrics_query.filter(MetricsOTLog.get_column(params['type']) <= float(params['max']))
-                if params['min']:
-                    metrics_query = metrics_query.filter(MetricsOTLog.get_column(params['type']) >= float(params['min']))
-        for cat_filter, value in self.categorical_filters_json.items():
-            if value == 'None':
-                metrics_query = metrics_query.filter(MetricsOTLog.get_column(cat_filter) == None)
-            else:
-                metrics_query = metrics_query.filter(MetricsOTLog.get_column(cat_filter) == value)
+                metrics_query = metrics_query.filter(metric_object_type.get_column(cat_filter) == value)
 
         return metrics_query
 
@@ -700,16 +627,53 @@ class FileProgress(Base):
     status = Column(Unicode(255))
     progress = Column(Unicode(255))
     path = Column(Unicode(255))
+    time = Column(DateTime)
 
     # useful when trying to see what is in the DB
     def inspect(self):
         mapper = inspect(type(self))
         return mapper.attrs
 
-    def __init__(self, file_type, celery_id=None, status="Queued"):
-        self.celery_id = celery_id
+    def __init__(self, file_type):
         self.file_type = file_type
-        self.status = status
+        self.status = "queued"
+        self.time = datetime.datetime.now()
+
+class Graph(Base):
+    __tablename__ = 'graph'
+    id = Column(Integer, primary_key=True)
+    report_id = Column(Integer, ForeignKey('report.id'))
+    file_progress_id = Column(Integer, ForeignKey('fileprogress.id'))
+    graph_type = Column(Unicode(255))
+    data_n = Column(Integer)
+    column_name = Column(Unicode(255))
+
+    # useful when trying to see what is in the DB
+    def inspect(self):
+        mapper = inspect(type(self))
+        return mapper.attrs
+
+    def __init__(self, graph_type, data_n, column_name, file_progress_id):
+        self.graph_type = graph_type
+        self.data_n = data_n
+        self.column_name = column_name
+        self.file_progress_id = file_progress_id
+
+class Report(Base):
+    __tablename__ = 'report'
+    id = Column(Integer, primary_key=True)
+    filter_id = Column(Integer, ForeignKey('saved_filters.id'))
+    db_state = Column(Unicode(255))
+
+    graphs = relationship('Graph', backref='report', cascade='all')
+
+    # useful when trying to see what is in the DB
+    def inspect(self):
+        mapper = inspect(type(self))
+        return mapper.attrs
+
+    def __init__(self, db_state):
+        self.db_state = db_state
 
 class Tag(Base):
     __tablename__ = 'tags'

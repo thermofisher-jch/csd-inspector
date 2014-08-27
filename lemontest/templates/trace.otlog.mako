@@ -21,13 +21,13 @@
 				$.ajax({
 					type: "GET",
 					url: url,
-					data: {'fileprogress_id': fileprogress_id, "metric_type": "pgm"}
+					data: {'fileprogress_id': fileprogress_id, "metric_type": "otlog"}
 				}).done(function(data){
 					if (data.status == "done") {
 						clearInterval(interval);
 						l.setProgress(data.progress);
 						l.stop();
-						window.location.href = (success_url + "?file_id=" + data.fileprogress_id + "&metric_type=" + 'pgm');
+						window.location.href = (success_url + "?file_id=" + data.fileprogress_id + "&metric_type=" + 'otlog');
 					} else if (data.status == "error"){
 						clearInterval(interval);
 						l.stop();

@@ -14,9 +14,7 @@ from lemontest.models import MetricsPGM
 from lemontest.models import MetricsProton
 from lemontest.models import MetricsOTLog
 
-from lemontest.models import Saved_Filters_PGM
-from lemontest.models import Saved_Filters_Proton
-from lemontest.models import Saved_Filters_OTLog
+from lemontest.models import SavedFilters
 
 from lemontest.models import FileProgress
 
@@ -349,7 +347,7 @@ def old_browser(request):
 @view_config(route_name='trace_pgm', renderer="trace.pgm.mako", permission="view")
 def trace_pgm(request):
     '''create filter object, get saved filters in db, and all extra parameters that were not used'''
-    filter_obj, saved_filters, extra_params = get_db_queries(request.params, MetricsPGM)
+    filter_obj, saved_filters, extra_params = get_db_queries(request.params, 'pgm')
 
     '''get query set that corresponds with filter object'''
     metrics_query = filter_obj.get_query()
@@ -410,7 +408,7 @@ def trace_pgm(request):
 @view_config(route_name='trace_proton', renderer='trace.proton.mako', permission='view')
 def trace_proton(request):
     '''create filter object, get saved filters in db, and all extra parameters that were not used'''
-    filter_obj, saved_filters, extra_params = get_db_queries(request.params, MetricsProton)
+    filter_obj, saved_filters, extra_params = get_db_queries(request.params, 'proton')
 
     '''get query set that corresponds with filter object'''
     metrics_query = filter_obj.get_query()
@@ -471,7 +469,7 @@ def trace_proton(request):
 @view_config(route_name='trace_otlog', renderer='trace.otlog.mako', permission='view')
 def trace_otlog(request):
     '''create filter object, get saved filters in db, and all extra parameters that were not used'''
-    filter_obj, saved_filters, extra_params = get_db_queries(request.params, MetricsOTLog)
+    filter_obj, saved_filters, extra_params = get_db_queries(request.params, 'otlog')
 
     '''get query set that corresponds with filter object'''
     metrics_query = filter_obj.get_query()
@@ -530,49 +528,34 @@ def trace_otlog(request):
 
 #Author: Anthony Rodriguez
 # create filter object
-def get_db_queries(request, metric_object_type=None):
+def get_db_queries(request, metric_type=None):
     '''validate request parameters'''
     categorical_filters, numeric_filters, extra_params = validate_filter_params(request)
 
-    '''metric_object_type is not set on AJAX requests, but they do set metric_type'''
-    if not metric_object_type:
+    '''make sure we have metric_type'''
+    if not metric_type:
         if 'metric_type' not in extra_params or not extra_params['metric_type']:
             return HTTPInternalServerError()
         else:
             metric_type = extra_params['metric_type']
 
-        if metric_type == 'pgm':
-            metric_object_type = MetricsPGM
-        elif metric_type == 'proton':
-            metric_object_type = MetricsProton
-        elif metric_type == 'otlog':
-            metric_object_type = MetricsOTLog
-
-    '''once metric_object_type is set, we set corresponding saved_filter_object'''
-    if metric_object_type == MetricsPGM:
-        saved_filter_object_type = Saved_Filters_PGM
-    elif metric_object_type == MetricsProton:
-        saved_filter_object_type = Saved_Filters_Proton
-    elif metric_object_type == MetricsOTLog:
-        saved_filter_object_type = Saved_Filters_OTLog
-
     '''if request is for an existing saved filter, query db and return that filter
     filterid could be set to blank if user tries to save an empty filterset'''
     if 'filterid' in extra_params and extra_params['filterid'] and extra_params['filterid'] != 'blank':
-        filter_obj = DBSession.query(saved_filter_object_type).filter(saved_filter_object_type.id == int(extra_params['filterid'])).first()
+        filter_obj = DBSession.query(SavedFilters).filter(SavedFilters.id == int(extra_params['filterid'])).first()
 
         if filter_obj:
             extra_params['current_selected_filter'] = filter_obj.name
         else:
-            filter_obj = saved_filter_object_type('not_found', json.dumps(numeric_filters), json.dumps(categorical_filters))
+            filter_obj = SavedFilters('not_found', metric_type, json.dumps(numeric_filters), json.dumps(categorical_filters))
             extra_params['current_selected_filter'] = 'None'
     else:
-        filter_obj = saved_filter_object_type('None', json.dumps(numeric_filters), json.dumps(categorical_filters))
+        filter_obj = SavedFilters('None', metric_type, json.dumps(numeric_filters), json.dumps(categorical_filters))
         filter_obj.type = 'temp'
         extra_params['current_selected_filter'] = 'None'
 
     '''gets all saved filters from bd'''
-    saved_filters = DBSession.query(saved_filter_object_type).order_by(saved_filter_object_type.id.desc())
+    saved_filters = DBSession.query(SavedFilters).filter(SavedFilters.metric_type == metric_type).filter(SavedFilters.type != "temp").order_by(SavedFilters.id.desc())
 
     return filter_obj, saved_filters, extra_params
 
@@ -876,14 +859,14 @@ def request_plot(request):
     return {'status': 'ok', 'fileprogress_id': file_progress_id}
 
 # Author: Anthony Rodriguez
-@view_config(route_name='trace_show_plot', renderer='pgm.plots.mako', permission='view')
+@view_config(route_name='trace_show_plot', renderer='showplots.mako', permission='view')
 def show_plot(request):
     metric_type = request.params.get('metric_type', '')
 
     request.session['plot_pending_' + metric_type] = ''
 
     file = DBSession.query(FileProgress).filter(FileProgress.id == request.params['file_id']).first()
-    return {'isp_loading': file.path}
+    return {'graph': file}
 '''END PLOT SUPPORT'''
 
 # Author: Anthony Rodriguez
@@ -914,10 +897,12 @@ def check_file_update(request):
 
     '''if one exists we check its status, and update UI'''
     if file_progress_obj:
-        if file_progress_obj.status != "Done":
-            return {'status': 'pending', 'fileprogress_id': file_progress_obj.id, 'progress': file_progress_obj.progress}
-        else:
+        if file_progress_obj.status == "Done":
             return {'status': 'done', 'fileprogress_id': file_progress_obj.id, 'progress': 1}
+        elif file_progress_obj.status == "Error":
+            return {'status': 'error', 'message': "File progress ended in an error"}
+        else:
+            return {'status': 'pending', 'fileprogress_id': file_progress_obj.id, 'progress': file_progress_obj.progress}
     else:
         return {'status': 'pending', 'fileprogress_id': file_progress_obj.id, 'progress': 0}
 
@@ -975,6 +960,7 @@ def save_filter(request):
 
     filter_obj.name = extra_params['saved_filter_name']
     if (len(filter_obj.numeric_filters_json) > 1) or filter_obj.categorical_filters_json:
+        filter_obj.type = "saved"
         DBSession.add(filter_obj)
         DBSession.flush()
         url += '?filterid=' + str(filter_obj.id)
@@ -991,28 +977,25 @@ def delete_saved_filter(request):
     filter_type = request.params.get('metric_type', '')
 
     if filter_id:
+        filter = DBSession.query(SavedFilters).filter(SavedFilters.id == filter_id).first()
+        DBSession.delete(filter)
+        transaction.commit()
+
         if filter_type == 'pgm':
             url = request.route_url('trace_pgm')
-            filter = DBSession.query(Saved_Filters_PGM).filter(Saved_Filters_PGM.id == filter_id).first()
-            DBSession.delete(filter)
-            transaction.commit()
         elif filter_type == 'proton':
             url = request.route_url('trace_proton')
-            filter = DBSession.query(Saved_Filters_Proton).filter(Saved_Filters_Proton.id == filter_id).first()
-            DBSession.delete(filter)
-            transaction.commit()
 
     return HTTPFound(location=url)
 
 '''DEBUG'''
+
 #Author: Anthony Rodriguez
 # useful when trying to see what is in the DB
 @view_config(route_name='db_query', renderer='db_objects.mako', permission='view')
 def db_query(request):
     file_progress_query = DBSession.query(FileProgress).all()
-    saved_filters_pgm = DBSession.query(Saved_Filters_PGM).all()
-    saved_filters_proton = DBSession.query(Saved_Filters_Proton).all()
-    saved_filters_otlog = DBSession.query(Saved_Filters_OTLog).all()
+    saved_filters = DBSession.query(SavedFilters).all()
     archive_query = DBSession.query(Archive).all()
     metrics_pgm_query = DBSession.query(MetricsPGM).all()
     metrics_proton_query = DBSession.query(MetricsProton).all()
@@ -1021,6 +1004,5 @@ def db_query(request):
     #commented out but used to reset user session
     #request.session.invalidate()
 
-    return {'file_progress_query': file_progress_query, 'saved_filters_pgm': saved_filters_pgm,
-            'saved_filters_proton': saved_filters_proton, 'saved_filters_otlog': saved_filters_otlog ,'archive_query': archive_query,
+    return {'file_progress_query': file_progress_query, 'saved_filters': saved_filters,'archive_query': archive_query,
             'metrics_pgm_query': metrics_pgm_query, 'metrics_proton_query': metrics_proton_query, 'metrics_otlog_query': metrics_otlog_query}

@@ -63,72 +63,20 @@
 	</div>
 	
 	<div class="container">
-		<h4>Saved Filters PGM</h4>
+		<h4>Saved Filters</h4>
 		<table class="table table-hover table-striped" width="800">
 			<thead>
 				<tr>
-					% if saved_filters_pgm:
-						% for column in saved_filters_pgm[0].inspect():
+					% if saved_filters:
+						% for column in saved_filters[0].inspect():
 							<th>${str(column).split('.')[1]}</th>
 						% endfor
 					% endif
 				</tr>
 			</thead>
 			<tbody>
-				% if saved_filters_pgm:
-					% for each in saved_filters_pgm:
-						<tr>
-							% for column in each.inspect():
-								<td>${getattr(each, str(column).split('.')[1])}</td>
-							% endfor
-						</tr>
-					% endfor
-				% endif
-			</tbody>
-		</table>
-	</div>
-	
-	<div class="container">
-		<h4>Saved Filters Proton</h4>
-		<table class="table table-hover table-striped" width="800">
-			<thead>
-				<tr>
-					% if saved_filters_proton:
-						% for column in saved_filters_proton[0].inspect():
-							<th>${str(column).split('.')[1]}</th>
-						% endfor
-					% endif
-				</tr>
-			</thead>
-			<tbody>
-				% if saved_filters_proton:
-					% for each in saved_filters_proton:
-						<tr>
-							% for column in each.inspect():
-								<td>${getattr(each, str(column).split('.')[1])}</td>
-							% endfor
-						</tr>
-					% endfor
-				% endif
-			</tbody>
-		</table>
-	</div>
-
-	<div class="container">
-		<h4>Saved Filters OTLog</h4>
-		<table class="table table-hover table-striped" width="800">
-			<thead>
-				<tr>
-					% if saved_filters_otlog:
-						% for column in saved_filters_otlog[0].inspect():
-							<th>${str(column).split('.')[1]}</th>
-						% endfor
-					% endif
-				</tr>
-			</thead>
-			<tbody>
-				% if saved_filters_otlog:
-					% for each in saved_filters_otlog:
+				% if saved_filters:
+					% for each in saved_filters:
 						<tr>
 							% for column in each.inspect():
 								<td>${getattr(each, str(column).split('.')[1])}</td>

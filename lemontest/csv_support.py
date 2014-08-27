@@ -13,9 +13,7 @@ from lemontest.models import MetricsPGM
 from lemontest.models import MetricsProton
 from lemontest.models import MetricsOTLog
 
-from lemontest.models import Saved_Filters_PGM
-from lemontest.models import Saved_Filters_Proton
-from lemontest.models import Saved_Filters_OTLog
+from lemontest.models import SavedFilters
 
 from celery import task
 
@@ -26,9 +24,9 @@ import tempfile
 import transaction
 
 mapping = {
-           'pgm': (MetricsPGM, Saved_Filters_PGM),
-           'proton': (MetricsProton, Saved_Filters_Proton),
-           'otlog': (MetricsOTLog, Saved_Filters_OTLog)
+           'pgm': MetricsPGM,
+           'proton': MetricsProton,
+           'otlog': MetricsOTLog,
            }
 
 @task
@@ -37,10 +35,9 @@ def make_csv(metric_type, file_progress_id, filter_id, show_hide_string):
     file_progress_obj.status = "Running"
     transaction.commit()
 
-    filter_type = mapping[metric_type][1]
-    metric_type = mapping[metric_type][0]
+    metric_type = mapping[metric_type]
 
-    filter_obj = DBSession.query(filter_type).filter(filter_type.id == filter_id).first()
+    filter_obj = DBSession.query(SavedFilters).filter(SavedFilters.id == filter_id).first()
 
     filter_obj.file_progress_id = file_progress_id
     transaction.commit()
