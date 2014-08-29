@@ -15,14 +15,22 @@
 					<tbody>
 						<tr>
 							<td><strong>Time Created: </strong></td>
-							<td>${graph.time.strftime('%d %b %Y %H:%M:%S')}</td>
+							<td>${file_progress.time.strftime('%d %b %Y %H:%M:%S')}</td>
+						</tr>
+						<tr>
+							<td><strong>Column Graphed: </strong></td>
+							<td>${file_progress.graph.column_name}</td>
+						</tr>
+						<tr>
+							<td><strong>Data Points: </strong></td>
+							<td>${file_progress.graph.data_n}</td>
 						</tr>
 					</tbody>
 				</table>
 			</div>
 			<div class="pull-right" style="display: inline-block;">
 			<% image = request.static_url('lemontest:static/img/plots/') %>
-			<% image += graph.path %>
+			<% image += file_progress.path %>
 				<img alt="plot" src='${image}'>
 			</div>
 		</div>

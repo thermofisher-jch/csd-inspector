@@ -90,7 +90,7 @@
 			}).done(function(data) {
 				if (data.status == 'ok'){
 					var fileprogress_id = data.fileprogress_id;
-					check_for_updates(l, fileprogress_id, "${request.route_path('trace_check_file_update')}", "${request.route_path('trace_show_plot')}");
+					check_for_updates(l, fileprogress_id, "${request.route_path('trace_check_file_update')}", "${request.route_path('trace_show_report')}");
 				} else {
 					l.stop();
 					console.log(data);

@@ -24,6 +24,7 @@ from lemontest import diagnostic
 
 from lemontest.metrics_pgm import *
 from lemontest.metrics_proton import *
+from lemontest.metrics_otlog import *
 
 logger = logging.getLogger(__name__)
 
@@ -434,6 +435,23 @@ def set_metrics_proton(metrics_proton_id):
 @task
 def set_metrics_otlog(metrics_otlog_id):
     metric = DBSession.query(MetricsOTLog).get(metrics_otlog_id)
+
+    otlog_parser = otlog.OTLog(metric.archive.path, logger)
+
+    if otlog_parser.is_valid():
+        metric.ambient_temp_high = otlog_parser.get_ambient_temp_high()
+        metric.ambient_temp_low = otlog_parser.get_ambient_temp_low()
+        metric.internal_case_temp_high = otlog_parser.get_internal_case_temp_high()
+        metric.internal_case_temp_low = otlog_parser.get_internal_case_temp_low()
+        metric.pressure_high = otlog_parser.get_pressure_high()
+        metric.pressure_low = otlog_parser.get_pressure_low()
+        metric.ot_version = otlog_parser.get_ot_version()
+        metric.sample_inject_abort = otlog_parser.get_sample_inject_abort()
+        metric.oil_pump_status = otlog_parser.get_oil_pump_status()
+        metric.sample_pump_status = otlog_parser.get_sample_pump_status()
+        metric.run_time = otlog_parser.get_run_time()
+
+    transaction.commit()
 
 @task
 def finalize_report(results, archive_id):

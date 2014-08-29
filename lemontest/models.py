@@ -30,6 +30,7 @@ from sqlalchemy.orm import joinedload
 from zope.sqlalchemy import ZopeTransactionExtension
 from sqlalchemy.dialects.drizzle.base import NUMERIC
 from sqlalchemy.schema import Column
+from sqlalchemy.types import Time
 
 logger = logging.getLogger(__name__)
 
@@ -511,14 +512,41 @@ class MetricsProton(Base, PrettyFormatter):
         else:
             return None
 
-class MetricsOTLog(Base):
+class MetricsOTLog(Base, PrettyFormatter):
     __tablename__ = 'metrics_otlog'
     id = Column(Integer, primary_key=True)
     archive_id = Column(Integer, ForeignKey('archives.id'))
 
-    ordered_columns = []
+    '''NUMERIC VALUES'''
+    ambient_temp_high = Column(NUMERIC(5, 2))
+    ambient_temp_low = Column(NUMERIC(5, 2))
+    internal_case_temp_high = Column(NUMERIC(5, 2))
+    internal_case_temp_low = Column(NUMERIC(5, 2))
+    pressure_high = Column(NUMERIC(5, 2))
+    pressure_low = Column(NUMERIC(5, 2))
+    run_time = Column(Integer)
 
-    numeric_columns = ordered_columns
+    '''CATEGORICAL VALUES'''
+    ot_version = Column(Unicode(255))
+    sample_inject_abort = Column(Unicode(255))
+    oil_pump_status = Column(Unicode(255))
+    sample_pump_status = Column(Unicode(255))
+
+    ordered_columns = [
+                       ('Ambient Temp High', 'ambient_temp_high'),
+                       ('Ambient Temp Low', 'ambient_temp_low'),
+                       ('Internal Case Temp High', 'internal_case_temp_high'),
+                       ('Internal Case Temp Low', 'internal_case_temp_low'),
+                       ('Pressure High', 'pressure_high'),
+                       ('Pressure Low', 'pressure_low'),
+                       ('Run Time', 'run_time'),
+                       ('OT Version', 'ot_version'),
+                       ('Sample Inject Abort', 'sample_inject_abort'),
+                       ('Oil Pump Status', 'oil_pump_status'),
+                       ('Sample Pump Status', 'sample_pump_status'),
+                       ]
+
+    numeric_columns = ordered_columns[0:7]
 
     columns = dict(ordered_columns)
 
@@ -534,7 +562,15 @@ class MetricsOTLog(Base):
 
     @orm.reconstructor
     def do_onload(self):
-        self.pretty_columns = {}
+        self.pretty_columns = {
+                               'Ambient Temp High': self.format_units_small,
+                               'Ambient Temp Low': self.format_units_small,
+                               'Internal Case Temp High': self.format_units_small,
+                               'Internal Case Temp Low': self.format_units_small,
+                               'Pressure High': self.format_units_small,
+                               'Pressure Low': self.format_units_small,
+                               'Run Time': self.format_run_time,
+                               }
 
     # useful when trying to see what is in the DB
     def inspect(self):
@@ -560,6 +596,20 @@ class MetricsOTLog(Base):
         if quantity:
             quantity = Decimal(quantity)
             return round(quantity, -int(math.floor(math.log10(abs(quantity))) - (sig_figs - 1)))
+        else:
+            return None
+
+    def format_run_time(self, seconds):
+        if seconds:
+            seconds = int(seconds)
+            minutes, seconds = divmod(seconds, 60)
+            hours, minutes = divmod(minutes, 60)
+            days, hours = divmod(hours, 24)
+
+            if days > 0:
+                return str('{} days'.format(days))
+            else:
+                return str('{}:{}:{}'.format(hours, minutes, seconds))
         else:
             return None
 
@@ -629,6 +679,8 @@ class FileProgress(Base):
     path = Column(Unicode(255))
     time = Column(DateTime)
 
+    graph = relationship('Graph', uselist=False, backref='fileprogress')
+
     # useful when trying to see what is in the DB
     def inspect(self):
         mapper = inspect(type(self))
@@ -642,7 +694,7 @@ class FileProgress(Base):
 class Graph(Base):
     __tablename__ = 'graph'
     id = Column(Integer, primary_key=True)
-    report_id = Column(Integer, ForeignKey('report.id'))
+    report_id = Column(Integer, ForeignKey('metric_report.id'))
     file_progress_id = Column(Integer, ForeignKey('fileprogress.id'))
     graph_type = Column(Unicode(255))
     data_n = Column(Integer)
@@ -659,8 +711,8 @@ class Graph(Base):
         self.column_name = column_name
         self.file_progress_id = file_progress_id
 
-class Report(Base):
-    __tablename__ = 'report'
+class MetricReport(Base):
+    __tablename__ = 'metric_report'
     id = Column(Integer, primary_key=True)
     filter_id = Column(Integer, ForeignKey('saved_filters.id'))
     db_state = Column(Unicode(255))

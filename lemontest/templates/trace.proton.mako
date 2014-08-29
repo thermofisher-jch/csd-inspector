@@ -74,7 +74,7 @@
 			$('.show_plot_modal').modal('show');
 		});
 
-		$('#show_plot').click(function(event) {
+		$('#show_plot').click(function() {
 			$('.show_plot_modal').modal('hide');
 
 			var l = Ladda.create(document.getElementById('show_plot_modal'));
@@ -86,11 +86,11 @@
 			$.ajax({
 				type: "GET",
 				url: "${request.route_path('trace_request_plot')}" + "?" + serialized,
-				data: {"metric_type": "proton", 'graph_column_name': document.getElementById('graph_column_name').value}
+				data: {"metric_type": "proton", 'graph_column_name': document.getElementById('graph_column_name').value, 'graph_type': document.getElementById('graph_type').value}
 			}).done(function(data) {
 				if (data.status == 'ok'){
 					var fileprogress_id = data.fileprogress_id;
-					check_for_updates(l, fileprogress_id, "${request.route_path('trace_check_file_update')}", "${request.route_path('trace_show_plot')}");
+					check_for_updates(l, fileprogress_id, "${request.route_path('trace_check_file_update')}", "${request.route_path('trace_show_report')}");
 				} else {
 					l.stop();
 					console.log(data);

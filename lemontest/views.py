@@ -18,6 +18,9 @@ from lemontest.models import SavedFilters
 
 from lemontest.models import FileProgress
 
+from lemontest.models import Graph
+from lemontest.models import MetricReport
+
 from lemontest.models import DBSession
 from lemontest.models import Archive
 from lemontest.models import Diagnostic
@@ -475,7 +478,7 @@ def trace_otlog(request):
     metrics_query = filter_obj.get_query()
 
     '''get categorical values from the database'''
-    cat1 = get_filterable_categories_otlog()
+    ot_version, sample_inject_abort, oil_pump_status, sample_pump_status = get_filterable_categories_otlog()
 
     '''BEGIN PAGINATE QUERY RESULTS'''
     page = int(request.params.get("page", 1))
@@ -522,7 +525,8 @@ def trace_otlog(request):
     return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "search": extra_params, "metric_object_type": MetricsOTLog,
             "show_hide_defaults": json.dumps(MetricsOTLog.show_hide_defaults), "show_hide_false": json.dumps(MetricsOTLog.show_hide_false),
             "metric_columns": json.dumps(MetricsOTLog.numeric_columns), "filter_name": filter_obj.name, "numeric_filters_json": filter_obj.numeric_filters,
-            'categorical_filters_json': filter_obj.categorical_filters, 'cat1': cat1, "saved_filters": saved_filters}
+            'categorical_filters_json': filter_obj.categorical_filters, 'ot_version': ot_version, 'sample_inject_abort': sample_inject_abort,
+            'oil_pump_status': oil_pump_status, 'sample_pump_status': sample_pump_status, "saved_filters": saved_filters}
 
 '''END METRIC PAGE VIEWS'''
 
@@ -616,6 +620,12 @@ def validate_filter_params(request, params_only=False):
             elif min_number not in search_params and max_number in search_params:
                 numeric_filters[key] = {'type': value, 'min': '', 'max': search_params[max_number]}
                 search_params[max_number] = ''
+            search_params[key] = ''
+
+    '''find and remove all numeric filter stragglers
+    that result from incomplete numeric filter forms'''
+    for key in search_params.keys():
+        if numeric_filter_re2.match(key):
             search_params[key] = ''
 
     '''look for all required params and set to default value if not found'''
@@ -744,11 +754,32 @@ def get_filterable_categories_proton():
 
     return chip_types, seq_kits, run_types, reference_libs, sw_versions, tss_versions, hw_versions, barcode_sets
 
-#Author: Anthony Rodriguez
+# Author: Anthony Rodriguez
 def get_filterable_categories_otlog():
-    cat1 = []
+    ot_version = []
+    sample_inject_abort = []
+    oil_pump_status = []
+    sample_pump_status = []
 
-    return cat1
+    metrics_query = DBSession.query(MetricsOTLog)
+
+    '''Distinct OT Versions in database'''
+    ot_version = metrics_query.distinct().order_by(MetricsOTLog.ot_version).values(MetricsOTLog.ot_version)
+    ot_version = [x[0] for x in ot_version]
+
+    '''Distinct Sample Inject Abort in  database'''
+    sample_inject_abort = metrics_query.distinct().order_by(MetricsOTLog.sample_inject_abort).values(MetricsOTLog.sample_inject_abort)
+    sample_inject_abort = [x[0] for x in sample_inject_abort]
+
+    '''Distinct OT Versions in database'''
+    oil_pump_status = metrics_query.distinct().order_by(MetricsOTLog.oil_pump_status).values(MetricsOTLog.oil_pump_status)
+    oil_pump_status = [x[0] for x in oil_pump_status]
+
+    '''Distinct OT Versions in database'''
+    sample_pump_status = metrics_query.distinct().order_by(MetricsOTLog.sample_pump_status).values(MetricsOTLog.sample_pump_status)
+    sample_pump_status = [x[0] for x in sample_pump_status]
+
+    return ot_version, sample_inject_abort, oil_pump_status, sample_pump_status
 
 '''BEGIN CSV SUPPORT'''
 # Author: Anthony Rodriguez
@@ -847,26 +878,27 @@ def request_plot(request):
     transaction.commit()
 
     '''calls celery task'''
-    celery_task = lemontest.plots_support.make_plot.delay(metric_type, file_progress_id, filter_object_id, graph_type ,column)
+    celery_task = lemontest.plots_support.make_plot.delay(metric_type, file_progress_id, filter_object_id, graph_type, column)
 
     '''sets celery task id for file progress object'''
     file_progress = DBSession.query(FileProgress).filter(FileProgress.id == file_progress_id).first()
     file_progress.celery_id = celery_task.id
     transaction.commit()
 
-    request.session['plot_pending_' + metric_type] = file_progress_id
+    '''creates a pending report in session for the user'''
+    request.session['report_pending_' + metric_type] = file_progress_id
 
     return {'status': 'ok', 'fileprogress_id': file_progress_id}
 
 # Author: Anthony Rodriguez
-@view_config(route_name='trace_show_plot', renderer='showplots.mako', permission='view')
-def show_plot(request):
+@view_config(route_name='trace_show_report', renderer='showplots.mako', permission='view')
+def show_report(request):
     metric_type = request.params.get('metric_type', '')
 
-    request.session['plot_pending_' + metric_type] = ''
+    request.session['report_pending_' + metric_type] = ''
 
     file = DBSession.query(FileProgress).filter(FileProgress.id == request.params['file_id']).first()
-    return {'graph': file}
+    return {'file_progress': file}
 '''END PLOT SUPPORT'''
 
 # Author: Anthony Rodriguez
@@ -995,14 +1027,28 @@ def delete_saved_filter(request):
 @view_config(route_name='db_query', renderer='db_objects.mako', permission='view')
 def db_query(request):
     file_progress_query = DBSession.query(FileProgress).all()
+    graphs_query = DBSession.query(Graph).all()
+    metric_reports_query = DBSession.query(MetricReport).all()
+
     saved_filters = DBSession.query(SavedFilters).all()
+
     archive_query = DBSession.query(Archive).all()
     metrics_pgm_query = DBSession.query(MetricsPGM).all()
     metrics_proton_query = DBSession.query(MetricsProton).all()
     metrics_otlog_query = DBSession.query(MetricsOTLog).all()
 
+    db_entities = {
+                   'file_progress_query': file_progress_query,
+                   'graphs_query': graphs_query,
+                   'metric_reports_query': metric_reports_query,
+                   'saved_filters': saved_filters,
+                   'archive_query': archive_query,
+                   'metrics_pgm_query': metrics_pgm_query,
+                   'metrics_proton_query': metrics_proton_query,
+                   'metrics_otlog_query': metrics_otlog_query
+                   }
+
     #commented out but used to reset user session
     #request.session.invalidate()
 
-    return {'file_progress_query': file_progress_query, 'saved_filters': saved_filters,'archive_query': archive_query,
-            'metrics_pgm_query': metrics_pgm_query, 'metrics_proton_query': metrics_proton_query, 'metrics_otlog_query': metrics_otlog_query}
+    return {'db_entities': db_entities}
