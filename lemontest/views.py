@@ -946,17 +946,12 @@ def show_hide_columns(request):
 
     metric_type = request.params.get("metric_type")
 
-    if metric_type == 'pgm':
-        if "show_hide_columns_pgm" in request.POST and request.POST['show_hide_columns_pgm']:
-            show_hide_columns = request.params.get("show_hide_columns_pgm")
-    elif metric_type == 'proton':
-        if "show_hide_columns_proton" in request.POST and request.POST['show_hide_columns_proton']:
-            show_hide_columns = request.params.get("show_hide_columns_proton")
+    show_hide = "show_hide_columns_" + metric_type
 
-    if metric_type == 'pgm':
-        request.session["show_hide_session_pgm"]= show_hide_columns
-    elif metric_type == 'proton':
-        request.session["show_hide_session_proton"]= show_hide_columns
+    if show_hide in request.POST and request.POST[show_hide]:
+        show_hide_columns = request.params.get(show_hide)
+
+    request.session['show_hide_session_' + metric_type] = show_hide_columns
 
     return {"status": 200}
 
