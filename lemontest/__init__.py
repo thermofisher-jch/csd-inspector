@@ -69,8 +69,9 @@ def main(global_config, **settings):
     config.add_route('trace_serve_csv','/trace/trace.csv')
 
     # Plot support
-    config.add_route('trace_request_plot', '/trace/request_plot')
+    config.add_route('trace_request_report', '/trace/request_report')
     config.add_route('trace_show_report', '/trace/report')
+    config.add_route('trace_request_plot', '/trace/request_plot')
     config.add_route('trace_serve_plot','/trace/trace.png')
 
     # Check file progress

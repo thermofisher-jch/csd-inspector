@@ -705,16 +705,19 @@ class Graph(Base):
         mapper = inspect(type(self))
         return mapper.attrs
 
-    def __init__(self, graph_type, data_n, column_name, file_progress_id):
+    def __init__(self, report_id,graph_type, data_n, column_name, file_progress_id):
+        self.report_id = report_id
+        self.file_progress_id = file_progress_id
         self.graph_type = graph_type
         self.data_n = data_n
         self.column_name = column_name
-        self.file_progress_id = file_progress_id
 
 class MetricReport(Base):
     __tablename__ = 'metric_report'
     id = Column(Integer, primary_key=True)
     filter_id = Column(Integer, ForeignKey('saved_filters.id'))
+    metric_type= Column(Unicode(255))
+    metric_column = Column(Unicode(255))
     db_state = Column(Unicode(255))
 
     graphs = relationship('Graph', backref='report', cascade='all')
@@ -724,7 +727,9 @@ class MetricReport(Base):
         mapper = inspect(type(self))
         return mapper.attrs
 
-    def __init__(self, db_state):
+    def __init__(self, metric_type, metric_column, db_state):
+        self.metric_type = metric_type
+        self.metric_column = metric_column
         self.db_state = db_state
 
 class Tag(Base):

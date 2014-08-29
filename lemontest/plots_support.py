@@ -33,7 +33,7 @@ mapping = {
            }
 
 @task
-def make_plot(metric_type, file_progress_id, filter_id, graph_type, column):
+def make_plot(metric_report_id, metric_type, file_progress_id, filter_id, graph_type, column):
     file_progress_obj = DBSession.query(FileProgress).filter(FileProgress.id == file_progress_id).first()
     file_progress_obj.status = "Running"
     transaction.commit()
@@ -56,7 +56,7 @@ def make_plot(metric_type, file_progress_id, filter_id, graph_type, column):
     data_column = temp
 
     if data_column:
-        graph = Graph(graph_type, len(data_column), column, file_progress_id)
+        graph = Graph(metric_report_id, graph_type, len(data_column), column, file_progress_id)
         DBSession.add(graph)
         transaction.commit()
 

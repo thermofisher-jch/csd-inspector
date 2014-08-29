@@ -180,19 +180,6 @@
     </div> <!-- /container -->
     
     <%block name="piwik">
-        <script type="text/javascript"> 
-          var _paq = _paq || [];
-          _paq.push(['trackPageView']);
-          _paq.push(['enableLinkTracking']);
-          (function() {
-            var u=(("https:" == document.location.protocol) ? "https" : "http") + "://inspector.itw:4242//";
-            _paq.push(['setTrackerUrl', u+'piwik.php']);
-            _paq.push(['setSiteId', 1]);
-            var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0]; g.type='text/javascript';
-            g.defer=true; g.async=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
-          })();
-        </script>
-        <noscript><p><img src="http://inspector.itw:4242/piwik.php?idsite=1" style="border:0" alt="" /></p></noscript>
     </%block>
     
     <script type="text/javascript">
@@ -210,6 +197,5 @@
         });
       });
     </script>
-    <script type="text/javascript" src="https://jira.itw/s/d41d8cd98f00b204e9800998ecf8427e/en_US-youeiq-1988229788/6144/144/1.4.0-m6/_/download/batch/com.atlassian.jira.collector.plugin.jira-issue-collector-plugin:issuecollector/com.atlassian.jira.collector.plugin.jira-issue-collector-plugin:issuecollector.js?collectorId=d397043f"></script>
   </body>
 </html>

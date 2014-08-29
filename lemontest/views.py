@@ -62,6 +62,11 @@ archive_type_files = {
     "OT_Log": "onetouch.log"
 }
 
+trace_graph_types = [
+                     'boxplot',
+                     'histogram',
+                     ]
+
 def add_helpers(event):
     event['h'] = helpers
 
@@ -838,9 +843,8 @@ def serve_csv(request):
 '''END CSV SUPPORT'''
 
 '''BEGIN PLOT SUPPORT'''
-# Author: Anthony Rodriguez
-@view_config(route_name='trace_request_plot', renderer='json', permission='view')
-def request_plot(request):
+@view_config(route_name='trace_request_report', renderer='json', permission='view')
+def request_report(request):
     '''create filter object, get saved filters in db, and all extra parameters that were not used'''
     filter_obj, saved_filters, extra_params = get_db_queries(request.params)
 
@@ -850,55 +854,69 @@ def request_plot(request):
         metric_type = extra_params['metric_type']
 
     if 'graph_column_name' not in extra_params or not extra_params['graph_column_name']:
-        return {'status': 'error', 'message': 'metric column not in data'}
+        return {'status': 'error', 'message': 'no column selected'}
     else:
-        column = extra_params['graph_column_name']
+        metric_column = extra_params['graph_column_name']
 
-    if "graph_type" not in extra_params or not extra_params['graph_type']:
-        return {'status': 'error', 'message': 'graph type not in data'}
-    else:
-        graph_type = extra_params['graph_type']
-
-    '''create file_progress object to track file progress'''
-    file_progress = FileProgress('plot')
-    DBSession.add(file_progress)
+    metric_report = MetricReport(metric_type, metric_column, str(DBSession.query(Archive.id).order_by(Archive.id.desc()).first()[0]) + str(DBSession.query(Archive).count()))
+    DBSession.add(metric_report)
     DBSession.flush()
-    file_progress_id = file_progress.id
+    metric_report_id = metric_report.id
     transaction.commit()
 
     '''if the file is a temporary file we want to add it to the DB here
     so that we can pass the id to celery tasks'''
     if filter_obj.type == 'temp':
         DBSession.add(filter_obj)
+        DBSession.flush()
+        filter_obj_id = filter_obj.id
+        transaction.commit()
 
-    '''sets relational ids on filter object for future use'''
-    filter_obj.progress_id = file_progress_id
-    DBSession.flush()
-    filter_object_id = filter_obj.id
+    metric_report = DBSession.query(MetricReport).filter(MetricReport.id == metric_report_id).first()
+    metric_report.filter_id = filter_obj_id
     transaction.commit()
 
-    '''calls celery task'''
-    celery_task = lemontest.plots_support.make_plot.delay(metric_type, file_progress_id, filter_object_id, graph_type, column)
+    request_report_graphs(metric_report_id, filter_obj_id)
 
-    '''sets celery task id for file progress object'''
-    file_progress = DBSession.query(FileProgress).filter(FileProgress.id == file_progress_id).first()
-    file_progress.celery_id = celery_task.id
-    transaction.commit()
+    url = request.route_url('trace_show_report')
+    url += '?report=' + str(metric_report_id)
 
-    '''creates a pending report in session for the user'''
-    request.session['report_pending_' + metric_type] = file_progress_id
+    return HTTPFound(location=url)
 
-    return {'status': 'ok', 'fileprogress_id': file_progress_id}
+def request_report_graphs(metric_report_id, filter_obj_id):
+    metric_report = DBSession.query(MetricReport).filter(MetricReport.id == metric_report_id).first()
+    metric_type = metric_report.metric_type
+    graph_column_name = metric_report.metric_column
+
+    for graph_type in trace_graph_types:
+        '''create file_progress object to track file progress'''
+        file_progress = FileProgress('plot')
+        DBSession.add(file_progress)
+        DBSession.flush()
+        file_progress_id = file_progress.id
+        transaction.commit()
+    
+        filter_obj = DBSession.query(SavedFilters).filter(SavedFilters.id == filter_obj_id).first()
+        filter_obj.progress_id = file_progress_id
+        transaction.commit()
+    
+        celery_task = lemontest.plots_support.make_plot.delay(metric_report_id, metric_type, file_progress_id, filter_obj_id, graph_type, graph_column_name)
+    
+        '''sets celery task id for file progress object'''
+        file_progress = DBSession.query(FileProgress).filter(FileProgress.id == file_progress_id).first()
+        file_progress.celery_id = celery_task.id
+        transaction.commit()
 
 # Author: Anthony Rodriguez
-@view_config(route_name='trace_show_report', renderer='showplots.mako', permission='view')
+@view_config(route_name='trace_show_report', renderer='trace.report.mako', permission='view')
 def show_report(request):
-    metric_type = request.params.get('metric_type', '')
+    if "report" not in request.params or not request.params['report']:
+        return HTTPInternalServerError()
+    else:
+        report_id = request.params['report']
 
-    request.session['report_pending_' + metric_type] = ''
-
-    file = DBSession.query(FileProgress).filter(FileProgress.id == request.params['file_id']).first()
-    return {'file_progress': file}
+    report = DBSession.query(MetricReport).filter(MetricReport.id == report_id).first()
+    return {'report': report}
 '''END PLOT SUPPORT'''
 
 # Author: Anthony Rodriguez
@@ -1044,6 +1062,6 @@ def db_query(request):
                    }
 
     #commented out but used to reset user session
-    #request.session.invalidate()
+    request.session.invalidate()
 
     return {'db_entities': db_entities}
