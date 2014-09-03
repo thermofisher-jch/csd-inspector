@@ -130,6 +130,18 @@
 		.saved_filters table td:last-child {
 			width: 5%;
 		}
+		.report_filter_table td:first-child {
+			width: 200px;
+		}
+		.report_filter_table td:last-child {
+			width: 25%;
+		}
+		.report_stats_table td:first-child {
+			width: 200px;
+		}
+		.report_stats_table td:last-child {
+			width: 25%;
+		}
 	</style>
   </head>
 
@@ -174,7 +186,7 @@
 
     <div class="container-fluid">
       ${self.body()}
-      <footer>
+      <footer style="clear: both;">
         <p>&copy; Ion Torrent 2013</p>
       </footer>
     </div> <!-- /container -->

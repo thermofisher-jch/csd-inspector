@@ -77,30 +77,6 @@
 			window.location.href = ("${request.route_path('trace_request_report')}" + "?" + serialized + "&metric_type=pgm" + "&graph_column_name=" + this.id);
 		});
 
-		$('#show_plot').click(function() {
-			$('.show_plot_modal').modal('hide');
-
-			var l = Ladda.create(document.getElementById('show_plot_modal'));
-			l.start();
-
-			var params = get_csv_params();
-			var serialized = $(params).serialize();
-
-			$.ajax({
-				type: "GET",
-				url: "${request.route_path('trace_request_plot')}" + "?" + serialized,
-				data: {"metric_type": "pgm", 'graph_column_name': document.getElementById('graph_column_name').value, 'graph_type': document.getElementById('graph_type').value}
-			}).done(function(data) {
-				if (data.status == 'ok'){
-					var fileprogress_id = data.fileprogress_id;
-					check_for_updates(l, fileprogress_id, "${request.route_path('trace_check_file_update')}", "${request.route_path('trace_show_report')}");
-				} else {
-					l.stop();
-					console.log(data);
-				}
-			});
-		});
-
 		$('#csv_download').click(function(){
 			var l = Ladda.create(this);
 			l.start();
@@ -197,7 +173,7 @@
 <%block name="filter_drawer">
 <div class="filter_drawer">
 	<%block name="filter">
-	<form id="filter_form" class="form-inline" style="display: inline-block" action="${request.path}" method="GET" onclick="get_extra_filter_number()">
+	<form id="filter_form" class="form-inline" style="display: inline-block; max-width: 50%" action="${request.path}" method="GET" onclick="get_extra_filter_number()">
 		<h4>Current Filter: <span>${search['current_selected_filter']}</span></h4>
 		<input type="hidden" id="filterid" value="${search['filterid'] | n}">
 		<div class="" style="display: inline-block">
@@ -348,21 +324,21 @@
 	</%block>
 
 	<%block name="saved_filters_table">
-		<div class="saved_filters">
-			<h4 style="margin-top: 0px;">Saved Filters</h4>
-			<table class="table table-hover table-striped">
-				<tbody>
-					% for filter in saved_filters.all():
-						<tr>
-							<td onclick="apply_saved_filter('${filter.id}')"><span>${filter.name}</span></td>
-							<td>
-								<span class="remove_saved_filter icon-remove pull-right" id="${filter.id}"></span>
-							</td>
-						</tr>
-					% endfor
-				</tbody>
-			</table>
-		</div>
+	<div class="saved_filters" style="max-width: 50%">
+		<h4 style="margin-top: 0px;">Saved Filters</h4>
+		<table class="table table-hover table-striped">
+			<tbody>
+				% for filter in saved_filters.all():
+					<tr>
+						<td onclick="apply_saved_filter('${filter.id}')"><span>${filter.name}</span></td>
+						<td>
+							<span class="remove_saved_filter icon-remove pull-right" id="${filter.id}"></span>
+						</td>
+					</tr>
+				% endfor
+			</tbody>
+		</table>
+	</div>
 	</%block>
 </div>
 </%block>

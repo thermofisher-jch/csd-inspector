@@ -697,7 +697,6 @@ class Graph(Base):
     report_id = Column(Integer, ForeignKey('metric_report.id'))
     file_progress_id = Column(Integer, ForeignKey('fileprogress.id'))
     graph_type = Column(Unicode(255))
-    data_n = Column(Integer)
     column_name = Column(Unicode(255))
 
     # useful when trying to see what is in the DB
@@ -705,22 +704,44 @@ class Graph(Base):
         mapper = inspect(type(self))
         return mapper.attrs
 
-    def __init__(self, report_id,graph_type, data_n, column_name, file_progress_id):
+    def __init__(self, report_id,graph_type, column_name, file_progress_id):
         self.report_id = report_id
         self.file_progress_id = file_progress_id
         self.graph_type = graph_type
-        self.data_n = data_n
         self.column_name = column_name
 
-class MetricReport(Base):
+class MetricReport(Base, PrettyFormatter):
     __tablename__ = 'metric_report'
     id = Column(Integer, primary_key=True)
     filter_id = Column(Integer, ForeignKey('saved_filters.id'))
     metric_type= Column(Unicode(255))
     metric_column = Column(Unicode(255))
     db_state = Column(Unicode(255))
+    '''Statistics'''
+    mean = Column(NUMERIC(5, 2))
+    median = Column(NUMERIC(5, 2))
+    mode = Column(NUMERIC(5, 2))
+    std_dev = Column(NUMERIC(5, 2))
+    q1 = Column(NUMERIC(5, 2))
+    q3 = Column(NUMERIC(5, 2))
+    range_min = Column(NUMERIC(5, 2))
+    range_max = Column(NUMERIC(5, 2))
+    data_n = Column(Integer)
 
     graphs = relationship('Graph', backref='report', cascade='all')
+
+    ordered_columns = [
+                       ('Mean', 'mean'),
+                       ('Median', 'median'),
+                       ('Mode', 'mode'),
+                       ('Standard Deviation', 'std_dev'),
+                       ('Q1', 'q1'),
+                       ('Q3', 'q3'),
+                       ('Min', 'range_min'),
+                       ('Max', 'range_max'),
+                       ]
+
+    columns = dict(ordered_columns)
 
     # useful when trying to see what is in the DB
     def inspect(self):
@@ -731,6 +752,26 @@ class MetricReport(Base):
         self.metric_type = metric_type
         self.metric_column = metric_column
         self.db_state = db_state
+
+    @orm.reconstructor
+    def on_load(self):
+        self.pretty_columns = {
+                               'Mean': self.format_units_small,
+                               'Median': self.format_units_small,
+                               'Mode': self.format_units_small,
+                               'Standard Deviation': self.format_units_small,
+                               'Q1': self.format_units_small,
+                               'Q3': self.format_units_small,
+                               'Min': self.format_units_small,
+                               'Max': self.format_units_small,
+                               }
+
+    def format_units_small(self, quantity, sig_figs=3):
+        if quantity:
+            quantity = Decimal(quantity)
+            return round(quantity, -int(math.floor(math.log10(abs(quantity))) - (sig_figs - 1)))
+        else:
+            return None
 
 class Tag(Base):
     __tablename__ = 'tags'

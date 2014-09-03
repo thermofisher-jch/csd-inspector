@@ -1,6 +1,6 @@
 import matplotlib
-from decimal import Decimal
 matplotlib.use('Agg')
+
 import matplotlib.pyplot as plt
 
 from lemontest.views import get_db_queries
@@ -12,25 +12,19 @@ from lemontest.models import Graph
 from lemontest.models import MetricsPGM
 from lemontest.models import MetricsProton
 from lemontest.models import MetricsOTLog
+from lemontest.models import MetricReport
 
 from celery import task
 
 from pyramid import threadlocal
 
-import os
-import csv
-import json
+from scipy import stats
+
+import time
+
+import numpy
 import tempfile
 import transaction
-import decimal
-
-mapping = {
-           'pgm': MetricsPGM,
-           'proton': MetricsProton,
-           'otlog': MetricsOTLog,
-           #'boxplot': box_plot,
-           #'histogram': histogram
-           }
 
 @task
 def make_plot(metric_report_id, metric_type, file_progress_id, filter_id, graph_type, column):
@@ -53,19 +47,28 @@ def make_plot(metric_report_id, metric_type, file_progress_id, filter_id, graph_
             temp.append(float(data[0]))
         except TypeError:
             print type(data[0])
-    data_column = temp
+    data_column = numpy.array(temp)
 
-    if data_column:
-        graph = Graph(metric_report_id, graph_type, len(data_column), column, file_progress_id)
-        DBSession.add(graph)
+    if data_column.any():
+        metric_report = DBSession.query(MetricReport).filter(MetricReport.id == metric_report_id).first()
+        metric_report.data_n = len(data_column)
+        metric_report.mean = numpy.mean(data_column)
+        metric_report.median = numpy.median(data_column)
+        metric_report.mode = stats.mode(data_column)[0][0]
+        metric_report.q1 = numpy.percentile(data_column, 25)
+        metric_report.q3 = numpy.percentile(data_column, 75)
+        metric_report.std_dev = numpy.std(data_column)
+        metric_report.range_min = data_column.min()
+        metric_report.range_max = data_column.max()
         transaction.commit()
 
         final_status = "Done"
 
-        if graph_type == 'boxplot':
-            name = box_plot(column, data_column)
-        elif graph_type == 'histogram':
-            name = histogram(column, data_column)
+        name = mapping[graph_type](column, data_column)
+
+        graph = Graph(metric_report_id, graph_type, column, file_progress_id)
+        DBSession.add(graph)
+        transaction.commit()
     else:
         name = ''
         final_status = "Error"
@@ -77,11 +80,6 @@ def make_plot(metric_report_id, metric_type, file_progress_id, filter_id, graph_
     transaction.commit()
 
 def box_plot(column, data):
-    '''Calculate for progress, might be removed later
-    total_count = metrics_query.count()
-    total_progress = 0
-    progress_interval = .01'''
-
     '''make unique temporary file'''
     tempfile.tempdir = threadlocal.get_current_registry().settings['plots_dir']
     fd, name = tempfile.mkstemp('.png', 'metric_plot')
@@ -90,9 +88,8 @@ def box_plot(column, data):
     fig = plt.figure()
 
     axes = fig.gca()
-    axes.set_xlabel('x label')
-    axes.set_ylabel('y label')
-    axes.set_title(column)
+    axes.set_ylabel(column)
+    axes.set_title(column + " (n= " + str(len(data)) + ")")
 
     plt.boxplot(data)
 
@@ -109,12 +106,20 @@ def histogram(column, data):
     fig = plt.figure()
 
     axes = fig.gca()
-    axes.set_xlabel('x label')
-    axes.set_ylabel('y label')
-    axes.set_title(column)
+    axes.set_xlabel(column)
+    axes.set_ylabel('Quantity')
+    axes.set_title(column + " (n= " + str(len(data)) + ")")
 
     plt.hist(data)
 
     fig.savefig(name)
 
     return name
+
+mapping = {
+           'pgm': MetricsPGM,
+           'proton': MetricsProton,
+           'otlog': MetricsOTLog,
+           'boxplot': box_plot,
+           'histogram': histogram
+           }

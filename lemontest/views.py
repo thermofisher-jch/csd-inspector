@@ -858,7 +858,9 @@ def request_report(request):
     else:
         metric_column = extra_params['graph_column_name']
 
-    metric_report = MetricReport(metric_type, metric_column, str(DBSession.query(Archive.id).order_by(Archive.id.desc()).first()[0]) + str(DBSession.query(Archive).count()))
+    db_state = str(DBSession.query(Archive.id).order_by(Archive.id.desc()).first()[0]) + ":" + str(DBSession.query(Archive).count())
+
+    metric_report = MetricReport(metric_type, metric_column, db_state)
     DBSession.add(metric_report)
     DBSession.flush()
     metric_report_id = metric_report.id
@@ -871,6 +873,8 @@ def request_report(request):
         DBSession.flush()
         filter_obj_id = filter_obj.id
         transaction.commit()
+    else:
+        filter_obj_id = filter_obj.id
 
     metric_report = DBSession.query(MetricReport).filter(MetricReport.id == metric_report_id).first()
     metric_report.filter_id = filter_obj_id
@@ -910,32 +914,48 @@ def request_report_graphs(metric_report_id, filter_obj_id):
 # Author: Anthony Rodriguez
 @view_config(route_name='trace_show_report', renderer='trace.report.mako', permission='view')
 def show_report(request):
+    numeric_filter_re = re.compile('metric_type_filter\d+')
+
     if "report" not in request.params or not request.params['report']:
         return HTTPInternalServerError()
     else:
         report_id = request.params['report']
 
     report = DBSession.query(MetricReport).filter(MetricReport.id == report_id).first()
-    return {'report': report}
+    filter_obj = DBSession.query(SavedFilters).filter(SavedFilters.id == report.filter_id).first()
+
+    filter_params = {}
+    for key, value in filter_obj.numeric_filters_json.items():
+        if numeric_filter_re.match(key):
+            if value['min'] and value['max']:
+                filter_params[filter_obj.numeric_filters_json[key]['type']] = str(value['min']) + " - " + str(value['max'])
+            elif value['min'] and not value['max']:
+                filter_params[filter_obj.numeric_filters_json[key]['type']] = "> " + str(value['min'])
+            else:
+                filter_params[filter_obj.numeric_filters_json[key]['type']] = "<" + str(value['max'])
+
+    for key, value in filter_obj.categorical_filters_json.items():
+        filter_params[key] = value
+
+    return {'report': report, 'filter': filter_obj, 'filter_params': filter_params}
 '''END PLOT SUPPORT'''
 
 # Author: Anthony Rodriguez
 @view_config(route_name='trace_check_file_update', renderer='json', permission='view')
 def check_file_update(request):
     file_pending_re = re.compile('file_pending.*')
-    plot_pending_re = re.compile('plot_pending.*')
 
     extra_params = validate_filter_params(request.params, params_only=True)
 
     '''if for some reason we loose the progress id, we send back an error and clear user session'''
     if 'fileprogress_id' not in extra_params or not extra_params['fileprogress_id']:
         for key in request.session.keys():
-            if file_pending_re.match(key) or plot_pending_re.match(key):
+            if file_pending_re.match(key):
                 request.session[key] = ''
         return {'status': 'error', 'request': request.params.items()}
     if 'metric_type' not in extra_params or not extra_params['metric_type']:
         for key in request.session.keys():
-            if file_pending_re.match(key) or plot_pending_re.match(key):
+            if file_pending_re.match(key):
                 request.session[key] = ''
         return {'status': 'error', 'request': request.params.items()}
 
@@ -1062,6 +1082,6 @@ def db_query(request):
                    }
 
     #commented out but used to reset user session
-    request.session.invalidate()
+    #request.session.invalidate()
 
     return {'db_entities': db_entities}
