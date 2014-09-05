@@ -587,6 +587,7 @@ def validate_filter_params(request, params_only=False):
                    'saved_filter_name',
                    'saved_filters',
                    'fileprogress_id',
+                   'report_id',
                    'graph_column_name',
                    'graph_type'
                    ]
@@ -871,26 +872,14 @@ def request_report(request):
     if filter_obj.type == 'temp':
         DBSession.add(filter_obj)
         DBSession.flush()
-        filter_obj_id = filter_obj.id
+        filter_id = filter_obj.id
         transaction.commit()
     else:
-        filter_obj_id = filter_obj.id
+        filter_id = filter_obj.id
 
     metric_report = DBSession.query(MetricReport).filter(MetricReport.id == metric_report_id).first()
-    metric_report.filter_id = filter_obj_id
+    metric_report.filter_id = filter_id
     transaction.commit()
-
-    request_report_graphs(metric_report_id, filter_obj_id)
-
-    url = request.route_url('trace_show_report')
-    url += '?report=' + str(metric_report_id)
-
-    return HTTPFound(location=url)
-
-def request_report_graphs(metric_report_id, filter_obj_id):
-    metric_report = DBSession.query(MetricReport).filter(MetricReport.id == metric_report_id).first()
-    metric_type = metric_report.metric_type
-    graph_column_name = metric_report.metric_column
 
     for graph_type in trace_graph_types:
         '''create file_progress object to track file progress'''
@@ -899,17 +888,21 @@ def request_report_graphs(metric_report_id, filter_obj_id):
         DBSession.flush()
         file_progress_id = file_progress.id
         transaction.commit()
-    
-        filter_obj = DBSession.query(SavedFilters).filter(SavedFilters.id == filter_obj_id).first()
+
+        filter_obj = DBSession.query(SavedFilters).filter(SavedFilters.id == filter_id).first()
         filter_obj.progress_id = file_progress_id
         transaction.commit()
-    
-        celery_task = lemontest.plots_support.make_plot.delay(metric_report_id, metric_type, file_progress_id, filter_obj_id, graph_type, graph_column_name)
-    
-        '''sets celery task id for file progress object'''
-        file_progress = DBSession.query(FileProgress).filter(FileProgress.id == file_progress_id).first()
-        file_progress.celery_id = celery_task.id
+
+        graph = Graph(metric_report_id, graph_type, metric_column, file_progress_id)
+        DBSession.add(graph)
         transaction.commit()
+
+    celery_task = lemontest.plots_support.make_plots.delay(metric_report_id, filter_id)
+
+    url = request.route_url('trace_show_report')
+    url += '?report=' + str(metric_report_id)
+
+    return HTTPFound(location=url)
 
 # Author: Anthony Rodriguez
 @view_config(route_name='trace_show_report', renderer='trace.report.mako', permission='view')
@@ -938,6 +931,39 @@ def show_report(request):
         filter_params[key] = value
 
     return {'report': report, 'filter': filter_obj, 'filter_params': filter_params}
+
+# Author: Anthony Rodriguez
+@view_config(route_name='trace_check_report_update', renderer='json', permission='view')
+def check_report_update(request):
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+
+    extra_params = validate_filter_params(request.params, params_only=True)
+
+    if 'report_id' not in extra_params or not extra_params['report_id']:
+        return {'status': 'error', 'request': request.params.items()}
+
+    report_id = extra_params['report_id']
+
+    report = DBSession.query(MetricReport).filter(MetricReport.id == report_id).first()
+
+    status = {}
+
+    '''if one exists we check its status, and update UI'''
+    if report:
+        status['report'] = {'status': report.status, 'statistics': report.get_statistics()}
+        for graph in report.graphs:
+            current_graph = DBSession.query(Graph).filter(Graph.id == graph.id).first()
+            graph_type = str(current_graph.graph_type)
+            status[graph_type] = {'status': current_graph.fileprogress.status, 'src': current_graph.fileprogress.path}
+
+        return {'data': json.dumps(status)}
+    else:
+        return {'status': 'not_found', 'report_id': report_id}
 '''END PLOT SUPPORT'''
 
 # Author: Anthony Rodriguez
@@ -968,13 +994,13 @@ def check_file_update(request):
     '''if one exists we check its status, and update UI'''
     if file_progress_obj:
         if file_progress_obj.status == "Done":
-            return {'status': 'done', 'fileprogress_id': file_progress_obj.id, 'progress': 1}
+            return {'status': 'done', 'fileprogress_id': fileprogress_id, 'progress': 1}
         elif file_progress_obj.status == "Error":
             return {'status': 'error', 'message': "File progress ended in an error"}
         else:
-            return {'status': 'pending', 'fileprogress_id': file_progress_obj.id, 'progress': file_progress_obj.progress}
+            return {'status': 'pending', 'fileprogress_id': fileprogress_id, 'progress': file_progress_obj.progress}
     else:
-        return {'status': 'pending', 'fileprogress_id': file_progress_obj.id, 'progress': 0}
+        return {'status': 'pending', 'fileprogress_id': fileprogress_id, 'progress': 0}
 
 #Author: Anthony Rodriguez
 @view_config(route_name="trace_show_hide", renderer="json", permission="view", xhr=True)

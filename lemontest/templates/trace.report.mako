@@ -5,6 +5,36 @@
 <%inherit file="base.mako"/>
 
 <html>
+	<head>
+		<script type="text/javascript">
+			var check_for_updates = function(report_id, url) {
+				var interval = setInterval(function(){
+					$.ajax({
+						type: "GET",
+						url: url,
+						data: {'report_id': report_id}
+					}).done(function(data){
+// 						if (data.status == "done") {
+// 							clearInterval(interval);
+// 							console.log(data);
+// 							//location.reload();
+// 						} else if (data.status == "error"){
+// 							clearInterval(interval);
+// 							console.log(data);
+// 						} else {
+// 							console.log(data);
+// 						}
+						clearInterval(interval);
+						console.log(data);
+					});
+				}, 1000);
+			}
+	
+			$(function(){
+				check_for_updates(${report.id}, "${request.route_path('trace_check_report_update')}");
+			});
+		</script>
+	</head>
 	<body class="container-fuild">
 		<div class="span6">
 			<div class="">
@@ -43,45 +73,21 @@
 							<td>${report.metric_column}</td>
 						</tr>
 						% for column in report.ordered_columns:
-							% if report.get_formatted(column[0]):
-								<tr>
-									<td><strong>${column[0]}:</strong></td>
-									<td>${report.get_formatted(column[0])}</td>
-								</tr>
-							% elif report.graphs and report.graphs[0].fileprogress.status == "Done":
-								<tr>
-									<td><strong>${column[0]}:</strong></td>
-									<td>None</td>
-								</tr>
-							% else:
-								<tr>
-									<td><strong>${column[0]}:</strong></td>
-									<td>Pending...</td>
-								</tr>
-							% endif
+							<tr>
+								<td><strong>${column[0]}:</strong></td>
+								<td>Pending...</td>
+							</tr>
 						% endfor
 					</tbody>
 				</table>
 			</div>
 		</div>
-		<div class="" style="float: right;">
-			% if report.graphs:
-				% for graph in report.graphs:
-					% if graph.fileprogress.path:
-						<div class="container-fluid">
-							<div class="pull-right" style="display: inline-block;">
-								<% image = request.static_url('lemontest:static/img/plots/') %>
-								<% image += graph.fileprogress.path %>
-								<img alt="plot" src='${image}'>
-							</div>
-						</div>
-					% endif
-				% endfor
-			% else:
+		<%block name='show_graphs'>
+			<div class="" style="float: right;">
 				<div class="container-fluid">
 					<div class="pull-right" style="display: table; width: 800px; height: 600px;">
 						<div style="vertical-align: middle; display: table-cell;">
-							<img alt="plot" src="${request.static_url('lemontest:static/img/ajax-loader.gif')}" style="display: block; margin: auto;">
+							<img id="boxplot" alt="boxplot" src="${request.static_url('lemontest:static/img/ajax-loader.gif')}" style="display: block; margin: auto;">
 						</div>
 					</div>
 				</div>
@@ -89,11 +95,11 @@
 				<div class="container-fluid">
 					<div class="pull-right" style="display: table; width: 800px; height: 600px;">
 						<div style="vertical-align: middle; display: table-cell;">
-							<img alt="plot" src="${request.static_url('lemontest:static/img/ajax-loader.gif')}" style="display: block; margin: auto;">
+							<img id="histogram" alt="histogram" src="${request.static_url('lemontest:static/img/ajax-loader.gif')}" style="display: block; margin: auto;">
 						</div>
 					</div>
 				</div>
-			% endif
-		</div>
+			</div>
+		</%block>
 	</body>
 </html>

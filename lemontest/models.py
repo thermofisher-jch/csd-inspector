@@ -714,6 +714,8 @@ class MetricReport(Base, PrettyFormatter):
     __tablename__ = 'metric_report'
     id = Column(Integer, primary_key=True)
     filter_id = Column(Integer, ForeignKey('saved_filters.id'))
+    status = Column(Unicode(255))
+
     metric_type= Column(Unicode(255))
     metric_column = Column(Unicode(255))
     db_state = Column(Unicode(255))
@@ -749,9 +751,16 @@ class MetricReport(Base, PrettyFormatter):
         return mapper.attrs
 
     def __init__(self, metric_type, metric_column, db_state):
+        self.status = 'Queued'
         self.metric_type = metric_type
         self.metric_column = metric_column
         self.db_state = db_state
+
+    def get_statistics(self):
+        statistics = {}
+        for column in self.ordered_columns:
+            statistics[column[0]] = self.get_formatted(column[0])
+        return statistics
 
     @orm.reconstructor
     def on_load(self):

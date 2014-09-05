@@ -71,8 +71,7 @@ def main(global_config, **settings):
     # Plot support
     config.add_route('trace_request_report', '/trace/request_report')
     config.add_route('trace_show_report', '/trace/report')
-    config.add_route('trace_request_plot', '/trace/request_plot')
-    config.add_route('trace_serve_plot','/trace/trace.png')
+    config.add_route('trace_check_report_update', '/trace/report_update')
 
     # Check file progress
     config.add_route('trace_check_file_update', '/trace/check_file_update')

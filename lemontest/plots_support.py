@@ -27,10 +27,19 @@ import tempfile
 import transaction
 
 @task
-def make_plot(metric_report_id, metric_type, file_progress_id, filter_id, graph_type, column):
-    file_progress_obj = DBSession.query(FileProgress).filter(FileProgress.id == file_progress_id).first()
-    file_progress_obj.status = "Running"
+def make_plots(metric_report_id, filter_id):
+    metric_report = DBSession.query(MetricReport).filter(MetricReport.id == metric_report_id).first()
+    column = metric_report.metric_column
+    metric_type = metric_report.metric_type
+    metric_report.status = 'Running'
     transaction.commit()
+
+    metric_report = DBSession.query(MetricReport).filter(MetricReport.id == metric_report_id).first()
+    for graph in metric_report.graphs:
+        current_graph = DBSession.query(Graph).filter(Graph.id == graph.id).first()
+        current_graph.fileprogress.status = 'Running'
+        current_graph.fileprogress.celery_id = make_plots.request.id
+        transaction.commit()
 
     metric_object = mapping[metric_type]
 
@@ -38,45 +47,52 @@ def make_plot(metric_report_id, metric_type, file_progress_id, filter_id, graph_
     filter_obj = DBSession.query(SavedFilters).filter(SavedFilters.id == filter_id).first()
     metrics_query = filter_obj.get_query()
 
-    data_column = metrics_query.values(metric_object.get_column(column))
+    data = metrics_query.values(metric_object.get_column(column))
 
-    temp = []
+    clean_data = []
 
-    for data in data_column:
+    for data_point in data:
         try:
-            temp.append(float(data[0]))
+            clean_data.append(float(data_point[0]))
         except TypeError:
-            print type(data[0])
-    data_column = numpy.array(temp)
+            print type(data_point[0])
+    data = numpy.array(clean_data)
 
-    if data_column.any():
-        metric_report = DBSession.query(MetricReport).filter(MetricReport.id == metric_report_id).first()
-        metric_report.data_n = len(data_column)
-        metric_report.mean = numpy.mean(data_column)
-        metric_report.median = numpy.median(data_column)
-        metric_report.mode = stats.mode(data_column)[0][0]
-        metric_report.q1 = numpy.percentile(data_column, 25)
-        metric_report.q3 = numpy.percentile(data_column, 75)
-        metric_report.std_dev = numpy.std(data_column)
-        metric_report.range_min = data_column.min()
-        metric_report.range_max = data_column.max()
-        transaction.commit()
+    report_statistics(metric_report_id, data)
 
-        final_status = "Done"
+    metric_report = DBSession.query(MetricReport).filter(MetricReport.id == metric_report_id).first()
 
-        name = mapping[graph_type](column, data_column)
+    if data.any():
+        for graph in metric_report.graphs:
+            name = mapping[graph.graph_type](column, data)
 
-        graph = Graph(metric_report_id, graph_type, column, file_progress_id)
-        DBSession.add(graph)
-        transaction.commit()
+            current_graph = DBSession.query(Graph).filter(Graph.id == graph.id).first()
+            current_graph.fileprogress.status = 'Done'
+            current_graph.fileprogress.path = name.split('/')[-1]
+            transaction.commit()
     else:
-        name = ''
-        final_status = "Error"
+        for graph in metric_report.graphs:
+            graph.fileprogress.status = 'Error'
+            graph.fileprogress.path = 'Error'
+            transaction.commit()
 
-    file_progress_obj = DBSession.query(FileProgress).filter(FileProgress.id == file_progress_id).first()
-    file_progress_obj.status = final_status
-    file_progress_obj.progress = unicode(1.00)
-    file_progress_obj.path = name.split('/')[-1]
+    metric_report = DBSession.query(MetricReport).filter(MetricReport.id == metric_report_id).first()
+    metric_report.status = 'Done'
+    transaction.commit()
+
+def report_statistics(metric_report_id, data):
+    metric_report = DBSession.query(MetricReport).filter(MetricReport.id == metric_report_id).first()
+    metric_report.data_n = len(data)
+    metric_report.mean = numpy.mean(data)
+    metric_report.median = numpy.median(data)
+    metric_report.mode = stats.mode(data)[0][0]
+    metric_report.q1 = numpy.percentile(data, 25)
+    metric_report.q3 = numpy.percentile(data, 75)
+    metric_report.std_dev = numpy.std(data)
+    metric_report.range_min = data.min()
+    metric_report.range_max = data.max()
+    metric_report.status = 'Statistics Available'
+    #time.sleep(5)
     transaction.commit()
 
 def box_plot(column, data):
@@ -113,6 +129,8 @@ def histogram(column, data):
     plt.hist(data)
 
     fig.savefig(name)
+
+    #time.sleep(5)
 
     return name
 
