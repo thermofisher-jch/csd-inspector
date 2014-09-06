@@ -344,6 +344,43 @@ function fill_filters() {
 	}
 }
 
+/*
+ * Fills in report components as they are finished in celery
+ */
+function update_report(report, boxplot, histogram) {
+	/*
+	 * Set local copies of variables to prevent updating
+	 * an already updated component
+	 */
+	if(report_status != report.status) {
+		report_status = report.status;
+
+		if (report_status == 'Statistics Available' || report_status == 'Done') {
+			for(var stat in report.statistics) {
+				document.getElementById(stat).innerHTML = report.statistics[stat];
+			}
+		}
+	}
+
+	if(boxplot_status != boxplot.status) {
+		boxplot_status = boxplot.status;
+
+		if(boxplot_status == "Done") {
+			document.getElementById('boxplot').src = static_url + "/" + boxplot.src;
+		}
+	}
+
+	if(histogram_status != histogram.status) {
+		histogram_status = histogram.status;
+
+		if(histogram_status == "Done") {
+			document.getElementById('histogram').src = static_url + "/" + histogram.src;
+		}
+	}
+
+	return (report.status == "Done" && boxplot.status == "Done" && histogram.status == "Done");
+}
+
 function sort_by(thing) {
 	var input = document.getElementsByName(thing.id);
 	input[0].value = "desc";

@@ -3,6 +3,11 @@ matplotlib.use('Agg')
 
 import matplotlib.pyplot as plt
 
+import numpy
+from scipy import stats
+
+from sqlalchemy import func
+
 from lemontest.views import get_db_queries
 
 from lemontest.models import DBSession
@@ -18,11 +23,8 @@ from celery import task
 
 from pyramid import threadlocal
 
-from scipy import stats
-
 import time
 
-import numpy
 import tempfile
 import transaction
 
@@ -46,25 +48,32 @@ def make_plots(metric_report_id, filter_id):
     '''get filter object and get query set'''
     filter_obj = DBSession.query(SavedFilters).filter(SavedFilters.id == filter_id).first()
     metrics_query = filter_obj.get_query()
+    max_id = filter_obj.max_archive_id
 
-    data = metrics_query.values(metric_object.get_column(column))
 
-    clean_data = []
+    data = metrics_query.filter(metric_object.get_column(column) != None).values(metric_object.get_column(column))
+
+    raw_data = []
 
     for data_point in data:
         try:
-            clean_data.append(float(data_point[0]))
+            raw_data.append(float(data_point[0]))
         except TypeError:
             print type(data_point[0])
-    data = numpy.array(clean_data)
+    numpy_data = numpy.array(raw_data)
 
-    report_statistics(metric_report_id, data)
+    db_state = str(len(numpy_data)) + ":" + str(max_id)
+    metric_report = DBSession.query(MetricReport).filter(MetricReport.id == metric_report_id).first()
+    metric_report.db_state = db_state
+    transaction.commit()
+
+    report_statistics(metric_report_id, numpy_data)
 
     metric_report = DBSession.query(MetricReport).filter(MetricReport.id == metric_report_id).first()
 
-    if data.any():
+    if numpy_data.any():
         for graph in metric_report.graphs:
-            name = mapping[graph.graph_type](column, data)
+            name = mapping[graph.graph_type](column, numpy_data)
 
             current_graph = DBSession.query(Graph).filter(Graph.id == graph.id).first()
             current_graph.fileprogress.status = 'Done'
@@ -92,7 +101,6 @@ def report_statistics(metric_report_id, data):
     metric_report.range_min = data.min()
     metric_report.range_max = data.max()
     metric_report.status = 'Statistics Available'
-    #time.sleep(5)
     transaction.commit()
 
 def box_plot(column, data):
@@ -129,8 +137,6 @@ def histogram(column, data):
     plt.hist(data)
 
     fig.savefig(name)
-
-    #time.sleep(5)
 
     return name
 

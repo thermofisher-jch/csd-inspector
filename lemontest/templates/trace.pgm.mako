@@ -173,7 +173,7 @@
 <%block name="filter_drawer">
 <div class="filter_drawer">
 	<%block name="filter">
-	<form id="filter_form" class="form-inline" style="display: inline-block; max-width: 50%" action="${request.path}" method="GET" onclick="get_extra_filter_number()">
+	<form id="filter_form" class="form-inline" style="display: inline-block; max-width: 50%;" action="${request.path}" method="GET" onclick="get_extra_filter_number()">
 		<h4>Current Filter: <span>${search['current_selected_filter']}</span></h4>
 		<input type="hidden" id="filterid" value="${search['filterid'] | n}">
 		<div class="" style="display: inline-block">

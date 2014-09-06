@@ -82,8 +82,6 @@ class OTLog(object):
                 '''occurs if file has less than two lines'''
                 print sys.exc_info()[0]
 
-        print min_temp
-
         if min_temp != float('inf'):
             min_temp = Decimal(min_temp)
             return min_temp
@@ -131,8 +129,6 @@ class OTLog(object):
             except:
                 '''occurs if file has less than two lines'''
                 print sys.exc_info()[0]
-
-        print min_temp
 
         if min_temp != float('inf'):
             min_temp = Decimal(min_temp)

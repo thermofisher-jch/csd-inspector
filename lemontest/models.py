@@ -621,6 +621,7 @@ class SavedFilters(Base):
     numeric_filters = Column(Text)
     categorical_filters = Column(Text)
     type = Column(Unicode(255))
+    max_archive_id = Column(Integer)
 
     def __init__(self, name, metric_type, numeric_filters, categorical_filters):
         self.name = name
@@ -653,6 +654,7 @@ class SavedFilters(Base):
     def get_query(self):
         metric_object_type = self.mapping[self.metric_type]
 
+        self.max_archive_id = int(DBSession.query(Archive.id).order_by(Archive.id.desc()).first().id)
         metrics_query = DBSession.query(metric_object_type).options(joinedload('archive')).join(Archive).order_by(Archive.id.desc())
 
         for num_filter, params in self.numeric_filters_json.items():
@@ -688,7 +690,7 @@ class FileProgress(Base):
 
     def __init__(self, file_type):
         self.file_type = file_type
-        self.status = "queued"
+        self.status = "Queued"
         self.time = datetime.datetime.now()
 
 class Graph(Base):
@@ -698,6 +700,13 @@ class Graph(Base):
     file_progress_id = Column(Integer, ForeignKey('fileprogress.id'))
     graph_type = Column(Unicode(255))
     column_name = Column(Unicode(255))
+    title = Column(Unicode(255))
+    label_x = Column(Unicode(255))
+    label_y = Column(Unicode(255))
+    x_axis_min = Column(NUMERIC(24, 2))
+    x_axis_max = Column(NUMERIC(24, 2))
+    y_axis_min = Column(NUMERIC(24, 2))
+    y_axis_max = Column(NUMERIC(24, 2))
 
     # useful when trying to see what is in the DB
     def inspect(self):
@@ -750,16 +759,15 @@ class MetricReport(Base, PrettyFormatter):
         mapper = inspect(type(self))
         return mapper.attrs
 
-    def __init__(self, metric_type, metric_column, db_state):
+    def __init__(self, metric_type, metric_column):
         self.status = 'Queued'
         self.metric_type = metric_type
         self.metric_column = metric_column
-        self.db_state = db_state
 
     def get_statistics(self):
         statistics = {}
         for column in self.ordered_columns:
-            statistics[column[0]] = self.get_formatted(column[0])
+            statistics[column[0]] = str(self.get_formatted(column[0]))
         return statistics
 
     @orm.reconstructor

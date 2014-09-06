@@ -859,9 +859,7 @@ def request_report(request):
     else:
         metric_column = extra_params['graph_column_name']
 
-    db_state = str(DBSession.query(Archive.id).order_by(Archive.id.desc()).first()[0]) + ":" + str(DBSession.query(Archive).count())
-
-    metric_report = MetricReport(metric_type, metric_column, db_state)
+    metric_report = MetricReport(metric_type, metric_column)
     DBSession.add(metric_report)
     DBSession.flush()
     metric_report_id = metric_report.id
@@ -915,6 +913,10 @@ def show_report(request):
         report_id = request.params['report']
 
     report = DBSession.query(MetricReport).filter(MetricReport.id == report_id).first()
+
+    if not report:
+        return {'status': 'not_found', 'url': request.route_path('index')}
+
     filter_obj = DBSession.query(SavedFilters).filter(SavedFilters.id == report.filter_id).first()
 
     filter_params = {}
@@ -930,18 +932,11 @@ def show_report(request):
     for key, value in filter_obj.categorical_filters_json.items():
         filter_params[key] = value
 
-    return {'report': report, 'filter': filter_obj, 'filter_params': filter_params}
+    return {'status': 'found', 'report': report, 'filter_obj': filter_obj, 'filter_params': filter_params}
 
 # Author: Anthony Rodriguez
 @view_config(route_name='trace_check_report_update', renderer='json', permission='view')
 def check_report_update(request):
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-
     extra_params = validate_filter_params(request.params, params_only=True)
 
     if 'report_id' not in extra_params or not extra_params['report_id']:
@@ -961,7 +956,7 @@ def check_report_update(request):
             graph_type = str(current_graph.graph_type)
             status[graph_type] = {'status': current_graph.fileprogress.status, 'src': current_graph.fileprogress.path}
 
-        return {'data': json.dumps(status)}
+        return {'status': 'found', 'data': json.dumps(status)}
     else:
         return {'status': 'not_found', 'report_id': report_id}
 '''END PLOT SUPPORT'''

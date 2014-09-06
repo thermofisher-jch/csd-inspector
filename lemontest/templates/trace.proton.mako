@@ -70,32 +70,11 @@
 			$('#blank_error').slideDown();
 		}
 
-		$('#show_plot_modal').click(function() {
-			$('.show_plot_modal').modal('show');
-		});
-
-		$('#show_plot').click(function() {
-			$('.show_plot_modal').modal('hide');
-
-			var l = Ladda.create(document.getElementById('show_plot_modal'));
-			l.start();
-
+		$('.generate_report_btn').click(function() {
 			var params = get_csv_params();
 			var serialized = $(params).serialize();
 
-			$.ajax({
-				type: "GET",
-				url: "${request.route_path('trace_request_plot')}" + "?" + serialized,
-				data: {"metric_type": "proton", 'graph_column_name': document.getElementById('graph_column_name').value, 'graph_type': document.getElementById('graph_type').value}
-			}).done(function(data) {
-				if (data.status == 'ok'){
-					var fileprogress_id = data.fileprogress_id;
-					check_for_updates(l, fileprogress_id, "${request.route_path('trace_check_file_update')}", "${request.route_path('trace_show_report')}");
-				} else {
-					l.stop();
-					console.log(data);
-				}
-			});
+			window.location.href = ("${request.route_path('trace_request_report')}" + "?" + serialized + "&metric_type=proton" + "&graph_column_name=" + this.id);
 		});
 
 		$('#csv_download').click(function(){
@@ -194,7 +173,7 @@
 <%block name="filter_drawer">
 <div class="filter_drawer">
 	<%block name="filter">
-	<form id="filter_form" class="form-inline" style="display: inline-block" action="${request.path}" method="GET" onclick="get_extra_filter_number()">
+	<form id="filter_form" class="form-inline" style="display: inline-block; max-width: 50%;" action="${request.path}" method="GET" onclick="get_extra_filter_number()">
 		<h4>Current Filter: <span>${search['current_selected_filter']}</span></h4>
 		<input type="hidden" id="filterid" value="${search['filterid'] | n}">
 		<div class="" style="display: inline-block">
@@ -345,21 +324,21 @@
 	</%block>
 
 	<%block name="saved_filters_table">
-		<div class="saved_filters">
-			<h4 style="margin-top: 0px;">Saved Filters</h4>
-			<table class="table table-hover table-striped">
-				<tbody>
-					% for filter in saved_filters.all():
-						<tr>
-							<td onclick="apply_saved_filter('${filter.id}')"><span>${filter.name}</span></td>
-							<td>
-								<span class="remove_saved_filter icon-remove pull-right" id="${filter.id}"></span>
-							</td>
-						</tr>
-					% endfor
-				</tbody>
-			</table>
-		</div>
+	<div class="saved_filters" style="max-width: 50%">
+		<h4 style="margin-top: 0px;">Saved Filters</h4>
+		<table class="table table-hover table-striped">
+			<tbody>
+				% for filter in saved_filters.all():
+					<tr>
+						<td onclick="apply_saved_filter('${filter.id}')"><span>${filter.name}</span></td>
+						<td>
+							<span class="remove_saved_filter icon-remove pull-right" id="${filter.id}"></span>
+						</td>
+					</tr>
+				% endfor
+			</tbody>
+		</table>
+	</div>
 	</%block>
 </div>
 </%block>
@@ -373,12 +352,17 @@
 
 	<div class="form-group pull-right">
 		<%block name="plot_this_buttons">
-			<button id="show_plot_modal" type="button" class="btn btn-success ladda-button" data-style="expand-left">
-				<span class="ladda-label">Plot this data</span>
-				<span class="ladda-spinner"></span>
-				<span class="ladda-progress"></span>
-				<span class="icon-white icon-picture"></span>
-			</button>
+			<div class="dropdown" style="display: inline-block;">
+				<button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown">
+					<span class="ladda-label">Generate Report</span>
+					<span class="icon-white icon-zoom-in"></span>
+				</button>
+				<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+					% for column in metric_object_type.numeric_columns:
+					<li><a class="generate_report_btn" id="${column[0]}">${column[0]}</a></li>
+					% endfor
+				</ul>
+			</div>
 		</%block>
 	
 		<%block name="download_csv_form">
@@ -561,41 +545,6 @@
 					<button id="filter_delete_modal_btn" type="submit" class="btn btn-danger pull-right">Delete</button>
 					<button data-dismiss="modal" class="btn btn-info pull-left">Cancel</button>
 				</form>
-			</div>
-		</div>
-	</div>
-</div>
-</%block>
-
-<%block name="show_plot_modal">
-<div class="modal fade show_plot_modal" tableindex="-1" role="dialog" aria-labelledby="remove_confirmation" aria-hidden="true">
-	<div class="modal-dialog modal-sm">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title">Graph Options</h4>
-			</div>
-			<div class="modal-body text-center">
-				<div class="some_space_below">
-					<h5 class="label_spacing control-label" style="margin-right: 20px; vertical-align: top; display: inline-block;"> Metric Type </h5>
-					<select class="form-control" id="graph_column_name" name="graph_column_name">
-						<option value=""></option>
-						% for column in metric_object_type.numeric_columns:
-							<option class="filter_option" value="${column[0]}">${column[0]}</option>
-						% endfor
-					</select>
-				</div>
-				<div class="some_space_below">
-					<h5 class="label_spacing control-label" style="margin-right: 20px; vertical-align: top; display: inline-block;"> Graph Type </h5>
-					<select class="form-control" id="graph_type" name="graph_type">
-						<option value=""></option>
-						<option class="filter_option" value="boxplot">Box Plot</option>
-						<option class="filter_option" value="histogram">Histogram</option>
-					</select>
-				</div>
-			</div>
-			<div class="modal-footer">
-				<button type="button" id="show_plot" class="btn btn-success">Graph</button>
 			</div>
 		</div>
 	</div>
