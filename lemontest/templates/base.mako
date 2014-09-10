@@ -22,7 +22,7 @@
         background-color: #FEFEFE;
       }
     </style>
-    <script src="${request.static_url('lemontest:static/js/jquery-1.8.3.min.js')}"></script>
+    <script src="${request.static_url('lemontest:static/js/jquery-1.11.1.min.js')}"></script>
     <script src="${request.static_url('lemontest:static/js/dropdown.js')}"></script>
     <script src="${request.static_url('lemontest:static/js/modal.js')}"></script>
     <script src="${request.static_url('lemontest:static/js/json2.js')}"></script>
@@ -141,6 +141,52 @@
 		}
 		.report_stats_table td:last-child {
 			width: 25%;
+		}
+		.edit_axes {
+			display: table-cell;
+			vertical-align: middle;
+		}
+		.edit_axes_hidden {
+			display: none;
+		}
+		.reports_page {
+			display: table;
+			width: 100%;
+		}
+		.reports_page .statistics {
+			display: table-cell;
+			width: 25%;
+			vertical-align: top;
+		}
+		.reports_page .graphs {
+			display: table-cell;
+			width: 75%;
+			vertical-align: middle;
+		}
+		.reports_page .graphs-table {
+			display: table;
+			width: 100%;
+			height: 100%;
+		}
+		.reports_page .graphs .graphs-table .graph {
+			display: table;
+			width: 100%;
+			height: 50%;
+		}
+		.graph .edit_graph {
+			display: none;
+			vertical-align: middle;
+		}
+		.graph .graph-left {
+			display: table-cell;
+			vertical-align: middle;
+			width: 50%;
+		}
+		.graph .graph-right {
+			width: 50%;
+		}
+		.graph-left .edit_graph {
+			float: right;
 		}
 	</style>
   </head>

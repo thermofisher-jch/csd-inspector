@@ -7,13 +7,12 @@
 <html>
 	<head>
 		<script type="text/javascript">
-		var report_status = '';
-		var boxplot_status = '';
-		var histogram_status = '';
-		var static_url = "${request.static_url('lemontest:static/img/plots')}";
-		$(function(){
-				// status of report components
-
+			// status of report components
+			var report_status = '';
+			var boxplot_status = '';
+			var histogram_status = '';
+			var static_url = "${request.static_url('lemontest:static/img/plots')}";
+			$(function(){
 				// checks status of report components until done
 				var check_for_updates = function(report_id, url) {
 					var interval = setInterval(function(){
@@ -48,19 +47,26 @@
 					$('#blank_error').slideUp();
 					window.location.href = ('/');
 				});
+
+				$('#boxplot_edit_btn').click(function(){
+					$('.boxplot_edit_axes').animate({width: 'toggle'});
+				});
+
+				$('#histogram_edit_btn').click(function(){
+					$('.histogram_edit_axes').toggle("slide");
+				});
 			});
 		</script>
 	</head>
-	<body class="container-fuild">
-		<div id="blank_error" class="row-fluid" style="display: none; margin-top: 20px;">
-			<div class="alert alert-danger" style="text-align: center; margin-bottom: 0px;">
-				<h4>Error!</h4>
-				<h5>Report does not exist</h5>
-				<button id="alert_dismiss" type="button" class="btn btn-danger">Dismiss</button>
-			</div>
+	<div id="blank_error" class="row-fluid" style="display: none; margin-top: 20px;">
+		<div class="alert alert-danger" style="text-align: center; margin-bottom: 0px;">
+			<h4>Error!</h4>
+			<h5>Report does not exist</h5>
+			<button id="alert_dismiss" type="button" class="btn btn-danger">Dismiss</button>
 		</div>
-
-		<div class="span6">
+	</div>
+	<div class="reports_page">
+		<div class="statistics">
 			<div class="">
 				<table class="table table-striped table-hover report_filter_table">
 					<h4>Filter Parameters</h4>
@@ -122,23 +128,53 @@
 		</div>
 
 		<%block name='show_graphs'>
-			<div class="" style="float: right;">
-				<div class="container-fluid">
-					<div class="pull-right" style="display: table; width: 800px; height: 600px;">
-						<div style="vertical-align: middle; display: table-cell;">
-							<img id="boxplot" alt="boxplot" src="${request.static_url('lemontest:static/img/ajax-loader.gif')}" style="display: block; margin: auto;">
-						</div>
-					</div>
-				</div>
+			<div class="graphs">
+				<div class="graphs-table">
+					% if report:
+						% for graph in report.graphs:
+							<div class="graph">
+								<div class="graph-left">
+									<div class="edit_graph" id="${graph.graph_type}_custom_axes" style="display: none;">
+										<div class="${graph.graph_type}_edit_axes edit_axes" style="display: none;">
+											<h5 class="label_spacing control-label text-center">${graph.graph_type.capitalize()}</h5>
+											<div class="">
+												<div class="text-center">
+													<h5 class="pull-left label_spacing control-label"> Graph Title </h5>
+													<input type="text" class="form-control" style="width: 12em;" name="${graph.graph_type}_title" placeholder="Graph Title" value="">
+												</div>
 
-				<div class="container-fluid">
-					<div class="pull-right" style="display: table; width: 800px; height: 600px;">
-						<div style="vertical-align: middle; display: table-cell;">
-							<img id="histogram" alt="histogram" src="${request.static_url('lemontest:static/img/ajax-loader.gif')}" style="display: block; margin: auto;">
-						</div>
-					</div>
+												<div class="text-center">
+													<h5 class="pull-left label_spacing control-label"> X Axis </h5>
+													<input type="text" class="form-control" style="width: 12em;" name="${graph.graph_type}_label_x" placeholder="X Axis Label" value="">
+													<input type="text" class="form-control" style="width: 6em;" name="${graph.graph_type}_x_axis_max" placeholder="Upper Bound" value="">
+													<input type="text" class="form-control" style="width: 6em;" name="${graph.graph_type}_x_axis_min" placeholder="Lower Bound" value="">
+												</div>
+
+												<div class="text-center">
+													<h5 class="pull-left label_spacing control-label"> Y Axis </h5>
+													<input type="text" class="form-control" style="width: 12em;" name="${graph.graph_type}_label_y" placeholder="Y Axis Label" value="">
+													<input type="text" class="form-control" style="width: 6em;" name="${graph.graph_type}_y_axis_max" placeholder="Upper Bound" value="">
+													<input type="text" class="form-control" style="width: 6em;" name="${graph.graph_type}_y_axis_min" placeholder="Lower Bound" value="">
+												</div>
+											</div>
+										</div>
+
+										<div class="pull-right" style="vertical-align: bottom; display: table-cell; padding-left: 5px;">
+											<button class="btn btn-small btn-success" id="${graph.graph_type}_edit_btn" >Edit Graph</button>
+										</div>
+									</div>
+								</div>
+
+								<div class="graph-right pull-right" style="display: table; width: 800px; height: 600px;">
+									<div style="vertical-align: middle; display: table-cell;">
+										<img id="${graph.graph_type}" alt="${graph.graph_type}" src="${request.static_url('lemontest:static/img/ajax-loader.gif')}" style="display: block; margin: auto;">
+									</div>
+								</div>
+							</div>
+						% endfor
+					% endif
 				</div>
 			</div>
 		</%block>
-	</body>
+	</div>
 </html>

@@ -895,7 +895,7 @@ def request_report(request):
         DBSession.add(graph)
         transaction.commit()
 
-    celery_task = lemontest.plots_support.make_plots.delay(metric_report_id, filter_id)
+    celery_task = lemontest.metric_report.make_plots.delay(metric_report_id, filter_id)
 
     url = request.route_url('trace_show_report')
     url += '?report=' + str(metric_report_id)

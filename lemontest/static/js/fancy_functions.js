@@ -367,6 +367,7 @@ function update_report(report, boxplot, histogram) {
 
 		if(boxplot_status == "Done") {
 			document.getElementById('boxplot').src = static_url + "/" + boxplot.src;
+			$('#boxplot_custom_axes').css('display', 'table-cell');
 		}
 	}
 
@@ -375,6 +376,7 @@ function update_report(report, boxplot, histogram) {
 
 		if(histogram_status == "Done") {
 			document.getElementById('histogram').src = static_url + "/" + histogram.src;
+			$('#histogram_custom_axes').css('display', 'table-cell');
 		}
 	}
 

@@ -14,6 +14,7 @@ from lemontest.models import DBSession
 from lemontest.models import FileProgress
 from lemontest.models import SavedFilters
 from lemontest.models import Graph
+from lemontest.models import Archive
 from lemontest.models import MetricsPGM
 from lemontest.models import MetricsProton
 from lemontest.models import MetricsOTLog
@@ -48,14 +49,17 @@ def make_plots(metric_report_id, filter_id):
     '''get filter object and get query set'''
     filter_obj = DBSession.query(SavedFilters).filter(SavedFilters.id == filter_id).first()
     metrics_query = filter_obj.get_query()
-    max_id = filter_obj.max_archive_id
 
+    data = metrics_query.filter(metric_object.get_column(column) != None).values(metric_object.get_column(column), Archive.id)
 
-    data = metrics_query.filter(metric_object.get_column(column) != None).values(metric_object.get_column(column))
+    max_id = ''
 
     raw_data = []
 
     for data_point in data:
+        if not max_id:
+            max_id = data_point[1]
+            print max_id
         try:
             raw_data.append(float(data_point[0]))
         except TypeError:

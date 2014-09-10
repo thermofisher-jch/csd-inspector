@@ -621,7 +621,6 @@ class SavedFilters(Base):
     numeric_filters = Column(Text)
     categorical_filters = Column(Text)
     type = Column(Unicode(255))
-    max_archive_id = Column(Integer)
 
     def __init__(self, name, metric_type, numeric_filters, categorical_filters):
         self.name = name
@@ -654,7 +653,6 @@ class SavedFilters(Base):
     def get_query(self):
         metric_object_type = self.mapping[self.metric_type]
 
-        self.max_archive_id = int(DBSession.query(Archive.id).order_by(Archive.id.desc()).first().id)
         metrics_query = DBSession.query(metric_object_type).options(joinedload('archive')).join(Archive).order_by(Archive.id.desc())
 
         for num_filter, params in self.numeric_filters_json.items():
