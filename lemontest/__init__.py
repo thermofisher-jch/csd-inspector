@@ -22,6 +22,8 @@ def main(global_config, **settings):
     settings["test_root"] = os.path.abspath(settings["test_root"])
     settings["test_manifest"] = os.path.abspath(settings["test_manifest"])
     settings["plots_dir"] = os.path.abspath(settings["plots_dir"])
+    settings["csv_dir"] = os.path.abspath(settings["csv_dir"])
+    settings["reports_cache_dir"] = os.path.abspath(settings["reports_cache_dir"])
 
     # Setup cache configuration
     pyramid_beaker.set_cache_regions_from_settings(settings)
@@ -72,6 +74,7 @@ def main(global_config, **settings):
     config.add_route('trace_request_report', '/trace/request_report')
     config.add_route('trace_show_report', '/trace/report')
     config.add_route('trace_check_report_update', '/trace/report_update')
+    config.add_route('trace_customize_report', '/trace/report_custom')
 
     # Check file progress
     config.add_route('trace_check_file_update', '/trace/check_file_update')

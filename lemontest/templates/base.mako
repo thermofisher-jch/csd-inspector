@@ -176,6 +176,8 @@
 		.graph .edit_graph {
 			display: none;
 			vertical-align: middle;
+			width: 100%;
+			height: 100%;
 		}
 		.graph .graph-left {
 			display: table-cell;
@@ -187,6 +189,19 @@
 		}
 		.graph-left .edit_graph {
 			float: right;
+		}
+		.edit_axis_form_show {
+			display: inline-block;
+		}
+		.edit_axis_btn {
+			display: table-cell;
+			vertical-align: middle;
+		}
+		.edit_axis_btn_closed {
+			float: right;
+		}
+		.axis_form input {
+			margin-bottom: 0px;
 		}
 	</style>
   </head>

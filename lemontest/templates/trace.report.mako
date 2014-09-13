@@ -49,11 +49,13 @@
 				});
 
 				$('#boxplot_edit_btn').click(function(){
-					$('.boxplot_edit_axes').animate({width: 'toggle'});
+					$(this).parent().toggleClass('edit_axis_btn_closed');
+					$('.boxplot_edit_axes').toggleClass('edit_axis_form_show');
 				});
 
 				$('#histogram_edit_btn').click(function(){
-					$('.histogram_edit_axes').toggle("slide");
+					$(this).parent().toggleClass('edit_axis_btn_closed');
+					$('.histogram_edit_axes').toggleClass('edit_axis_form_show');
 				});
 			});
 		</script>
@@ -75,7 +77,7 @@
 							% if filter_obj.type != "temp":
 								<tr>
 									<td><strong>Filter Name: </strong></td>
-									<td>${filter.name}</td>
+									<td>${filter_obj.name}</td>
 								</tr>
 								% if filter_params:
 									% for key, value in filter_params.items():
@@ -135,39 +137,47 @@
 							<div class="graph">
 								<div class="graph-left">
 									<div class="edit_graph" id="${graph.graph_type}_custom_axes" style="display: none;">
-										<div class="${graph.graph_type}_edit_axes edit_axes" style="display: none;">
-											<h5 class="label_spacing control-label text-center">${graph.graph_type.capitalize()}</h5>
-											<div class="">
-												<div class="text-center">
-													<h5 class="pull-left label_spacing control-label"> Graph Title </h5>
-													<input type="text" class="form-control" style="width: 12em;" name="${graph.graph_type}_title" placeholder="Graph Title" value="">
-												</div>
 
-												<div class="text-center">
-													<h5 class="pull-left label_spacing control-label"> X Axis </h5>
-													<input type="text" class="form-control" style="width: 12em;" name="${graph.graph_type}_label_x" placeholder="X Axis Label" value="">
-													<input type="text" class="form-control" style="width: 6em;" name="${graph.graph_type}_x_axis_max" placeholder="Upper Bound" value="">
-													<input type="text" class="form-control" style="width: 6em;" name="${graph.graph_type}_x_axis_min" placeholder="Lower Bound" value="">
-												</div>
-
-												<div class="text-center">
-													<h5 class="pull-left label_spacing control-label"> Y Axis </h5>
-													<input type="text" class="form-control" style="width: 12em;" name="${graph.graph_type}_label_y" placeholder="Y Axis Label" value="">
-													<input type="text" class="form-control" style="width: 6em;" name="${graph.graph_type}_y_axis_max" placeholder="Upper Bound" value="">
-													<input type="text" class="form-control" style="width: 6em;" name="${graph.graph_type}_y_axis_min" placeholder="Lower Bound" value="">
-												</div>
-											</div>
+										<div class="edit_axis_btn edit_axis_btn_closed">
+											<button class="btn btn-small btn-info pull-right" id="${graph.graph_type}_edit_btn" >Edit Graph</button>
 										</div>
 
-										<div class="pull-right" style="vertical-align: bottom; display: table-cell; padding-left: 5px;">
-											<button class="btn btn-small btn-success" id="${graph.graph_type}_edit_btn" >Edit Graph</button>
+										<div class="" style="display: table-cell; vertical-align: middle;">
+											<form class="form-vertical ${graph.graph_type}_edit_axes edit_axes_hidden" style="vertical-align: middle; float: right;" action="${request.route_url('trace_customize_report')}">
+												<div class="axis_form">
+													<h5 class="control-label">Graph Title</h5>
+													<input type="text" style="width: 12em;" placeholder="Graph Title" id="${graph.graph_type}_title" name="${graph.graph_type}_title" value="">
+												</div>
+
+												% if graph.graph_type != 'boxplot':
+													<div class="axis_form">
+														<h5 class="control-label">X Axis</h5>
+														<input type="text" style="width: 12em;" placeholder="Label" id="${graph.graph_type}_x_axis_label" name="${graph.graph_type}_x_axis_label" value="">
+														<input type="text" style="width: 6em;" placeholder="Lower Bound" id="${graph.graph_type}_x_axis_min" name="${graph.graph_type}_x_axis_min" value="">
+														<input type="text" style="width: 6em;" placeholder="Upper Bound" id="${graph.graph_type}_x_axis_max" name="${graph.graph_type}_x_axis_max" value="">
+													</div>
+												% endif
+
+												<div class="axis_form">
+													<h5 class="control-label">Y Axis</h5>
+													<input type="text" style="width: 12em;" placeholder="Label" id="${graph.graph_type}_y_axis_label" name="${graph.graph_type}_y_axis_label" value="">
+													<input type="text" style="width: 6em;" placeholder="Lower Bound" id="${graph.graph_type}_y_axis_min" name="${graph.graph_type}_y_axis_min" value="">
+													<input type="text" style="width: 6em;" placeholder="Upper Bound" id="${graph.graph_type}_y_axis_max" name="${graph.graph_type}_y_axis_max" value="">
+												</div>
+
+												<div class="form-group" style="margin-top: 10px;">
+													<input class="btn btn-success" type="submit" value="Submit">
+													<input type="hidden" name="report"  value="${report.id}">
+													<input type="hidden" name="graph_to_update"  value="${graph.graph_type}">
+												</div>
+											</form>
 										</div>
 									</div>
 								</div>
 
 								<div class="graph-right pull-right" style="display: table; width: 800px; height: 600px;">
 									<div style="vertical-align: middle; display: table-cell;">
-										<img id="${graph.graph_type}" alt="${graph.graph_type}" src="${request.static_url('lemontest:static/img/ajax-loader.gif')}" style="display: block; margin: auto;">
+										<img id="${graph.graph_type}_img" alt="${graph.graph_type}" src="${request.static_url('lemontest:static/img/ajax-loader.gif')}" style="display: block; margin: auto;">
 									</div>
 								</div>
 							</div>

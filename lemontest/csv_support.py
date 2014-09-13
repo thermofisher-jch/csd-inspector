@@ -15,6 +15,8 @@ from lemontest.models import MetricsOTLog
 
 from lemontest.models import SavedFilters
 
+from pyramid import threadlocal
+
 from celery import task
 
 import os
@@ -50,7 +52,7 @@ def make_csv(metric_type, file_progress_id, filter_id, show_hide_string):
     total_progress = 0
     progress_interval = .01
 
-    tempfile.tempdir = '/tmp/'
+    tempfile.tempdir = threadlocal.get_current_registry().settings['csv_dir']
     fd, name = tempfile.mkstemp('.analysis')
     output = os.fdopen(fd, 'a')
 

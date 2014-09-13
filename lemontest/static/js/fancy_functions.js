@@ -366,8 +366,15 @@ function update_report(report, boxplot, histogram) {
 		boxplot_status = boxplot.status;
 
 		if(boxplot_status == "Done") {
-			document.getElementById('boxplot').src = static_url + "/" + boxplot.src;
-			$('#boxplot_custom_axes').css('display', 'table-cell');
+			document.getElementById('boxplot_img').src = static_url + "/" + boxplot.src;
+			$('#boxplot_custom_axes').css('display', 'table');
+			$('#boxplot_title').val(boxplot.graph_details.title);
+			$('#boxplot_x_axis_label').val(boxplot.graph_details.label_x);
+			$('#boxplot_y_axis_label').val(boxplot.graph_details.label_y);
+			$('#boxplot_x_axis_min').val(boxplot.graph_details.x_axis_min);
+			$('#boxplot_x_axis_max').val(boxplot.graph_details.x_axis_max);
+			$('#boxplot_y_axis_min').val(boxplot.graph_details.y_axis_min);
+			$('#boxplot_y_axis_max').val(boxplot.graph_details.y_axis_max);
 		}
 	}
 
@@ -375,8 +382,15 @@ function update_report(report, boxplot, histogram) {
 		histogram_status = histogram.status;
 
 		if(histogram_status == "Done") {
-			document.getElementById('histogram').src = static_url + "/" + histogram.src;
-			$('#histogram_custom_axes').css('display', 'table-cell');
+			document.getElementById('histogram_img').src = static_url + "/" + histogram.src;
+			$('#histogram_custom_axes').css('display', 'table');
+			$('#histogram_title').val(histogram.graph_details.title);
+			$('#histogram_x_axis_label').val(histogram.graph_details.label_x);
+			$('#histogram_y_axis_label').val(histogram.graph_details.label_y);
+			$('#histogram_x_axis_min').val(histogram.graph_details.x_axis_min);
+			$('#histogram_x_axis_max').val(histogram.graph_details.x_axis_max);
+			$('#histogram_y_axis_min').val(histogram.graph_details.y_axis_min);
+			$('#histogram_y_axis_max').val(histogram.graph_details.y_axis_max);
 		}
 	}
 

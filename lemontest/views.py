@@ -589,13 +589,18 @@ def validate_filter_params(request, params_only=False):
                    'fileprogress_id',
                    'report_id',
                    'graph_column_name',
-                   'graph_type'
+                   'graph_type',
+                   'report',
                    ]
 
     '''regular expression to find numeric filter parameters'''
     numeric_filter_re = re.compile('metric_type_filter\d+')
     numeric_filter_re2 = re.compile('.*_number\d+')
     sorting_filter_re = re.compile('.*_sort')
+
+    '''regular expressions to find report customization'''
+    report_custom_re = re.compile('boxplot_.*')
+    report_custom_re2 = re.compile('histogram_.*')
 
     extra_params = {}
     search_params = {}
@@ -626,6 +631,9 @@ def validate_filter_params(request, params_only=False):
             elif min_number not in search_params and max_number in search_params:
                 numeric_filters[key] = {'type': value, 'min': '', 'max': search_params[max_number]}
                 search_params[max_number] = ''
+            search_params[key] = ''
+        elif report_custom_re.match(key) or report_custom_re2.match(key):
+            extra_params[key] = value
             search_params[key] = ''
 
     '''find and remove all numeric filter stragglers
@@ -902,6 +910,43 @@ def request_report(request):
 
     return HTTPFound(location=url)
 
+@view_config(route_name='trace_customize_report', renderer='json', permission='view')
+def customize_report(request):
+    report_custom_re = re.compile('boxplot_.*')
+    report_custom_re2 = re.compile('histogram_.*')
+
+    boxplot_specs = {}
+    histogram_specs = {}
+
+    extra_params = validate_filter_params(request.params, params_only=True)
+
+    for key, value in extra_params.items():
+        if report_custom_re.match(key):
+            boxplot_specs[key] = value
+        elif report_custom_re2.match(key):
+            histogram_specs[key] = value
+
+    if "report" not in extra_params or not extra_params['report']:
+        return HTTPInternalServerError()
+    else:
+        report_id = extra_params['report']
+
+    report = DBSession.query(MetricReport).filter(MetricReport.id == report_id).first()
+
+    if not report:
+        return {'status': 'not_found', 'url': request.route_path('index')}
+    else:
+        filter_id = report.filter_id
+        metric_type = report.metric_type
+        metric_column = report.metric_column
+
+    celery_task = lemontest.metric_report.customize_plots.delay(report_id, filter_id, boxplot_specs, histogram_specs)
+
+    url = request.route_url('trace_show_report')
+    url += '?report=' + str(report_id)
+
+    return HTTPFound(location=url)
+
 # Author: Anthony Rodriguez
 @view_config(route_name='trace_show_report', renderer='trace.report.mako', permission='view')
 def show_report(request):
@@ -954,7 +999,7 @@ def check_report_update(request):
         for graph in report.graphs:
             current_graph = DBSession.query(Graph).filter(Graph.id == graph.id).first()
             graph_type = str(current_graph.graph_type)
-            status[graph_type] = {'status': current_graph.fileprogress.status, 'src': current_graph.fileprogress.path}
+            status[graph_type] = {'status': current_graph.fileprogress.status, 'src': current_graph.fileprogress.path, 'graph_details': graph.get_details()}
 
         return {'status': 'found', 'data': json.dumps(status)}
     else:

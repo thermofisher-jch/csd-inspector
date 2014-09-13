@@ -52,7 +52,6 @@ class PrettyFormatter(object):
         return getattr(self, type(self).columns[key])
 
     def get_formatted(self, key):
-
         if key in self.pretty_columns:
             return self.pretty_columns[key](self.get_value(key))
         else:
@@ -680,6 +679,7 @@ class FileProgress(Base):
     time = Column(DateTime)
 
     graph = relationship('Graph', uselist=False, backref='fileprogress')
+    report_cache = relationship('MetricReport', uselist=False, backref='cache_fileprogress')
 
     # useful when trying to see what is in the DB
     def inspect(self):
@@ -701,26 +701,92 @@ class Graph(Base):
     title = Column(Unicode(255))
     label_x = Column(Unicode(255))
     label_y = Column(Unicode(255))
-    x_axis_min = Column(NUMERIC(24, 2))
-    x_axis_max = Column(NUMERIC(24, 2))
-    y_axis_min = Column(NUMERIC(24, 2))
-    y_axis_max = Column(NUMERIC(24, 2))
+    x_axis_min = Column(NUMERIC(24, 4))
+    x_axis_max = Column(NUMERIC(24, 4))
+    y_axis_min = Column(NUMERIC(24, 4))
+    y_axis_max = Column(NUMERIC(24, 4))
 
     # useful when trying to see what is in the DB
     def inspect(self):
         mapper = inspect(type(self))
         return mapper.attrs
 
-    def __init__(self, report_id,graph_type, column_name, file_progress_id):
+    def __init__(self, report_id, graph_type, column_name, file_progress_id):
         self.report_id = report_id
         self.file_progress_id = file_progress_id
         self.graph_type = graph_type
         self.column_name = column_name
 
+    @orm.reconstructor
+    def on_load(self):
+        self.large_units = [
+                       'ISP Wells',
+                       'Live Wells',
+                       'Test Fragment',
+                       'Lib Wells',
+                       'Polyclonal',
+                       'Primer Dimer',
+                       'Low Quality',
+                       'Usable Reads',
+                       'Cycles',
+                       'Flows',
+                       'Total Bases',
+                       'Total Reads',
+                       ]
+
+    def format_units_small(self, quantity, sig_figs=3):
+        if quantity:
+            quantity = Decimal(quantity)
+            return round(quantity, -int(math.floor(math.log10(abs(quantity))) - (sig_figs - 1)))
+        else:
+            return None
+
+    def get_details(self):
+        if self.graph_type != 'boxplot':
+            if self.column_name in self.large_units:
+                details = {
+                           'title': str(self.title),
+                           'label_x': str(self.label_x),
+                           'label_y': str(self.label_y),
+                           'x_axis_min': int(self.x_axis_min),
+                           'x_axis_max': int(self.x_axis_max),
+                           'y_axis_min': int(self.y_axis_min),
+                           'y_axis_max': int(self.y_axis_max)
+                           }
+            else:
+                details = {
+                           'title': str(self.title),
+                           'label_x': str(self.label_x),
+                           'label_y': str(self.label_y),
+                           'x_axis_min': self.format_units_small(self.x_axis_min),
+                           'x_axis_max': self.format_units_small(self.x_axis_max),
+                           'y_axis_min': self.format_units_small(self.y_axis_min),
+                           'y_axis_max': self.format_units_small(self.y_axis_max)
+                           }
+        else:
+            if self.column_name in self.large_units:
+                details = {
+                           'title': str(self.title),
+                           'label_x': str(self.label_x),
+                           'label_y': str(self.label_y),
+                           'y_axis_min': int(self.y_axis_min),
+                           'y_axis_max': int(self.y_axis_max)
+                           }
+            else:
+                details = {
+                           'title': str(self.title),
+                           'label_x': str(self.label_x),
+                           'label_y': str(self.label_y),
+                           'y_axis_min': self.format_units_small(self.y_axis_min),
+                           'y_axis_max': self.format_units_small(self.y_axis_max)
+                           }
+        return details
+
 class MetricReport(Base, PrettyFormatter):
     __tablename__ = 'metric_report'
     id = Column(Integer, primary_key=True)
     filter_id = Column(Integer, ForeignKey('saved_filters.id'))
+    data_cache_file_progress = Column(Integer, ForeignKey('fileprogress.id'))
     status = Column(Unicode(255))
 
     metric_type= Column(Unicode(255))
@@ -770,21 +836,65 @@ class MetricReport(Base, PrettyFormatter):
 
     @orm.reconstructor
     def on_load(self):
-        self.pretty_columns = {
-                               'Mean': self.format_units_small,
-                               'Median': self.format_units_small,
-                               'Mode': self.format_units_small,
-                               'Standard Deviation': self.format_units_small,
-                               'Q1': self.format_units_small,
-                               'Q3': self.format_units_small,
-                               'Min': self.format_units_small,
-                               'Max': self.format_units_small,
-                               }
+        self.large_units = [
+                            'ISP Wells',
+                            'Live Wells',
+                            'Test Fragment',
+                            'Lib Wells',
+                            'Polyclonal',
+                            'Primer Dimer',
+                            'Low Quality',
+                            'Usable Reads',
+                            'Cycles',
+                            'Flows',
+                            'Total Bases',
+                            'Total Reads',
+                            ]
+
+        if self.metric_column in self.large_units:
+            self.pretty_columns = {
+                                   'Mean': self.format_units,
+                                   'Median': self.format_units,
+                                   'Mode': self.format_units,
+                                   'Standard Deviation': self.format_units,
+                                   'Q1': self.format_units,
+                                   'Q3': self.format_units,
+                                   'Min': self.format_units,
+                                   'Max': self.format_units,
+                                   }
+        else:
+            self.pretty_columns = {
+                                   'Mean': self.format_units_small,
+                                   'Median': self.format_units_small,
+                                   'Mode': self.format_units_small,
+                                   'Standard Deviation': self.format_units_small,
+                                   'Q1': self.format_units_small,
+                                   'Q3': self.format_units_small,
+                                   'Min': self.format_units_small,
+                                   'Max': self.format_units_small,
+                                   }
 
     def format_units_small(self, quantity, sig_figs=3):
         if quantity:
             quantity = Decimal(quantity)
             return round(quantity, -int(math.floor(math.log10(abs(quantity))) - (sig_figs - 1)))
+        else:
+            return None
+
+    suffixes = ('k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
+
+    def format_units(self, quantity, unit="", base=1000):
+        if quantity:
+            quantity = int(quantity)
+            if quantity < base:
+                return '%d  %s' % (quantity, unit)
+
+            for i, suffix in enumerate(self.suffixes):
+                magnitude = base ** (i + 2)
+                if quantity < magnitude:
+                    return '%.1f %s%s' % ((base * quantity / float(magnitude)), suffix, unit)
+
+            return '%.1f %s%s' % ((base * quantity / float(magnitude)), suffix, unit)
         else:
             return None
 
