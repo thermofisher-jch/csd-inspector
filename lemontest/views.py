@@ -355,10 +355,49 @@ def old_browser(request):
 @view_config(route_name='trace_pgm', renderer="trace.pgm.mako", permission="view")
 def trace_pgm(request):
     '''create filter object, get saved filters in db, and all extra parameters that were not used'''
-    filter_obj, saved_filters, extra_params = get_db_queries(request.params, 'pgm')
+    filter_obj, saved_filters, extra_params, sort_by_column = get_db_queries(request.params, 'pgm')
 
     '''get query set that corresponds with filter object'''
     metrics_query = filter_obj.get_query()
+
+    temp = []
+    if sort_by_column:
+        column, order = sort_by_column.items()[0]
+        if order == 'sorting_asc':
+            if column == 'ID':
+                metrics_query = metrics_query.order_by(Archive.id.asc())
+                temp.append("id")
+            elif column == 'Label':
+                metrics_query = metrics_query.order_by(Archive.label.asc())
+                temp.append("label")
+            elif column == 'Upload Time':
+                metrics_query = metrics_query.order_by(Archive.time.asc())
+                temp.append("upload_time")
+            elif column in MetricsPGM.columns:
+                metrics_query = metrics_query.order_by(MetricsPGM.get_column(column).asc())
+                temp.append(str(MetricsPGM.get_column(column)).split('.')[1])
+        elif order == 'sorting_desc':
+            if column == 'ID':
+                metrics_query = metrics_query.order_by(Archive.id.desc())
+                temp.append("id")
+            elif column == 'Label':
+                metrics_query = metrics_query.order_by(Archive.label.desc())
+                temp.append("label")
+            elif column == 'Upload Time':
+                metrics_query = metrics_query.order_by(Archive.time.desc())
+                temp.append("upload_time")
+            elif column in MetricsPGM.columns:
+                metrics_query = metrics_query.order_by(MetricsPGM.get_column(column).desc())
+                temp.append(str(MetricsPGM.get_column(column)).split('.')[1])
+        else:
+            metrics_query = metrics_query.order_by(Archive.id.desc())
+        temp.append(order)
+        sort_by_column = temp
+    else:
+        metrics_query = metrics_query.order_by(Archive.id.desc())
+        temp.append("id")
+        temp.append("sorting_desc")
+        sort_by_column = temp
 
     '''get categorical values from the database'''
     chip_types, seq_kits, run_types, reference_libs, sw_versions, tss_versions, hw_versions, barcode_sets = get_filterable_categories_pgm()
@@ -405,9 +444,9 @@ def trace_pgm(request):
             pages.append(metric_pages.page_count)
     '''END PAGINATE QUERY RESULTS'''
 
-    return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "search": extra_params, "metric_object_type": MetricsPGM,
+    return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "search": extra_params, "sort_by_column": json.dumps(sort_by_column), "metric_object_type": MetricsPGM,
             "show_hide_defaults": json.dumps(MetricsPGM.show_hide_defaults), "show_hide_false": json.dumps(MetricsPGM.show_hide_false),
-            "metric_columns": json.dumps(MetricsPGM.numeric_columns), "filter_name": filter_obj.name, "numeric_filters_json": filter_obj.numeric_filters,
+            "metric_columns": json.dumps(MetricsPGM.numeric_columns), "filter_name": filter_obj.name, "filter_id": filter_obj.id, "numeric_filters_json": filter_obj.numeric_filters,
             'categorical_filters_json': filter_obj.categorical_filters, 'chip_types': chip_types, 'seq_kits': seq_kits,
             "run_types": run_types, "reference_libs": reference_libs, "sw_versions": sw_versions, "tss_versions": tss_versions,
             "hw_versions": hw_versions, "barcode_sets": barcode_sets, "saved_filters": saved_filters}
@@ -416,7 +455,7 @@ def trace_pgm(request):
 @view_config(route_name='trace_proton', renderer='trace.proton.mako', permission='view')
 def trace_proton(request):
     '''create filter object, get saved filters in db, and all extra parameters that were not used'''
-    filter_obj, saved_filters, extra_params = get_db_queries(request.params, 'proton')
+    filter_obj, saved_filters, extra_params, sort_by_column = get_db_queries(request.params, 'proton')
 
     '''get query set that corresponds with filter object'''
     metrics_query = filter_obj.get_query()
@@ -477,7 +516,7 @@ def trace_proton(request):
 @view_config(route_name='trace_otlog', renderer='trace.otlog.mako', permission='view')
 def trace_otlog(request):
     '''create filter object, get saved filters in db, and all extra parameters that were not used'''
-    filter_obj, saved_filters, extra_params = get_db_queries(request.params, 'otlog')
+    filter_obj, saved_filters, extra_params, sort_by_column = get_db_queries(request.params, 'otlog')
 
     '''get query set that corresponds with filter object'''
     metrics_query = filter_obj.get_query()
@@ -539,7 +578,7 @@ def trace_otlog(request):
 # create filter object
 def get_db_queries(request, metric_type=None):
     '''validate request parameters'''
-    categorical_filters, numeric_filters, extra_params = validate_filter_params(request)
+    categorical_filters, numeric_filters, sort_by_column, extra_params = validate_filter_params(request)
 
     '''make sure we have metric_type'''
     if not metric_type:
@@ -566,7 +605,7 @@ def get_db_queries(request, metric_type=None):
     '''gets all saved filters from bd'''
     saved_filters = DBSession.query(SavedFilters).filter(SavedFilters.metric_type == metric_type).filter(SavedFilters.type != "temp").order_by(SavedFilters.id.desc())
 
-    return filter_obj, saved_filters, extra_params
+    return filter_obj, saved_filters, extra_params, sort_by_column
 
 #Author: Anthony Rodriguez
 # validate parameters
@@ -606,6 +645,7 @@ def validate_filter_params(request, params_only=False):
     search_params = {}
     numeric_filters = {}
     categorical_filters = {}
+    sort_by_column = {}
 
     '''grab only non-empty parameters'''
     for key in request.keys():
@@ -660,7 +700,7 @@ def validate_filter_params(request, params_only=False):
             search_params[param] = ''
 
     # keep all non empty params
-    '''at this point it will be all categorical parameters and time sorting that is currently not implemented'''
+    '''at this point it will be all categorical parameters and column sorting'''
     temp = {}
     for key in search_params.keys():
         if search_params[key]:
@@ -671,12 +711,14 @@ def validate_filter_params(request, params_only=False):
     for key, value in search_params.items():
         if not sorting_filter_re.match(key):
             categorical_filters[key] = value
+        else:
+            sort_by_column[key.split('_sort')[0]] = value
 
     '''if params_only flag is set, returns only extra_params'''
     if params_only:
         return extra_params
     else:
-        return categorical_filters, numeric_filters, extra_params
+        return categorical_filters, numeric_filters, sort_by_column, extra_params
 
 # Author: Anthony Rodriguez
 def get_filterable_categories_pgm():
@@ -800,7 +842,7 @@ def get_filterable_categories_otlog():
 @view_config(route_name="trace_request_csv", renderer='json', permission="view")
 def request_csv(request):
     '''create filter object, get saved filters in db, and all extra parameters that were not used'''
-    filter_obj, saved_filters, extra_params = get_db_queries(request.params)
+    filter_obj, saved_filters, extra_params, sort_by_column = get_db_queries(request.params)
 
     if 'metric_type' not in extra_params or not extra_params['metric_type']:
         return {'status': 'error', 'message': 'metric type not in data'}
@@ -826,7 +868,7 @@ def request_csv(request):
     transaction.commit()
 
     '''calls celery task'''
-    celery_task = lemontest.csv_support.make_csv.delay(metric_type, file_progress_id, filter_object_id, extra_params['show_hide'])
+    celery_task = lemontest.csv_support.make_csv.delay(metric_type, file_progress_id, filter_object_id, extra_params['show_hide'], sort_by_column)
 
     '''sets celery task id for file progress object'''
     file_progress = DBSession.query(FileProgress).filter(FileProgress.id == file_progress_id).first()
@@ -855,7 +897,7 @@ def serve_csv(request):
 @view_config(route_name='trace_request_report', renderer='json', permission='view')
 def request_report(request):
     '''create filter object, get saved filters in db, and all extra parameters that were not used'''
-    filter_obj, saved_filters, extra_params = get_db_queries(request.params)
+    filter_obj, saved_filters, extra_params, sort_by_column = get_db_queries(request.params)
 
     if 'metric_type' not in extra_params or not extra_params['metric_type']:
         return {'status': 'error', 'message': 'metric type not in data'}
@@ -917,6 +959,13 @@ def customize_report(request):
 
     boxplot_specs = {}
     histogram_specs = {}
+
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
 
     extra_params = validate_filter_params(request.params, params_only=True)
 
@@ -1075,7 +1124,7 @@ def apply_filter(request):
 @view_config(route_name="trace_save_filter", renderer="json", permission="view")
 def save_filter(request):
 
-    filter_obj, saved_filters, extra_params = get_db_queries(request.params)
+    filter_obj, saved_filters, extra_params, sort_column = get_db_queries(request.params)
 
     if 'metric_type' not in extra_params or not extra_params['metric_type']:
         return HTTPInternalServerError()

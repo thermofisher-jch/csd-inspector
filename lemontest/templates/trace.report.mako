@@ -49,12 +49,10 @@
 				});
 
 				$('#boxplot_edit_btn').click(function(){
-					$(this).parent().toggleClass('edit_axis_btn_closed');
 					$('.boxplot_edit_axes').toggleClass('edit_axis_form_show');
 				});
 
 				$('#histogram_edit_btn').click(function(){
-					$(this).parent().toggleClass('edit_axis_btn_closed');
 					$('.histogram_edit_axes').toggleClass('edit_axis_form_show');
 				});
 			});
@@ -138,10 +136,6 @@
 								<div class="graph-left">
 									<div class="edit_graph" id="${graph.graph_type}_custom_axes" style="display: none;">
 
-										<div class="edit_axis_btn edit_axis_btn_closed">
-											<button class="btn btn-small btn-info pull-right" id="${graph.graph_type}_edit_btn" >Edit Graph</button>
-										</div>
-
 										<div class="" style="display: table-cell; vertical-align: middle;">
 											<form class="form-vertical ${graph.graph_type}_edit_axes edit_axes_hidden" style="vertical-align: middle; float: right;" action="${request.route_url('trace_customize_report')}">
 												<div class="axis_form">
@@ -152,7 +146,7 @@
 												% if graph.graph_type != 'boxplot':
 													<div class="axis_form">
 														<h5 class="control-label">X Axis</h5>
-														<input type="text" style="width: 12em;" placeholder="Label" id="${graph.graph_type}_x_axis_label" name="${graph.graph_type}_x_axis_label" value="">
+														<input type="text" style="width: 12em;" placeholder="Label" id="${graph.graph_type}_x_axis_label" name="${graph.graph_type}_label_x" value="">
 														<input type="text" style="width: 6em;" placeholder="Lower Bound" id="${graph.graph_type}_x_axis_min" name="${graph.graph_type}_x_axis_min" value="">
 														<input type="text" style="width: 6em;" placeholder="Upper Bound" id="${graph.graph_type}_x_axis_max" name="${graph.graph_type}_x_axis_max" value="">
 													</div>
@@ -160,7 +154,7 @@
 
 												<div class="axis_form">
 													<h5 class="control-label">Y Axis</h5>
-													<input type="text" style="width: 12em;" placeholder="Label" id="${graph.graph_type}_y_axis_label" name="${graph.graph_type}_y_axis_label" value="">
+													<input type="text" style="width: 12em;" placeholder="Label" id="${graph.graph_type}_y_axis_label" name="${graph.graph_type}_label_y" value="">
 													<input type="text" style="width: 6em;" placeholder="Lower Bound" id="${graph.graph_type}_y_axis_min" name="${graph.graph_type}_y_axis_min" value="">
 													<input type="text" style="width: 6em;" placeholder="Upper Bound" id="${graph.graph_type}_y_axis_max" name="${graph.graph_type}_y_axis_max" value="">
 												</div>
@@ -171,6 +165,10 @@
 													<input type="hidden" name="graph_to_update"  value="${graph.graph_type}">
 												</div>
 											</form>
+										</div>
+
+										<div class="edit_axis_btn edit_axis_btn_closed">
+											<button class="btn btn-small btn-info pull-right" id="${graph.graph_type}_edit_btn" >Edit Graph</button>
 										</div>
 									</div>
 								</div>

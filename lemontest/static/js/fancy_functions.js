@@ -103,6 +103,12 @@ function get_csv_params() {
 	input.value = get_shown_columns_csv();
 	csv_form.appendChild(input);
 
+	var sort_input = document.createElement('input');
+	sort_input.type = 'hidden';
+	sort_input.name = sorted_by[0] + '_sort'
+	sort_input.value = sorted_by[1]
+	csv_form.appendChild(sort_input);
+
 	return csv_form
 }
 
@@ -397,9 +403,34 @@ function update_report(report, boxplot, histogram) {
 	return (report.status == "Done" && boxplot.status == "Done" && histogram.status == "Done");
 }
 
-function sort_by(thing) {
-	var input = document.getElementsByName(thing.id);
-	input[0].value = "desc";
+function getClass(element, startsWith) {
 
-	input[0].parentNode.submit()
+	var result = undefined;
+	$($(element).attr('class').split(' ')).each(function() {
+
+		if (this.indexOf(startsWith) > -1) {
+			result = this;
+		}
+	});
+	return result;
+}
+
+function send_sort_to_server(element) {
+	var form = document.createElement('form');
+	form.action = current_page;
+	var input = document.createElement('input');
+	input.name = element.innerHTML + '_sort';
+	input.value = getClass(element, 'sorting');
+	input.type = 'hidden';
+	form.appendChild(input);
+
+	if (current_filter != "None") {
+		var input2 = document.createElement('input');
+		input2.name = "filterid";
+		input2.value = current_filter;
+		input2.type = 'hidden';
+		form.appendChild(input2);
+	}
+
+	form.submit();
 }

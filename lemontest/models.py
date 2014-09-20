@@ -66,7 +66,6 @@ class ArchiveType(Base):
     id = Column(Integer, primary_key=True)
     name = Column(Unicode(255))
 
-
 class Archive(Base):
     __tablename__ = 'archives'
     id = Column(Integer, primary_key=True)
@@ -652,7 +651,7 @@ class SavedFilters(Base):
     def get_query(self):
         metric_object_type = self.mapping[self.metric_type]
 
-        metrics_query = DBSession.query(metric_object_type).options(joinedload('archive')).join(Archive).order_by(Archive.id.desc())
+        metrics_query = DBSession.query(metric_object_type).options(joinedload('archive')).join(Archive)
 
         for num_filter, params in self.numeric_filters_json.items():
             if num_filter != 'extra_filters':
@@ -741,6 +740,23 @@ class Graph(Base):
         else:
             return None
 
+    def get_specs(self):
+        specs = {
+                 self.graph_type + '_title': self.title,
+                 self.graph_type + '_label_y': self.label_y,
+                 self.graph_type + '_y_axis_min': float(self.y_axis_min),
+                 self.graph_type + '_y_axis_max': float(self.y_axis_max),
+                 }
+        if self.graph_type == 'histogram':
+            specs[self.graph_type + '_label_x'] = self.label_x
+            specs[self.graph_type + '_x_axis_min'] = float(self.x_axis_min)
+            specs[self.graph_type + '_x_axis_max'] = float(self.x_axis_max)
+        else:
+            specs[self.graph_type + '_label_x'] = None
+            specs[self.graph_type + '_x_axis_min'] = None
+            specs[self.graph_type + '_x_axis_max'] = None
+        return specs
+
     def get_details(self):
         if self.graph_type != 'boxplot':
             if self.column_name in self.large_units:
@@ -814,6 +830,7 @@ class MetricReport(Base, PrettyFormatter):
                        ('Q3', 'q3'),
                        ('Min', 'range_min'),
                        ('Max', 'range_max'),
+                       ('Data Points', 'data_n')
                        ]
 
     columns = dict(ordered_columns)

@@ -13,6 +13,9 @@
 	var numeric_filters_obj = ${numeric_filters_json | n};
 	var categorical_filters_obj = ${categorical_filters_json | n};
 	var extra_filters = 1;
+	var current_page = "${request.route_path('trace_pgm')}";
+	var sorted_by = ${sort_by_column | n};
+	var current_filter = "${filter_id}";
 
 	$(function(){
 
@@ -37,6 +40,14 @@
 					}
 				});
 			}, 1000);
+		}
+
+		if (sorted_by[0] == 'sorting') {
+			$(document.getElementById('id')).removeClass('sorting');
+			$(document.getElementById('id')).addClass('sorting_desc');
+		} else {
+			$(document.getElementById(sorted_by[0])).removeClass('sorting');
+			$(document.getElementById(sorted_by[0])).addClass(sorted_by[1]);
 		}
 
 		// retrieves proper stored session of shown and hidden columns
@@ -97,6 +108,34 @@
 					console.log(data);
 				}
 			});
+		});
+
+		$('[class*=sorting]').click(function() {
+			var sorting_class = getClass($(this), 'sorting');
+			if (sorting_class == 'sorting') {
+				$('[class*=sorting]').each(function(){
+					$(this).removeClass('sorting_asc');
+					$(this).removeClass('sorting_desc');
+					$(this).addClass('sorting');
+				});
+
+				$(this).removeClass('sorting');
+				$(this).addClass('sorting_asc');
+				send_sort_to_server(this);
+
+			} else if(sorting_class == 'sorting_asc') {
+				$(this).removeClass('sorting_asc');
+				$(this).addClass('sorting_desc');
+				send_sort_to_server(this);
+			} else {
+				$(this).removeClass('sorting_desc');
+				if ($(this).attr('id') == 'id') {
+					$(this).addClass('sorting_asc');
+				} else {
+					$(this).addClass('sorting');
+				}
+				send_sort_to_server(this);
+			}
 		});
 
 		// save filters modal pop up
@@ -413,18 +452,14 @@
 </%block>
 
 <%block name="metrics_table">
-<table class="table table-striped table-hover" id="analysis">
+<table class="table table-striped table-hover dataTable" id="analysis">
 	<thead>
 		<tr>
-			<th>ID</th>
-			<th>Label</th>
-			<th>Upload Time <span id="upload_time_sort" onclick="sort_by(this);" class="caret"></span></th>
+			<th id="id" class="sorting">ID</th>
+			<th id="label" class="sorting">Label</th>
+			<th id="upload_time" class="sorting">Upload Time</th>
 			% for column in metric_object_type.ordered_columns:
-				% if column[0] == "Start Time" or column[0] == "End Time":
-					<th class="${column[1]}">${column[0]} <span id="${column[1]}_sort" onclick="sort_by(this);" class="caret"></span></th>
-				% else:
-					<th class="${column[1]}">${column[0]}</th>
-				%endif
+				<th id="${column[1]}" class="sorting ${column[1]}">${column[0]}</th>
 			% endfor
 		</tr>
 	</thead>

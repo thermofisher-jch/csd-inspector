@@ -1,27 +1,42 @@
-'''
-Author: Anthony Rodriguez
-'''
 import os
 import json
 from decimal import Decimal
 
+'''
+    Task: parse pgm metrics found in BaseCaller.json
+    @author: Anthony Rodriguez
+'''
 class Metrics_PGM_BaseCaller_JSON(object):
 
-    # initialize
+    '''
+        Task: init variables, calls validate_path function
+        @param    archive_path:    path to the pgm archive
+        @param    logger:          system logger to log errors
+    '''
     def __init__(self, archive_path, logger):
         self.archive_path = archive_path
         self.logger = logger
         self.data, self.valid = self.validate_path(archive_path)
 
-    # validate archive path
+    '''
+        Task: validates existence of pgm archive path
+        @param    archive_path:    path to the pgm archive
+        @return   '', False:       BaseCaller.json does not exist
+        @return   data, True:      dictionary of all data in BaseCaller.json
+    '''
     def validate_path(self, archive_path):
         path = os.path.join(archive_path, "basecaller_results", "BaseCaller.json")
         if not os.path.exists(path):
             self.logger.warning("BaseCaller.json does not exist")
-            return "", False
+            return '', False
         else:
             return self.open_basecaller_json(path), True
 
+    '''
+        Task: validates existence of otlog path
+        @param    path:    path to the BaseCaller.json
+        @return   data:    dictionary of metric data
+    '''
     # open BaseCaller.json and load convert to python dict
     def open_basecaller_json(self, path):
         json_data = open(path)
@@ -29,8 +44,11 @@ class Metrics_PGM_BaseCaller_JSON(object):
         json_data.close()
         return data
 
-    # return True if archive path is valid, and contains BaseCaller.json
-    # return False otherwise
+    '''
+        Task: check to see if given path is valid
+        @return    True:    valid
+        @return    False:   not valid
+    '''
     def is_valid(self):
         return self.valid
 

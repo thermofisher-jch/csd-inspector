@@ -6,8 +6,6 @@ from sqlalchemy import engine_from_config
 
 from lemontest.models import initialize_sql
 from lemontest.models import initialize_testers
-from apex.tests import settings
-
 
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
