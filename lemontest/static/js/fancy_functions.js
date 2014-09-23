@@ -1,6 +1,12 @@
-// shows and hides columns
+/**
+ * Task: shows and hides columns in each metric type table
+ * @param	array_of_columns	an array of all columns in the metric table
+ * 								either 'true' || 'false' if shown or hidden respectively
+ */
 function show_hide_columns(array_of_columns) {
 	try {
+		// for each entry in metric table, check if shown or hidden, and show or hide
+		// also check or uncheck corresponding UI box
 		for (var item in array_of_columns) {
 			if (array_of_columns[item] == "true") {
 				var elements = document.getElementsByClassName(item);
@@ -22,6 +28,7 @@ function show_hide_columns(array_of_columns) {
 }
 
 // returns array of shown and hidden columns to be saved in the session
+// based on what boxes are checked or unchecked in the UI
 function get_shown_columns() {
 	var array_of_columns = {};
 	for ( var item in global_columns_default) {
@@ -51,12 +58,19 @@ function get_shown_columns_csv() {
 	return JSON.stringify(arguments);
 }
 
+/**
+ * Task: creates a JavaScript form that contains current filter parameters, and shown/hidden parameters
+ * 		 passes this form to CSV builder to properly create CSV file of what user is currently seeing
+ * @returns		csv_form:	the JavaScript created form
+ */
 function get_csv_params() {
 	var filter_id_re = /\d+/
 
 	var csv_form = document.createElement('form');
 	csv_form.action = '/trace/request_csv';
 
+	// if a saved filter is currently being used we grab its id and that is all
+	// else we create a form based on currently selected filter parameters
 	if (filter_id_re.test(document.getElementById('filterid').value)) {
 		var input = document.createElement('input');
 		input.name = "filterid";
@@ -67,6 +81,7 @@ function get_csv_params() {
 		var numeric_filter_re = /metric_type_filter\d+/
 		var all_selects = document.getElementsByTagName('select');
 
+		// create form of all the currently selected filter parameters
 		for (var i = 0; i < all_selects.length; i++) {
 			var input = document.createElement('select');
 			input.name = all_selects[i].name;
@@ -97,12 +112,14 @@ function get_csv_params() {
 		}
 	}
 
+	// adds shown/hidden columns to form
 	var input = document.createElement('input');
 	input.type = 'hidden';
 	input.name = 'show_hide';
 	input.value = get_shown_columns_csv();
 	csv_form.appendChild(input);
 
+	// adds sorting parameters to form
 	var sort_input = document.createElement('input');
 	sort_input.type = 'hidden';
 	sort_input.name = sorted_by[0] + '_sort'
@@ -113,6 +130,7 @@ function get_csv_params() {
 }
 
 // show or hide all columns at once
+// @param	show		true or false if show all, or hide all respectively
 function all_columns(show) {
 	if (show) {
 		show_hide_columns(global_columns_default);
@@ -122,7 +140,7 @@ function all_columns(show) {
 }
 
 // adds new numeric filter parameters to the filter options
-// also adds new hidden inputs to csv support
+// also adds new hidden inputs for csv support
 function add_new_filter() {
 	var label = document.createElement('h5');
 	label.innerHTML = " Metric Type ";
@@ -208,6 +226,7 @@ function add_new_filter() {
 }
 
 // sets filter options
+// @param	number		how many extra numeric filters to create before filling them
 function add_filters_onload(number) {
 	for (var i = 0; i < number; i++) {
 		add_new_filter();
@@ -216,6 +235,7 @@ function add_filters_onload(number) {
 }
 
 // removes a numeric filter parameter
+// @param	id		id of the numeric filter <div> to remove
 function remove_filter(id) {
 	var child = document.getElementById(id);
 	child.parentNode.removeChild(child);
@@ -229,6 +249,7 @@ function get_extra_filter_number() {
 	return (extra_filters - 1)
 }
 
+// checks if any filter parameter is set; used for deciding if the filters <div> should be open or not
 function has_filters() {
 	try {
 		var all_selects = document.getElementsByTagName('select');
@@ -245,6 +266,7 @@ function has_filters() {
 	}
 }
 
+// clears all filters for a 'fresh' start at setting filters
 function clear_filters() {
 	try {
 		var all_selects = document.getElementsByTagName('select');
@@ -268,6 +290,7 @@ function clear_filters() {
 	}
 }
 
+// creates a form, fill it with filter id, and current page, and sends it to the server to apply current server
 function apply_saved_filter(id) {
 	var apply_filter_form = document.createElement('form');
 	apply_filter_form.action = '/trace/apply_filter';
@@ -287,6 +310,8 @@ function apply_saved_filter(id) {
 	apply_filter_form.submit();
 }
 
+// cycles through all filter parameters and sends a form to the server for it to save as a
+// SavedFilters object
 function save_filters() {
 	try {
 		var current_filters = document.getElementById('filter_form');
@@ -350,11 +375,16 @@ function fill_filters() {
 	}
 }
 
-/*
+/**
  * Fills in report components as they are finished in celery
+ * @param	report		report JavaScript object that contains report details
+ * @param	boxplot		boxplot JavaScript object that contains boxplot details
+ * @param	histogram	histogram JavaScript object that contains histogram details
+ * @return	True		if report, boxplot, and histogram are all status == 'Done'
+ * 			False		if one of report, boxplot or histogram status != 'Done'
  */
 function update_report(report, boxplot, histogram) {
-	/*
+	/**
 	 * Set local copies of variables to prevent updating
 	 * an already updated component
 	 */
@@ -371,38 +401,61 @@ function update_report(report, boxplot, histogram) {
 	if(boxplot_status != boxplot.status) {
 		boxplot_status = boxplot.status;
 
+		// if boxplot is done, update UI with current graph specifications
 		if(boxplot_status == "Done") {
 			document.getElementById('boxplot_img').src = static_url + "/" + boxplot.src;
 			$('#boxplot_custom_axes').css('display', 'table');
 			$('#boxplot_title').val(boxplot.graph_details.title);
 			$('#boxplot_x_axis_label').val(boxplot.graph_details.label_x);
 			$('#boxplot_y_axis_label').val(boxplot.graph_details.label_y);
-			$('#boxplot_x_axis_min').val(boxplot.graph_details.x_axis_min);
-			$('#boxplot_x_axis_max').val(boxplot.graph_details.x_axis_max);
-			$('#boxplot_y_axis_min').val(boxplot.graph_details.y_axis_min);
-			$('#boxplot_y_axis_max').val(boxplot.graph_details.y_axis_max);
+			$('#boxplot_x_axis_min').val(formatCommas(boxplot.graph_details.x_axis_min));
+			$('#boxplot_x_axis_max').val(formatCommas(boxplot.graph_details.x_axis_max));
+			$('#boxplot_y_axis_min').val(formatCommas(boxplot.graph_details.y_axis_min));
+			$('#boxplot_y_axis_max').val(formatCommas(boxplot.graph_details.y_axis_max));
 		}
 	}
 
 	if(histogram_status != histogram.status) {
 		histogram_status = histogram.status;
 
+		// if histogram is done, update UI with current graph specifications
 		if(histogram_status == "Done") {
 			document.getElementById('histogram_img').src = static_url + "/" + histogram.src;
 			$('#histogram_custom_axes').css('display', 'table');
 			$('#histogram_title').val(histogram.graph_details.title);
 			$('#histogram_x_axis_label').val(histogram.graph_details.label_x);
 			$('#histogram_y_axis_label').val(histogram.graph_details.label_y);
-			$('#histogram_x_axis_min').val(histogram.graph_details.x_axis_min);
-			$('#histogram_x_axis_max').val(histogram.graph_details.x_axis_max);
-			$('#histogram_y_axis_min').val(histogram.graph_details.y_axis_min);
-			$('#histogram_y_axis_max').val(histogram.graph_details.y_axis_max);
+			$('#histogram_x_axis_min').val(formatCommas(histogram.graph_details.x_axis_min));
+			$('#histogram_x_axis_max').val(formatCommas(histogram.graph_details.x_axis_max));
+			$('#histogram_y_axis_min').val(formatCommas(histogram.graph_details.y_axis_min));
+			$('#histogram_y_axis_max').val(formatCommas(histogram.graph_details.y_axis_max));
 		}
 	}
 
 	return (report.status == "Done" && boxplot.status == "Done" && histogram.status == "Done");
 }
 
+// adds commas to the numbers for easier reading
+// @param	number		the number to format
+function formatCommas(number) {
+	if (number) {
+		number += '';
+	    x = number.split('.');
+	    x1 = x[0];
+	    x2 = x.length > 1 ? '.' + x[1] : '';
+	    var rgx = /(\d+)(\d{3})/;
+	    while (rgx.test(x1)) {
+	        x1 = x1.replace(rgx, '$1' + ',' + '$2');
+	    }
+	    return x1 + x2;
+	} else {
+		return null;
+	}
+}
+
+// returns the class that matches
+// @param		element		the element to get the class from
+// @param		startsWith	the class we are trying to match
 function getClass(element, startsWith) {
 
 	var result = undefined;
@@ -415,6 +468,10 @@ function getClass(element, startsWith) {
 	return result;
 }
 
+/**
+ * Task: sends a sorting form to server to sort metric data set
+ * @param	element		metric element to sorted by
+ */
 function send_sort_to_server(element) {
 	var form = document.createElement('form');
 	form.action = current_page;

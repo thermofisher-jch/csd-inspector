@@ -7,15 +7,21 @@
 <%block name="extra_head">
 <script type="text/javascript">
 
+	// global variables used by JavaScript
 	var global_columns_default = ${show_hide_defaults | n};
 	var global_columns_false = ${show_hide_false | n};
 	var global_columns = ${metric_columns | n};
 	var numeric_filters_obj = ${numeric_filters_json | n};
 	var categorical_filters_obj = ${categorical_filters_json | n};
 	var extra_filters = 1;
+	var current_page = "${request.route_path('trace_otlog')}";
+	var sorted_by = ${sort_by_column | n};
+	var current_filter = "${filter_id}";
 
 	$(function(){
 
+		// checks for csv status with server as an interval every second until either error, or complete
+		// also updates progress bar on csv download button
 		var check_for_updates = function(l, fileprogress_id, url, success_url) {
 			var interval = setInterval(function(){
 				$.ajax({
@@ -27,7 +33,7 @@
 						clearInterval(interval);
 						l.setProgress(data.progress);
 						l.stop();
-						window.location.href = (success_url + "?file_id=" + data.fileprogress_id + "&metric_type=" + 'otlog');
+						window.location.href = (success_url + "?file_id=" + data.fileprogress_id + "&metric_type=otlog");
 					} else if (data.status == "error"){
 						clearInterval(interval);
 						l.stop();
@@ -39,6 +45,16 @@
 			}, 1000);
 		}
 
+		// sets current sorting state of metric data set
+		// defaults to id by desc
+		if (sorted_by[0] == 'sorting') {
+			$(document.getElementById('id')).removeClass('sorting');
+			$(document.getElementById('id')).addClass('sorting_desc');
+		} else {
+			$(document.getElementById(sorted_by[0])).removeClass('sorting');
+			$(document.getElementById(sorted_by[0])).addClass(sorted_by[1]);
+		}
+
 		// retrieves proper stored session of shown and hidden columns
 		% if 'show_hide_session_otlog' in request.session and request.session['show_hide_session_otlog']:
 			var show_hide_session = ${request.session['show_hide_session_otlog'] | n};
@@ -48,18 +64,24 @@
 			show_hide_columns(show_hide_session);
 		% endif
 
+		// if there is a CSV file pending, we set the csv download button state to pending, and reengage the interval check
+		// this is executed if user navigates away from page before download is complete
 		% if 'file_pending_otlog' in request.session and request.session['file_pending_otlog']:
 			var l = Ladda.create(document.getElementById('csv_download'));
 			l.start()
 			check_for_updates(l, "${request.session['file_pending_otlog']}")
 		% endif
 
+		// automatically add numeric filters on load if there are any
 		add_filters_onload(${search['extra_filters_template']})
 
+		// if there is a filter filled in, open filter drawer
 		if (has_filters()) {
 			$('.filter_drawer').show();
 		}
 
+		// if filter that was attempted to be saved was blank, show error
+		// else if filter id was not found display error
 		if ("${search['filterid'] | n}" == "blank") {
 			$('.filter_drawer').show();
 			$('#blank_error').slideDown();
@@ -70,6 +92,8 @@
 			$('#blank_error').slideDown();
 		}
 
+		// send metric report request to server
+		// redirect to report page
 		$('.generate_report_btn').click(function() {
 			var params = get_csv_params();
 			var serialized = $(params).serialize();
@@ -77,6 +101,8 @@
 			window.location.href = ("${request.route_path('trace_request_report')}" + "?" + serialized + "&metric_type=otlog" + "&graph_column_name=" + this.id);
 		});
 
+		// send csv download request to server
+		// if request was receied, begin interval check if download status
 		$('#csv_download').click(function(){
 			var l = Ladda.create(this);
 			l.start();
@@ -99,6 +125,36 @@
 			});
 		});
 
+		// sorting: switch around classes that display either caret down or caret up
+		// defaults to id column caret down
+		$('[class*=sorting]').click(function() {
+			var sorting_class = getClass($(this), 'sorting');
+			if (sorting_class == 'sorting') {
+				$('[class*=sorting]').each(function(){
+					$(this).removeClass('sorting_asc');
+					$(this).removeClass('sorting_desc');
+					$(this).addClass('sorting');
+				});
+
+				$(this).removeClass('sorting');
+				$(this).addClass('sorting_asc');
+				send_sort_to_server(this);
+
+			} else if(sorting_class == 'sorting_asc') {
+				$(this).removeClass('sorting_asc');
+				$(this).addClass('sorting_desc');
+				send_sort_to_server(this);
+			} else {
+				$(this).removeClass('sorting_desc');
+				if ($(this).attr('id') == 'id') {
+					$(this).addClass('sorting_asc');
+				} else {
+					$(this).addClass('sorting');
+				}
+				send_sort_to_server(this);
+			}
+		});
+
 		// save filters modal pop up
 		$('#save_filters_modal').click(function(){
 			$('.saved_filter_modal').modal('show');
@@ -115,6 +171,7 @@
 			('#saved_filter_name').val == "";
 		});
 
+		// remove saved filter
 		$('.remove_saved_filter').click(function() {
 			document.getElementById('filter_to_delete').value = this.id;
 			$('.remove_confirmation').modal('show');
@@ -364,18 +421,14 @@
 </%block>
 
 <%block name="metrics_table">
-<table class="table table-striped table-hover" id="analysis">
+<table class="table table-striped table-hover dataTable" id="analysis">
 	<thead>
 		<tr>
-			<th>ID</th>
-			<th>Label</th>
-			<th>Upload Time <span id="upload_time_sort" onclick="sort_by(this);" class="caret"></span></th>
+			<th id="id" class="sorting">ID</th>
+			<th id="label" class="sorting">Label</th>
+			<th id="time" class="sorting">Upload Time</th>
 			% for column in metric_object_type.ordered_columns:
-				% if column[0] == "Start Time" or column[0] == "End Time":
-					<th class="${column[1]}">${column[0]} <span id="${column[1]}_sort" onclick="sort_by(this);" class="caret"></span></th>
-				% else:
-					<th class="${column[1]}">${column[0]}</th>
-				%endif
+				<th id="${column[1]}" class="sorting ${column[1]}">${column[0]}</th>
 			% endfor
 		</tr>
 	</thead>

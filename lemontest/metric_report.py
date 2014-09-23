@@ -1,3 +1,6 @@
+
+__author__ = 'Anthony Rodriguez'
+
 import matplotlib
 matplotlib.use('Agg')
 
@@ -35,6 +38,7 @@ import transaction
 @task
 def make_plots(metric_report_id, filter_id):
     '''gets path to store report cache'''
+    '''creates .json file to cache metric data set'''
     reports_cache_dir = threadlocal.get_current_registry().settings['reports_cache_dir']
     report_cache = os.path.join(reports_cache_dir, str(metric_report_id) + '.json')
 
@@ -43,7 +47,7 @@ def make_plots(metric_report_id, filter_id):
     column = metric_report.metric_column
     metric_type = metric_report.metric_type
 
-    '''creates new file progress for the report cache we write to disk.  Sets celery id and path'''
+    '''creates new file progress for the report cache we write to disk. Sets celery id and path'''
     file_progress = FileProgress('report_cache')
     DBSession.add(file_progress)
     file_progress.celery_id = make_plots.request.id
@@ -71,6 +75,9 @@ def make_plots(metric_report_id, filter_id):
     filter_obj = DBSession.query(SavedFilters).filter(SavedFilters.id == filter_id).first()
     metrics_query = filter_obj.get_query()
 
+    '''order metric data set so that first entry is entry with highest id'''
+    metrics_query = metrics_query.order_by(Archive.id.desc())
+
     '''the variable data holds all of the values of specified column to graph'''
     data = metrics_query.filter(metric_object.get_column(column) != None).values(Archive.id, metric_object.get_column(column))
 
@@ -81,6 +88,8 @@ def make_plots(metric_report_id, filter_id):
 
     '''sorts out NoneTypes from the data set that cannot be converted to float type numbers'''
     for data_point in data:
+        '''grab first data point's archive id'''
+        '''this id will be the highest id in the data set'''
         if not max_id:
             max_id = data_point[0]
         try:
@@ -135,8 +144,9 @@ def make_plots(metric_report_id, filter_id):
             transaction.commit()
     else:
         for graph in metric_report.graphs:
-            graph.fileprogress.status = 'Error'
-            graph.fileprogress.path = 'Error'
+            current_graph = DBSession.query(Graph).filter(Graph.id == graph.id).first()
+            current_graph.fileprogress.status = 'Error'
+            current_graph.fileprogress.path = 'Error'
             transaction.commit()
 
     '''set metric report status to done and commit all pending changes to DB'''
@@ -161,7 +171,7 @@ def customize_plots(metric_report_id, filter_id, boxplot_specs, histogram_specs)
     report_cache_path = os.path.join(reports_cache_dir, report.cache_fileprogress.path)
 
     '''make sure report and report data cache exists'''
-    '''if report and cache both exist, set report status to Statistics Available, because those have not chainged'''
+    '''if report and cache both exist, set report status to Statistics Available, because those have not changed'''
     '''else return some Internal Server Error'''
     '''I'm not sure if an error will ever happen here, but checking nevertheless'''
     if report and os.path.exists(report_cache_path):
@@ -241,10 +251,10 @@ def customize_plots(metric_report_id, filter_id, boxplot_specs, histogram_specs)
             transaction.commit()
     else:
         for graph in report.graphs:
-            graph.fileprogress.status = 'Error'
-            graph.fileprogress.path = 'Error'
+            current_graph = DBSession.query(Graph).filter(Graph.id == graph.id).first()
+            current_graph.fileprogress.status = 'Error'
+            current_graph.fileprogress.path = 'Error'
             transaction.commit()
-
     '''set report status to done and commit any pending changes to DB'''
     report = DBSession.query(MetricReport).filter(MetricReport.id == metric_report_id).first()
     report.status = 'Done'
@@ -362,7 +372,7 @@ def histogram(column, data, specs=None):
     '''else we set it to default'''
     if not specs:
         title = column + " (n= " + str(len(data)) + ")"
-        y_label = 'Quantity'
+        y_label = 'No. of Runs'
         x_label = column
     else:
         if 'histogram_title' not in specs or not specs['histogram_title']:
@@ -403,11 +413,14 @@ def histogram(column, data, specs=None):
     '''create instance of a figure'''
     fig = plt.figure()
 
+    y_top_default = stats.mode(data)[1][0]
+
     '''get instances of axes from the figure'''
     axes = fig.gca()
     axes.set_title(title)
     axes.set_ylabel(y_label)
     axes.set_xlabel(x_label)
+    axes.set_ylim(top=(y_top_default * 2))
 
     '''if the column is part of the defined large columns, we use scientific notation to keep the graph clean looking'''
     if column in large_units:

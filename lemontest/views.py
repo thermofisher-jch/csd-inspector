@@ -351,7 +351,33 @@ def old_browser(request):
     return {}
 
 '''BEGIN METRIC PAGE VIEWS'''
-# Author: Anthony Rodriguez
+
+'''
+    Task: PGM metrics table page
+    @author: Anthony Rodriguez
+    @return    metrics:                     paginated metric query showing 100 per page
+    @return    pages:                       the page currently being viewed
+    @return    page_url:                    URL to currently viewed page
+    @return    search:                      GET and POST parameters not already used
+    @return    sort_by_column:              currently sorted by column
+    @return    metric_object_type:          DB object type for this page; MetricsPGM
+    @return    show_hide_defaults:          default columns shown/hidden to user; all shown
+    @return    show_hide_false:             default columns shown/hidden to user; all hidden
+    @return    metric_columns:              columns for the DB object for this page; MetricsPGM
+    @return    filter_name:                 current filter applied to data set
+    @return    filter_id:                   id of current filter applied to data set
+    @return    numeric_filters_json:        numeric component of current filter applied to data set
+    @return    categorical_filters_json:    categorical component of current filter applied to data set
+    @return    chip_types:                  unique chip types in DB
+    @return    seq_kits:                    unique sequencing kits in DB
+    @return    run_types:                   unique run types in DB
+    @return    reference_libs:              unique reference libraries in DB
+    @return    sw_versions:                 unique software versions in DB
+    @return    tss_versions:                unique torrent suite versions in DB
+    @return    hw_versions:                 unique hardware versions in DB
+    @return    barcode_sets:                unique barcode sets in DB
+    @return    saved_filters:               saved filters in DB
+'''
 @view_config(route_name='trace_pgm', renderer="trace.pgm.mako", permission="view")
 def trace_pgm(request):
     '''create filter object, get saved filters in db, and all extra parameters that were not used'''
@@ -360,37 +386,29 @@ def trace_pgm(request):
     '''get query set that corresponds with filter object'''
     metrics_query = filter_obj.get_query()
 
+    '''BEGIN SORTING'''
     temp = []
     if sort_by_column:
         column, order = sort_by_column.items()[0]
+        if column == 'Label':
+            temp_column = Archive.label
+        elif column == 'Upload Time':
+            temp_column = Archive.time
+        elif column in MetricsPGM.columns:
+            temp_column = MetricsPGM.get_column(column)
+        else:
+            temp_column = Archive.id
+
         if order == 'sorting_asc':
-            if column == 'ID':
-                metrics_query = metrics_query.order_by(Archive.id.asc())
-                temp.append("id")
-            elif column == 'Label':
-                metrics_query = metrics_query.order_by(Archive.label.asc())
-                temp.append("label")
-            elif column == 'Upload Time':
-                metrics_query = metrics_query.order_by(Archive.time.asc())
-                temp.append("upload_time")
-            elif column in MetricsPGM.columns:
-                metrics_query = metrics_query.order_by(MetricsPGM.get_column(column).asc())
-                temp.append(str(MetricsPGM.get_column(column)).split('.')[1])
+            metrics_query = metrics_query.order_by(temp_column.asc())
         elif order == 'sorting_desc':
-            if column == 'ID':
-                metrics_query = metrics_query.order_by(Archive.id.desc())
-                temp.append("id")
-            elif column == 'Label':
-                metrics_query = metrics_query.order_by(Archive.label.desc())
-                temp.append("label")
-            elif column == 'Upload Time':
-                metrics_query = metrics_query.order_by(Archive.time.desc())
-                temp.append("upload_time")
-            elif column in MetricsPGM.columns:
-                metrics_query = metrics_query.order_by(MetricsPGM.get_column(column).desc())
-                temp.append(str(MetricsPGM.get_column(column)).split('.')[1])
+            metrics_query = metrics_query.order_by(temp_column.desc())
         else:
             metrics_query = metrics_query.order_by(Archive.id.desc())
+            temp_column = Archive.id
+            order = 'sorting_desc'
+
+        temp.append(str(temp_column).split('.')[1])
         temp.append(order)
         sort_by_column = temp
     else:
@@ -398,11 +416,12 @@ def trace_pgm(request):
         temp.append("id")
         temp.append("sorting_desc")
         sort_by_column = temp
+    '''END SORTING'''
 
     '''get categorical values from the database'''
     chip_types, seq_kits, run_types, reference_libs, sw_versions, tss_versions, hw_versions, barcode_sets = get_filterable_categories_pgm()
 
-    '''BEGIN PAGINATE QUERY RESULTS'''
+    '''BEGIN PAGINATION OF QUERY RESULTS'''
     page = int(request.params.get("page", 1))
     page_url = paginate.PageURL_WebOb(request)
 
@@ -442,7 +461,7 @@ def trace_pgm(request):
 
         if metric_pages.page < metric_pages.page_count:
             pages.append(metric_pages.page_count)
-    '''END PAGINATE QUERY RESULTS'''
+    '''END PAGINATION OF QUERY RESULTS'''
 
     return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "search": extra_params, "sort_by_column": json.dumps(sort_by_column), "metric_object_type": MetricsPGM,
             "show_hide_defaults": json.dumps(MetricsPGM.show_hide_defaults), "show_hide_false": json.dumps(MetricsPGM.show_hide_false),
@@ -451,7 +470,32 @@ def trace_pgm(request):
             "run_types": run_types, "reference_libs": reference_libs, "sw_versions": sw_versions, "tss_versions": tss_versions,
             "hw_versions": hw_versions, "barcode_sets": barcode_sets, "saved_filters": saved_filters}
 
-# Author: Anthony Rodriguez
+'''
+    Task: Proton metrics table page
+    @author: Anthony Rodriguez
+    @return    metrics:                     paginated metric query showing 100 per page
+    @return    pages:                       the page currently being viewed
+    @return    page_url:                    URL to currently viewed page
+    @return    search:                      GET and POST parameters not already used
+    @return    sort_by_column:              currently sorted by column
+    @return    metric_object_type:          DB object type for this page; MetricsProton
+    @return    show_hide_defaults:          default columns shown/hidden to user; all shown
+    @return    show_hide_false:             default columns shown/hidden to user; all hidden
+    @return    metric_columns:              columns for the DB object for this page; MetricsProton
+    @return    filter_name:                 current filter applied to data set
+    @return    filter_id:                   id of current filter applied to data set
+    @return    numeric_filters_json:        numeric component of current filter applied to data set
+    @return    categorical_filters_json:    categorical component of current filter applied to data set
+    @return    chip_types:                  unique chip types in DB
+    @return    seq_kits:                    unique sequencing kits in DB
+    @return    run_types:                   unique run types in DB
+    @return    reference_libs:              unique reference libraries in DB
+    @return    sw_versions:                 unique software versions in DB
+    @return    tss_versions:                unique torrent suite versions in DB
+    @return    hw_versions:                 unique hardware versions in DB; empty for Proton
+    @return    barcode_sets:                unique barcode sets in DB
+    @return    saved_filters:               saved filters in DB
+'''
 @view_config(route_name='trace_proton', renderer='trace.proton.mako', permission='view')
 def trace_proton(request):
     '''create filter object, get saved filters in db, and all extra parameters that were not used'''
@@ -460,10 +504,42 @@ def trace_proton(request):
     '''get query set that corresponds with filter object'''
     metrics_query = filter_obj.get_query()
 
+    '''BEGIN SORTING'''
+    temp = []
+    if sort_by_column:
+        column, order = sort_by_column.items()[0]
+        if column == 'Label':
+            temp_column = Archive.label
+        elif column == 'Upload Time':
+            temp_column = Archive.time
+        elif column in MetricsProton.columns:
+            temp_column = MetricsProton.get_column(column)
+        else:
+            temp_column = Archive.id
+
+        if order == 'sorting_asc':
+            metrics_query = metrics_query.order_by(temp_column.asc())
+        elif order == 'sorting_desc':
+            metrics_query = metrics_query.order_by(temp_column.desc())
+        else:
+            metrics_query = metrics_query.order_by(Archive.id.desc())
+            temp_column = Archive.id
+            order = 'sorting_desc'
+
+        temp.append(str(temp_column).split('.')[1])
+        temp.append(order)
+        sort_by_column = temp
+    else:
+        metrics_query = metrics_query.order_by(Archive.id.desc())
+        temp.append("id")
+        temp.append("sorting_desc")
+        sort_by_column = temp
+    '''END SORTING'''
+
     '''get categorical values from the database'''
     chip_types, seq_kits, run_types, reference_libs, sw_versions, tss_versions, hw_versions, barcode_sets = get_filterable_categories_proton()
 
-    '''BEGIN PAGINATE QUERY RESULTS'''
+    '''BEGIN PAGINATION OF QUERY RESULTS'''
     page = int(request.params.get("page", 1))
     page_url = paginate.PageURL_WebOb(request)
 
@@ -503,16 +579,37 @@ def trace_proton(request):
 
         if metric_pages.page < metric_pages.page_count:
             pages.append(metric_pages.page_count)
-    '''END PAGINATE QUERY RESULTS'''
+    '''END PAGINATION OF QUERY RESULTS'''
 
-    return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "search": extra_params, "metric_object_type": MetricsProton,
+    return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "search": extra_params, "sort_by_column": json.dumps(sort_by_column), "metric_object_type": MetricsProton,
             "show_hide_defaults": json.dumps(MetricsProton.show_hide_defaults), "show_hide_false": json.dumps(MetricsProton.show_hide_false),
-            "metric_columns": json.dumps(MetricsProton.numeric_columns), "filter_name": filter_obj.name, "numeric_filters_json": filter_obj.numeric_filters,
+            "metric_columns": json.dumps(MetricsProton.numeric_columns), "filter_name": filter_obj.name, "filter_id": filter_obj.id, "numeric_filters_json": filter_obj.numeric_filters,
             'categorical_filters_json': filter_obj.categorical_filters, 'chip_types': chip_types, 'seq_kits': seq_kits,
             "run_types": run_types, "reference_libs": reference_libs, "sw_versions": sw_versions, "tss_versions": tss_versions,
             "hw_versions": hw_versions, "barcode_sets": barcode_sets, "saved_filters": saved_filters}
 
-# Author: Anthony Rodriguez
+'''
+    Task: Proton metrics table page
+    @author: Anthony Rodriguez
+    @return    metrics:                     paginated metric query showing 100 per page
+    @return    pages:                       the page currently being viewed
+    @return    page_url:                    URL to currently viewed page
+    @return    search:                      GET and POST parameters not already used
+    @return    sort_by_column:              currently sorted by column
+    @return    metric_object_type:          DB object type for this page; MetricsOTLog
+    @return    show_hide_defaults:          default columns shown/hidden to user; all shown
+    @return    show_hide_false:             default columns shown/hidden to user; all hidden
+    @return    metric_columns:              columns for the DB object for this page; MetricsOTLog
+    @return    filter_name:                 current filter applied to data set
+    @return    filter_id:                   id of current filter applied to data set
+    @return    numeric_filters_json:        numeric component of current filter applied to data set
+    @return    categorical_filters_json:    categorical component of current filter applied to data set
+    @return    ot_version:                  unique one touch versions in DB
+    @return    sample_inject_abort:         unique sample inject abort status in DB; Yes/No
+    @return    oil_pump_status:             unique oil pump status in DB; 5/None
+    @return    sample_pump_status:          unique sample pump status in DB; 5/None
+    @return    saved_filters:               saved filters in DB
+'''
 @view_config(route_name='trace_otlog', renderer='trace.otlog.mako', permission='view')
 def trace_otlog(request):
     '''create filter object, get saved filters in db, and all extra parameters that were not used'''
@@ -521,10 +618,42 @@ def trace_otlog(request):
     '''get query set that corresponds with filter object'''
     metrics_query = filter_obj.get_query()
 
+    '''BEGIN SORTING'''
+    temp = []
+    if sort_by_column:
+        column, order = sort_by_column.items()[0]
+        if column == 'Label':
+            temp_column = Archive.label
+        elif column == 'Upload Time':
+            temp_column = Archive.time
+        elif column in MetricsOTLog.columns:
+            temp_column = MetricsOTLog.get_column(column)
+        else:
+            temp_column = Archive.id
+
+        if order == 'sorting_asc':
+            metrics_query = metrics_query.order_by(temp_column.asc())
+        elif order == 'sorting_desc':
+            metrics_query = metrics_query.order_by(temp_column.desc())
+        else:
+            metrics_query = metrics_query.order_by(Archive.id.desc())
+            temp_column = Archive.id
+            order = 'sorting_desc'
+
+        temp.append(str(temp_column).split('.')[1])
+        temp.append(order)
+        sort_by_column = temp
+    else:
+        metrics_query = metrics_query.order_by(Archive.id.desc())
+        temp.append("id")
+        temp.append("sorting_desc")
+        sort_by_column = temp
+    '''END SORTING'''
+
     '''get categorical values from the database'''
     ot_version, sample_inject_abort, oil_pump_status, sample_pump_status = get_filterable_categories_otlog()
 
-    '''BEGIN PAGINATE QUERY RESULTS'''
+    '''BEGIN PAGINATION OF QUERY RESULTS'''
     page = int(request.params.get("page", 1))
     page_url = paginate.PageURL_WebOb(request)
 
@@ -564,18 +693,25 @@ def trace_otlog(request):
 
         if metric_pages.page < metric_pages.page_count:
             pages.append(metric_pages.page_count)
-    '''END PAGINATE QUERY RESULTS'''
+    '''END PAGINATION OF QUERY RESULTS'''
 
-    return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "search": extra_params, "metric_object_type": MetricsOTLog,
+    return {'metrics': metric_pages, 'pages': pages, 'page_url': page_url, "search": extra_params, "sort_by_column": json.dumps(sort_by_column), "metric_object_type": MetricsOTLog,
             "show_hide_defaults": json.dumps(MetricsOTLog.show_hide_defaults), "show_hide_false": json.dumps(MetricsOTLog.show_hide_false),
-            "metric_columns": json.dumps(MetricsOTLog.numeric_columns), "filter_name": filter_obj.name, "numeric_filters_json": filter_obj.numeric_filters,
+            "metric_columns": json.dumps(MetricsOTLog.numeric_columns), "filter_name": filter_obj.name, "filter_id": filter_obj.id, "numeric_filters_json": filter_obj.numeric_filters,
             'categorical_filters_json': filter_obj.categorical_filters, 'ot_version': ot_version, 'sample_inject_abort': sample_inject_abort,
             'oil_pump_status': oil_pump_status, 'sample_pump_status': sample_pump_status, "saved_filters": saved_filters}
 
 '''END METRIC PAGE VIEWS'''
 
-#Author: Anthony Rodriguez
-# create filter object
+'''
+    Task: create filter object that defines metric data set
+    @param     request:           client/server request.params
+    @param     metric_type:       metric object type for request type. If this is not set, the request should have metric_type in request.params
+    @return    filter_obj:        filter object that defines metric data set
+    @return    saved_filters:     saved filters in DB
+    @return    extra_params:      GET and POST parameters not already used
+    @return    sort_by_column:    currently sorted by column
+'''
 def get_db_queries(request, metric_type=None):
     '''validate request parameters'''
     categorical_filters, numeric_filters, sort_by_column, extra_params = validate_filter_params(request)
@@ -587,8 +723,12 @@ def get_db_queries(request, metric_type=None):
         else:
             metric_type = extra_params['metric_type']
 
-    '''if request is for an existing saved filter, query db and return that filter
-    filterid could be set to blank if user tries to save an empty filterset'''
+    '''
+        if request is for an existing saved filter, query DB and return that filter
+        else we make a temporary one, or return a not_found flag to client.
+        not_found flag occurs when user tries to access a filter that does not exist in DB.
+        filterid could be set to blank if user tries to save an empty filter set
+       '''
     if 'filterid' in extra_params and extra_params['filterid'] and extra_params['filterid'] != 'blank':
         filter_obj = DBSession.query(SavedFilters).filter(SavedFilters.id == int(extra_params['filterid'])).first()
 
@@ -602,13 +742,20 @@ def get_db_queries(request, metric_type=None):
         filter_obj.type = 'temp'
         extra_params['current_selected_filter'] = 'None'
 
-    '''gets all saved filters from bd'''
+    '''gets all saved filters from DB'''
     saved_filters = DBSession.query(SavedFilters).filter(SavedFilters.metric_type == metric_type).filter(SavedFilters.type != "temp").order_by(SavedFilters.id.desc())
 
     return filter_obj, saved_filters, extra_params, sort_by_column
 
-#Author: Anthony Rodriguez
-# validate parameters
+'''
+    Task: validates filters from request.params
+    @param     request:                client/server request.params
+    @param     params_only             called internally by other views directly, returns only extra_params
+    @return    categorical_filters:    categorical component of current filter that will be applied to data set
+    @return    numeric_filters:        numerical component of current filter that will be applied to data set
+    @return    sort_by_column:         current column that data set will be sorted by
+    @return    extra_params:           GET and POST parameters not already used
+'''
 def validate_filter_params(request, params_only=False):
     '''parameters that the template is expecting will always be there and default values if not found'''
     required_params = {
@@ -641,6 +788,7 @@ def validate_filter_params(request, params_only=False):
     report_custom_re = re.compile('boxplot_.*')
     report_custom_re2 = re.compile('histogram_.*')
 
+    '''things to return at the end of validation'''
     extra_params = {}
     search_params = {}
     numeric_filters = {}
@@ -652,8 +800,11 @@ def validate_filter_params(request, params_only=False):
         if request[key].strip():
             search_params[key] = request[key].strip()
 
-    '''find all parameters for numeric filters
-    remove them from search_params after use'''
+    '''
+        find all parameters for numeric filters
+        structure them effectively for the client side
+        remove them from search_params after use
+    '''
     for key, value in search_params.items():
         if numeric_filter_re.match(key):
             category = numeric_filter_re.match(key).group()
@@ -673,7 +824,7 @@ def validate_filter_params(request, params_only=False):
                 search_params[max_number] = ''
             search_params[key] = ''
         elif report_custom_re.match(key) or report_custom_re2.match(key):
-            extra_params[key] = value
+            extra_params[key] = value.replace(',', '')
             search_params[key] = ''
 
     '''find and remove all numeric filter stragglers
@@ -682,7 +833,7 @@ def validate_filter_params(request, params_only=False):
         if numeric_filter_re2.match(key):
             search_params[key] = ''
 
-    '''look for all required params and set to default value if not found'''
+    '''look for all required parameters and set to default value if not found'''
     for param, default_value in required_params.items():
         if param not in search_params:
             extra_params[param] = default_value
@@ -690,10 +841,10 @@ def validate_filter_params(request, params_only=False):
             extra_params[param] = search_params[param]
             search_params[param] = ''
 
-    '''needed param for numeric filters'''
+    '''needed parameter for numeric filters'''
     numeric_filters['extra_filters'] = extra_params['extra_filters_template']
 
-    '''separate all non filter params out'''
+    '''separate all non filter parameters out'''
     for param in used_params:
         if param in search_params:
             extra_params[param] = search_params[param]
@@ -720,7 +871,17 @@ def validate_filter_params(request, params_only=False):
     else:
         return categorical_filters, numeric_filters, sort_by_column, extra_params
 
-# Author: Anthony Rodriguez
+'''
+    Task: get unique DB values pertaining to PGM metrics
+    @return    chip_types:                  unique chip types in DB
+    @return    seq_kits:                    unique sequencing kits in DB
+    @return    run_types:                   unique run types in DB
+    @return    reference_libs:              unique reference libraries in DB
+    @return    sw_versions:                 unique software versions in DB
+    @return    tss_versions:                unique torrent suite versions in DB
+    @return    hw_versions:                 unique hardware versions in DB
+    @return    barcode_sets:                unique barcode sets in DB
+'''
 def get_filterable_categories_pgm():
     chip_types = []
     seq_kits = []
@@ -767,7 +928,17 @@ def get_filterable_categories_pgm():
 
     return chip_types, seq_kits, run_types, reference_libs, sw_versions, tss_versions, hw_versions, barcode_sets
 
-# Author: Anthony Rodriguez
+'''
+    Task: get unique DB values pertaining to Proton metrics
+    @return    chip_types:                  unique chip types in DB
+    @return    seq_kits:                    unique sequencing kits in DB
+    @return    run_types:                   unique run types in DB
+    @return    reference_libs:              unique reference libraries in DB
+    @return    sw_versions:                 unique software versions in DB
+    @return    tss_versions:                unique torrent suite versions in DB
+    @return    hw_versions:                 unique hardware versions in DB; always empty for now
+    @return    barcode_sets:                unique barcode sets in DB
+'''
 def get_filterable_categories_proton():
     chip_types = []
     seq_kits = []
@@ -810,7 +981,13 @@ def get_filterable_categories_proton():
 
     return chip_types, seq_kits, run_types, reference_libs, sw_versions, tss_versions, hw_versions, barcode_sets
 
-# Author: Anthony Rodriguez
+'''
+    Task: get unique DB values pertaining to OTlog metrics
+    @return    ot_version:                  unique one touch versions in DB
+    @return    sample_inject_abort:         unique sample inject abort status in DB; Yes/No
+    @return    oil_pump_status:             unique oil pump status in DB; 5/None
+    @return    sample_pump_status:          unique sample pump status in DB; 5/None
+'''
 def get_filterable_categories_otlog():
     ot_version = []
     sample_inject_abort = []
@@ -838,7 +1015,13 @@ def get_filterable_categories_otlog():
     return ot_version, sample_inject_abort, oil_pump_status, sample_pump_status
 
 '''BEGIN CSV SUPPORT'''
-# Author: Anthony Rodriguez
+'''
+    Task: AJAX based request for CSV file of metric data set,
+          creates FileProgress object to handle status and data of CSV file,
+          starts celery task to create CSV file
+    @return    status:             status that request was processed correctly
+    @return    fileprogress_id:    the id that keeps track of FileProgress object
+'''
 @view_config(route_name="trace_request_csv", renderer='json', permission="view")
 def request_csv(request):
     '''create filter object, get saved filters in db, and all extra parameters that were not used'''
@@ -880,7 +1063,11 @@ def request_csv(request):
 
     return {'status': 'ok', 'fileprogress_id': file_progress_id}
 
-# Author: Anthony Rodriguez
+'''
+    Task: sends back the CSV file as a browser attachment to the client
+          using the path set in the FileProgress object
+    @return    response    the CSV file as an attachment
+'''
 @view_config(route_name='trace_serve_csv', renderer='json', permission='view')
 def serve_csv(request):
     metric_type = request.params.get('metric_type', '')
@@ -894,6 +1081,12 @@ def serve_csv(request):
 '''END CSV SUPPORT'''
 
 '''BEGIN PLOT SUPPORT'''
+'''
+    Task: creates report object,
+          creates two graph objects and assigns them to newly created report object,
+          starts celery task to fill graph objects, and statistical data for report
+    @return    HTTPFound    redirect to show_report view
+'''
 @view_config(route_name='trace_request_report', renderer='json', permission='view')
 def request_report(request):
     '''create filter object, get saved filters in db, and all extra parameters that were not used'''
@@ -952,6 +1145,11 @@ def request_report(request):
 
     return HTTPFound(location=url)
 
+'''
+    Task: divide customization parameters by plot type,
+          start celery task to adjust each graph specifications
+    @return    HTTPFound    redirect to show_report view
+'''
 @view_config(route_name='trace_customize_report', renderer='json', permission='view')
 def customize_report(request):
     report_custom_re = re.compile('boxplot_.*')
@@ -960,15 +1158,9 @@ def customize_report(request):
     boxplot_specs = {}
     histogram_specs = {}
 
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-
     extra_params = validate_filter_params(request.params, params_only=True)
 
+    '''divide parameters to corresponding graph'''
     for key, value in extra_params.items():
         if report_custom_re.match(key):
             boxplot_specs[key] = value
@@ -982,6 +1174,10 @@ def customize_report(request):
 
     report = DBSession.query(MetricReport).filter(MetricReport.id == report_id).first()
 
+    '''
+        if the report requested does not exist anymore for some reason,
+        send back a not_found status and redirect to index page
+    '''
     if not report:
         return {'status': 'not_found', 'url': request.route_path('index')}
     else:
@@ -996,11 +1192,19 @@ def customize_report(request):
 
     return HTTPFound(location=url)
 
-# Author: Anthony Rodriguez
+'''
+    Task: Reports page
+    @return    status            found || not found if report object exists in the DB
+    @return    report            report object
+    @return    filter_obj:       filter object
+    @return    filter_params:    formatted filter parameters that created the metric data set
+    @return    url:              the URL to redirect to if the report was not found
+'''
 @view_config(route_name='trace_show_report', renderer='trace.report.mako', permission='view')
 def show_report(request):
     numeric_filter_re = re.compile('metric_type_filter\d+')
 
+    '''check if report parameter exists, and if not throw an error'''
     if "report" not in request.params or not request.params['report']:
         return HTTPInternalServerError()
     else:
@@ -1008,11 +1212,13 @@ def show_report(request):
 
     report = DBSession.query(MetricReport).filter(MetricReport.id == report_id).first()
 
+    '''if specified report object does not exist in the DB, we send back status and redirect to index'''
     if not report:
         return {'status': 'not_found', 'url': request.route_path('index')}
 
     filter_obj = DBSession.query(SavedFilters).filter(SavedFilters.id == report.filter_id).first()
 
+    '''format filter parameters used in the metric data set used to generate the report'''
     filter_params = {}
     for key, value in filter_obj.numeric_filters_json.items():
         if numeric_filter_re.match(key):
@@ -1028,13 +1234,18 @@ def show_report(request):
 
     return {'status': 'found', 'report': report, 'filter_obj': filter_obj, 'filter_params': filter_params}
 
-# Author: Anthony Rodriguez
+'''
+    Task: checks status of report, and sends back that status to client page
+    @return    status:       found || not_found || error if report was found or not, or error
+    @return    data:         if status == 'done' the formatted data needed to fill reports page
+    @return    report_id:    if found, but status not done, the report id
+'''
 @view_config(route_name='trace_check_report_update', renderer='json', permission='view')
 def check_report_update(request):
     extra_params = validate_filter_params(request.params, params_only=True)
 
     if 'report_id' not in extra_params or not extra_params['report_id']:
-        return {'status': 'error', 'request': request.params.items()}
+        return {'status': 'error'}
 
     report_id = extra_params['report_id']
 
@@ -1055,7 +1266,13 @@ def check_report_update(request):
         return {'status': 'not_found', 'report_id': report_id}
 '''END PLOT SUPPORT'''
 
-# Author: Anthony Rodriguez
+'''
+    Task: checks status and progress indicator of FileProgress object, and sends it back to client
+    @return    status:             error || pending || done depending on FileProgress object status
+    @return    fileprogress_id:    id of FileProgress object
+    @return    progress:           progress of FileProgress object
+    @return    message:            error message if one exists
+'''
 @view_config(route_name='trace_check_file_update', renderer='json', permission='view')
 def check_file_update(request):
     file_pending_re = re.compile('file_pending.*')
@@ -1067,12 +1284,12 @@ def check_file_update(request):
         for key in request.session.keys():
             if file_pending_re.match(key):
                 request.session[key] = ''
-        return {'status': 'error', 'request': request.params.items()}
+        return {'status': 'error'}
     if 'metric_type' not in extra_params or not extra_params['metric_type']:
         for key in request.session.keys():
             if file_pending_re.match(key):
                 request.session[key] = ''
-        return {'status': 'error', 'request': request.params.items()}
+        return {'status': 'error'}
 
     fileprogress_id = extra_params['fileprogress_id']
     metric_type = extra_params['metric_type']
@@ -1091,7 +1308,9 @@ def check_file_update(request):
     else:
         return {'status': 'pending', 'fileprogress_id': fileprogress_id, 'progress': 0}
 
-#Author: Anthony Rodriguez
+'''
+    Task: stores the user preference for which columns are shown or hidden in the user session
+'''
 @view_config(route_name="trace_show_hide", renderer="json", permission="view", xhr=True)
 def show_hide_columns(request):
 
@@ -1108,19 +1327,29 @@ def show_hide_columns(request):
 
     return {"status": 200}
 
-#Author: Anthony Rodriguez
+'''
+    Task: reloads the same page with filterid applied
+    @return    HTTPFound    redirect to same page with the added filterid parameter that matches the applied filter
+'''
 @view_config(route_name='trace_apply_filter', renderer="json", permission='view')
 def apply_filter(request):
-    if 'metric_type' in request.params and request.params['metric_type'].strip() == 'pgm':
-        url = request.route_url('trace_pgm')
-        url += '?filterid=' + request.params['filterid']
-    elif 'metric_type' in request.params and request.params['metric_type'].strip() == 'proton':
-        url = request.route_url('trace_proton')
-        url += '?filterid=' + request.params['filterid']
+    '''checks if needed parameters are available, if not throws internal server error'''
+    if 'metric_type' in request.params and request.params['metric_type'] and 'filterid' in request.params and request.params['filterid']:
+        metric_type = request.params['metric_type']
+        filter_id = request.params['filterid']
+    else:
+        return HTTPInternalServerError()
+
+    '''sets redirect variable'''
+    url = request.route_url('trace_' + metric_type)
+    url += '?filterid=' + filter_id
 
     return HTTPFound(location=url)
 
-#Author: Anthony Rodriguez
+'''
+    Task: saved given filter as a DB object
+    @return    HTTPFound    redirect to same page with the added filterid parameter that matches the saved and now applied filter
+'''
 @view_config(route_name="trace_save_filter", renderer="json", permission="view")
 def save_filter(request):
 
@@ -1131,13 +1360,9 @@ def save_filter(request):
     else:
         metric_type = extra_params['metric_type']
 
-    if metric_type == 'pgm':
-        url = request.route_url('trace_pgm')
-    elif metric_type == 'proton':
-        url = request.route_url('trace_proton')
-    elif metric_type == 'otlog':
-        url = request.route_url('trace_otlog')
+    url = request.route_url('trace_' + metric_type)
 
+    '''if the filter object is not empty, we redirect to filter applied; else we send back blank flag to UI'''
     filter_obj.name = extra_params['saved_filter_name']
     if (len(filter_obj.numeric_filters_json) > 1) or filter_obj.categorical_filters_json:
         filter_obj.type = "saved"
@@ -1150,7 +1375,10 @@ def save_filter(request):
 
     return HTTPFound(location=url)
 
-#Author: Anthony Rodriguez
+'''
+    Task: deletes given filter object from DB
+    @return    HTTPFound    redirect to same page
+'''
 @view_config(route_name='trace_delete_saved_filter', renderer='json', permission='view')
 def delete_saved_filter(request):
     filter_id = request.params.get('filter_to_delete', '')
@@ -1161,19 +1389,21 @@ def delete_saved_filter(request):
         DBSession.delete(filter)
         transaction.commit()
 
-        if filter_type == 'pgm':
-            url = request.route_url('trace_pgm')
-        elif filter_type == 'proton':
-            url = request.route_url('trace_proton')
+        url = request.route_url('trace_' + filter_type)
 
     return HTTPFound(location=url)
 
-'''DEBUG'''
-
-#Author: Anthony Rodriguez
-# useful when trying to see what is in the DB
+'''DEBUG DB'''
+''' Task: view all objects in the DB in neat tables in their own page comment out this line with a # to activate
 @view_config(route_name='db_query', renderer='db_objects.mako', permission='view')
 def db_query(request):
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+
     file_progress_query = DBSession.query(FileProgress).all()
     graphs_query = DBSession.query(Graph).all()
     metric_reports_query = DBSession.query(MetricReport).all()
@@ -1200,3 +1430,6 @@ def db_query(request):
     #request.session.invalidate()
 
     return {'db_entities': db_entities}
+
+comment out this line with a # to activate'''
+'''END DEBUG DB'''

@@ -284,8 +284,13 @@ def process_archive(archive_id, upload_name, testers):
         task_logger.exception("Archive {} failed with an error".format(archive_id))
     transaction.commit()
 
-# Author: Anthony Rodriguez
-# Last Modified: 17 July 2014
+'''
+    Task: create/initialize objects needed to parse all pgm metrics,
+          check if the files needed were found,
+          set metric data for each data point for that metric type,
+          commit all pending DB transactions
+    @author: Anthony Rodriguez
+'''
 @task
 def set_metrics_pgm(metrics_pgm_id):
     metric = DBSession.query(MetricsPGM).get(metrics_pgm_id)
@@ -359,8 +364,13 @@ def set_metrics_pgm(metrics_pgm_id):
 
     transaction.commit()
 
-# Author: Anthony Rodriguez
-# Last Modified: 14 July 2014
+'''
+    Task: create/initialize objects needed to parse all proton metrics,
+          check if the files needed were found,
+          set metric data for each data point for that metric type,
+          commit all pending DB transactions
+    @author: Anthony Rodriguez
+'''
 @task
 def set_metrics_proton(metrics_proton_id):
     metric = DBSession.query(MetricsProton).get(metrics_proton_id)
@@ -432,6 +442,13 @@ def set_metrics_proton(metrics_proton_id):
 
     transaction.commit()
 
+'''
+    Task: create/initialize objects needed to parse all otlog metrics,
+          check if the files needed were found,
+          set metric data for each data point for that metric type,
+          commit all pending DB transactions
+    @author: Anthony Rodriguez
+'''
 @task
 def set_metrics_otlog(metrics_otlog_id):
     metric = DBSession.query(MetricsOTLog).get(metrics_otlog_id)

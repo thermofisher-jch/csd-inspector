@@ -78,7 +78,7 @@ def main(global_config, **settings):
     config.add_route('trace_check_file_update', '/trace/check_file_update')
 
     # useful when trying to see what is in the DB
-    config.add_route('db_query', '/db_query')
+    #config.add_route('db_query', '/db_query')
 
     # This lets the function 'add_base_template' tack the layout template into
     # the mystical universe of chameleon templating so that the other templates

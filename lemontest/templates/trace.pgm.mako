@@ -7,6 +7,7 @@
 <%block name="extra_head">
 <script type="text/javascript">
 
+	// global variables used by JavaScript
 	var global_columns_default = ${show_hide_defaults | n};
 	var global_columns_false = ${show_hide_false | n};
 	var global_columns = ${metric_columns | n};
@@ -19,6 +20,8 @@
 
 	$(function(){
 
+		// checks for csv status with server as an interval every second until either error, or complete
+		// also updates progress bar on csv download button
 		var check_for_updates = function(l, fileprogress_id, url, success_url) {
 			var interval = setInterval(function(){
 				$.ajax({
@@ -42,6 +45,8 @@
 			}, 1000);
 		}
 
+		// sets current sorting state of metric data set
+		// defaults to id by desc
 		if (sorted_by[0] == 'sorting') {
 			$(document.getElementById('id')).removeClass('sorting');
 			$(document.getElementById('id')).addClass('sorting_desc');
@@ -59,18 +64,24 @@
 			show_hide_columns(show_hide_session);
 		% endif
 
+		// if there is a CSV file pending, we set the csv download button state to pending, and reengage the interval check
+		// this is executed if user navigates away from page before download is complete
 		% if 'file_pending_pgm' in request.session and request.session['file_pending_pgm']:
 			var l = Ladda.create(document.getElementById('csv_download'));
 			l.start()
 			check_for_updates(l, "${request.session['file_pending_pgm']}")
 		% endif
 
+		// automatically add numeric filters on load if there are any
 		add_filters_onload(${search['extra_filters_template']})
 
+		// if there is a filter filled in, open filter drawer
 		if (has_filters()) {
 			$('.filter_drawer').show();
 		}
 
+		// if filter that was attempted to be saved was blank, show error
+		// else if filter id was not found display error
 		if ("${search['filterid'] | n}" == "blank") {
 			$('.filter_drawer').show();
 			$('#blank_error').slideDown();
@@ -81,6 +92,8 @@
 			$('#blank_error').slideDown();
 		}
 
+		// send metric report request to server
+		// redirect to report page
 		$('.generate_report_btn').click(function() {
 			var params = get_csv_params();
 			var serialized = $(params).serialize();
@@ -88,6 +101,8 @@
 			window.location.href = ("${request.route_path('trace_request_report')}" + "?" + serialized + "&metric_type=pgm" + "&graph_column_name=" + this.id);
 		});
 
+		// send csv download request to server
+		// if request was receied, begin interval check if download status
 		$('#csv_download').click(function(){
 			var l = Ladda.create(this);
 			l.start();
@@ -110,6 +125,8 @@
 			});
 		});
 
+		// sorting: switch around classes that display either caret down or caret up
+		// defaults to id column caret down
 		$('[class*=sorting]').click(function() {
 			var sorting_class = getClass($(this), 'sorting');
 			if (sorting_class == 'sorting') {
@@ -154,6 +171,7 @@
 			('#saved_filter_name').val == "";
 		});
 
+		// remove saved filter
 		$('.remove_saved_filter').click(function() {
 			document.getElementById('filter_to_delete').value = this.id;
 			$('.remove_confirmation').modal('show');
@@ -457,7 +475,7 @@
 		<tr>
 			<th id="id" class="sorting">ID</th>
 			<th id="label" class="sorting">Label</th>
-			<th id="upload_time" class="sorting">Upload Time</th>
+			<th id="time" class="sorting">Upload Time</th>
 			% for column in metric_object_type.ordered_columns:
 				<th id="${column[1]}" class="sorting ${column[1]}">${column[0]}</th>
 			% endfor

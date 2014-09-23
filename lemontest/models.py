@@ -44,19 +44,36 @@ archive_tags = Table('archive_tags', Base.metadata,
     Column('tag_id', Integer, ForeignKey('tags.id'))
 )
 
-# Author: Anthony Rodriguez
-# Last Modified: 16 July 2014
+'''
+    Task: Second class for objects being displayed in metric table
+'''
 class PrettyFormatter(object):
 
+    '''
+        Task: gets value of given column
+        @param    key    key of metric columns dict
+        @return          the value of given metric column
+    '''
     def get_value(self, key):
         return getattr(self, type(self).columns[key])
 
+    '''
+        Task: gets formatted value of given column
+        @param    key    key of metric columns dict
+        @return          if column should be formatted, the formatted value of given metric column
+                         else the unformatted value
+    '''
     def get_formatted(self, key):
         if key in self.pretty_columns:
             return self.pretty_columns[key](self.get_value(key))
         else:
             return self.get_value(key)
 
+    '''
+        Task: returns the column of the metric object
+        @param    key    key of metric columns dict
+        @return          the metric object column
+    '''
     @classmethod
     def get_column(cls, key):
         return getattr(cls, cls.columns[key])
@@ -137,8 +154,9 @@ class Diagnostic(Base):
             self.readme = None
         return self.readme
 
-# Author: Anthony Rodriguez
-# Last Modified: 17 July 2014
+'''
+    Task: DB object that stores metric data for each PGM run uploaded
+'''
 class MetricsPGM(Base, PrettyFormatter):
     __tablename__ = "metrics_pgm"
     id = Column(Integer, primary_key=True)
@@ -253,16 +271,17 @@ class MetricsPGM(Base, PrettyFormatter):
 
     columns = dict(ordered_columns)
 
+    '''for show/hide columns'''
     show_hide_defaults = {}
     for column in ordered_columns:
         show_hide_defaults[column[1]] = "true"
 
+    '''for show/hide columns'''
     show_hide_false = {}
     for column in ordered_columns:
         show_hide_false[column[1]] = "false"
 
-    suffixes = ('k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
-
+    '''for pretty_formatter class'''
     @orm.reconstructor
     def do_onload(self):
         self.pretty_columns = {
@@ -290,18 +309,20 @@ class MetricsPGM(Base, PrettyFormatter):
                                "SNR": self.format_units_small,
                                }
 
-    # useful when trying to see what is in the DB
+    '''useful when trying to see what is in the DB'''
     def inspect(self):
         mapper = inspect(type(self))
         return mapper.attrs
 
-    # pretty format seq kit lot
+    '''pretty format seq kit lot'''
     def format_seq_kit_lot(self, raw_seq_kit_lot):
         if raw_seq_kit_lot:
             return str(raw_seq_kit_lot).upper()
         else:
             return None
 
+    '''format large numbers'''
+    suffixes = ('k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
     def format_units(self, quantity, unit="", base=1000):
         if quantity:
             quantity = int(quantity)
@@ -317,6 +338,7 @@ class MetricsPGM(Base, PrettyFormatter):
         else:
             return None
 
+    '''format small numbers with 3 significant figures'''
     def format_units_small(self, quantity, sig_figs=3):
         if quantity:
             quantity = Decimal(quantity)
@@ -324,8 +346,9 @@ class MetricsPGM(Base, PrettyFormatter):
         else:
             return None
 
-# Author: Anthony Rodriguez
-# Last Modified: 17 July 2014
+'''
+    Task: DB object that stores metric data for each Proton run uploaded
+'''
 class MetricsProton(Base, PrettyFormatter):
     __tablename__ = "metrics_proton"
     id = Column(Integer, primary_key=True)
@@ -442,15 +465,15 @@ class MetricsProton(Base, PrettyFormatter):
 
     columns = dict(ordered_columns)
 
+    '''for show/hide columns'''
     show_hide_defaults = {}
     for column in ordered_columns:
         show_hide_defaults[column[1]] = "true"
 
+    '''for show/hide columns'''
     show_hide_false = {}
     for column in ordered_columns:
         show_hide_false[column[1]] = "false"
-
-    suffixes = ('k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
 
     @orm.reconstructor
     def do_onload(self):
@@ -488,6 +511,7 @@ class MetricsProton(Base, PrettyFormatter):
         else:
             return None
 
+    suffixes = ('k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
     def format_units(self, quantity, unit="", base=1000):
         if quantity:
             quantity = int(quantity)

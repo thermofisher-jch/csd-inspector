@@ -35,29 +35,37 @@
 					}, 1000);
 				}
 
+				// first thing that is executed in this file.
+				// if the report was not found, we display error
+				// else we call interval check of report status with server
 				% if status == 'not_found':
 					$('#blank_error').slideDown();
+					$('.statistics').removeClass('statistics');
 				% else:
 					% if report:
 						check_for_updates(${report.id}, "${request.route_path('trace_check_report_update')}");
 					% endif
 				% endif
 
+				// if error was shown, once the click dismiss we redirect them to index
 				$('#alert_dismiss').click(function() {
 					$('#blank_error').slideUp();
 					window.location.href = ('/');
 				});
 
+				// toggles customize boxplot form
 				$('#boxplot_edit_btn').click(function(){
 					$('.boxplot_edit_axes').toggleClass('edit_axis_form_show');
 				});
 
+				// toggles customize histogram form
 				$('#histogram_edit_btn').click(function(){
 					$('.histogram_edit_axes').toggleClass('edit_axis_form_show');
 				});
 			});
 		</script>
 	</head>
+	<!-- if error, show this -->
 	<div id="blank_error" class="row-fluid" style="display: none; margin-top: 20px;">
 		<div class="alert alert-danger" style="text-align: center; margin-bottom: 0px;">
 			<h4>Error!</h4>
@@ -65,9 +73,12 @@
 			<button id="alert_dismiss" type="button" class="btn btn-danger">Dismiss</button>
 		</div>
 	</div>
+	<!-- BEGIN METRIC REPORT -->
 	<div class="reports_page">
+		<!-- BEGIN REPORT STATISTICS ON LEFT -->
 		<div class="statistics">
 			<div class="">
+				<!-- FILTER USED TO DERIVE METRIC DATA SET -->
 				<table class="table table-striped table-hover report_filter_table">
 					<h4>Filter Parameters</h4>
 					<tbody>
@@ -101,6 +112,7 @@
 				</table>
 			</div>
 
+			<!-- LIST OF REPORT STATISTICS -->
 			<div class="">
 				<table class="table table-striped table-hover report_stats_table">
 					<h4>Report Statistics</h4>
@@ -126,6 +138,7 @@
 				</table>
 			</div>
 		</div>
+		<!-- END REPORT STATISTICS ON LEFT -->
 
 		<%block name='show_graphs'>
 			<div class="graphs">

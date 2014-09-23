@@ -1,3 +1,5 @@
+__author__ = 'Anthony Rodriguez'
+
 import sys
 import csv
 import os
@@ -20,7 +22,7 @@ class OTLog(object):
         self.file_path, self.valid = self.validate_path(archive_path)
 
     '''
-        Task: check to see if given path is valid
+        Task: check to see if given path was valid
         @return    True:    valid
         @return    False:   not valid
     '''

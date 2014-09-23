@@ -1,15 +1,12 @@
-'''
-Author: Anthony Rodriguez
-File: csv_support.py
-Created: 11 July 2014
-'''
+
+__author__ = 'Anthony Rodriguez'
+
 from lemontest.models import DBSession
 from lemontest.models import FileProgress
 from lemontest.models import Archive
 from lemontest.models import MetricsPGM
 from lemontest.models import MetricsProton
 from lemontest.models import MetricsOTLog
-
 from lemontest.models import SavedFilters
 
 from pyramid import threadlocal
@@ -63,7 +60,7 @@ def make_csv(metric_type, file_progress_id, filter_id, show_hide_string, sort_by
         column, order = sort_by_column.items()[0]
         if column == 'label':
             temp_column = Archive.label
-        elif column == 'upload time':
+        elif column == 'time':
             temp_column = Archive.time
         elif column in metric_type.columns.values():
             temp_column = getattr(metric_type, column)
@@ -151,5 +148,5 @@ def make_csv(metric_type, file_progress_id, filter_id, show_hide_string, sort_by
     if filter_obj.type == 'temp':
         DBSession.delete(filter_obj)
 
-    '''commmit all changes to DB'''
+    '''commit all changes to DB'''
     transaction.commit()

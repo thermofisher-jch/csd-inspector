@@ -1,18 +1,30 @@
-'''
-Author: Anthony Rodriguez
-'''
+__author__ = 'Anthony Rodriguez'
+
 import os
 from decimal import Decimal
 
+'''
+    Task: parse pgm metrics found in quality.summary
+'''
 class Metrics_PGM_Quality_Summary(object):
 
-    # initialize
+    '''
+        Task: init variables, calls validate_path functions for quality.summary
+        @param    archive_path:    path to the pgm archive
+        @param    logger:          system logger to log errors
+        @var      data:            dictionary of quality.summary data
+    '''
     def __init__(self, archive_path, logger):
         self.archive_path = archive_path
         self.logger = logger
         self.data, self.valid = self.validate_path(archive_path)
 
-    # validate path existence
+    '''
+        Task: validates existence of pgm archive path
+        @param    archive_path:    path to the pgm archive
+        @return   '', False:       quality.summary not found
+        @return   data, True:      dictionary of all data in quality.summary
+    '''
     def validate_path(self, archive_path):
         path = os.path.join(archive_path, "basecaller_results", "quality.summary")
         if not os.path.exists(path):
@@ -21,7 +33,11 @@ class Metrics_PGM_Quality_Summary(object):
         else:
             return self.open_quality_summary(path), True
 
-    # open corresponding file
+    '''
+        Task: reads quality.summary and converts it into a dictionary
+        @param    path:    path to quality.summary
+        @return   data:    dictionary of metric data
+    '''
     def open_quality_summary(self, path):
         data = {}
         for line in open(path):
@@ -31,12 +47,19 @@ class Metrics_PGM_Quality_Summary(object):
                 data[key.strip()] = value.strip()
         return data
 
-    # return True if archive path is valid, and contains quality.summary
-    # return False otherwise
+    '''
+        Task: check to see if given quality.summary path was valid
+        @return    True:    valid
+        @return    False:   not valid
+    '''
     def is_valid(self):
         return self.valid
 
-    # return system signal to noise ratio
+    '''
+        Task: returns signal to noise ratio of run
+        @return    system_snr:    signal to noise ratio of run
+        @return    None:          data not found
+    '''
     def get_system_snr(self):
         if "System SNR" not in self.data or not self.data['System SNR'].strip():
             self.logger.warning("System SNR not in data")
@@ -46,7 +69,11 @@ class Metrics_PGM_Quality_Summary(object):
 
             return system_snr
 
-    # return Total Bases
+    '''
+        Task: returns number of bases at Q0
+        @return    total_bases:    number of bases at Q0
+        @return    None:           data not found
+    '''
     def get_total_bases(self):
         if "Number of Bases at Q0" not in self.data or not self.data['Number of Bases at Q0'].strip():
             self.logger.warning("Total Bases not in data")
@@ -56,7 +83,11 @@ class Metrics_PGM_Quality_Summary(object):
 
             return total_bases
 
-    # return Total Reads
+    '''
+        Task: returns number of reads at Q0
+        @return    total_reads:    number of reads at Q0
+        @return    None:           data not found
+    '''
     def get_total_reads(self):
         if "Number of Reads at Q0" not in self.data or not self.data['Number of Reads at Q0'].strip():
             self.logger.warning("Total reads not in data")
@@ -66,7 +97,11 @@ class Metrics_PGM_Quality_Summary(object):
 
             return total_reads
 
-    # return Mean Read Length
+    '''
+        Task: returns mean read length of run
+        @return    mean_read_length:    mean read length of run
+        @return    None:                data not found
+    '''
     def get_mean_read_length(self):
         if "Mean Read Length at Q0" not in self.data or not self.data['Mean Read Length at Q0'].strip():
             self.logger.warning("Mean Read Length not in data")

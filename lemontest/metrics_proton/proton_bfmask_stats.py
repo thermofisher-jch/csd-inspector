@@ -1,18 +1,30 @@
-'''
-Author: Anthony Rodriguez
-'''
+__author__ = 'Anthony Rodriguez'
+
 import os
 from decimal import Decimal
 
+'''
+    Task: parse proton metrics found in analysis.bfmask.stats or bfmask.stats if former was not found
+'''
 class Metrics_Proton_Bfmask_Stats(object):
 
-    # initialize
+    '''
+        Task: init variables, calls validate_path function
+        @param    archive_path:    path to the proton archive
+        @param    logger:          system logger to log errors
+        @var      data:            dictionary of analysis.bfmask.stats or bfmask.stats data
+    '''
     def __init__(self, archive_path, logger):
         self.archive_path = archive_path
         self.logger = logger
         self.data, self.valid = self.validate_path(archive_path)
 
-    # validate path existence
+    '''
+        Task: validates existence of proton archive path
+        @param    archive_path:    path to the proton archive
+        @return   '', False:       analysis.bfmask.stats and bfmask.stats do not exist
+        @return   data, True:      dictionary of all data in analysis.bfmask.stats or bfmask.stats whichever if found first
+    '''
     def validate_path(self, archive_path):
         path = os.path.join(archive_path, "sigproc_results", "analysis.bfmask.stats")
         if not os.path.exists(path):
@@ -25,7 +37,11 @@ class Metrics_Proton_Bfmask_Stats(object):
         else:
             return self.open_bfmask_stats(path), True
 
-    # open corresponding file
+    '''
+        Task: reads analysis.bfmask.stats or bfmask.stats and converts it into a dictionary
+        @param    path:    path to analysis.bfmask.stats or bfmask.stats
+        @return   data:    dictionary of metric data
+    '''
     def open_bfmask_stats(self, path):
         data = {}
         for line in open(path):
@@ -35,12 +51,19 @@ class Metrics_Proton_Bfmask_Stats(object):
                 data[key.strip()] = value.strip()
         return data
 
-    # return True if archive path is valid, and contains analysis.bfmask.stats or bfmask.stats
-    # return False otherwise
+    '''
+        Task: check to see if given path was valid
+        @return    True:    valid
+        @return    False:   not valid
+    '''
     def is_valid(self):
         return self.valid
 
-    # return ISP loading percentage
+    '''
+        Task: returns isp loading percentage of run
+        @return    isp_loading:    isp loading percentage of run
+        @return    None:           data not found || excluded wells >= total wells
+    '''
     def get_isp_loading(self):
         if "Bead Wells" not in self.data or "Total Wells" not in self.data or "Excluded Wells" not in self.data or not self.data["Bead Wells"].strip() or not self.data["Total Wells"].strip() or not self.data["Excluded Wells"].strip():
             self.logger.warning("One or more needed fields is missing")
@@ -58,7 +81,11 @@ class Metrics_Proton_Bfmask_Stats(object):
 
             return isp_loading
 
-    # return ISP Wells
+    '''
+        Task: returns total wells with isp in run
+        @return    isp_wells:    total wells with isp in run
+        @return    None:         data not found
+    '''
     def get_isp_wells(self):
         if "Bead Wells" not in self.data or not self.data["Bead Wells"].strip():
             self.logger.warning("IPS Wells not in data")
@@ -68,7 +95,11 @@ class Metrics_Proton_Bfmask_Stats(object):
 
             return isp_wells
 
-    # return Live Wells
+    '''
+        Task: returns total live wells in run
+        @return    live_wells:    total live wells in run
+        @return    None:          data not found
+    '''
     def get_live_wells(self):
         if "Live Beads" not in self.data or not self.data['Live Beads'].strip():
             self.logger.warning("Live wells not in data")
@@ -78,7 +109,11 @@ class Metrics_Proton_Bfmask_Stats(object):
 
             return live_wells
 
-    # return Library Wells
+    '''
+        Task: returns total library wells in run
+        @return    library_wells:    total library wells in run
+        @return    None:             data not found
+    '''
     def get_library_wells(self):
         if "Library Beads" not in self.data or not self.data['Library Beads'].strip():
             self.logger.warning('Library Beads not in data')
@@ -88,7 +123,11 @@ class Metrics_Proton_Bfmask_Stats(object):
 
             return library_wells
 
-    # return Test Fragment Beads
+    '''
+        Task: returns test fragment of run
+        @return    test_fragment:    test fragment of run
+        @return    None:             data not found
+    '''
     def get_test_fragment(self):
         if "Test Fragment Beads" not in self.data or not self.data['Test Fragment Beads'].strip():
             self.logger.warning("Test Fragment Beads not in data")
