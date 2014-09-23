@@ -20,7 +20,7 @@ from lemontest.models import MetricsPGM
 from lemontest.models import MetricsProton
 from lemontest.models import MetricsOTLog
 
-from lemontest import diagnostic 
+from lemontest import diagnostic
 
 from lemontest.metrics_pgm import *
 from lemontest.metrics_proton import *

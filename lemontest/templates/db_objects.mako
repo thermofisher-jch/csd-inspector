@@ -11,7 +11,7 @@
 		overflow: auto;
 	}
 	table {
-		
+
 	}
 </style>
 <div class="table_divs">

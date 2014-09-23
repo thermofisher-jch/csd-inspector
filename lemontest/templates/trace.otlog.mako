@@ -372,7 +372,7 @@
 				</ul>
 			</div>
 		</%block>
-	
+
 		<%block name="download_csv_form">
 			<button id="csv_download" type="button" class="btn btn-success ladda-button" data-style="expand-left">
 				<span class="ladda-label">Download CSV</span>
