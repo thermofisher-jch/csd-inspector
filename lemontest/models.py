@@ -286,18 +286,18 @@ class MetricsPGM(Base, PrettyFormatter):
     def do_onload(self):
         self.pretty_columns = {
                                "Seq Kit Lot": self.format_seq_kit_lot,
-                               "ISP Wells": self.format_units,
-                               "Live Wells": self.format_units,
-                               "Test Fragment": self.format_units,
-                               "Lib Wells": self.format_units,
-                               "Polyclonal": self.format_units,
-                               "Primer Dimer": self.format_units,
-                               "Low Quality": self.format_units,
-                               "Usable Reads": self.format_units,
-                               "Cycles": self.format_units,
-                               "Flows": self.format_units,
-                               "Total Bases": self.format_units,
-                               "Total Reads": self.format_units,
+                               "ISP Wells": self.format_large_units,
+                               "Live Wells": self.format_large_units,
+                               "Test Fragment": self.format_large_units,
+                               "Lib Wells": self.format_large_units,
+                               "Polyclonal": self.format_large_units,
+                               "Primer Dimer": self.format_large_units,
+                               "Low Quality": self.format_large_units,
+                               "Usable Reads": self.format_large_units,
+                               "Cycles": self.format_large_units,
+                               "Flows": self.format_large_units,
+                               "Total Bases": self.format_large_units,
+                               "Total Reads": self.format_large_units,
                                "PGM Temp": self.format_units_small,
                                "PGM Pres": self.format_units_small,
                                "Chip Temp": self.format_units_small,
@@ -323,7 +323,7 @@ class MetricsPGM(Base, PrettyFormatter):
 
     '''format large numbers'''
     suffixes = ('k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
-    def format_units(self, quantity, unit="", base=1000):
+    def format_large_units(self, quantity, unit="", base=1000):
         if quantity:
             quantity = int(quantity)
             if quantity < base:
@@ -475,22 +475,23 @@ class MetricsProton(Base, PrettyFormatter):
     for column in ordered_columns:
         show_hide_false[column[1]] = "false"
 
+    '''for pretty_formatter class'''
     @orm.reconstructor
     def do_onload(self):
         self.pretty_columns = {
                                "Seq Kit Lot": self.format_seq_kit_lot,
-                               "ISP Wells": self.format_units,
-                               "Live Wells": self.format_units,
-                               "Test Fragment": self.format_units,
-                               "Lib Wells": self.format_units,
-                               "Polyclonal": self.format_units,
-                               "Primer Dimer": self.format_units,
-                               "Low Quality": self.format_units,
-                               "Usable Reads": self.format_units,
-                               "Cycles": self.format_units,
-                               "Flows": self.format_units,
-                               "Total Bases": self.format_units,
-                               "Total Reads": self.format_units,
+                               "ISP Wells": self.format_large_units,
+                               "Live Wells": self.format_large_units,
+                               "Test Fragment": self.format_large_units,
+                               "Lib Wells": self.format_large_units,
+                               "Polyclonal": self.format_large_units,
+                               "Primer Dimer": self.format_large_units,
+                               "Low Quality": self.format_large_units,
+                               "Usable Reads": self.format_large_units,
+                               "Cycles": self.format_large_units,
+                               "Flows": self.format_large_units,
+                               "Total Bases": self.format_large_units,
+                               "Total Reads": self.format_large_units,
                                "Proton Temp": self.format_units_small,
                                "Proton Pres": self.format_units_small,
                                "Target Pres": self.format_units_small,
@@ -499,20 +500,21 @@ class MetricsProton(Base, PrettyFormatter):
                                "SNR": self.format_units_small,
                                }
 
-    # useful when trying to see what is in the DB
+    '''useful when trying to see what is in the DB'''
     def inspect(self):
         mapper = inspect(type(self))
         return mapper.attrs
 
-    # pretty format seq kit lot
+    '''pretty format seq kit lot'''
     def format_seq_kit_lot(self, raw_seq_kit_lot):
         if raw_seq_kit_lot:
             return str(raw_seq_kit_lot).upper()
         else:
             return None
 
+    '''format large numbers'''
     suffixes = ('k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
-    def format_units(self, quantity, unit="", base=1000):
+    def format_large_units(self, quantity, unit="", base=1000):
         if quantity:
             quantity = int(quantity)
             if quantity < base:
@@ -527,6 +529,7 @@ class MetricsProton(Base, PrettyFormatter):
         else:
             return None
 
+    '''format small numbers'''
     def format_units_small(self, quantity, sig_figs=3):
         if quantity:
             quantity = Decimal(quantity)
@@ -534,6 +537,9 @@ class MetricsProton(Base, PrettyFormatter):
         else:
             return None
 
+'''
+    Task: DB object that stores metric data for each OTLog run uploaded
+'''
 class MetricsOTLog(Base, PrettyFormatter):
     __tablename__ = 'metrics_otlog'
     id = Column(Integer, primary_key=True)
@@ -572,16 +578,17 @@ class MetricsOTLog(Base, PrettyFormatter):
 
     columns = dict(ordered_columns)
 
+    '''for show/hide columns'''
     show_hide_defaults = {}
     for column in ordered_columns:
         show_hide_defaults[column[1]] = "true"
 
+    '''for show/hide columns'''
     show_hide_false = {}
     for column in ordered_columns:
         show_hide_false[column[1]] = "false"
 
-    suffixes = ('k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
-
+    '''for pretty_formatter class'''
     @orm.reconstructor
     def do_onload(self):
         self.pretty_columns = {
@@ -594,12 +601,14 @@ class MetricsOTLog(Base, PrettyFormatter):
                                'Run Time': self.format_run_time,
                                }
 
-    # useful when trying to see what is in the DB
+    '''useful when trying to see what is in the DB'''
     def inspect(self):
         mapper = inspect(type(self))
         return mapper.attrs
 
-    def format_units(self, quantity, unit="", base=1000):
+    '''format large numbers'''
+    suffixes = ('k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
+    def format_large_units(self, quantity, unit="", base=1000):
         if quantity:
             quantity = int(quantity)
             if quantity < base:
@@ -614,6 +623,7 @@ class MetricsOTLog(Base, PrettyFormatter):
         else:
             return None
 
+    '''format small numbers'''
     def format_units_small(self, quantity, sig_figs=3):
         if quantity:
             quantity = Decimal(quantity)
@@ -621,6 +631,7 @@ class MetricsOTLog(Base, PrettyFormatter):
         else:
             return None
 
+    '''format run time from seconds to hours, minutes, seconds'''
     def format_run_time(self, seconds):
         if seconds:
             seconds = int(seconds)
@@ -635,6 +646,9 @@ class MetricsOTLog(Base, PrettyFormatter):
         else:
             return None
 
+'''
+    Task: Saved user filters
+'''
 class SavedFilters(Base):
     __tablename__ = 'saved_filters'
     id = Column(Integer, primary_key=True)
@@ -644,6 +658,14 @@ class SavedFilters(Base):
     categorical_filters = Column(Text)
     type = Column(Unicode(255))
 
+    '''
+        Task: Saved user filters
+        @param    metric_type:                 pmg || proton || otlog depending on metric object type it represents
+        @param    numeric_filters:             numeric filters for metric object type it represents
+        @param    categorical_filters:         categorical filters for metric object type it represents
+        @var      numeric_filters_json:        json representation of numeric_filters
+        @var      categorical_filters_json:    json representation of categorical_filters
+    '''
     def __init__(self, name, metric_type, numeric_filters, categorical_filters):
         self.name = name
         self.metric_type = metric_type
@@ -657,6 +679,9 @@ class SavedFilters(Base):
            'otlog': MetricsOTLog,
            }
 
+    '''
+        Task: reload json representations when loading object from DB, and a mapping from metric_type to metric object type
+    '''
     @orm.reconstructor
     def do_onload(self):
         self.numeric_filters_json = json.loads(self.numeric_filters)
@@ -667,11 +692,15 @@ class SavedFilters(Base):
            'otlog': MetricsOTLog,
            }
 
-    # useful when trying to see what is in the DB
+    '''useful when trying to see what is in the DB'''
     def inspect(self):
         mapper = inspect(type(self))
         return mapper.attrs
 
+    '''
+        Task: creates query object from its own numerical and categorical filters
+        @return    metrics_query    the SQLAlchemy query object that defines a metric data set
+    '''
     def get_query(self):
         metric_object_type = self.mapping[self.metric_type]
 
@@ -691,6 +720,9 @@ class SavedFilters(Base):
 
         return metrics_query
 
+'''
+    Task: Stores status information on processes such as: CSV file creation, Plot creation, Metric Report creation, Metric Report Cache creation
+'''
 class FileProgress(Base):
     __tablename__ = 'fileprogress'
     id = Column(Integer, primary_key=True)
@@ -701,6 +733,7 @@ class FileProgress(Base):
     path = Column(Unicode(255))
     time = Column(DateTime)
 
+    '''one to one relationship between Graph and MetricReport DB models'''
     graph = relationship('Graph', uselist=False, backref='fileprogress')
     report_cache = relationship('MetricReport', uselist=False, backref='cache_fileprogress')
 
@@ -709,11 +742,15 @@ class FileProgress(Base):
         mapper = inspect(type(self))
         return mapper.attrs
 
+    '''always created with a status of Queued'''
     def __init__(self, file_type):
         self.file_type = file_type
         self.status = "Queued"
         self.time = datetime.datetime.now()
 
+'''
+    Task: Graphic representation of metric data set in either a boxplot or histogram
+'''
 class Graph(Base):
     __tablename__ = 'graph'
     id = Column(Integer, primary_key=True)
@@ -729,17 +766,25 @@ class Graph(Base):
     y_axis_min = Column(NUMERIC(24, 4))
     y_axis_max = Column(NUMERIC(24, 4))
 
-    # useful when trying to see what is in the DB
+    '''useful when trying to see what is in the DB'''
     def inspect(self):
         mapper = inspect(type(self))
         return mapper.attrs
 
+    '''
+        Task: initialize this DB object
+        @param    report_id:           MetricReport DB object id
+        @param    graph_type:          graph type; boxplot || histogram
+        @param    column_name:         metric column that is being represented
+        @param    file_progress_id:    FileProgress DB object id
+    '''
     def __init__(self, report_id, graph_type, column_name, file_progress_id):
         self.report_id = report_id
         self.file_progress_id = file_progress_id
         self.graph_type = graph_type
         self.column_name = column_name
 
+    '''reloads definition of large numbered columns'''
     @orm.reconstructor
     def on_load(self):
         self.large_units = [
@@ -757,6 +802,7 @@ class Graph(Base):
                        'Total Reads',
                        ]
 
+    '''formats small numbers'''
     def format_units_small(self, quantity, sig_figs=3):
         if quantity:
             quantity = Decimal(quantity)
@@ -764,6 +810,7 @@ class Graph(Base):
         else:
             return None
 
+    '''gets a representation of the specifications that make up this plot for plot support'''
     def get_specs(self):
         specs = {
                  self.graph_type + '_title': self.title,
@@ -781,6 +828,7 @@ class Graph(Base):
             specs[self.graph_type + '_x_axis_max'] = None
         return specs
 
+    '''gets a representation of the specifications that make up this plot for UI'''
     def get_details(self):
         if self.graph_type != 'boxplot':
             if self.column_name in self.large_units:
@@ -822,6 +870,9 @@ class Graph(Base):
                            }
         return details
 
+'''
+    Task: Report object in DB
+'''
 class MetricReport(Base, PrettyFormatter):
     __tablename__ = 'metric_report'
     id = Column(Integer, primary_key=True)
@@ -859,22 +910,29 @@ class MetricReport(Base, PrettyFormatter):
 
     columns = dict(ordered_columns)
 
-    # useful when trying to see what is in the DB
+    '''useful when trying to see what is in the DB'''
     def inspect(self):
         mapper = inspect(type(self))
         return mapper.attrs
 
+    '''
+        Task: initialize; status always begins with Queued
+        @param    metric_type:     metric object that that is being represented in this report
+        @param    metric_colum:    column that is being represented in this report
+    '''
     def __init__(self, metric_type, metric_column):
         self.status = 'Queued'
         self.metric_type = metric_type
         self.metric_column = metric_column
 
+    '''returns statistical data of metric data set that makes up the report'''
     def get_statistics(self):
         statistics = {}
         for column in self.ordered_columns:
             statistics[column[0]] = str(self.get_formatted(column[0]))
         return statistics
 
+    '''depending on the column being represented, we format the numbers'''
     @orm.reconstructor
     def on_load(self):
         self.large_units = [
@@ -894,14 +952,14 @@ class MetricReport(Base, PrettyFormatter):
 
         if self.metric_column in self.large_units:
             self.pretty_columns = {
-                                   'Mean': self.format_units,
-                                   'Median': self.format_units,
-                                   'Mode': self.format_units,
-                                   'Standard Deviation': self.format_units,
-                                   'Q1': self.format_units,
-                                   'Q3': self.format_units,
-                                   'Min': self.format_units,
-                                   'Max': self.format_units,
+                                   'Mean': self.format_large_units,
+                                   'Median': self.format_large_units,
+                                   'Mode': self.format_large_units,
+                                   'Standard Deviation': self.format_large_units,
+                                   'Q1': self.format_large_units,
+                                   'Q3': self.format_large_units,
+                                   'Min': self.format_large_units,
+                                   'Max': self.format_large_units,
                                    }
         else:
             self.pretty_columns = {
@@ -915,6 +973,7 @@ class MetricReport(Base, PrettyFormatter):
                                    'Max': self.format_units_small,
                                    }
 
+    '''format small numbers'''
     def format_units_small(self, quantity, sig_figs=3):
         if quantity:
             quantity = Decimal(quantity)
@@ -922,9 +981,9 @@ class MetricReport(Base, PrettyFormatter):
         else:
             return None
 
+    '''format large numbers'''
     suffixes = ('k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
-
-    def format_units(self, quantity, unit="", base=1000):
+    def format_large_units(self, quantity, unit="", base=1000):
         if quantity:
             quantity = int(quantity)
             if quantity < base:
