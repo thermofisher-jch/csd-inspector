@@ -574,7 +574,7 @@ class MetricsOTLog(Base, PrettyFormatter):
                        ('Sample Pump Status', 'sample_pump_status'),
                        ]
 
-    numeric_columns = ordered_columns[0:7]
+    numeric_columns = ordered_columns[0:6]
 
     columns = dict(ordered_columns)
 
@@ -810,6 +810,13 @@ class Graph(Base):
         else:
             return None
 
+    '''all 'large' numbers do not have decimal places, to we truncate them for UI'''
+    def truncate_large_numbers(self, number):
+        if number:
+            return int(number)
+        else:
+            return None
+
     '''gets a representation of the specifications that make up this plot for plot support'''
     def get_specs(self):
         specs = {
@@ -830,44 +837,23 @@ class Graph(Base):
 
     '''gets a representation of the specifications that make up this plot for UI'''
     def get_details(self):
-        if self.graph_type != 'boxplot':
-            if self.column_name in self.large_units:
-                details = {
-                           'title': str(self.title),
-                           'label_x': str(self.label_x),
-                           'label_y': str(self.label_y),
-                           'x_axis_min': int(self.x_axis_min),
-                           'x_axis_max': int(self.x_axis_max),
-                           'y_axis_min': int(self.y_axis_min),
-                           'y_axis_max': int(self.y_axis_max)
-                           }
-            else:
-                details = {
-                           'title': str(self.title),
-                           'label_x': str(self.label_x),
-                           'label_y': str(self.label_y),
-                           'x_axis_min': self.format_units_small(self.x_axis_min),
-                           'x_axis_max': self.format_units_small(self.x_axis_max),
-                           'y_axis_min': self.format_units_small(self.y_axis_min),
-                           'y_axis_max': self.format_units_small(self.y_axis_max)
-                           }
+        details = {
+                   'title': str(self.title),
+                   'label_x': str(self.label_x),
+                   'label_y': str(self.label_y),
+                   'column': str(self.column_name),
+                   }
+        if self.column_name in self.large_units:
+            details['x_axis_min'] = self.truncate_large_numbers(self.x_axis_min)
+            details['x_axis_max'] = self.truncate_large_numbers(self.x_axis_max)
+            details['y_axis_min'] = self.truncate_large_numbers(self.y_axis_min)
+            details['y_axis_max'] = self.truncate_large_numbers(self.y_axis_max)
         else:
-            if self.column_name in self.large_units:
-                details = {
-                           'title': str(self.title),
-                           'label_x': str(self.label_x),
-                           'label_y': str(self.label_y),
-                           'y_axis_min': int(self.y_axis_min),
-                           'y_axis_max': int(self.y_axis_max)
-                           }
-            else:
-                details = {
-                           'title': str(self.title),
-                           'label_x': str(self.label_x),
-                           'label_y': str(self.label_y),
-                           'y_axis_min': self.format_units_small(self.y_axis_min),
-                           'y_axis_max': self.format_units_small(self.y_axis_max)
-                           }
+            details['x_axis_min'] = self.format_units_small(self.x_axis_min)
+            details['x_axis_max'] = self.format_units_small(self.x_axis_max)
+            details['y_axis_min'] = self.format_units_small(self.y_axis_min)
+            details['y_axis_max'] = self.format_units_small(self.y_axis_max)
+
         return details
 
 '''

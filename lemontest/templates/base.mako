@@ -45,14 +45,6 @@
               <li><a href="${request.route_path('upload')}">Submit Archive</a></li>
               <li><a href="${request.route_path('reports')}">List Reports</a></li>
               <li><a href="${request.route_path('documentation')}">Documentation</a></li>
-              <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Ion Trace <span class="icon-white icon-th-list"></span></a>
-                <ul class="dropdown-menu" role="menu">
-                    <li><a href="${request.route_path('trace_pgm')}">PGM</a></li>
-                    <li><a href="${request.route_path('trace_proton')}">Proton</a></li>
-                    <li><a href="${request.route_path('trace_otlog')}">OT Log</a></li>
-                    <li class="disabled"><a>Ion Chef</a></li>
-                </ul>
-              </li>
             </ul>
             <form id="jump_form" class="navbar-form pull-left">
               <div class="input-append">

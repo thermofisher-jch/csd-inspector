@@ -165,6 +165,7 @@ def make_plots(metric_report_id, filter_id):
 def customize_plots(metric_report_id, filter_id, boxplot_specs, histogram_specs):
     '''get directory that has report caches'''
     reports_cache_dir = threadlocal.get_current_registry().settings['reports_cache_dir']
+    plots_dir = threadlocal.get_current_registry().settings['plots_dir']
 
     '''get report from DB'''
     report = DBSession.query(MetricReport).filter(MetricReport.id == metric_report_id).first()
@@ -211,6 +212,9 @@ def customize_plots(metric_report_id, filter_id, boxplot_specs, histogram_specs)
             current_boxplot_specs = current_graph.get_specs()
         elif graph_type == 'histogram':
             current_histogram_specs = current_graph.get_specs()
+        to_delete = os.path.join(plots_dir, current_graph.fileprogress.path)
+        if os.path.exists(to_delete):
+            os.remove(to_delete)
         DBSession.delete(current_graph)
         transaction.commit()
 
@@ -413,19 +417,23 @@ def histogram(column, data, specs=None):
     '''create instance of a figure'''
     fig = plt.figure()
 
-    y_top_default = stats.mode(data)[1][0]
-
     '''get instances of axes from the figure'''
     axes = fig.gca()
     axes.set_title(title)
     axes.set_ylabel(y_label)
     axes.set_xlabel(x_label)
-    axes.set_ylim(top=(y_top_default * 2))
 
     '''if the column is part of the defined large columns, we use scientific notation to keep the graph clean looking'''
     if column in large_units:
         axes.ticklabel_format(style='sci', axis='x', useOffset=True)
         axes.xaxis.major.formatter.set_powerlimits((0,0))
+
+    '''create plot'''
+    n, bins, patches = plt.hist(data)
+
+    y_top_default = max(n)
+
+    axes.set_ylim(top=(y_top_default + 4))
 
     '''if there are specified x or y limits, we set them'''
     if specs:
@@ -442,9 +450,6 @@ def histogram(column, data, specs=None):
             axes.set_ylim(bottom=y_bottom)
         elif y_top:
             axes.set_ylim(top=y_top)
-
-    '''create plot'''
-    plt.hist(data)
 
     '''save figure to disk in defined plots directory'''
     fig.savefig(name)

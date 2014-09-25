@@ -13,13 +13,13 @@ function show_hide_columns(array_of_columns) {
 				for (i = 0; i < elements.length; i++) {
 					elements[i].style.display = 'table-cell';
 				}
-				document.getElementById(item).checked = true;
+				document.getElementById(item + "_checkbox").checked = true;
 			} else {
 				var elements = document.getElementsByClassName(item);
 				for (i = 0; i < elements.length; i++) {
 					elements[i].style.display = 'none';
 				}
-				document.getElementById(item).checked = false;
+				document.getElementById(item + "_checkbox").checked = false;
 			}
 		}
 	} catch (err) {
@@ -32,7 +32,7 @@ function show_hide_columns(array_of_columns) {
 function get_shown_columns() {
 	var array_of_columns = {};
 	for ( var item in global_columns_default) {
-		var checkbox = document.getElementById(item);
+		var checkbox = document.getElementById(item + "_checkbox");
 		if (checkbox.checked) {
 			array_of_columns[item] = "true";
 		} else {
@@ -47,7 +47,7 @@ function get_shown_columns() {
 function get_shown_columns_csv() {
 	var arguments = {};
 	for (var item in global_columns_default) {
-		var checkbox = document.getElementById(item);
+		var checkbox = document.getElementById(item + "_checkbox");
 		if (checkbox.checked) {
 			arguments[item] = "true";
 		} else {
@@ -440,14 +440,14 @@ function update_report(report, boxplot, histogram) {
 function formatCommas(number) {
 	if (number) {
 		number += '';
-	    x = number.split('.');
-	    x1 = x[0];
-	    x2 = x.length > 1 ? '.' + x[1] : '';
-	    var rgx = /(\d+)(\d{3})/;
-	    while (rgx.test(x1)) {
-	        x1 = x1.replace(rgx, '$1' + ',' + '$2');
-	    }
-	    return x1 + x2;
+		x = number.split('.');
+		x1 = x[0];
+		x2 = x.length > 1 ? '.' + x[1] : '';
+		var rgx = /(\d+)(\d{3})/;
+		while (rgx.test(x1)) {
+			x1 = x1.replace(rgx, '$1' + ',' + '$2');
+		}
+		return x1 + x2;
 	} else {
 		return null;
 	}

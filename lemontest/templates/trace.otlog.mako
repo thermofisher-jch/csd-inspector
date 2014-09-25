@@ -481,14 +481,14 @@
 								</tr>
 								<tr>
 									<td class="show_hide_table_spacing">
-										<input id="${column[1]}" type="checkbox"/>
+										<input id="${column[1]}_checkbox" type="checkbox"/>
 									</td>
 									<td class="show_hide_table_spacing">
 										<span>${column[0]}</span>
 									</td>
 							% else:
 								<td class="show_hide_table_spacing">
-									<input id="${column[1]}" type="checkbox"/>
+									<input id="${column[1]}_checkbox" type="checkbox"/>
 								</td>
 								<td class="show_hide_table_spacing">
 									<span>${column[0]}</span>
