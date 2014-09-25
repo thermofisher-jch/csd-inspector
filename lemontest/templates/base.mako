@@ -25,7 +25,7 @@
         background-color: #FEFEFE;
       }
     </style>
-    <script src="${request.static_url('lemontest:static/js/jquery-1.11.1.min.js')}"></script>
+    <script src="${request.static_url('lemontest:static/js/jquery-1.8.3.min.js')}"></script>
     <script src="${request.static_url('lemontest:static/js/dropdown.js')}"></script>
     <script src="${request.static_url('lemontest:static/js/modal.js')}"></script>
     <script src="${request.static_url('lemontest:static/js/json2.js')}"></script>
