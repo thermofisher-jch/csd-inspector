@@ -71,6 +71,12 @@ def add_helpers(event):
     event['h'] = helpers
 
 
+@view_config(context=Exception)
+def error_view(exc, request):
+    logger.exception("Uncaught Exception:")
+    return Response("Sorry, there was an error.", 500)
+
+
 @view_config(route_name="index", renderer="index.mako",
     permission='view')
 def index(request):
