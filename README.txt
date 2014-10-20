@@ -7,19 +7,24 @@ screen -S prod
 # Elevate to root user
 sudo su - 
 
-# Change to the project's working directory and activate the Python virtual environment
+# Change to the project's working directory
 cd /opt/inspector/inspector/
+
+# activate the Python virtual environment
 source ../env/bin/activate
 
 # Run the WSGI server with it's production config file
 gunicorn --paste production.ini
 
 # Create a new screen window
-# Press CTRL+a then c
+screen
+
+# Elevate to root user and activate virtual env again
+sudo su - 
 cd /opt/inspector/inspector/
 source ../env/bin/activate
 
 # Run the celery workers
 pceleryd production.ini
 
-# At this point, you may safely disconnect from the screen session
+# At this point, you may safely detach from the screen session
