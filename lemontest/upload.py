@@ -232,6 +232,11 @@ archive_handlers = {
     "Ion_Chef": untar_upload,
 }
 
+
+def handle_archive(archive):
+    return archive_handlers[archive.archive_type](archive)
+
+
 @task
 def process_archive(archive_id, upload_name, testers):
     """This is an external, celery task which unzips the file, restructures
@@ -245,33 +250,18 @@ def process_archive(archive_id, upload_name, testers):
         logger.error("Archive id = %s not found." % archive_id)
         return
     try:
-        if archive_handlers[archive.archive_type](archive):
-            archive.status = u"Starting tests"
-            archive.diagnostics = get_diagnostics(archive.archive_type)
-            transaction.commit()
-            jobs = make_diagnostic_jobs(archive, testers)
-            run_diagnostics(archive_id, jobs)
+        temp_file = os.path.join(archive.path, "uploaded_file.tmp")
+        if os.path.exists(temp_file):
+            if handle_archive(archive)
+                archive.status = u"Starting tests"
+                archive.diagnostics = get_diagnostics(archive.archive_type)
+                transaction.commit()
+                jobs = make_diagnostic_jobs(archive, testers)
+                run_diagnostics(archive_id, jobs)
 
-        if archive.archive_type == "PGM_Run":
-            metrics_pgm = MetricsPGM()
-            metrics_pgm.archive_id = archive_id
-            DBSession.add(metrics_pgm)
-            DBSession.flush()
-            set_metrics_pgm.delay(metrics_pgm.id)
-
-        if archive.archive_type == "Proton":
-            metrics_proton = MetricsProton()
-            metrics_proton.archive_id = archive_id
-            DBSession.add(metrics_proton)
-            DBSession.flush()
-            set_metrics_proton.delay(metrics_proton.id)
-
-        if archive.archive_type == "OT_Log":
-            metrics_otlog = MetricsOTLog()
-            metrics_otlog.archive_id = archive_id
-            DBSession.add(metrics_otlog)
-            DBSession.flush()
-            set_metrics_otlog.delay(metrics_otlog.id)
+                metrics_migration.delay(archive_id)
+            else:
+                raise Exception("Could not process upload_file.tmp")
 
         '''
         if archive.archive_type == "Ion Chef":

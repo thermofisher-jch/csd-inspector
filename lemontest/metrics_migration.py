@@ -17,7 +17,6 @@ from lemontest.upload import set_metrics_proton, set_metrics_otlog
 def metrics_migration(archive_id):
     archive = DBSession.query(Archive).get(archive_id)
 
-
     if archive.archive_type == "PGM_Run":
         if DBSession.query(MetricsPGM).filter_by(archive_id=archive_id).count():
             return
