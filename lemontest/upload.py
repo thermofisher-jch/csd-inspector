@@ -252,7 +252,7 @@ def process_archive(archive_id, upload_name, testers):
     try:
         temp_file = os.path.join(archive.path, "uploaded_file.tmp")
         if os.path.exists(temp_file):
-            if handle_archive(archive)
+            if handle_archive(archive):
                 archive.status = u"Starting tests"
                 archive.diagnostics = get_diagnostics(archive.archive_type)
                 transaction.commit()
