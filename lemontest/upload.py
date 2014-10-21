@@ -25,6 +25,7 @@ from lemontest import diagnostic
 from lemontest.metrics_pgm import *
 from lemontest.metrics_proton import *
 from lemontest.metrics_otlog import *
+from lemontest.metrics_migration import metrics_migration
 
 logger = logging.getLogger(__name__)
 
