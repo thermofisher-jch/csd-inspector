@@ -25,7 +25,7 @@ def metrics_migration(archive_id):
         metrics_pgm.archive_id = archive_id
         DBSession.add(metrics_pgm)
         DBSession.flush()
-        set_metrics_pgm.delay(metrics_pgm.id)
+        task = set_metrics_pgm.s(metrics_pgm.id)
 
     elif archive.archive_type == "Proton":
         if DBSession.query(MetricsProton).filter_by(archive_id=archive_id).count():
@@ -34,7 +34,7 @@ def metrics_migration(archive_id):
         metrics_proton.archive_id = archive_id
         DBSession.add(metrics_proton)
         DBSession.flush()
-        set_metrics_proton.delay(metrics_proton.id)
+        task = set_metrics_proton.s(metrics_proton.id)
 
     elif archive.archive_type == "OT_Log":
         if DBSession.query(MetricsOTLog).filter_by(archive_id=archive_id).count():
@@ -43,8 +43,9 @@ def metrics_migration(archive_id):
         metrics_otlog.archive_id = archive_id
         DBSession.add(metrics_otlog)
         DBSession.flush()
-        set_metrics_otlog.delay(metrics_otlog.id)
+        task = set_metrics_otlog.s(metrics_otlog.id)
     else:
         return
 
     transaction.commit()
+    task.apply_async()
