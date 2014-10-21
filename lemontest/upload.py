@@ -25,7 +25,6 @@ from lemontest import diagnostic
 from lemontest.metrics_pgm import *
 from lemontest.metrics_proton import *
 from lemontest.metrics_otlog import *
-from lemontest.metrics_migration import metrics_migration
 
 logger = logging.getLogger(__name__)
 
@@ -244,6 +243,7 @@ def process_archive(archive_id, upload_name, testers):
     it's into a folder hierarchy relative to destination, and writes the
     archive's contents into that restructured hierarchy.
     """
+    from lemontest.metrics_migration import metrics_migration
     logger = task_logger
     archive = DBSession.query(Archive).get(archive_id)
     logger.info("Processing archive in %s" % archive.path)
