@@ -11,8 +11,7 @@ from lemontest.models import Archive
 from lemontest.models import MetricsPGM, MetricsProton, MetricsOTLog
 
 from lemontest.upload import set_metrics_pgm
-from lemontest.upload import set_metrics_proton
-
+from lemontest.upload import set_metrics_proton, set_metrics_otlog
 
 @task
 def metrics_migration(archive_id):
