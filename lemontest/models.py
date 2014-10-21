@@ -28,9 +28,8 @@ from sqlalchemy.orm import backref
 from sqlalchemy.orm import joinedload
 
 from zope.sqlalchemy import ZopeTransactionExtension
-from sqlalchemy.dialects.drizzle.base import NUMERIC
 from sqlalchemy.schema import Column
-from sqlalchemy.types import Time
+from sqlalchemy.types import Time, Numeric
 
 logger = logging.getLogger(__name__)
 
@@ -164,47 +163,47 @@ class MetricsPGM(Base, PrettyFormatter):
 
     '''NUMERIC VALUES'''
     # analysis.bfmask.stats
-    isp_wells = Column(NUMERIC(20, 0))
-    live_wells = Column(NUMERIC(20, 0))
-    test_fragment = Column(NUMERIC(20, 0))
-    library_wells = Column(NUMERIC(20, 0))
-    isp_loading = Column(NUMERIC(4, 2))
+    isp_wells = Column(Numeric(20))
+    live_wells = Column(Numeric(20))
+    test_fragment = Column(Numeric(20))
+    library_wells = Column(Numeric(20))
+    isp_loading = Column(Numeric(4))
 
     # basecaller.json
-    polyclonal = Column(NUMERIC(20, 0))
-    polyclonal_pct = Column(NUMERIC(4, 2))
-    primer_dimer = Column(NUMERIC(20, 0))
-    primer_dimer_pct = Column(NUMERIC(4, 2))
-    low_quality = Column(NUMERIC(20, 0))
-    low_quality_pct = Column(NUMERIC(4, 2))
-    usable_reads = Column(NUMERIC(20, 0))
-    usable_reads_pct = Column(NUMERIC(4, 2))
+    polyclonal = Column(Numeric(20))
+    polyclonal_pct = Column(Numeric(4))
+    primer_dimer = Column(Numeric(20))
+    primer_dimer_pct = Column(Numeric(4))
+    low_quality = Column(Numeric(20))
+    low_quality_pct = Column(Numeric(4))
+    usable_reads = Column(Numeric(20))
+    usable_reads_pct = Column(Numeric(4))
 
     # explog_final.txt
-    pgm_temperature = Column(NUMERIC(5, 2))
-    pgm_pressure = Column(NUMERIC(5, 2))
-    chip_temperature = Column(NUMERIC(5, 2))
-    chip_noise = Column(NUMERIC(5, 2))
-    gain = Column(NUMERIC(5, 3))
-    cycles = Column(NUMERIC(10, 0))
-    flows = Column(NUMERIC(10, 0))
+    pgm_temperature = Column(Numeric(5))
+    pgm_pressure = Column(Numeric(5))
+    chip_temperature = Column(Numeric(5))
+    chip_noise = Column(Numeric(5))
+    gain = Column(Numeric(5))
+    cycles = Column(Numeric(10))
+    flows = Column(Numeric(10))
 
     # initlog.txt
-    start_ph = Column(NUMERIC(5, 2))
-    end_ph = Column(NUMERIC(5, 2))
-    w1_added = Column(NUMERIC(5, 2))
+    start_ph = Column(Numeric(5))
+    end_ph = Column(Numeric(5))
+    w1_added = Column(Numeric(5))
 
     # quality.summary
-    system_snr = Column(NUMERIC(5, 1))
-    total_bases = Column(NUMERIC(40, 0))
-    total_reads = Column(NUMERIC(20, 0))
-    mean_read_length = Column(NUMERIC(10, 0))
+    system_snr = Column(Numeric(5))
+    total_bases = Column(Numeric(40))
+    total_reads = Column(Numeric(20))
+    mean_read_length = Column(Numeric(10))
 
     # tfstats.json
-    tf_50q17_pct = Column(NUMERIC(4, 2))
+    tf_50q17_pct = Column(Numeric(4))
 
     # basecaller.log
-    num_barcodes = Column(NUMERIC(5, 0))
+    num_barcodes = Column(Numeric(5))
 
     '''CATEGORICAL VALUES'''
     # datasets_basecaller.json
@@ -356,48 +355,48 @@ class MetricsProton(Base, PrettyFormatter):
 
     '''NUMERIC VALUES'''
     # analysis.bfmask.stats
-    isp_wells = Column(NUMERIC(20, 0))
-    live_wells = Column(NUMERIC(20, 0))
-    test_fragment = Column(NUMERIC(20, 0))
-    library_wells = Column(NUMERIC(20, 0))
-    isp_loading = Column(NUMERIC(4, 2))
+    isp_wells = Column(Numeric(20))
+    live_wells = Column(Numeric(20))
+    test_fragment = Column(Numeric(20))
+    library_wells = Column(Numeric(20))
+    isp_loading = Column(Numeric(4))
 
     # basecaller.json
-    polyclonal = Column(NUMERIC(20, 0))
-    polyclonal_pct = Column(NUMERIC(4, 2))
-    primer_dimer = Column(NUMERIC(20, 0))
-    primer_dimer_pct = Column(NUMERIC(4, 2))
-    low_quality = Column(NUMERIC(20, 0))
-    low_quality_pct = Column(NUMERIC(4, 2))
-    usable_reads = Column(NUMERIC(20, 0))
-    usable_reads_pct = Column(NUMERIC(4, 2))
+    polyclonal = Column(Numeric(20))
+    polyclonal_pct = Column(Numeric(4))
+    primer_dimer = Column(Numeric(20))
+    primer_dimer_pct = Column(Numeric(4))
+    low_quality = Column(Numeric(20))
+    low_quality_pct = Column(Numeric(4))
+    usable_reads = Column(Numeric(20))
+    usable_reads_pct = Column(Numeric(4))
 
     # explog_final.txt
-    proton_temperature = Column(NUMERIC(10, 6))
-    proton_pressure = Column(NUMERIC(10, 6))
-    target_pressure = Column(NUMERIC(10, 6))
-    chip_temperature = Column(NUMERIC(10, 6))
-    chip_noise = Column(NUMERIC(5, 2))
-    gain = Column(NUMERIC(10, 6))
-    cycles = Column(NUMERIC(5, 0))
-    flows = Column(NUMERIC(5, 0))
+    proton_temperature = Column(Numeric(10))
+    proton_pressure = Column(Numeric(10))
+    target_pressure = Column(Numeric(10))
+    chip_temperature = Column(Numeric(10))
+    chip_noise = Column(Numeric(5))
+    gain = Column(Numeric(10))
+    cycles = Column(Numeric(5))
+    flows = Column(Numeric(5))
 
     # initlog.txt
-    start_ph = Column(NUMERIC(5, 2))
-    end_ph = Column(NUMERIC(5, 2))
-    w1_added = Column(NUMERIC(5, 2))
+    start_ph = Column(Numeric(5))
+    end_ph = Column(Numeric(5))
+    w1_added = Column(Numeric(5))
 
     # quality.summary
-    system_snr = Column(NUMERIC(5, 2))
-    total_bases = Column(NUMERIC(20, 0))
-    total_reads = Column(NUMERIC(20, 0))
-    mean_read_length = Column(NUMERIC(10, 0))
+    system_snr = Column(Numeric(5))
+    total_bases = Column(Numeric(20))
+    total_reads = Column(Numeric(20))
+    mean_read_length = Column(Numeric(10))
 
     # tfstats.json
-    tf_50q17_pct = Column(NUMERIC(4, 2))
+    tf_50q17_pct = Column(Numeric(4))
 
     # basecaller.log
-    num_barcodes = Column(NUMERIC(5, 0))
+    num_barcodes = Column(Numeric(5))
 
     '''CATEGORICAL VALUES'''
     # datasets_basecaller.json
@@ -546,12 +545,12 @@ class MetricsOTLog(Base, PrettyFormatter):
     archive_id = Column(Integer, ForeignKey('archives.id'))
 
     '''NUMERIC VALUES'''
-    ambient_temp_high = Column(NUMERIC(5, 2))
-    ambient_temp_low = Column(NUMERIC(5, 2))
-    internal_case_temp_high = Column(NUMERIC(5, 2))
-    internal_case_temp_low = Column(NUMERIC(5, 2))
-    pressure_high = Column(NUMERIC(5, 2))
-    pressure_low = Column(NUMERIC(5, 2))
+    ambient_temp_high = Column(Numeric(5))
+    ambient_temp_low = Column(Numeric(5))
+    internal_case_temp_high = Column(Numeric(5))
+    internal_case_temp_low = Column(Numeric(5))
+    pressure_high = Column(Numeric(5))
+    pressure_low = Column(Numeric(5))
     run_time = Column(Integer)
 
     '''CATEGORICAL VALUES'''
@@ -761,10 +760,10 @@ class Graph(Base):
     title = Column(Unicode(255))
     label_x = Column(Unicode(255))
     label_y = Column(Unicode(255))
-    x_axis_min = Column(NUMERIC(24, 4))
-    x_axis_max = Column(NUMERIC(24, 4))
-    y_axis_min = Column(NUMERIC(24, 4))
-    y_axis_max = Column(NUMERIC(24, 4))
+    x_axis_min = Column(Numeric(24))
+    x_axis_max = Column(Numeric(24))
+    y_axis_min = Column(Numeric(24))
+    y_axis_max = Column(Numeric(24))
 
     '''useful when trying to see what is in the DB'''
     def inspect(self):
@@ -870,14 +869,14 @@ class MetricReport(Base, PrettyFormatter):
     metric_column = Column(Unicode(255))
     db_state = Column(Unicode(255))
     '''Statistics'''
-    mean = Column(NUMERIC(5, 2))
-    median = Column(NUMERIC(5, 2))
-    mode = Column(NUMERIC(5, 2))
-    std_dev = Column(NUMERIC(5, 2))
-    q1 = Column(NUMERIC(5, 2))
-    q3 = Column(NUMERIC(5, 2))
-    range_min = Column(NUMERIC(5, 2))
-    range_max = Column(NUMERIC(5, 2))
+    mean = Column(Numeric(5))
+    median = Column(Numeric(5))
+    mode = Column(Numeric(5))
+    std_dev = Column(Numeric(5))
+    q1 = Column(Numeric(5))
+    q3 = Column(Numeric(5))
+    range_min = Column(Numeric(5))
+    range_max = Column(Numeric(5))
     data_n = Column(Integer)
 
     graphs = relationship('Graph', backref='report', cascade='all')
