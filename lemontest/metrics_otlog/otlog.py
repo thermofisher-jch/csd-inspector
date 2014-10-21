@@ -240,16 +240,13 @@ class OTLog(object):
         @return    None:        <= 2 lines of data found
     '''
     def get_sample_inject_abort(self):
+        number_of_rows = 0
         with open(self.file_path, 'r') as log_file:
             csv_reader = csv.reader(log_file)
-
             try:
                 # Ignore first two lines
                 first_line = csv_reader.next()
                 second_line = csv_reader.next()
-
-                number_of_rows = 0
-
                 for row in csv_reader:
                     number_of_rows += 1
             except:
