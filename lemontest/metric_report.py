@@ -284,6 +284,13 @@ def report_statistics(metric_report_id, data):
     metric_report.status = 'Statistics Available'
     transaction.commit()
 
+def make_plot_file():
+    tempfile.tempdir = threadlocal.get_current_registry().settings['plots_dir']
+    fd, name = tempfile.mkstemp('.png', 'metric_plot_')
+    os.fdchmod(fd, 0644)
+    fd.close()
+    return name
+
 '''
     Task: create boxplot with given metric data set
     @param    column:      the column we are plotting
@@ -292,8 +299,7 @@ def report_statistics(metric_report_id, data):
 '''
 def box_plot(column, data, specs=None):
     '''make unique temporary file in plots directory'''
-    tempfile.tempdir = threadlocal.get_current_registry().settings['plots_dir']
-    fd, name = tempfile.mkstemp('.png', 'metric_plot')
+    name = make_plot_file()
 
     '''if specs is not set, we use default title and y-axis label'''
     '''else we check if that parameter exists in specs, and if so set it'''
@@ -368,8 +374,7 @@ def box_plot(column, data, specs=None):
 '''
 def histogram(column, data, specs=None):
     '''make unique temporary file in plots directory'''
-    tempfile.tempdir = threadlocal.get_current_registry().settings['plots_dir']
-    fd, name = tempfile.mkstemp('.png', 'metric_plot')
+    name = make_plot_file()
 
     '''if specs is not set, we use default title, x-axis label, and y-axis label'''
     '''else we check if that parameter exists in specs, and if so set it'''
