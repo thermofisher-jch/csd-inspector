@@ -288,7 +288,6 @@ def make_plot_file():
     tempfile.tempdir = threadlocal.get_current_registry().settings['plots_dir']
     fd, name = tempfile.mkstemp('.png', 'metric_plot_')
     os.fchmod(fd, 0644)
-    fd.close()
     return name
 
 '''
