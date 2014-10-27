@@ -1,5 +1,6 @@
 import datetime
 import json
+import shutil
 import transaction
 import logging
 import os.path
@@ -117,6 +118,14 @@ class Archive(Base):
     def inspect(self):
         mapper = inspect(type(self))
         return mapper.attrs
+
+    def delete_tests(self):
+        for diagnostic in self.diagnostics:
+            out = diagnostic.get_output_path()
+            if os.path.exists(out):
+                shutil.rmtree(out)
+            DBSession.delete(diagnostic)
+
 
 class Diagnostic(Base):
     __tablename__ = 'diagnostics'

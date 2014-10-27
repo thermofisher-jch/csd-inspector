@@ -233,21 +233,22 @@ def super_delete(request):
     return HTTPFound(location=url)
 
 
-@view_config(route_name="rerun", request_method="POST", permission='view')
-def rerun_archive(request):
-    archive_id = int(request.matchdict["archive_id"])
-    archive = DBSession.query(Archive).options(subqueryload(
-        Archive.diagnostics)).filter(Archive.id == archive_id).first()
-    for diagnostic in archive.diagnostics:
-        out = diagnostic.get_output_path()
-        if os.path.exists(out):
-            shutil.rmtree(out)
-        DBSession.delete(diagnostic)
+def rerun_diagnostics(archive):
+    archive_id = archive.id
+    archive.delete_tests()
     archive.diagnostics = upload.get_diagnostics(archive.archive_type)
     DBSession.flush()
     jobs = upload.make_diagnostic_jobs(archive, testers)
     transaction.commit()
     upload.run_diagnostics(archive_id, jobs)
+
+
+@view_config(route_name="rerun", request_method="POST", permission='view')
+def rerun_archive(request):
+    archive_id = int(request.matchdict["archive_id"])
+    archive = DBSession.query(Archive).options(subqueryload(
+        Archive.diagnostics)).filter(Archive.id == archive_id).first()
+    rerun_diagnostics(archive)
     url = request.route_url('check', archive_id=archive_id)
     return HTTPFound(location=url)
 
