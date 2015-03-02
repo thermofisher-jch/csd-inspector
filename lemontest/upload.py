@@ -112,7 +112,11 @@ def unzip_archive(root, archive_file):
     for key, out_name in out_names:
         if os.path.basename(out_name) != "":
             full_path = os.path.join(root, out_name)
+            if not archive_file.tar.getmember(key).isfile():
+                continue
             contents = archive_file.open(key)
+            if contents is None:
+                continue
             try:
                 output_file = open(full_path, 'wb')
                 output_file.write(contents.read())
