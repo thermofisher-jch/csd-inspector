@@ -35,7 +35,10 @@ class ZipArchive(zipfile.ZipFile):
     """A wrapper around the ZipFile class to present a simple
     uniform interface for inspecting and decompressing it's contents
     """
-    pass
+    def isfile(self, key):
+        # Ack!? Is this true. Does zip have entries for non-files?
+        # (directories/symlinks)
+        True
 
 
 class TarArchive(object):
@@ -51,6 +54,9 @@ class TarArchive(object):
 
     def namelist(self):
         return self.tar.getnames()
+
+    def isfile(self, key):
+        return self.tar.getmember(key).isfile()
 
 
 @worker_init.connect
@@ -112,7 +118,7 @@ def unzip_archive(root, archive_file):
     for key, out_name in out_names:
         if os.path.basename(out_name) != "":
             full_path = os.path.join(root, out_name)
-            if not archive_file.tar.getmember(key).isfile():
+            if not archive_file.isfile():
                 continue
             contents = archive_file.open(key)
             if contents is None:
