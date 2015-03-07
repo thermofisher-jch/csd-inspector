@@ -38,7 +38,7 @@ class ZipArchive(zipfile.ZipFile):
     def isfile(self, key):
         # Ack!? Is this true. Does zip have entries for non-files?
         # (directories/symlinks)
-        True
+        return True
 
 
 class TarArchive(object):
