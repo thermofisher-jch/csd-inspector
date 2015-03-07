@@ -118,7 +118,7 @@ def unzip_archive(root, archive_file):
     for key, out_name in out_names:
         if os.path.basename(out_name) != "":
             full_path = os.path.join(root, out_name)
-            if not archive_file.isfile():
+            if not archive_file.isfile(key):
                 continue
             contents = archive_file.open(key)
             if contents is None:
