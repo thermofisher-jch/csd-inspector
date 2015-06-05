@@ -1,0 +1,105 @@
+---
+# This file contains the ansible configuration for torrenthub.com
+# See http://docs.ansible.com/
+# `vagrant up` will run this automatically on your local vm.
+
+- hosts: all
+  vars:
+    application_path: "/opt/inspector/inspector"
+    data_path: "/opt/inspector/"
+    venv_path: "/opt/inspector/env"
+    hostname: "inspector.itw"
+    pg_database_name: lemondb
+    pg_user: lemon
+    pg_password: lemon
+
+  tasks:
+    - name: install required system packages
+      sudo: True
+      apt: name={{item}} state=installed update_cache=yes
+      with_items:
+       - python-virtualenv
+       - python-psycopg2 #Needed as a system package for ansible
+       - python-dev
+       - supervisor
+       - nginx
+       - screen
+       - postgresql
+       - build-essential
+       - libagg-dev
+       - libfreetype6-dev
+       - libxft-dev
+       - libpq-dev
+       - zlib1g-dev
+       - libmemcached-dev
+       - gfortran
+       - libblas-dev
+       - liblapack-dev
+
+    - name: create pg db
+      postgresql_db: name={{pg_database_name}}
+      sudo: yes
+      sudo_user: postgres
+
+    - name: ensure user has access to database
+      postgresql_user: db={{pg_database_name}} name={{pg_user}} password={{pg_password}} priv=ALL role_attr_flags=SUPERUSER
+      sudo: yes
+      sudo_user: postgres
+
+    - name: ensure auth method is trust for local conections to pg
+      lineinfile: "dest=/etc/postgresql/9.3/main/pg_hba.conf regexp='local[ \t]+all[ \t]+all[ \t]+peer' state=present line='local\tall\tall\ttrust'"
+      sudo: yes
+      notify:
+        - restart postgres
+
+    - name: generate and copy supervisor confs
+      sudo: True
+      template: src=./supervisor.j2 dest=/etc/supervisor/conf.d/inspector.conf
+
+    - name: start supervisor
+      sudo: True
+      service: name=supervisor state=started
+
+    - name: create venv
+      sudo: True
+      pip: name=distribute virtualenv={{venv_path}}
+
+    - name: upgrade distribute
+      sudo: True
+      shell: "{{venv_path}}/bin/easy_install -U distribute"
+
+    - name: install python packages in venv
+      sudo: True
+      pip: requirements={{application_path}}/installation/requirements.txt virtualenv={{venv_path}}
+
+    - name: stop supervisor
+      sudo: True
+      service: name=supervisor state=stopped
+
+    - name: start supervisor
+      sudo: True
+      service: name=supervisor state=started
+
+    - name: copy nginx
+      sudo: True
+      template: src=./production-site.conf dest=/etc/nginx/sites-enabled/inspector.conf
+      notify:
+        - restart nginx
+
+    - name: remove default nginx site
+      sudo: True
+      file: path=/etc/nginx/sites-enabled/{{item}} state=absent
+      with_items:
+        - default
+      notify:
+        - restart nginx
+
+  handlers:
+    - name: restart postgres
+      service: name=postgresql state=restarted
+      sudo: yes
+
+    - name: restart nginx
+      service: name=nginx state=restarted
+      sudo: yes
+

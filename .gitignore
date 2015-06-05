@@ -8,3 +8,4 @@
 build/
 *.pid
 lemontest/static/img/plots
+.vagrant
