@@ -5,6 +5,8 @@
 
 - hosts: all
   vars:
+    disable_git: false
+    git_url: "ssh://git@jira.itw:7999/io/inspector.git"
     application_path: "/opt/inspector/inspector"
     data_path: "/opt/inspector/"
     venv_path: "/opt/inspector/env"
@@ -12,6 +14,7 @@
     pg_database_name: lemondb
     pg_user: lemon
     pg_password: lemon
+    settings_file: production.ini
 
   tasks:
     - name: add stable repository
@@ -36,6 +39,8 @@
        - libpq-dev
        - zlib1g-dev
        - libmemcached-dev
+       - memcached
+       - rabbitmq-server
        - gfortran
        - libblas-dev
        - liblapack-dev
@@ -45,6 +50,21 @@
        - r-base
        - r-cran-rjson
        - ion-torrentr
+       - git
+
+    - name: create application dir
+      when: not disable_git
+      sudo: True
+      file: path={{application_path}} state=directory owner=ionadmin group=www-data mode=0777
+
+    - name: Clone repo using git
+      when: not disable_git
+      git: repo={{git_url}}
+           dest={{application_path}}
+           version=HEAD
+           accept_hostkey=True
+           force=yes
+           ssh_opts="-o StrictHostKeyChecking=no"
 
     - name: create pg db
       postgresql_db: name={{pg_database_name}}

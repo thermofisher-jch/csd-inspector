@@ -4,7 +4,7 @@
 
 [program:pceleryd]
 environment = PYTHONPATH="{{application_path}}:{{venv_path}}/lib/python2.7:{{venv_path}}/lib/python2.7/site-packages:$PYTHONPATH"
-command={{venv_path}}/bin/pceleryd development.ini
+command={{venv_path}}/bin/pceleryd {{settings_file}}
 directory={{application_path}}
 numprocs=1
 autostart=true

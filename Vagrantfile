@@ -70,5 +70,8 @@ end
 Vagrant.configure("2") do |config|
   config.vm.provision "ansible" do |ansible|
     ansible.playbook = "installation/site.yml"
+    ansible.extra_vars = {
+            disable_git: true,
+    }
   end
 end
