@@ -14,9 +14,13 @@
     pg_password: lemon
 
   tasks:
+    - name: add stable repository
+      sudo: True
+      apt_repository: repo='deb http://updates.ite/updates/software trusty/' state=present validate_certs=no
+
     - name: install required system packages
       sudo: True
-      apt: name={{item}} state=installed update_cache=yes
+      apt: name={{item}} state=installed update_cache=yes force=yes
       with_items:
        - python-virtualenv
        - python-psycopg2 #Needed as a system package for ansible
@@ -35,6 +39,12 @@
        - gfortran
        - libblas-dev
        - liblapack-dev
+       - rabbitmq-server
+       - gnuplot
+       - libchart-gnuplot-perl
+       - r-base
+       - r-cran-rjson
+       - ion-torrentr
 
     - name: create pg db
       postgresql_db: name={{pg_database_name}}
@@ -54,7 +64,11 @@
 
     - name: generate and copy supervisor confs
       sudo: True
-      template: src=./supervisor.j2 dest=/etc/supervisor/conf.d/inspector.conf
+      template: src=./gunicorn.j2 dest=/etc/supervisor/conf.d/inspector.conf
+
+    - name: generate and copy supervisor confs
+      sudo: True
+      template: src=./pceleryd.j2 dest=/etc/supervisor/conf.d/pceleryd.conf
 
     - name: start supervisor
       sudo: True
@@ -93,6 +107,12 @@
         - default
       notify:
         - restart nginx
+
+    - name: Creates archive directory
+      sudo: True
+      file: path=/opt/inspector/archive_files state=directory
+
+
 
   handlers:
     - name: restart postgres
