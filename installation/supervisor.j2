@@ -4,7 +4,7 @@
 
 [program:inspector-gunicorn]
 environment = PYTHONPATH="{{application_path}}:{{venv_path}}/lib/python2.7:{{venv_path}}/lib/python2.7/site-packages:$PYTHONPATH"
-command={{venv_path}}/bin/gunicorn --paste development.ini --pythonpath={{application_path}}:{{venv_path}}/lib/python2.7:{{venv_path}}/lib/python2.7/site-packages:$PYTHONPATH
+command={{venv_path}}/bin/gunicorn --paste production.ini --pythonpath={{application_path}}:{{venv_path}}/lib/python2.7:{{venv_path}}/lib/python2.7/site-packages:$PYTHONPATH
 directory={{application_path}}
 numprocs=1
 autostart=true
