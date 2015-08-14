@@ -238,6 +238,7 @@ def one_touch_log(archive):
 archive_handlers = {
     "PGM_Run": unzip_csa,
     "Proton": unzip_csa,
+    "Raptor_S5": unzip_csa,
     "OT_Log": one_touch_log,
     "Ion_Chef": untar_upload,
 }
