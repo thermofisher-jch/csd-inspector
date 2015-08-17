@@ -9,6 +9,9 @@ ENVIRONMENTS = {
     },
     "testing": {
         "hostname": "sherlock.itw",
+    },
+    "inspector2": {
+        "hostname": "inspector2.itw",
     }
 }
 
