@@ -27,10 +27,9 @@
     "Version_Check",
     "ISP_Loading",
     "Chip_Noise",
-    "Proton_Pressure",
     "Auto_pH",
     "Seq_Kit",
-    "Proton_Pressure",
+    "S5_Pressure",
     "Version_Check"
   ],
   "OT_Log": [
