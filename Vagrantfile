@@ -72,6 +72,7 @@ Vagrant.configure("2") do |config|
     ansible.playbook = "installation/site.yml"
     ansible.extra_vars = {
             disable_git: true,
+            #settings_file: "development.ini"
     }
   end
 end

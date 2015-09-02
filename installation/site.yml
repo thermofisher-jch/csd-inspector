@@ -52,12 +52,24 @@
        - ion-torrentr
        - git
 
+    - name: add rabbit mq user
+      sudo: True
+      shell: rabbitmqctl add_user lemon lemonpass || true
+
+    - name: add rabbit mq vhost
+      sudo: True
+      shell: rabbitmqctl add_vhost lemon || true
+
+    - name: add rabbit mq permissions
+      sudo: True
+      shell: rabbitmqctl set_permissions -p lemon lemon ".*" ".*" ".*" || true
+
     - name: create application dir
       when: not disable_git
       sudo: True
       file: path={{application_path}} state=directory owner=ionadmin group=www-data mode=0777
 
-    - name: Clone repo using git
+    - name: clone repo using git
       when: not disable_git
       git: repo={{git_url}}
            dest={{application_path}}
@@ -106,13 +118,9 @@
       sudo: True
       pip: requirements={{application_path}}/installation/requirements.txt virtualenv={{venv_path}}
 
-    - name: stop supervisor
+    - name: restart supervisor
       sudo: True
-      service: name=supervisor state=stopped
-
-    - name: start supervisor
-      sudo: True
-      service: name=supervisor state=started
+      shell: service supervisor stop; sleep 2; service supervisor start
 
     - name: copy nginx
       sudo: True
