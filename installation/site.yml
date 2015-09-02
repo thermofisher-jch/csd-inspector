@@ -116,7 +116,7 @@
 
     - name: copy nginx
       sudo: True
-      template: src=./production-site.conf dest=/etc/nginx/sites-enabled/inspector.conf
+      template: src=./nginx.conf dest=/etc/nginx/sites-enabled/inspector.conf
       notify:
         - restart nginx
 
