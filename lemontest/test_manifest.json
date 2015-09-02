@@ -1,5 +1,5 @@
 {
-"PGM_Run":[
+  "PGM_Run":[
     "Filter_Metrics",
     "Raw_Trace",
     "Version_Check",
@@ -10,8 +10,8 @@
     "Chip_Noise",
     "Auto_pH",
     "Seq_Kit"
-],
-"Proton":[
+  ],
+  "Proton":[
     "Filter_Metrics",
     "Raw_Trace",
     "Version_Check",
@@ -20,14 +20,25 @@
     "Proton_Pressure",
     "Auto_pH",
     "Seq_Kit"
-],
-"OT_Log": [
+  ],
+  "Raptor_S5":[
+    "Filter_Metrics",
+    "Raw_Trace",
+    "Version_Check",
+    "ISP_Loading",
+    "Chip_Noise",
+    "Auto_pH",
+    "Seq_Kit",
+    "S5_Pressure",
+    "Version_Check"
+  ],
+  "OT_Log": [
     "Plots",
     "Sample_Pump",
     "Oil_Pump",
     "OT_Script"
-],
-"Ion_Chef": [
+  ],
+  "Ion_Chef": [
     "Alarms",
     "Notifications",
     "Chef_Kit",
@@ -37,5 +48,5 @@
     "Flow",
     "Run_Type",
     "Fans"
-]
+  ]
 }
