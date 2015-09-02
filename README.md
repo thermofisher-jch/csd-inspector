@@ -18,10 +18,12 @@ Commit and push your changes to this repository.
 ### To Testing (sherlock.itw)
 Copy your public key to sherlock.itw: `ssh-copy-id ionadmin@sherlock.itw`
 
-Run `fab deploy` from this directory.
+Run `fab deploy:testing` from this directory.
     
 ### To Production (inspector.itw)
-TODO: Ensure the new fabric script wont destroy production. 
+Copy your public key to inspector.itw: `ssh-copy-id ionadmin@inspector.itw`
+
+Run `fab deploy` from this directory. 
 
 ### Old Production Deployment (for reference) 
 
