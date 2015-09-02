@@ -23,6 +23,9 @@ def main(global_config, **settings):
     settings["csv_dir"] = os.path.abspath(settings["csv_dir"])
     settings["reports_cache_dir"] = os.path.abspath(settings["reports_cache_dir"])
 
+    # Looks like you cannot inherit ini files. For now check for an env var to enable test specific code.
+    settings["is_test_instance"] = os.getenv('IS_TEST_INSTANCE', "false")
+
     # Setup cache configuration
     pyramid_beaker.set_cache_regions_from_settings(settings)
 

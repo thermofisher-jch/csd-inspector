@@ -67,6 +67,14 @@
     </div>
 
     <div class="container-fluid">
+        % if show_test_instance_warning:
+            <div class="alert alert-block alert-danger">
+                <h4>Test Instance Warning!</h4>
+                This instance of Ion Inspector is for testing Inspector only. Data uploaded here may be deleted at any
+                time.<br> Tests on archives may fail or produce incorrect results. Please use <a
+                    href="http://inspector.itw">http://inspector.itw</a> if you need to test a customer support archive.
+            </div>
+        % endif
       ${self.body()}
       <footer style="clear: both;">
         <p>&copy; Ion Torrent 2013</p>
