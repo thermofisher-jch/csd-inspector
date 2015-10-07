@@ -3,7 +3,6 @@
 import sys
 import os
 
-
 def load_explog(path):
     data = {}
     for line in open(path):
@@ -50,11 +49,16 @@ def report(data):
         "314": 8.0,
         "316": 10.0,
         "318": 9.0,
+        "P1": (1.0, 2.0),
+        "520": (1.0, 2.0),
+        "530": (1.0, 2.0),
+        "540": (1.0, 2.0),
         "900": (1.0, 2.0)
     }
-    chip_type = data["ChipType"][:3]
+    chipTypeString = data["ChipType"]
+    chip_type = data["ChipType"][:min(3, len(chipTypeString))]
 
-    if chip_type == '900':
+    if "ChipNoiseInfo" in data:
         noise = proton_correlated_noise(data["ChipNoiseInfo"])
         low, high = thresholds[chip_type]
         if noise > high:
@@ -69,7 +73,7 @@ def report(data):
             print("OK")
             print(10)
             print("Chip noise {:.2f} is low enough.".format(noise))
-    else:
+    elif "Noise_90pct" in data:
         noise = float(data["Noise_90pct"])
         if noise > thresholds[chip_type]:
             print("Alert")

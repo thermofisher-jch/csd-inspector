@@ -3,3 +3,7 @@ The chip noise should be less than these values for these chip types:
 316: OK <= 10.0 < Alert
 318: OK <= 9.0 < Alert
 P1: OK <= 1.0 < Warning <= 2.0 < Alert
+520: OK <= 1.0 < Warning <= 2.0 < Alert
+530: OK <= 1.0 < Warning <= 2.0 < Alert
+540: OK <= 1.0 < Warning <= 2.0 < Alert
+900: OK <= 1.0 < Warning <= 2.0 < Alert

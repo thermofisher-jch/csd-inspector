@@ -37,7 +37,7 @@ def report(data):
     pressure = float(pressure.split(" ")[1])
     target_pressure = float(data["pres"])
     if target_pressure == 8.0:
-        low, high = 7.8, 8.1
+        low, high = 7.8, 8.2
     else:
         low, high = 10.4, 10.6
 
