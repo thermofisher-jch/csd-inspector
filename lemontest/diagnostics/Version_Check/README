@@ -1,3 +1,4 @@
-The user's Torrent Suite version should be >= 3.0.
-
-If the user's Torrent Suite version is below 3.0, you should strongly enourage them to upgrade to the latest available version.
+SystemType | Minimum Safe Version
+S5         | 5.0.2
+S5XML      | 5.0
+PGM        | 4.6
