@@ -14,7 +14,6 @@
 "Proton":[
     "Filter_Metrics",
     "Raw_Trace",
-    "flowErr",
     "Version_Check",
     "ISP_Loading",
     "Chip_Noise",

@@ -18,25 +18,18 @@ OT_plots<-function(work_dir,file_name,machine,target,version) {
     if( header_len ==36){
         OT2=TRUE;
         machine="OT2"
-		# OT2 headers introduced in v758
         header=c("Step","Thermistor0Temperature","Thermistor1Temperature","Thermistor2Temperature","Thermistor3Temperature",
-            "Thermistor4Temperature","P_SensorCur.Pressure","RawA2D","TEC0CurrentTemp","SetTemp","prev.OnTime","OnTime",
-            "TecDir","AdjustedSetTemp","Heater0CurrentTemp","SetTemp.1","PWMdutyCycle","Heater1CurrentTemp","SetTemp.2",
-            "PWMdutyCycle.1","MotorPowerOscillation","Raw","SolenoidPumpTotalVolume","DispensedVolume","OilPumpStatus",
+            "Thermistor4Temperature","P_SensorCur.Pressure","RawA2D","TEC0CurrentTemp","SetTemp","PWMdutyCycle","OnTime",
+            "TecDir","AdjustedSetTemp","Heater0CurrentTemp","SetTemp.1","PWMdutyCycle.1","Heater1CurrentTemp","SetTemp.2",
+            "PWMdutyCycle.2","MotorPowerOscillation","Raw","SolenoidPumpTotalVolume","DispensedVolume","OilPumpStatus",
             "SamplePumpStatus","Pin0Pin","Pin1Pin","Pin2Pin","Pin3Pin","Pin4Pin","Pin5Pin","Flowmeter0","OilPumpPosition",
             "SamplePumpPosition","Timestamp")
+        #stop if the header names of the file are not as expected for OT2
         if( ! (all(names(dataSet)==header ))) {
-			# OT2 headers from before v758
-			header[11]="PWMdutyCycle"
-			header[17]="PWMdutyCycle.1"
-			header[20]="PWMdutyCycle.2"
-			#stop if the header names of the file are not as expected for OT2
-			if( ! (all(names(dataSet)==header ))) {	
-				cat("Warning\n");
-            	cat("30\n");
-            	cat("The file's header is different from what is expected\n");
-				return();
-			}
+            cat("Warning\n");
+            cat("30\n");
+            cat("The file's header is different from what is expected\n");
+            return();
         }
     }else if( header_len ==34){
         OT2=TRUE;
