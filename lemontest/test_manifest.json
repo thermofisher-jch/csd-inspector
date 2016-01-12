@@ -9,7 +9,9 @@
     "PGM_Pressure",
     "Chip_Noise",
     "Auto_pH",
-    "Seq_Kit"
+    "Seq_Kit",
+    "Separator_Traces",
+    "flowErr"
   ],
   "Proton":[
     "Filter_Metrics",
@@ -20,7 +22,10 @@
     "Chip_Noise",
     "Proton_Pressure",
     "Auto_pH",
-    "Seq_Kit"
+    "Seq_Kit",
+    "Separator_Traces",
+    "Flow",
+    "flowErr"
   ],
   "Raptor_S5":[
     "Filter_Metrics",
@@ -30,7 +35,11 @@
     "Chip_Noise",
     "Seq_Kit",
     "S5_Pressure",
-    "Version_Check"
+    "Version_Check",
+    "Separator_Traces",
+    "Raw_Trace",
+    "Flow",
+    "flowErr"
   ],
   "OT_Log": [
     "Plots",
