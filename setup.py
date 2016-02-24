@@ -40,7 +40,7 @@ requires = [
     'pyramid-mako==1.0.2',
     'pyramid-tm==0.7',
     'python-dateutil==2.2',
-    'pyton-distutils-extra==2.38'
+    'python-distutils-extra==2.38'
     'python-openid==2.2.5',
     'pytz==2014.4',
     'repoze.lru==0.6',
