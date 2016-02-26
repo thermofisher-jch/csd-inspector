@@ -10,7 +10,6 @@
     "Chip_Noise",
     "Auto_pH",
     "Seq_Kit",
-    "Separator_Traces",
     "flowErr"
   ],
   "Proton":[
@@ -23,7 +22,6 @@
     "Proton_Pressure",
     "Auto_pH",
     "Seq_Kit",
-    "Separator_Traces",
     "Flow",
     "flowErr"
   ],
@@ -36,10 +34,12 @@
     "Seq_Kit",
     "S5_Pressure",
     "Version_Check",
-    "Separator_Traces",
     "Raw_Trace",
     "Flow",
-    "flowErr"
+    "flowErr",
+    "Ion_S5_Wash_Solution_Lot",
+    "Ion_S5_Sequencing_Reagents_Lot",
+    "Ion_S5_Cleaning_Solution_Lot"
   ],
   "OT_Log": [
     "Plots",

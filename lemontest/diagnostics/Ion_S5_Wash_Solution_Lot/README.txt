@@ -1,0 +1,2 @@
+This will parse the InitLog.txt file and report out the wash solution lot number.
+This relies on the file containing a line which read "productDesc: Ion S5 Wash Solution" and the lot number being two lines after.
