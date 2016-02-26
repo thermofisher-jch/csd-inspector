@@ -5,6 +5,7 @@ import xml.etree
 import sys
 import os
 import os.path
+import re
 from mako.template import Template
 
 
@@ -33,12 +34,20 @@ if __name__ == "__main__":
                         xml_path = full
 
     if xml_path:
+        # groom the xml of known error conditions
+        xml = ''
+        with open(xml_path, 'r') as xml_file:
+            xml = xml_file.read()
+
+        xml = re.sub('< *', '<', xml)
+        xml = re.sub('</ *', '</', xml)
+        xml = re.sub('> *', '>', xml)
+
         try:
-            tree = ElementTree.parse(xml_path)
+            root = ElementTree.fromstring(xml)
         except Exception as err:
             errors.append("Error reading run log: " + str(err))
         else:
-            root = tree.getroot()
             name_tag = root.find("Versions/is")
             is_name = name_tag.text
             name_tag = root.find("Versions/scripts")

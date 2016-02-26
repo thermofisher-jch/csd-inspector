@@ -5,7 +5,7 @@ import xml.etree
 import sys
 import os
 import os.path
-from mako.template import Template
+import re
 
 if __name__ == "__main__":
     archive, output = sys.argv[1:3]
@@ -16,7 +16,6 @@ if __name__ == "__main__":
     errors = []
     error_summary = ""
 
-    
     for path, dirs, names in os.walk(archive):
         if "test_results" not in path:
             for name in names:
@@ -30,12 +29,20 @@ if __name__ == "__main__":
                         xml_path = full
 
     if xml_path:
+        # groom the xml of known error conditions
+        xml = ''
+        with open(xml_path, 'r') as xml_file:
+            xml = xml_file.read()
+
+        xml = re.sub('< *', '<', xml)
+        xml = re.sub('</ *', '</', xml)
+        xml = re.sub('> *', '>', xml)
+
         try:
-            tree = ElementTree.parse(xml_path)
+            root = ElementTree.fromstring(xml)
         except Exception as err:
             errors.append("Error reading run log: " + str(err))
         else:
-            root = tree.getroot()
             name_tag = root.find("RunInfo/mrcoffee")
             if name_tag is None:
                 error_summary = "No timer info"

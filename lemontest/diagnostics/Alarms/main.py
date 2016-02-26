@@ -3,6 +3,7 @@
 import sys
 import os
 import os.path
+import re
 import xml.etree 
 from datetime import datetime
 from xml.etree import ElementTree
@@ -18,7 +19,6 @@ if __name__ == "__main__":
     rel_xml_path = ''
     errors = []
 
-    
     for path, dirs, names in os.walk(archive):
         if "test_results" not in path:
             for name in names:
@@ -32,13 +32,22 @@ if __name__ == "__main__":
                         xml_path = full
                         rel_xml_path = rel
 
+
     if xml_path:
+        # groom the xml of known error conditions
+        xml = ''
+        with open(xml_path, 'r') as xml_file:
+            xml = xml_file.read()
+
+        xml = re.sub('< *', '<', xml)
+        xml = re.sub('</ *', '</', xml)
+        xml = re.sub('> *', '>', xml)
+
         try:
-            tree = ElementTree.parse(xml_path)
+            root = ElementTree.fromstring(xml)
         except Exception as err:
             errors.append("Error reading run log: " + str(err))
         else:
-            root = tree.getroot()
             warns = root.findall("Warnings_Run/warning")
             if warns:
                 headers = [t.tag for t in warns[0].getchildren()]
