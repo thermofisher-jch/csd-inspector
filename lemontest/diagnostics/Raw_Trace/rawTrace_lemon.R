@@ -157,22 +157,6 @@ for(iRegion in 1:length(data)) {
     flowSplit <- split(x$flow,x$nuc)
     flowIndexSplit <- split(1:length(x$flow),x$nuc)
 
-    # Plot flow residuals
-    flowResidual <- x$signal[[wellType]]-x$smoothed[[wellType]]
-    flowResidual <- sqrt(apply(flowResidual*flowResidual,1,mean))
-    png(plotFile <- sprintf("%s/flowResidual.%s.%s.png",plotDir,regionName,wellType),height=pngHeight,width=pngWidth)
-    ylim <- range(c(0,flowResidual,15))
-    plot(range(x$flow),ylim,type="n",xlab="Flow",ylab="RMS Flow Residual")
-    for(thisNuc in c("A","C","G","T")) {
-      flowsSinceLast <- c(0,diff(flowSplit[[thisNuc]]))
-      lines(flowSplit[[thisNuc]],flowResidual[flowIndexSplit[[thisNuc]]],col=nucColor[thisNuc],bg=nucColor[thisNuc],type="b",pch=flowsSinceLastPch[1+flowsSinceLast])
-    }
-    title(sprintf("RMS flow residual\n%d %s wells, %s region",x$count[[wellType]],wellType,names(data)[iRegion]))
-    legend(0.78*max(x$flow),max(ylim),flowsSinceLastLegendText,pch=flowsSinceLastLegendPch,title=flowsSinceLastLegendTitle,cex=0.8)
-    legend(0.60*max(x$flow),max(ylim),c("A","C","G","T"),lwd=3,col=nucColor,cex=0.8)
-    dev.off()
-    #system(sprintf("eog %s",plotFile))
-
     # Plot nuc step sizes
     if(!is.null(x$stepSize[[wellType]])) {
       stepSize <- x$stepSize[[wellType]]
