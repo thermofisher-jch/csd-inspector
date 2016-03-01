@@ -13,7 +13,9 @@
     "Seq_Kit",
     "flowErr",
     "Reference_Electrode",
-    "Templating_Kit"
+    "Templating_Kit",
+    "Sequencing_Kit",
+    "Chip_Type"
   ],
   "Proton":[
     "Filter_Metrics",
@@ -28,7 +30,9 @@
     "Seq_Kit",
     "Flow",
     "flowErr",
-    "Templating_Kit"
+    "Templating_Kit",
+    "Sequencing_Kit",
+    "Chip_Type"
   ],
   "Raptor_S5":[
     "Filter_Metrics",
@@ -46,7 +50,9 @@
     "Ion_S5_Wash_Solution_Lot",
     "Ion_S5_Sequencing_Reagents_Lot",
     "Ion_S5_Cleaning_Solution_Lot",
-    "Templating_Kit"
+    "Templating_Kit",
+    "Sequencing_Kit",
+    "Chip_Type"
   ],
   "OT_Log": [
     "Plots",

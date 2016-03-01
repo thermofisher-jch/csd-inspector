@@ -21,9 +21,18 @@ def read_explog(archive_path):
 
     return data
 
+def print_info(message):
+    """
+    prints the info message
+    :param message: The message to print
+    """
+    print("Info")
+    print(20)
+    print(message)
+
 def print_ok(message):
     """
-    prints the ok message to controlling parent
+    prints the ok message
     :param message: The message to print
     """
     print("OK")
@@ -32,7 +41,7 @@ def print_ok(message):
 
 def print_na(message):
     """
-    prints the na message to the controlling parent
+    prints the na message
     :param message:
     """
     print("N/A")
