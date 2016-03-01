@@ -20,3 +20,21 @@ def read_explog(archive_path):
             data[key.strip()] = value.strip()
 
     return data
+
+def print_ok(message):
+    """
+    prints the ok message to controlling parent
+    :param message: The message to print
+    """
+    print("OK")
+    print(10)
+    print(message)
+
+def print_na(message):
+    """
+    prints the na message to the controlling parent
+    :param message:
+    """
+    print("N/A")
+    print(0)
+    print(message)

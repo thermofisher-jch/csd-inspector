@@ -12,7 +12,8 @@
     "Auto_pH",
     "Seq_Kit",
     "flowErr",
-    "Reference_Electrode"
+    "Reference_Electrode",
+    "Templating_Kit"
   ],
   "Proton":[
     "Filter_Metrics",
@@ -26,7 +27,8 @@
     "Auto_pH",
     "Seq_Kit",
     "Flow",
-    "flowErr"
+    "flowErr",
+    "Templating_Kit"
   ],
   "Raptor_S5":[
     "Filter_Metrics",
@@ -43,7 +45,8 @@
     "flowErr",
     "Ion_S5_Wash_Solution_Lot",
     "Ion_S5_Sequencing_Reagents_Lot",
-    "Ion_S5_Cleaning_Solution_Lot"
+    "Ion_S5_Cleaning_Solution_Lot",
+    "Templating_Kit"
   ],
   "OT_Log": [
     "Plots",
