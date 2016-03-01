@@ -19,7 +19,7 @@ try:
         raise Exception("The templating kit name was not recorded.")
 
     # print the templating name
-    print_ok("Templating Kit: " + params['plan']['templatingKitName'])
+    print_ok(params['plan']['templatingKitName'])
 
 except Exception as exc:
     print_na(str(exc))
