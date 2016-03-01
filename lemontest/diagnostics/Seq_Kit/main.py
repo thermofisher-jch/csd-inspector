@@ -3,6 +3,7 @@
 
 import sys
 import os
+from inspector_utils import *
 
 
 def load_explog(path):
@@ -17,11 +18,7 @@ def load_explog(path):
 
 
 def validate(archive_path):
-    path = os.path.join(archive_path, "explog_final.txt")
-    if not os.path.exists(path):
-        return "explog_final.txt missing", data, False
-
-    explog = load_explog(path)
+    explog = read_explog(archive_path)
     data = {}
     data['inspector_seq_kit'] = explog.get("SeqKitDesc", None)
     if not data['inspector_seq_kit']:

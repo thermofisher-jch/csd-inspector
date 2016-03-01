@@ -3,25 +3,11 @@
 
 import sys
 import os
-
-
-def load_explog(path):
-    data = {}
-    for line in open(path):
-        # Trying extra hard to accomodate formatting issues in explog
-        datum = line.split(": ", 1)
-        if len(datum) == 2:
-            key, value = datum
-            data[key.strip()] = value.strip()
-    return data
+from inspector_utils import *
 
 
 def validate(archive_path):
-    path = os.path.join(archive_path, "explog_final.txt")
-    if not os.path.exists(path):
-        return "explog_final.txt missing", False
-
-    explog = load_explog(path)
+    explog = read_explog(archive_path)
     if "PGMTemperature" not in explog:
         return "PGMTemperature missing from explog_final.txt", False
 

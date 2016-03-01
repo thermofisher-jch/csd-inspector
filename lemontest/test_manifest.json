@@ -8,9 +8,11 @@
     "PGM_Temperature",
     "PGM_Pressure",
     "Chip_Noise",
+    "Chip_Gain",
     "Auto_pH",
     "Seq_Kit",
-    "flowErr"
+    "flowErr",
+    "Reference_Electrode"
   ],
   "Proton":[
     "Filter_Metrics",
@@ -19,6 +21,7 @@
     "Version_Check",
     "ISP_Loading",
     "Chip_Noise",
+    "Chip_Gain",
     "Proton_Pressure",
     "Auto_pH",
     "Seq_Kit",
@@ -31,6 +34,7 @@
     "Version_Check",
     "ISP_Loading",
     "Chip_Noise",
+    "Chip_Gain",
     "Seq_Kit",
     "S5_Pressure",
     "Version_Check",

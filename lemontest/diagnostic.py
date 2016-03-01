@@ -13,6 +13,7 @@ import subprocess
 import os
 import os.path
 import time
+import sys
 from glob import glob
 from celery.task import task
 from celery.utils.log import get_task_logger
@@ -38,11 +39,6 @@ class Tester(object):
         return Diagnostic(self.name)
 
 @task
-def echo(message):
-    print("Printing " + message)
-    logger.warning(message)
-
-@task
 def run_tester(test, diagnostic_id, archive_path):
     """Spawn a subshell in which the test's main script is run, with the
     archive's folder and the script's output folder as command line args.
@@ -58,7 +54,14 @@ def run_tester(test, diagnostic_id, archive_path):
         os.mkdir(output_path)
         cmd = [test.main, archive_path, output_path]
         # Spawn the test subprocess and wait for it to complete.
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=test.directory)
+        dirname = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'diagnostics', 'common')
+        if dir not in sys.path:
+            sys.path.append(dirname)
+
+        current_env = os.environ.copy()
+        current_env['PYTHONPATH'] = ':'.join(sys.path)
+
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=test.directory, env=current_env)
         result = proc.poll()
         start_time = time.time()
         while result is None and time.time() - start_time < timeout:

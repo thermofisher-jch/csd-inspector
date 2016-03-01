@@ -3,27 +3,14 @@
 import sys
 import os
 from distutils.version import StrictVersion
+from inspector_utils import *
 
 OK_STRING = "TS Version is acceptable at <strong>%s</strong>"
 ALERT_STRING = "Advise customer to upgrade their Torrent Server.  Their version is out-dated at <strong>%s</strong>"
 
-def load_explog(path):
-    data = {}
-    for line in open(path):
-        # Trying extra hard to accomodate formatting issues in explog
-        datum = line.split(": ", 1)
-        if len(datum) == 2:
-            key, value = datum
-            data[key.strip()] = value.strip()
-    return data
-
 
 def validate(archive_path):
-    path = os.path.join(archive_path, "explog_final.txt")
-    if not os.path.exists(path):
-        return "explog_final.txt missing", False
-
-    explog = load_explog(path)
+    explog = read_explog(archive_path)
     return explog, True
 
 

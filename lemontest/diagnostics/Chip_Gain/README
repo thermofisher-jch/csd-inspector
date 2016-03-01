@@ -1,0 +1,8 @@
+The chip gain should be within these ranges for these chip types:
+314: OK (0.67-0.70) < Alert
+316: OK (0.67-0.70) < Alert
+318: OK (0.67-0.70) < Alert
+P1: OK <= 170.0 < Alert
+520: OK (between 1.00 and 1.10) < Alert
+530: OK (between 1.00 and 1.10) < Alert
+540: OK (between 1.00 and 1.10) < Alert

@@ -16,7 +16,6 @@ lemontest/metrics_pgm_explog.py
 lemontest/metrics_pgm_quality_summary.py
 lemontest/metrics_proton_explog.py
 lemontest/models.py
-lemontest/tasks.py
 lemontest/tests.py
 lemontest/upload.py
 lemontest/views.py

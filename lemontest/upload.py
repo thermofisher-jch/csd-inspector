@@ -177,9 +177,9 @@ def get_diagnostics(archive_type):
     return [t.diagnostic_record() for t in testers[archive_type].values()]
 
 
-def make_diagnostic_jobs(archive, testers):
+def make_diagnostic_jobs(archive, testSet):
     return [diagnostic.run_tester.subtask(
-                    (testers[archive.archive_type][d.name], d.id, archive.path))
+                    (testSet[archive.archive_type][d.name], d.id, archive.path))
                     for d in archive.diagnostics]
 
 
