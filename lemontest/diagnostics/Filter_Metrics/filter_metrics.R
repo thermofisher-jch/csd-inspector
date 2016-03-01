@@ -4,10 +4,10 @@ pngHeight <- 500
 myColor <- rev(rainbow(10))
 
 myBarplot <- function(y,...) {
-  ylim <- c(0,max(y)*1.1)
-  yrange <- ylim[2]-ylim[1]
-  mids <- barplot(y,ylim=ylim,...)
-  plotText <- paste(round(y),", ",round(100*y/sum(y)),"%",sep="")
+  ylim <- c(0, max(y) * 1.1)
+  yrange <- ylim[2] - ylim[1]
+  mids <- barplot(y, ylim=ylim, ...)
+  plotText <- paste(y)
   text(mids,y+0.02*yrange,plotText,adj=c(0.5,0),cex=1)
 }
 
