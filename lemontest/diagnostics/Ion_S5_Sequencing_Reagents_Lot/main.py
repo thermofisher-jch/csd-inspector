@@ -2,6 +2,7 @@
 
 import os
 import sys
+from inspector_utils import *
 
 PRODUCT_LINE = 'Ion S5 Sequencing Reagent'
 
@@ -26,10 +27,6 @@ try:
             washLot = keyValue[1].strip()
             break
 
-    print "OK"
-    print "10"
-    print washLot
+    print_info(washLot)
 except Exception as exc:
-    print "Warning"
-    print "30"
-    print str(exc)
+    print_na(str(exc))
