@@ -47,9 +47,7 @@
     "Raw_Trace",
     "Flow",
     "flowErr",
-    "Ion_S5_Wash_Solution_Lot",
-    "Ion_S5_Sequencing_Reagents_Lot",
-    "Ion_S5_Cleaning_Solution_Lot",
+    "Ion_S5_Reagent_Lots",
     "Templating_Kit",
     "Sequencing_Kit",
     "Chip_Type"
