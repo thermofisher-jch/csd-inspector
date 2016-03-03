@@ -72,13 +72,7 @@ def main(global_config, **settings):
     config.add_route('trace_serve_csv','/trace/trace.csv')
 
     # Plot support
-    config.add_route('trace_request_report', '/trace/request_report')
     config.add_route('trace_show_report', '/trace/report')
-    config.add_route('trace_check_report_update', '/trace/report_update')
-    config.add_route('trace_customize_report', '/trace/report_custom')
-
-    # Check file progress
-    config.add_route('trace_check_file_update', '/trace/check_file_update')
 
     # useful when trying to see what is in the DB
     #config.add_route('db_query', '/db_query')

@@ -44,44 +44,12 @@ archive_tags = Table('archive_tags', Base.metadata,
     Column('tag_id', Integer, ForeignKey('tags.id'))
 )
 
-'''
-    Task: Second class for objects being displayed in metric table
-'''
-class PrettyFormatter(object):
-
-    '''
-        Task: gets value of given column
-        @param    key    key of metric columns dict
-        @return          the value of given metric column
-    '''
-    def get_value(self, key):
-        return getattr(self, type(self).columns[key])
-
-    '''
-        Task: gets formatted value of given column
-        @param    key    key of metric columns dict
-        @return          if column should be formatted, the formatted value of given metric column
-                         else the unformatted value
-    '''
-    def get_formatted(self, key):
-        if key in self.pretty_columns:
-            return self.pretty_columns[key](self.get_value(key))
-        else:
-            return self.get_value(key)
-
-    '''
-        Task: returns the column of the metric object
-        @param    key    key of metric columns dict
-        @return          the metric object column
-    '''
-    @classmethod
-    def get_column(cls, key):
-        return getattr(cls, cls.columns[key])
 
 class ArchiveType(Base):
     __tablename__ = 'archivetypes'
     id = Column(Integer, primary_key=True)
     name = Column(Unicode(255))
+
 
 class Archive(Base):
     __tablename__ = 'archives'
@@ -237,9 +205,8 @@ class FileProgress(Base):
     path = Column(Unicode(255))
     time = Column(DateTime)
 
-    '''one to one relationship between Graph and MetricReport DB models'''
+    '''one to one relationship between Graph models'''
     graph = relationship('Graph', uselist=False, backref='fileprogress')
-    report_cache = relationship('MetricReport', uselist=False, backref='cache_fileprogress')
 
     # useful when trying to see what is in the DB
     def inspect(self):
@@ -258,7 +225,6 @@ class FileProgress(Base):
 class Graph(Base):
     __tablename__ = 'graph'
     id = Column(Integer, primary_key=True)
-    report_id = Column(Integer, ForeignKey('metric_report.id'))
     file_progress_id = Column(Integer, ForeignKey('fileprogress.id'))
     graph_type = Column(Unicode(255))
     column_name = Column(Unicode(255))
@@ -277,13 +243,11 @@ class Graph(Base):
 
     '''
         Task: initialize this DB object
-        @param    report_id:           MetricReport DB object id
         @param    graph_type:          graph type; boxplot || histogram
         @param    column_name:         metric column that is being represented
         @param    file_progress_id:    FileProgress DB object id
     '''
-    def __init__(self, report_id, graph_type, column_name, file_progress_id):
-        self.report_id = report_id
+    def __init__(self, graph_type, column_name, file_progress_id):
         self.file_progress_id = file_progress_id
         self.graph_type = graph_type
         self.column_name = column_name
@@ -360,133 +324,6 @@ class Graph(Base):
 
         return details
 
-'''
-    Task: Report object in DB
-'''
-class MetricReport(Base, PrettyFormatter):
-    __tablename__ = 'metric_report'
-    id = Column(Integer, primary_key=True)
-    filter_id = Column(Integer, ForeignKey('saved_filters.id'))
-    data_cache_file_progress = Column(Integer, ForeignKey('fileprogress.id'))
-    status = Column(Unicode(255))
-
-    metric_type= Column(Unicode(255))
-    metric_column = Column(Unicode(255))
-    db_state = Column(Unicode(255))
-    '''Statistics'''
-    mean = Column(Numeric(20))
-    median = Column(Numeric(20))
-    mode = Column(Numeric(20))
-    std_dev = Column(Numeric(20))
-    q1 = Column(Numeric(20))
-    q3 = Column(Numeric(20))
-    range_min = Column(Numeric(20))
-    range_max = Column(Numeric(20))
-    data_n = Column(Integer)
-
-    graphs = relationship('Graph', backref='report', cascade='all')
-
-    ordered_columns = [
-                       ('Mean', 'mean'),
-                       ('Median', 'median'),
-                       ('Mode', 'mode'),
-                       ('Standard Deviation', 'std_dev'),
-                       ('Q1', 'q1'),
-                       ('Q3', 'q3'),
-                       ('Min', 'range_min'),
-                       ('Max', 'range_max'),
-                       ('Data Points', 'data_n')
-                       ]
-
-    columns = dict(ordered_columns)
-
-    '''useful when trying to see what is in the DB'''
-    def inspect(self):
-        mapper = inspect(type(self))
-        return mapper.attrs
-
-    '''
-        Task: initialize; status always begins with Queued
-        @param    metric_type:     metric object that that is being represented in this report
-        @param    metric_colum:    column that is being represented in this report
-    '''
-    def __init__(self, metric_type, metric_column):
-        self.status = 'Queued'
-        self.metric_type = metric_type
-        self.metric_column = metric_column
-
-    '''returns statistical data of metric data set that makes up the report'''
-    def get_statistics(self):
-        statistics = {}
-        for column in self.ordered_columns:
-            statistics[column[0]] = str(self.get_formatted(column[0]))
-        return statistics
-
-    '''depending on the column being represented, we format the numbers'''
-    @orm.reconstructor
-    def on_load(self):
-        self.large_units = [
-                            'ISP Wells',
-                            'Live Wells',
-                            'Test Fragment',
-                            'Lib Wells',
-                            'Polyclonal',
-                            'Primer Dimer',
-                            'Low Quality',
-                            'Usable Reads',
-                            'Cycles',
-                            'Flows',
-                            'Total Bases',
-                            'Total Reads',
-                            ]
-
-        if self.metric_column in self.large_units:
-            self.pretty_columns = {
-                                   'Mean': self.format_large_units,
-                                   'Median': self.format_large_units,
-                                   'Mode': self.format_large_units,
-                                   'Standard Deviation': self.format_large_units,
-                                   'Q1': self.format_large_units,
-                                   'Q3': self.format_large_units,
-                                   'Min': self.format_large_units,
-                                   'Max': self.format_large_units,
-                                   }
-        else:
-            self.pretty_columns = {
-                                   'Mean': self.format_units_small,
-                                   'Median': self.format_units_small,
-                                   'Mode': self.format_units_small,
-                                   'Standard Deviation': self.format_units_small,
-                                   'Q1': self.format_units_small,
-                                   'Q3': self.format_units_small,
-                                   'Min': self.format_units_small,
-                                   'Max': self.format_units_small,
-                                   }
-
-    '''format small numbers'''
-    def format_units_small(self, quantity, sig_figs=3):
-        if quantity:
-            quantity = Decimal(quantity)
-            return round(quantity, -int(math.floor(math.log10(abs(quantity))) - (sig_figs - 1)))
-        else:
-            return None
-
-    '''format large numbers'''
-    suffixes = ('k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
-    def format_large_units(self, quantity, unit="", base=1000):
-        if quantity:
-            quantity = int(quantity)
-            if quantity < base:
-                return '%d  %s' % (quantity, unit)
-
-            for i, suffix in enumerate(self.suffixes):
-                magnitude = base ** (i + 2)
-                if quantity < magnitude:
-                    return '%.1f %s%s' % ((base * quantity / float(magnitude)), suffix, unit)
-
-            return '%.1f %s%s' % ((base * quantity / float(magnitude)), suffix, unit)
-        else:
-            return None
 
 class Tag(Base):
     __tablename__ = 'tags'
