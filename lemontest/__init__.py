@@ -63,8 +63,6 @@ def main(global_config, **settings):
 
     # Filters
     config.add_route('trace_apply_filter', '/trace/apply_filter')
-    config.add_route('trace_save_filter', '/trace/save_filter')
-    config.add_route('trace_delete_saved_filter', '/trace/delete_saved_filter')
 
     # CSV support
     config.add_route('trace_show_hide', '/trace/show_hide')

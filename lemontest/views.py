@@ -9,10 +9,6 @@ import os.path
 import json
 import collections
 from datetime import datetime
-
-from lemontest.models import SavedFilters
-from lemontest.models import FileProgress
-from lemontest.models import Graph
 from lemontest.models import DBSession
 from lemontest.models import Archive
 from lemontest.models import Tag
@@ -53,11 +49,6 @@ archive_type_files = {
     "OT_Log": "onetouch.log"
 }
 
-trace_graph_types = [
-                     'boxplot',
-                     'histogram',
-                     ]
-
 def add_helpers(event):
     event['h'] = helpers
 
@@ -68,8 +59,7 @@ def error_view(exc, request):
     return Response("Sorry, there was an error.", 500)
 
 
-@view_config(route_name="index", renderer="index.mako",
-    permission='view')
+@view_config(route_name="index", renderer="index.mako", permission='view')
 def index(request):
     """Currently more of a static page.
     """
@@ -250,8 +240,7 @@ def clean_strings(params):
     return params
 
 
-@view_config(route_name="reports", renderer="reports.mako",
-    permission='view')
+@view_config(route_name="reports", renderer="reports.mako", permission='view')
 def list_reports(request):
     search_params = clean_strings({
         'archive_type': request.params.get('archive_type', u''),
@@ -311,13 +300,11 @@ def list_reports(request):
             'archive_types': testers.keys(), 'search': search_params}
 
 
-@view_config(route_name="documentation", renderer="documentation.mako",
-    permission='view')
+@view_config(route_name="documentation", renderer="documentation.mako", permission='view')
 def documentation(request):
     return {}
 
-@view_config(route_name="test_readme",
-    permission='view')
+@view_config(route_name="test_readme", permission='view')
 def test_readme(request):
     test_name = request.matchdict["test_name"]
     readme = None
@@ -346,175 +333,6 @@ def not_found(self, request):
 @view_config(route_name="old_browser", renderer="old_browser.mako", permission='view')
 def old_browser(request):
     return {}
-
-
-'''
-    Task: create filter object that defines metric data set
-    @param     request:           client/server request.params
-    @param     metric_type:       metric object type for request type. If this is not set, the request should have metric_type in request.params
-    @return    filter_obj:        filter object that defines metric data set
-    @return    saved_filters:     saved filters in DB
-    @return    extra_params:      GET and POST parameters not already used
-    @return    sort_by_column:    currently sorted by column
-'''
-def get_db_queries(request, metric_type=None):
-    '''validate request parameters'''
-    categorical_filters, numeric_filters, sort_by_column, extra_params = validate_filter_params(request)
-
-    '''make sure we have metric_type'''
-    if not metric_type:
-        if 'metric_type' not in extra_params or not extra_params['metric_type']:
-            return HTTPInternalServerError()
-        else:
-            metric_type = extra_params['metric_type']
-
-    '''
-        if request is for an existing saved filter, query DB and return that filter
-        else we make a temporary one, or return a not_found flag to client.
-        not_found flag occurs when user tries to access a filter that does not exist in DB.
-        filterid could be set to blank if user tries to save an empty filter set
-       '''
-    if 'filterid' in extra_params and extra_params['filterid'] and extra_params['filterid'] != 'blank':
-        filter_obj = DBSession.query(SavedFilters).filter(SavedFilters.id == int(extra_params['filterid'])).first()
-
-        if filter_obj:
-            extra_params['current_selected_filter'] = filter_obj.name
-        else:
-            filter_obj = SavedFilters('not_found', metric_type, json.dumps(numeric_filters), json.dumps(categorical_filters))
-            extra_params['current_selected_filter'] = 'None'
-    else:
-        filter_obj = SavedFilters('None', metric_type, json.dumps(numeric_filters), json.dumps(categorical_filters))
-        filter_obj.type = 'temp'
-        extra_params['current_selected_filter'] = 'None'
-
-    '''gets all saved filters from DB'''
-    saved_filters = DBSession.query(SavedFilters).filter(SavedFilters.metric_type == metric_type).filter(SavedFilters.type != "temp").order_by(SavedFilters.id.desc())
-
-    return filter_obj, saved_filters, extra_params, sort_by_column
-
-'''
-    Task: validates filters from request.params
-    @param     request:                client/server request.params
-    @param     params_only             called internally by other views directly, returns only extra_params
-    @return    categorical_filters:    categorical component of current filter that will be applied to data set
-    @return    numeric_filters:        numerical component of current filter that will be applied to data set
-    @return    sort_by_column:         current column that data set will be sorted by
-    @return    extra_params:           GET and POST parameters not already used
-'''
-def validate_filter_params(request, params_only=False):
-    '''parameters that the template is expecting will always be there and default values if not found'''
-    required_params = {
-                       "extra_filters_template": u'0',
-                       "filterid": '',
-                       }
-
-    '''parameters that are used throughout the app'''
-    used_params = [
-                   'show_hide',
-                   'csrf_token',
-                   'metric_type',
-                   'page',
-                   'current_selected_filter',
-                   'saved_filter_name',
-                   'saved_filters',
-                   'fileprogress_id',
-                   'report_id',
-                   'graph_column_name',
-                   'graph_type',
-                   'report',
-                   ]
-
-    '''regular expression to find numeric filter parameters'''
-    numeric_filter_re = re.compile('metric_type_filter\d+')
-    numeric_filter_re2 = re.compile('.*_number\d+')
-    sorting_filter_re = re.compile('.*_sort')
-
-    '''regular expressions to find report customization'''
-    report_custom_re = re.compile('boxplot_.*')
-    report_custom_re2 = re.compile('histogram_.*')
-
-    '''things to return at the end of validation'''
-    extra_params = {}
-    search_params = {}
-    numeric_filters = {}
-    categorical_filters = {}
-    sort_by_column = {}
-
-    '''grab only non-empty parameters'''
-    for key in request.keys():
-        if request[key].strip():
-            search_params[key] = request[key].strip()
-
-    '''
-        find all parameters for numeric filters
-        structure them effectively for the client side
-        remove them from search_params after use
-    '''
-    for key, value in search_params.items():
-        if numeric_filter_re.match(key):
-            category = numeric_filter_re.match(key).group()
-            category_number = re.findall('\d+', category)
-            min_number = 'min_number' + category_number[0]
-            max_number = 'max_number' + category_number[0]
-
-            if min_number in search_params and max_number in search_params:
-                numeric_filters[key] = {'type': value, 'min': search_params[min_number], 'max': search_params[max_number]}
-                search_params[min_number] = ''
-                search_params[max_number] = ''
-            elif min_number in search_params and max_number not in search_params:
-                numeric_filters[key] = {'type': value, 'min': search_params[min_number], 'max': ''}
-                search_params[min_number] = ''
-            elif min_number not in search_params and max_number in search_params:
-                numeric_filters[key] = {'type': value, 'min': '', 'max': search_params[max_number]}
-                search_params[max_number] = ''
-            search_params[key] = ''
-        elif report_custom_re.match(key) or report_custom_re2.match(key):
-            extra_params[key] = value.replace(',', '')
-            search_params[key] = ''
-
-    '''find and remove all numeric filter stragglers
-    that result from incomplete numeric filter forms'''
-    for key in search_params.keys():
-        if numeric_filter_re2.match(key):
-            search_params[key] = ''
-
-    '''look for all required parameters and set to default value if not found'''
-    for param, default_value in required_params.items():
-        if param not in search_params:
-            extra_params[param] = default_value
-        else:
-            extra_params[param] = search_params[param]
-            search_params[param] = ''
-
-    '''needed parameter for numeric filters'''
-    numeric_filters['extra_filters'] = extra_params['extra_filters_template']
-
-    '''separate all non filter parameters out'''
-    for param in used_params:
-        if param in search_params:
-            extra_params[param] = search_params[param]
-            search_params[param] = ''
-
-    # keep all non empty params
-    '''at this point it will be all categorical parameters and column sorting'''
-    temp = {}
-    for key in search_params.keys():
-        if search_params[key]:
-            temp[key] = search_params[key]
-    search_params = temp
-
-    '''separate categorical parameters'''
-    for key, value in search_params.items():
-        if not sorting_filter_re.match(key):
-            categorical_filters[key] = value
-        else:
-            sort_by_column[key.split('_sort')[0]] = value
-
-    '''if params_only flag is set, returns only extra_params'''
-    if params_only:
-        return extra_params
-    else:
-        return categorical_filters, numeric_filters, sort_by_column, extra_params
 
 
 '''
@@ -555,50 +373,4 @@ def apply_filter(request):
 
     return HTTPFound(location=url)
 
-'''
-    Task: saved given filter as a DB object
-    @return    HTTPFound    redirect to same page with the added filterid parameter that matches the saved and now applied filter
-'''
-@view_config(route_name="trace_save_filter", renderer="json", permission="view")
-def save_filter(request):
-
-    filter_obj, saved_filters, extra_params, sort_column = get_db_queries(request.params)
-
-    if 'metric_type' not in extra_params or not extra_params['metric_type']:
-        return HTTPInternalServerError()
-    else:
-        metric_type = extra_params['metric_type']
-
-    url = request.route_url('trace_' + metric_type)
-
-    '''if the filter object is not empty, we redirect to filter applied; else we send back blank flag to UI'''
-    filter_obj.name = extra_params['saved_filter_name']
-    if (len(filter_obj.numeric_filters_json) > 1) or filter_obj.categorical_filters_json:
-        filter_obj.type = "saved"
-        DBSession.add(filter_obj)
-        DBSession.flush()
-        url += '?filterid=' + str(filter_obj.id)
-        transaction.commit()
-    else:
-        url += '?filterid=blank'
-
-    return HTTPFound(location=url)
-
-'''
-    Task: deletes given filter object from DB
-    @return    HTTPFound    redirect to same page
-'''
-@view_config(route_name='trace_delete_saved_filter', renderer='json', permission='view')
-def delete_saved_filter(request):
-    filter_id = request.params.get('filter_to_delete', '')
-    filter_type = request.params.get('metric_type', '')
-
-    if filter_id:
-        filter = DBSession.query(SavedFilters).filter(SavedFilters.id == filter_id).first()
-        DBSession.delete(filter)
-        transaction.commit()
-
-        url = request.route_url('trace_' + filter_type)
-
-    return HTTPFound(location=url)
 

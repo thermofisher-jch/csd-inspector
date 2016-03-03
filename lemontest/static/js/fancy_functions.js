@@ -310,31 +310,6 @@ function apply_saved_filter(id) {
 	apply_filter_form.submit();
 }
 
-// cycles through all filter parameters and sends a form to the server for it to save as a
-// SavedFilters object
-function save_filters() {
-	try {
-		var current_filters = document.getElementById('filter_form');
-
-		var extra_input1 = document.createElement('input');
-		extra_input1.type = 'hidden';
-		extra_input1.name = 'saved_filter_name';
-		extra_input1.value = document.getElementById('saved_filter_name').value;
-		current_filters.appendChild(extra_input1);
-
-		var extra_input2 = document.createElement('input');
-		extra_input2.type = 'hidden';
-		extra_input2.name = 'metric_type';
-		extra_input2.value = document.getElementById('metric_type_input').value;
-		current_filters.appendChild(extra_input2);
-
-		current_filters.action = '/trace/save_filter';
-		current_filters.submit();
-	} catch(err) {
-		console.log(err);
-	}
-}
-
 // fills all the numeric and categorical filter options
 function fill_filters() {
 	try {
