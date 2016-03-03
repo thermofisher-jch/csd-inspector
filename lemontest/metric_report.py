@@ -16,9 +16,6 @@ from lemontest.models import FileProgress
 from lemontest.models import SavedFilters
 from lemontest.models import Graph
 from lemontest.models import Archive
-from lemontest.models import MetricsPGM
-from lemontest.models import MetricsProton
-from lemontest.models import MetricsOTLog
 from lemontest.models import MetricReport
 
 from celery import task
@@ -466,9 +463,6 @@ def histogram(column, data, specs=None):
     return name, title, x_label, x_axis_max, x_axis_min, y_label, y_axis_max, y_axis_min
 
 mapping = {
-           'pgm': MetricsPGM,
-           'proton': MetricsProton,
-           'otlog': MetricsOTLog,
            'boxplot': box_plot,
            'histogram': histogram
            }
