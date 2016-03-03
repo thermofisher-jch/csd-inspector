@@ -6,8 +6,6 @@ import mimetypes
 import os
 import shutil
 import os.path
-import json
-import collections
 from datetime import datetime
 from lemontest.models import DBSession
 from lemontest.models import Archive
@@ -15,23 +13,15 @@ from lemontest.models import Tag
 from lemontest.models import testers
 
 from pyramid.view import view_config
-from pyramid.renderers import get_renderer
 from pyramid.response import Response
 from pyramid.httpexceptions import HTTPFound
 from pyramid.httpexceptions import HTTPNotFound
-from pyramid.httpexceptions import HTTPInternalServerError
 from pyramid.exceptions import NotFound
 
-from pyramid.response import FileResponse
-
-from sqlalchemy.orm import subqueryload, joinedload
+from sqlalchemy.orm import subqueryload
 from webhelpers import paginate
 import upload
 import helpers
-from sqlalchemy.sql.expression import column
-from collections import OrderedDict
-from sqlalchemy.orm.interfaces import collections
-import lemontest
 
 logger = logging.getLogger(__name__)
 
@@ -117,15 +107,13 @@ def post_upload_validate(request):
     return False, None
 
 
-@view_config(route_name="upload", xhr=True, renderer="json",
-    permission='view')
+@view_config(route_name="upload", xhr=True, renderer="json", permission='view')
 def xhr_upload_file(request):
     valid, url = post_upload_validate(request)
     return {"valid": valid, "url": url}
 
 
-@view_config(route_name="upload", xhr=False, renderer="upload.mako",
-    permission='view')
+@view_config(route_name="upload", xhr=False, renderer="upload.mako", permission='view')
 def upload_file(request):
     """Receive the uploaded archive, create a folder to contain the diagnostic,
     save a copy of the archive to the folder, and extract it's contents there.
@@ -172,8 +160,7 @@ def parse_tags(tag_string):
     return tags
 
 
-@view_config(route_name="check", renderer="check.mako",
-    permission='view')
+@view_config(route_name="check", renderer="check.mako", permission='view')
 def check_archive(request):
     """Show the status of an archive given it's ID."""
     archive_id = int(request.matchdict["archive_id"])
@@ -193,12 +180,11 @@ def check_archive(request):
         test.get_readme_path()
     basename = os.path.basename(archive.path)
     return {"archive": archive, "basename": basename, 'archive_types': testers.keys(),
-        "status_highlights": status_highlights, "tag_string": " ".join(t.name for t in archive.tags),
-        "download_file": archive_type_files.get(archive.archive_type, "")}
+            "status_highlights": status_highlights, "tag_string": " ".join(t.name for t in archive.tags),
+            "download_file": archive_type_files.get(archive.archive_type, "")}
 
 
-@view_config(route_name="super_delete", request_method="POST",
-    permission='view')
+@view_config(route_name="super_delete", request_method="POST", permission='view')
 def super_delete(request):
     archive_id = int(request.matchdict["archive_id"])
     archive = DBSession.query(Archive).options(subqueryload(
@@ -304,6 +290,7 @@ def list_reports(request):
 def documentation(request):
     return {}
 
+
 @view_config(route_name="test_readme", permission='view')
 def test_readme(request):
     test_name = request.matchdict["test_name"]
@@ -320,57 +307,20 @@ def test_readme(request):
         response = HTTPFound("%s does not have a README file." % test_name)
     return response
 
-@view_config(route_name="stats", renderer="stats.mako",
-    permission='view')
+
+@view_config(route_name="stats", renderer="stats.mako", permission='view')
 def stats(request):
     return {}
+
 
 @view_config(context=HTTPNotFound, renderer="404.mako")
 def not_found(self, request):
     request.response.status = 404
     return {}
 
+
 @view_config(route_name="old_browser", renderer="old_browser.mako", permission='view')
 def old_browser(request):
     return {}
-
-
-'''
-    Task: stores the user preference for which columns are shown or hidden in the user session
-'''
-@view_config(route_name="trace_show_hide", renderer="json", permission="view", xhr=True)
-def show_hide_columns(request):
-
-    show_hide_columns = {}
-
-    metric_type = request.params.get("metric_type")
-
-    show_hide = "show_hide_columns_" + metric_type
-
-    if show_hide in request.POST and request.POST[show_hide]:
-        show_hide_columns = request.params.get(show_hide)
-
-    request.session['show_hide_session_' + metric_type] = show_hide_columns
-
-    return {"status": 200}
-
-'''
-    Task: reloads the same page with filterid applied
-    @return    HTTPFound    redirect to same page with the added filterid parameter that matches the applied filter
-'''
-@view_config(route_name='trace_apply_filter', renderer="json", permission='view')
-def apply_filter(request):
-    '''checks if needed parameters are available, if not throws internal server error'''
-    if 'metric_type' in request.params and request.params['metric_type'] and 'filterid' in request.params and request.params['filterid']:
-        metric_type = request.params['metric_type']
-        filter_id = request.params['filterid']
-    else:
-        return HTTPInternalServerError()
-
-    '''sets redirect variable'''
-    url = request.route_url('trace_' + metric_type)
-    url += '?filterid=' + filter_id
-
-    return HTTPFound(location=url)
 
 

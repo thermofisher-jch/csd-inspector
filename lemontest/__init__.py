@@ -55,26 +55,6 @@ def main(global_config, **settings):
 
     config.add_route('api_auto_complete', '/api/auto_complete')
 
-    # Metric Pages
-    config.add_route('trace_pgm', '/trace/pgm')
-    config.add_route('trace_proton', '/trace/proton')
-    config.add_route('trace_otlog', '/trace/otlog')
-    #config.add_route('trace_ionchef', '/trace/chef') currently inactive
-
-    # Filters
-    config.add_route('trace_apply_filter', '/trace/apply_filter')
-
-    # CSV support
-    config.add_route('trace_show_hide', '/trace/show_hide')
-    config.add_route('trace_request_csv', '/trace/request_csv')
-    config.add_route('trace_serve_csv','/trace/trace.csv')
-
-    # Plot support
-    config.add_route('trace_show_report', '/trace/report')
-
-    # useful when trying to see what is in the DB
-    #config.add_route('db_query', '/db_query')
-
     # This lets the function 'add_base_template' tack the layout template into
     # the mystical universe of chameleon templating so that the other templates
     # can put themselves inside layout.pt like they're supposed to.
