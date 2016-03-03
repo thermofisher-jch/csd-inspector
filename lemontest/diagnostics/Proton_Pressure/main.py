@@ -2,7 +2,7 @@
 
 import sys
 import os
-from inspector_utils import *
+from lemontest.diagnostics.common.inspector_utils import *
 
 
 def validate(archive_path):

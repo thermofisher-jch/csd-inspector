@@ -1,72 +1,34 @@
 #!/usr/bin/env python
 
-from xml.etree import ElementTree
-import xml.etree 
 import sys
-import os
-import os.path
-import re
+from lemontest.diagnostics.common.inspector_utils import *
 
 run_types = {
-    "FactoryTest": "Factory Test",
+    "rc": "Chef Templating Run",
+    "rl": "Chef Library Prep Run",
+    "rd": "Chef gDNA to Chip Run",
+    "cleaning": "Chef UV Clean",
+    "factorytest": "Factory Test",
     "installtest": "Install Test",
-    "rc": "Run Log"
 }
 
-if __name__ == "__main__":
+try:
     archive, output = sys.argv[1:3]
     file_count = 0
-    files = []
     output_name = ''
-    xml_path = ''
-    errors = []
-    error_summary = ""
 
-    for path, dirs, names in os.walk(archive):
-        if "test_results" not in path:
-            for name in names:
-                if "logs.tar" not in name:
-                    rel_dir = os.path.relpath(path, archive)
-                    rel = os.path.join(rel_dir, name)
-                    full = os.path.join(path, name)
-                    files.append(rel)
-                    file_count += 1
-                    if rel.startswith("var/log/IonChef/RunLog/") and rel.endswith(".xml"):
-                        xml_path = full
+    # get the xml data and look up the run type
+    root = get_xml_from_run_log(archive)
+    run_type_node = root.find("RunInfo/RunType")
+    if run_type_node is None:
+        raise Exception("No run type")
 
-    if xml_path:
-        # groom the xml of known error conditions
-        xml = ''
-        with open(xml_path, 'r') as xml_file:
-            xml = xml_file.read()
+    # get a groomed version of the output name and find it in the run type map
+    output_name = run_type_node.text.strip().lower()
+    summary = run_types.get(output_name) if output_name in run_types else 'Other'
 
-        xml = re.sub('< *', '<', xml)
-        xml = re.sub('</ *', '</', xml)
-        xml = re.sub('> *', '>', xml)
+    # print the results
+    print_info(summary)
 
-        try:
-            root = ElementTree.fromstring(xml)
-        except Exception as err:
-            errors.append("Error reading run log: " + str(err))
-        else:
-            name_tag = root.find("RunInfo/RunType")
-            if name_tag is None:
-                error_summary = "No run type"
-            else:
-                output_name = name_tag.text.strip()
-                if output_name in run_types:
-                    output_name = run_types.get(output_name)
-    else:
-        error_summary = "No Run Log."
-
-    if error_summary:
-        print("N/A")
-        print("0")
-        print(error_summary)
-    else:        
-        summary = output_name
-        print("Info")
-        print("20")
-        print(summary)
-
-
+except Exception as exc:
+    print_na(str(exc))

@@ -2,7 +2,7 @@
 
 import os
 import sys
-from inspector_utils import *
+from lemontest.diagnostics.common.inspector_utils import *
 
 
 def get_lot_from_lines(log_lines, lot_type):

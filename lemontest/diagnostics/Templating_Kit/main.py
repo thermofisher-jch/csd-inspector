@@ -3,7 +3,7 @@
 import json
 import os
 import sys
-from inspector_utils import *
+from lemontest.diagnostics.common.inspector_utils import *
 
 try:
     # get the path to the log file

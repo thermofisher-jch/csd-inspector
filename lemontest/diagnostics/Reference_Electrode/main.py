@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
 import sys
-import os
-from inspector_utils import *
+from lemontest.diagnostics.common.inspector_utils import *
 
 
 # the ranges based on chip type for which the gain value is valid

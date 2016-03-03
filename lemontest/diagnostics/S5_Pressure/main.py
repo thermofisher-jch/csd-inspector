@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
 import sys
-import os
-from inspector_utils import *
+from lemontest.diagnostics.common.inspector_utils import *
 
 def validate(archive_path):
     explog = read_explog(archive_path)

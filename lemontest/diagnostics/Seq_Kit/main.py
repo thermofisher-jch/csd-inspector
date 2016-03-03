@@ -2,8 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 import sys
-import os
-from inspector_utils import *
+from lemontest.diagnostics.common.inspector_utils import *
 
 
 def load_explog(path):

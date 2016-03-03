@@ -3,7 +3,7 @@
 import sys
 import os
 from distutils.version import StrictVersion
-from inspector_utils import *
+from lemontest.diagnostics.common.inspector_utils import *
 
 OK_STRING = "TS Version is acceptable at <strong>%s</strong>"
 ALERT_STRING = "Advise customer to upgrade their Torrent Server.  Their version is out-dated at <strong>%s</strong>"

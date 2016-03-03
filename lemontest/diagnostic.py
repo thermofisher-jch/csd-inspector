@@ -38,6 +38,7 @@ class Tester(object):
     def diagnostic_record(self):
         return Diagnostic(self.name)
 
+
 @task
 def run_tester(test, diagnostic_id, archive_path):
     """Spawn a subshell in which the test's main script is run, with the
@@ -54,14 +55,7 @@ def run_tester(test, diagnostic_id, archive_path):
         os.mkdir(output_path)
         cmd = [test.main, archive_path, output_path]
         # Spawn the test subprocess and wait for it to complete.
-        dirname = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'diagnostics', 'common')
-        if dir not in sys.path:
-            sys.path.append(dirname)
-
-        current_env = os.environ.copy()
-        current_env['PYTHONPATH'] = ':'.join(sys.path)
-
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=test.directory, env=current_env)
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=test.directory)
         result = proc.poll()
         start_time = time.time()
         while result is None and time.time() - start_time < timeout:
@@ -111,6 +105,7 @@ def run_tester(test, diagnostic_id, archive_path):
             details = u"<div>Test %s ended with an error instead of running normally.\n" % test.name
             if stdout:
                 details += u"<br/>It output:<pre>%s</pre>" % stdout
+                details += u"<br/>With error output:<pre>%s</pre>" % stderr
             else:
                 details += u"It output nothing."
     # Update the record with the results.
