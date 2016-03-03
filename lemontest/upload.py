@@ -11,19 +11,13 @@ from celery.signals import worker_init
 from celery.task import task
 from celery.task import chord
 from celery.utils.log import get_task_logger
-
 from lemontest.models import DBSession
 from lemontest.models import Archive
 from lemontest.models import testers
-
 from lemontest import diagnostic
 
-from lemontest.metrics_pgm import *
-from lemontest.metrics_proton import *
-from lemontest.metrics_otlog import *
 
 logger = logging.getLogger(__name__)
-
 task_logger = get_task_logger(__name__)
 
 
