@@ -244,7 +244,6 @@ def process_archive(archive_id, upload_name, testers):
     it's into a folder hierarchy relative to destination, and writes the
     archive's contents into that restructured hierarchy.
     """
-    from lemontest.metrics_migration import metrics_migration
     logger = task_logger
     archive = DBSession.query(Archive).get(archive_id)
     logger.info("Processing archive in %s" % archive.path)
@@ -260,8 +259,6 @@ def process_archive(archive_id, upload_name, testers):
                 transaction.commit()
                 jobs = make_diagnostic_jobs(archive, testers)
                 run_diagnostics(archive_id, jobs)
-
-                metrics_migration.delay(archive_id)
             else:
                 raise Exception("Could not process upload_file.tmp")
 

@@ -52,6 +52,9 @@
        - r-cran-rjson
        - ion-torrentr
        - git
+       - python-pyramid-beaker
+       - python-sqlalchemy
+       - python-zope.sqlalchemy
 
     - name: add rabbit mq user
       sudo: True
@@ -152,3 +155,6 @@
       service: name=nginx state=restarted
       sudo: yes
 
+    - name: restart supervisor
+      service: name=supervisor state=restarted
+      sudo: yes
