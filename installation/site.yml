@@ -6,7 +6,7 @@
 - hosts: all
   vars:
     disable_git: false
-    git_url: "ssh://git@jira.itw:7999/io/inspector.git"
+    git_url: "ssh://git@stash.amer.thermo.com:7999/io/inspector.git"
     application_path: "/opt/inspector/inspector"
     data_path: "/opt/inspector/"
     venv_path: "/opt/inspector/env"
@@ -27,6 +27,7 @@
       with_items:
        - python-virtualenv
        - python-psycopg2 #Needed as a system package for ansible
+       - python-numpy
        - python-dev
        - supervisor
        - nginx
