@@ -308,11 +308,6 @@ def test_readme(request):
     return response
 
 
-@view_config(route_name="stats", renderer="stats.mako", permission='view')
-def stats(request):
-    return {}
-
-
 @view_config(context=HTTPNotFound, renderer="404.mako")
 def not_found(self, request):
     request.response.status = 404

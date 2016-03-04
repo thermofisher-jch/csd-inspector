@@ -60,8 +60,6 @@ lemontest/static/js/jquery-1.8.3.min.js
 lemontest/static/js/jquery.js
 lemontest/static/js/modernizr.custom.js
 lemontest/templates/404.mako
-lemontest/templates/analysis_pgm.mako
-lemontest/templates/analysis_proton.mako
 lemontest/templates/auth_base.mako
 lemontest/templates/base.mako
 lemontest/templates/check.mako
@@ -69,5 +67,4 @@ lemontest/templates/documentation.mako
 lemontest/templates/index.mako
 lemontest/templates/old_browser.mako
 lemontest/templates/reports.mako
-lemontest/templates/stats.mako
 lemontest/templates/upload.mako
