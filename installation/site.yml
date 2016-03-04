@@ -55,6 +55,8 @@
        - python-pyramid-beaker
        - python-sqlalchemy
        - python-zope.sqlalchemy
+       - python-zope.interface
+       - python-zope.deprecation
 
     - name: add rabbit mq user
       sudo: True
@@ -117,10 +119,6 @@
     - name: upgrade distribute
       sudo: True
       shell: "{{venv_path}}/bin/easy_install -U distribute"
-
-    - name: install python packages in venv
-      sudo: True
-      pip: requirements={{application_path}}/installation/requirements.txt virtualenv={{venv_path}}
 
     - name: restart supervisor
       sudo: True

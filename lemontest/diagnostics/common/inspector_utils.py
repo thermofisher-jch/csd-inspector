@@ -24,6 +24,14 @@ def read_explog(archive_path):
 
     return data
 
+def print_alert(message):
+    """
+    print an alert message
+    :param message: The message to print
+    """
+    print("Alert")
+    print(40)
+    print(message)
 
 def print_warning(message):
     """

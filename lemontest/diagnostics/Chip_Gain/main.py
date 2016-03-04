@@ -36,23 +36,15 @@ try:
         raise Exception("No chip gain recorded.")
 
     low, high = ranges[chip_type]
-    gain = float(data["ChipGain"])
+    gain = float(data["Gain"])
     if gain > high:
-        print("Alert")
-        print(40)
-        print("Chip gain {:.2f} is too high for chip type '{}'.".format(gain, chipTypeString))
+        print_alert("Chip gain {:.2f} is too high for chip type '{}'.".format(gain, chipTypeString))
     elif gain < low:
-        print("Alert")
-        print(30)
-        print("Chip gain {:.2f} is a to low for chip type '{}'.".format(gain, chipTypeString))
+        print_alert("Chip gain {:.2f} is a to low for chip type '{}'.".format(gain, chipTypeString))
     else:
-        print("OK")
-        print(10)
-        print("Chip gain {:.2f} is within range for chip type '{}'.".format(gain, chipTypeString))
+        print_ok("Chip gain {:.2f} is within range for chip type '{}'.".format(gain, chipTypeString))
 
 except Exception as exc:
-    print("N/A")
-    print(0)
-    print(str(exc))
+    print_na(str(exc))
 
 
