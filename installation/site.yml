@@ -120,6 +120,10 @@
       sudo: True
       shell: "{{venv_path}}/bin/easy_install -U distribute"
 
+    - name: install python packages in venv
+      sudo: True
+      pip: requirements={{application_path}}/installation/requirements.txt virtualenv={{venv_path}}
+
     - name: restart supervisor
       sudo: True
       shell: service supervisor stop; sleep 2; service supervisor start
