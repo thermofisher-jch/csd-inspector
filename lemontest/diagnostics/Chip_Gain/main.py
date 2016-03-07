@@ -16,33 +16,26 @@ ranges = {
     }
 
 try:
-
     # get the path to the log file
     archive_path, output_path = sys.argv[1:3]
     data = read_explog(archive_path)
 
-    # get the chip type
-    if "ChipType" not in data:
-        raise Exception("ChipType missing from explog_final.txt")
-
-    chip_type = data["ChipType"][:3]
-    chipTypeString = data["ChipType"]
-    chip_type = data["ChipType"][:min(3, len(chipTypeString))]
+    chip_type = get_chip_type_from_exp_log(data)
 
     if chip_type not in ranges:
         raise Exception("No known range for chip type " + chip_type)
 
-    if "ChipGain" not in data:
+    if "Gain" not in data and "ChipGain" not in data:
         raise Exception("No chip gain recorded.")
 
     low, high = ranges[chip_type]
-    gain = float(data["Gain"])
+    gain = float(data["Gain"] if "Gain" in data else data["ChipGain"])
     if gain > high:
-        print_alert("Chip gain {:.2f} is too high for chip type '{}'.".format(gain, chipTypeString))
+        print_alert("Chip gain {:.2f} is too high for chip type '{}'.".format(gain, chip_type))
     elif gain < low:
-        print_alert("Chip gain {:.2f} is a to low for chip type '{}'.".format(gain, chipTypeString))
+        print_alert("Chip gain {:.2f} is a to low for chip type '{}'.".format(gain, chip_type))
     else:
-        print_ok("Chip gain {:.2f} is within range for chip type '{}'.".format(gain, chipTypeString))
+        print_ok("Chip gain {:.2f} is within range for chip type '{}'.".format(gain, chip_type))
 
 except Exception as exc:
     print_na(str(exc))

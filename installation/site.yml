@@ -55,8 +55,6 @@
        - python-pyramid-beaker
        - python-sqlalchemy
        - python-zope.sqlalchemy
-       - python-zope.interface
-       - python-zope.deprecation
 
     - name: add rabbit mq user
       sudo: True

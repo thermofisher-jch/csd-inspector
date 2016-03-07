@@ -101,3 +101,23 @@ def get_xml_from_run_log(archive_path):
     xml = re.sub('> *', '>', xml)
 
     return ElementTree.fromstring(xml)
+
+
+def get_chip_type_from_exp_log(explog):
+    """
+    Gets the chip type from the exp log
+    :parameter explog: Gets the exp log
+    :return: A string of the exp log
+    """
+    if 'ChipType' not in explog:
+        raise Exception("Cannot find Chip Type")
+
+    chip = explog['ChipType']
+    if chip == '900':
+        # get the chip type
+        if 'ChipVersion' not in explog:
+            raise Exception("Chip version missing from explog_final.txt")
+
+        chip = explog['ChipVersion'].split(".")[0]
+
+    return chip if len(chip) < 3 else chip[:3]
