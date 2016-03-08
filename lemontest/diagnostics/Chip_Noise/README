@@ -1,5 +1,7 @@
 The chip noise should be less than these values for these chip types:
 
+The noise value is derived from the value "ChipNoise" or "Noise" for Proton/S5 and PGM's respectively, contained in the "explog_final.txt" file.
+
 314: OK <= 6.0   < Alert
 316: OK <= 8.0   < Alert
 318: OK <= 10.0  < Alert
@@ -7,4 +9,3 @@ P1:  OK <= 170.0 < Alert
 520: OK <= 140.0 < Alert
 530: OK <= 140.0 < Alert
 540: OK <= 170.0 < Alert
-900: OK <= 1.0 < Warning <= 2.0 < Alert
