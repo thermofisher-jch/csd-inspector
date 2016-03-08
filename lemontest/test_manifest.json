@@ -11,7 +11,6 @@
     "Chip_Gain",
     "Auto_pH",
     "Seq_Kit",
-    "flowErr",
     "Reference_Electrode",
     "Templating_Kit",
     "Sequencing_Kit",
@@ -20,7 +19,6 @@
   "Proton":[
     "Filter_Metrics",
     "Raw_Trace",
-    "flowErr",
     "Version_Check",
     "ISP_Loading",
     "Chip_Noise",
@@ -29,7 +27,6 @@
     "Auto_pH",
     "Seq_Kit",
     "Flow",
-    "flowErr",
     "Templating_Kit",
     "Sequencing_Kit",
     "Chip_Type"
@@ -46,7 +43,6 @@
     "Version_Check",
     "Raw_Trace",
     "Flow",
-    "flowErr",
     "Ion_S5_Reagent_Lots",
     "Templating_Kit",
     "Sequencing_Kit",
