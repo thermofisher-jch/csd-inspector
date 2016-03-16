@@ -80,66 +80,58 @@
 {% endblock extra_head_js %}
 {% block content %}
     <h1>Upload <small> a new archive for testing</small></h1>
-<div class="row">
-  <div class="span6">
-    <form id="new_archive" action="/upload" method="post" accept-charset="UTF-8" enctype="multipart/form-data">
-      <input type="hidden" name="csrf_token" value="${request.session.get_csrf_token()}"/>
-      <div class="row">
-        <div class="span3">
-          <label for="name">Your Name</label>
-          <input id="name" name="name" type="text" autocomplete="off" autofocus value="" />
+    <div class="row">
+        <div class="span6">
+            <!-- Upload form. Note enctype attribute! -->
+            <form action="{% url "upload" %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <p>{{ form.non_field_errors }}</p>
+                <div class="row">
+                    <div class="span3">
+                        <p>{{ form.name.label_tag }}</p>
+                        {{ form.name }}
+                    </div>
+                    <div class="span3">
+                        <p>{{ form.site_name.label_tag }}</p>
+                        {{ form.site_name }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="span3">
+                      <p>{{ form.archive_label.label_tag }}</p>
+                      {{ form.archive_label }}
+                    </div>
+                    <div class="span3">
+                        <p>{{ form.archive_type.label_tag }}</p>
+                        <select name="archive_type" id="archiveType">
+                            {% for device in form.archive_type.field.choices %}
+                                <option>{{ device }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div style="height: 60px;">
+                    <div id="file_select">
+                        <p>{{ form.docfile.label_tag }} {{ form.docfile.help_text }}</p>
+                        <p>
+                            {{ form.docfile.errors }}
+                            {{ form.docfile }}
+                        </p>
+                    </div>
+                </div>
+
+                <p><input type="submit" value="Upload" /></p>
+            </form>
         </div>
-        <div class="span3">
-          <label for="site">Site Name</label>
-          <input id="site" name="site" type="text" autocomplete="off" value=""/>
+        <div class="span6">
+            <dl>
+              <dt>Your name</dt>
+              <dd>Use the name by which people can easily identify your uploads.</dd>
+              <dt>Site name</dt>
+              <dd>Use the name by which people can easily identify the site from which the upload originates, a consistent name that does not change between uploads which are from the same site.</dd>
+              <dt>Archive Label</dt>
+              <dd>Use label to label individual uploads something meaningful. For example, if you're fond of appending incrementing numbers to your uploads, do that in this field.  This will be auto-generated if left empty.</dd>
+            </dl>
         </div>
-      </div>
-      <div class="row">
-        <div class="span3">
-          <label for="label">Archive Label</label>
-          <input id="label" name="label" type="text" value=""/>
-        </div>
-        <div class="span3">
-          <label for="archiveType">Archive Type</label>
-          <select name="archive_type" id="archiveType">
-            {% for device in devices %}
-              <option value="{{ device }}"}>{{ device }}</option>
-            {% endfor %}
-          </select>
-        </div>
-      </div>
-      <div style="height: 60px;">
-        <div id="file_select">
-          <label for="technicalFile">Select file</label>
-          <input type="file" name="fileInput" id="fileInput" style="max-width: 100%"/>
-        </div>
-        <div id="file_progress" style="display: none;">
-          <p>Upload in progress <span id="progress_percent">0%</span></p>
-          <div class="progress progress-striped active">
-            <div id="progress_bar" class="bar" style="width: 0%;"></div>
-          </div>
-        </div>
-      </div>
-      <div id="action_container">
-        <div class="form-actions">
-          <input type="submit" value="Submit Archive" class="btn btn-primary">
-          <button class="btn" type="reset">Reset</button>
-        </div>
-      </div>
-      <div id="log_container" style="display: none;">
-        <div id="log" style="margin: 20px 0;"></div>
-      </div>
-    </form>
-  </div>
-  <div class="span6">
-    <dl>
-      <dt>Your name</dt>
-      <dd>Use the name by which people can easily identify your uploads.</dd>
-      <dt>Site name</dt>
-      <dd>Use the name by which people can easily identify the site from which the upload originates, a consistent name that does not change between uploads which are from the same site.</dd>
-      <dt>Archive Label</dt>
-      <dd>Use label to label inidividual uploads something meaningful. For example, if you're fond of appending incrementing numbers to your uploads, do that in this field.  This will be auto-generated if left empty.</dd>
-    </dl>
-  </div>
-</div>
+    </div>
 {% endblock content %}

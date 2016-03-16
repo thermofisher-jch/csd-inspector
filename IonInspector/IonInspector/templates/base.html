@@ -33,6 +33,9 @@
     <script src="{% static 'js/spin.min.js' %}"></script>
     <script src="{% static 'js/ladda.min.js' %}"></script>
     <script src="{% static 'js/ladda.jquery.min.js' %}"></script>
+
+      {% block extra_head_js %}
+      {% endblock extra_head_js %}
   </head>
 
   <body>
@@ -67,7 +70,7 @@
             </div>
         {% endif %}
         {% block content %}
-        {% endblock %}
+        {% endblock content %}
       <footer style="clear: both;">
         <p>&copy; Ion Torrent 2013</p>
       </footer>
