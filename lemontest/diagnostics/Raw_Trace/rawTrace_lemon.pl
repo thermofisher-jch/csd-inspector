@@ -15,6 +15,7 @@ use Getopt::Long;
 my $opt = {
   "analysis-dir"  => undef,
   "analysis-name" => undef,
+  "block-name"    => "",
   "lib-key"       => "TCAG",
   "floworder"     => "TACGTACGTCTGAGCATCGATCGATGTACAGC",
   "chip-type"     => "unkown",
@@ -30,6 +31,7 @@ my $opt = {
 GetOptions(
     "a|analysis-dir=s"     => \$opt->{"analysis-dir"},
     "n|analysis-name=s"    => \$opt->{"analysis-name"},
+    "b|block-name=s"       => \$opt->{"block-name"},
     "c|chip-type=s"        => \$opt->{"chip-type"},
     "o|out-dir=s"          => \$opt->{"out-dir"},
     "l|lib-key=s"          => \$opt->{"lib-key"},
@@ -52,6 +54,7 @@ sub usage () {
     usage: $0 [-o outDir -n analysisName] -a myAnalysisDir -r myRawDir
      -a,--analysis-dir   : directory with analysis results
      -n,--analysis-name  : Name for plots
+     -b,--block-name     : Name for block, for full chip run
      -l,--lib-key        : Library key (TCAG)
      -f,--floworder      : Nuc flow order (TACGTACGTCTGAGCATCGATCGATGTACAGC)
      -c,--chip-type      : Type of chip ("unknown")
@@ -86,7 +89,11 @@ print $htmlFh "<b>Background-subtracted key trace</b> is a 1mer library bead min
 print $htmlFh "<b>Neighbor-subtracted key trace</b> is a bead wells minus an empty wells where the solid lines are 1-mer key flows and dotted lines are from 0-mer key flows.<br />";
 
 my $analysisDir = $opt->{"analysis-dir"};
-my $sigproc_dir = $analysisDir . "/sigproc_results";
+my $blockName   = $opt->{"block-name"};
+if(length($blockName) > 0) {
+  print $htmlFh "NucStep trace plot of $blockName";
+  }
+my $sigproc_dir = $analysisDir . "/sigproc_results/" . $blockName;
 if (-d $sigproc_dir) {
   $analysisDir = $sigproc_dir;
 }
