@@ -36,10 +36,10 @@ getBasecallerParam = function(text, key, adj=0){
    return(value)
 }
 
-library_stats = function(archivePath) {
+library_stats = function(archivePath, block) {
   file_path = file.path(archivePath,"ReportLog.html")
-  base_log = file.path(archivePath,"basecaller_results/basecaller.log")
-  basecaller_json = file.path(archivePath,"basecaller_results/BaseCaller.json")
+  base_log = sprintf("%s/basecaller_results%s/basecaller.log", archivePath, block)
+  basecaller_json = sprintf("%s/basecaller_results%s/BaseCaller.json", archivePath, block)
 
   if (file.exists(basecaller_json)) {
       bc_json_data <- fromJSON(file=basecaller_json)
@@ -72,10 +72,10 @@ library_stats = function(archivePath) {
 }
 
 #######################################################
-filterMetricsPlots = function(archivePath, plotDir)
+filterMetricsPlots = function(archivePath, plotDir, block)
   {
     file_path = file.path(archivePath,"ReportLog.html")
-    sig_log = file.path(archivePath,"sigproc_results/sigproc.log")
+    sig_log = sprintf("%s/sigproc_results%s/sigproc.log", archivePath, block)
     if (file.exists(sig_log)) file_path <- sig_log
     log <- readLines(file_path)
     sep = "\t"  
@@ -102,7 +102,7 @@ myBarplot(breakdownBead/1e3,beside=TRUE,las=2,ylab="Reads (1,000's)",main="Loade
 dev.off()
     
     # Breakdown of Library wells
-    breakdownLib <- library_stats(archivePath)
+    breakdownLib <- library_stats(archivePath, block)
     png(plotFile <- sprintf("%s/library.png",plotDir),width=pngWidth,height=pngHeight)
     par(mar=c(8, 4, 4, 2))
 myBarplot(breakdownLib/1e3,beside=TRUE,las=2,ylab="Reads (1,000's)",main="Library Well Categorization",col=myColor)
@@ -134,4 +134,34 @@ dev.off()
 #######################################################
 library("rjson");
 cmd.args <- commandArgs(trailingOnly = TRUE);
-filterMetricsPlots(cmd.args[1], cmd.args[2]);
+blockListFile=paste(cmd.args[1],'/','whole_block_list.txt',sep='')
+if(file.exists(blockListFile))
+{
+    fName <- sprintf("%s/results.html",cmd.args[2],sep="");
+    fHtml <- file(fName,open="w");
+    title = "Filter Metrics Plots";
+    header = "";
+    txtStream = "";
+    txtStream = paste(txtStream,sprintf("<html>\n<head>\n<center>\n <h1>%s</h1>\n<head>\n<body>\n <h3>%s</h3>\n",title,header),sep="");
+
+    blockList <- file(blockListFile,open="r")
+    lines <- readLines(blockList)
+    for(i in 1:length(lines))
+    {
+        block <- lines[i]
+        dir.create(file.path(cmd.args[2],block))
+        plotDir=paste(cmd.args[2],'/',block,sep='')
+        block2=sprintf("/%s",block);
+        filterMetricsPlots(cmd.args[1],plotDir,block2);
+        blockHtml=sprintf("./%s/results.html",block,sep="");
+        txtStream = paste(txtStream,sprintf("<br><a href=\" %s \"> %s </a>\n",blockHtml,block),sep="");
+    }
+    close(blockList)
+
+    txtStream = paste(txtStream,"</body>\n</html>",sep="");
+    write(txtStream,fHtml,append=FALSE);
+    close(fHtml);
+} else {
+    block <- ""
+    filterMetricsPlots(cmd.args[1], cmd.args[2], block);
+}
