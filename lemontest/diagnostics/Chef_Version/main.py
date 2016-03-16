@@ -7,6 +7,22 @@ import sys
 from mako.template import Template
 from lemontest.diagnostics.common.inspector_utils import *
 
+def find_summary(matches):
+    """
+    Helper method for finding the chef package version
+    :param matches: a list of file paths to the gui logs
+    :return: The string summary of the check package version
+    """
+
+    for match in matches:
+        for line in open(match):
+            if 'chefPackageVer' in line:
+                # we expect this to be a json output and will split on it primary delimiter
+                json_text = '{' + line.split('{', 1)[1]
+                info = json.loads(json_text)
+                return info['chefPackageVer']
+    return "Could not find any gui log to look up the chef version."
+
 
 try:
     archive, output = sys.argv[1:3]
@@ -28,14 +44,7 @@ try:
     context['versions'] = [(t.tag, t.text) for t in root.findall("Versions/*")]
     context['serial'] = root.find("Instrument/serial").text
 
-    summary = "Could not find any gui log to look up the chef version."
-    if len(matches) > 0:
-        for line in open(matches[0]):
-            if 'chefPackageVer' in line:
-                # we expect this to be a json output and will split on it primary delimiter
-                json_text = '{' +  line.split('{', 1)[1]
-                info = json.loads(json_text)
-                summary = info['chefPackageVer']
+    summary = find_summary(matches)
 
     print_info(summary)
     template = Template(filename="results.mako")
