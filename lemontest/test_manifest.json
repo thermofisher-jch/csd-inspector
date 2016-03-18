@@ -29,7 +29,8 @@
     "Flow",
     "Templating_Kit",
     "Sequencing_Kit",
-    "Chip_Type"
+    "Chip_Type",
+    "flowErr"
   ],
   "Raptor_S5":[
     "Filter_Metrics",
@@ -46,7 +47,8 @@
     "Ion_S5_Reagent_Lots",
     "Templating_Kit",
     "Sequencing_Kit",
-    "Chip_Type"
+    "Chip_Type",
+    "flowErr"
   ],
   "OT_Log": [
     "Plots",
