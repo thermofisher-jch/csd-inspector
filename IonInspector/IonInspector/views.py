@@ -6,7 +6,8 @@ from IonInspector.forms import ArchiveForm
 from IonInspector.models import Archive
 from datetime import datetime
 from IonInspector.tables import ArchiveTable
-from django_tables2   import RequestConfig
+from django_tables2 import RequestConfig
+
 
 def index(request):
     """
@@ -71,3 +72,16 @@ def reports(request):
     RequestConfig(request).configure(table)
     ctx = RequestContext(request, {'archives': table, 'archive_types': archive_types})
     return render_to_response("reports.html", context_instance=ctx)
+
+
+def check(request, pk):
+    """
+    Render the check archive page
+    :param request:
+    :return:
+    """
+
+    archive = Archive.objects.get(pk=pk)
+
+    ctx = RequestContext(request, {'archive': archive})
+    return render_to_response("check.html", ctx)

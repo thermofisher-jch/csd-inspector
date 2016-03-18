@@ -9,5 +9,6 @@ urlpatterns = patterns(
     url(r'^$', 'IonInspector.views.index', name='index'),
     url(r'^index/', 'IonInspector.views.index', name='index'),
     url(r'^upload', 'IonInspector.views.upload', name='upload'),
-    url(r'^reports', 'IonInspector.views.reports', name='reports')
+    url(r'^reports', 'IonInspector.views.reports', name='reports'),
+    url(r'^check/(\d+)/$', 'IonInspector.views.check', name='reports')
 )
