@@ -324,9 +324,12 @@ sub findNucStepDir {
 
   my $nucStepDir = "$analysisDir/NucStep";
   if(! -e $nucStepDir) {
-    $$errMsg = "$0: did not find nuc step dir $nucStepDir: $!\n";
-    $$problem = 1;
-    return;
+    $nucStepDir = "$analysisDir/NucStepFromBeadfind";
+    if(! -e $nucStepDir) {
+      $$errMsg = "$0: did not find nuc step dir $nucStepDir: $!\n";
+      $$problem = 1;
+      return;
+    }
   }
   if(! -r $nucStepDir) {
     $$errMsg = "$0: unable to read nuc step dir $nucStepDir: $!\n";
