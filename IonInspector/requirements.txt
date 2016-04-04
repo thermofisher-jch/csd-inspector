@@ -1,0 +1,5 @@
+Django==1.6.11
+django-tables2==1.0.4
+six==1.10.0
+South==0.8.4
+wheel==0.24.0
