@@ -10,3 +10,4 @@ build/
 lemontest/static/img/plots
 .vagrant
 *.sqlite3
+venv
