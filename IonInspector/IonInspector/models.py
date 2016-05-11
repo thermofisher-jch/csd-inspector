@@ -13,7 +13,7 @@ def get_file_path(instance, filename):
     :param filename:
     :return:
     """
-    #return os.path.join('/', 'opt', 'inspector', 'archive_files', str(instance.pk), filename)
+
     return os.path.join('archive_files', str(instance.pk), filename)
 
 
@@ -29,11 +29,12 @@ class Archive(models.Model):
     submitter_name = models.CharField(max_length=255)
     archive_type = models.CharField(max_length=255)
     summary = models.CharField(max_length=255, default=u"")
-    docfile = models.FileField(upload_to=get_file_path)
+    doc_file = models.FileField(upload_to=get_file_path)
 
     # model relationships
     # diagnostics : Foreign Key from diagnostic class
     # tags : Foreign Key from tag class
+
 
 
 class Diagnostic(models.Model):

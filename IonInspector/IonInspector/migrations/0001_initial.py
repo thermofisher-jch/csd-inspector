@@ -17,7 +17,7 @@ class Migration(SchemaMigration):
             ('submitter_name', self.gf('django.db.models.fields.CharField')(max_length=255)),
             ('archive_type', self.gf('django.db.models.fields.CharField')(max_length=255)),
             ('summary', self.gf('django.db.models.fields.CharField')(default=u'', max_length=255)),
-            ('docfile', self.gf('django.db.models.fields.files.FileField')(max_length=100)),
+            ('doc_file', self.gf('django.db.models.fields.files.FileField')(max_length=100)),
         ))
         db.send_create_signal(u'IonInspector', ['Archive'])
 
@@ -57,7 +57,7 @@ class Migration(SchemaMigration):
         u'IonInspector.archive': {
             'Meta': {'object_name': 'Archive'},
             'archive_type': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'docfile': ('django.db.models.fields.files.FileField', [], {'max_length': '100'}),
+            'doc_file': ('django.db.models.fields.files.FileField', [], {'max_length': '100'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'label': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'site': ('django.db.models.fields.CharField', [], {'max_length': '255'}),

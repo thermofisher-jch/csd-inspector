@@ -84,7 +84,7 @@
         $("#jump_form").submit(function(){
           var id = $('#id_jump').val();
           if (isNumber(id) && id > 0)
-            window.location='/check/'+id;
+            window.location='/report/'+id;
           else
             alert("Enter an upload ID number to jump directly to it.");
           return false;

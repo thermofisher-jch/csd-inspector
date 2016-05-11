@@ -31,27 +31,21 @@ def upload(request):
     if request.method == 'POST':
         form = ArchiveForm(data=request.POST, files=request.FILES)
 
-        try:
-            valid = form.is_valid()
-        except:
-            valid = False
+        archive = Archive(
+            label=form.data['archive_label'],
+            site=form.data['site_name'],
+            time=datetime.utcnow(),
+            submitter_name=form.data['name'],
+            archive_type=form.data['archive_type'].replace(" ", "_"),
+        )
+        archive.save()
 
-        if form.is_valid():
-            archive = Archive(
-                label=form.data['archive_label'],
-                site=form.data['site_name'],
-                time=datetime.utcnow(),
-                submitter_name=form.data['name'],
-                archive_type=form.data['archive_type'].replace(" ", "_"),
-            )
-            archive.save()
+        # save the file second since we will need an id
+        archive.doc_file = request.FILES['doc_file']
+        archive.save()
 
-            # save the file second since we will need an id
-            archive.docfile = request.FILES['docfile']
-            archive.save()
-
-            # Redirect to the document list after POST
-            return HttpResponseRedirect(reverse('IonInspector.views.reports'))
+        # Redirect to the document list after POST
+        return HttpResponseRedirect(reverse('IonInspector.views.reports'))
     else:
         form = ArchiveForm()
 
@@ -74,14 +68,25 @@ def reports(request):
     return render_to_response("reports.html", context_instance=ctx)
 
 
-def check(request, pk):
+def report(request, pk):
     """
-    Render the check archive page
+    Render the report archive page
     :param request:
+    :param pk: Primary key of the archive to render
     :return:
     """
 
     archive = Archive.objects.get(pk=pk)
 
     ctx = RequestContext(request, {'archive': archive})
-    return render_to_response("check.html", ctx)
+    return render_to_response("report.html", ctx)
+
+
+def documentation(request):
+    """
+    Render documentation page
+    :param request:
+    :return:
+    """
+
+    return render_to_response("documentation.html")
