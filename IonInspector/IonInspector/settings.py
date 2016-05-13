@@ -10,8 +10,8 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
@@ -26,18 +26,18 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
-TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
-                                "django.core.context_processors.debug",
-                                "django.core.context_processors.i18n",
-                                "django.core.context_processors.media",
-                                "django.core.context_processors.static",
-                                "django.core.context_processors.request",
-                                "django.core.context_processors.tz",
-                                "django.contrib.messages.context_processors.messages"
-                               )
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "django.contrib.auth.context_processors.auth",
+    "django.core.context_processors.debug",
+    "django.core.context_processors.i18n",
+    "django.core.context_processors.media",
+    "django.core.context_processors.static",
+    "django.core.context_processors.request",
+    "django.core.context_processors.tz",
+    "django.contrib.messages.context_processors.messages"
+)
 
 # Application definition
-
 INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
@@ -47,7 +47,8 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'IonInspector',
     'south',
-    'django_tables2'
+    'django_tables2',
+    'IonInspector.local_celery'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -100,72 +101,4 @@ STATICFILES_DIRS = [
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-TEST_MANIFEST = {
-      "PGM_Run": [
-        "Filter_Metrics",
-        "Raw_Trace",
-        "Version_Check",
-        "ISP_Loading",
-        "Chip_Temperature",
-        "PGM_Temperature",
-        "PGM_Pressure",
-        "Chip_Noise",
-        "Chip_Gain",
-        "Auto_pH",
-        "Seq_Kit",
-        "Reference_Electrode",
-        "Templating_Kit",
-        "Sequencing_Kit",
-        "Chip_Type"
-      ],
-      "Proton": [
-        "Filter_Metrics",
-        "Raw_Trace",
-        "Version_Check",
-        "ISP_Loading",
-        "Chip_Noise",
-        "Chip_Gain",
-        "Proton_Pressure",
-        "Auto_pH",
-        "Seq_Kit",
-        "Flow",
-        "Templating_Kit",
-        "Sequencing_Kit",
-        "Chip_Type"
-      ],
-      "Raptor_S5": [
-        "Filter_Metrics",
-        "Raw_Trace",
-        "Version_Check",
-        "ISP_Loading",
-        "Chip_Noise",
-        "Chip_Gain",
-        "Seq_Kit",
-        "S5_Pressure",
-        "Version_Check",
-        "Raw_Trace",
-        "Flow",
-        "Ion_S5_Reagent_Lots",
-        "Templating_Kit",
-        "Sequencing_Kit",
-        "Chip_Type"
-      ],
-      "OT_Log": [
-        "Plots",
-        "Sample_Pump",
-        "Oil_Pump",
-        "OT_Script"
-      ],
-      "Ion_Chef": [
-        "Alarms",
-        "Notifications",
-        "Chef_Kit",
-        "Chef_Chip",
-        "Chef_Timer",
-        "Chef_Version",
-        "Flow",
-        "Run_Type",
-        "Fans"
-      ]
-    }
 
