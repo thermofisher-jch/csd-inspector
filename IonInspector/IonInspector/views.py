@@ -1,9 +1,8 @@
-from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
 from django.shortcuts import render_to_response, HttpResponseRedirect
 from IonInspector.forms import ArchiveForm
-from IonInspector.models import Archive
+from IonInspector.models import Archive, TEST_MANIFEST
 from datetime import datetime
 from IonInspector.tables import ArchiveTable
 from django_tables2 import RequestConfig
@@ -38,11 +37,16 @@ def upload(request):
             submitter_name=form.data['name'],
             archive_type=form.data['archive_type'].replace(" ", "_"),
         )
+        # perform a save here in order to assert that we have a pk for this entry, otherwise we can't get a directory
+        # on the file system to save the doc_file or results too.
         archive.save()
 
         # save the file second since we will need an id
         archive.doc_file = request.FILES['doc_file']
         archive.save()
+
+        # fire off the diagnostics in the background automatically
+        archive.execute_diagnostics()
 
         # Redirect to the document list after POST
         return HttpResponseRedirect(reverse('IonInspector.views.reports'))
@@ -60,7 +64,7 @@ def reports(request):
     :return:
     """
 
-    archive_types = settings.TEST_MANIFEST.keys()
+    archive_types = TEST_MANIFEST.keys()
 
     table = ArchiveTable(Archive.objects.all())
     RequestConfig(request).configure(table)
