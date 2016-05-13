@@ -87,6 +87,7 @@ my $htmlHeaderLine = $htmlTitle;
 print $htmlFh "<b>Nuc step size</b> is the difference between each nuc and the Wash 2.<br />";
 print $htmlFh "<b>Background-subtracted key trace</b> is a 1mer library bead minus a 0mer library bead from key flows.<br />";
 print $htmlFh "<b>Neighbor-subtracted key trace</b> is a bead wells minus an empty wells where the solid lines are 1-mer key flows and dotted lines are from 0-mer key flows.<br />";
+print $htmlFh "<b>The RMS flow residual</b> is the beaded wells minus the empty wells.<br />";
 
 my $analysisDir = $opt->{"analysis-dir"};
 my $blockName   = $opt->{"block-name"};
@@ -203,7 +204,7 @@ sub writeHtmlPlots {
 
   print $htmlFh "<hr>\n";
   print $htmlFh "<table border=2 cellpadding=5>\n";
-  my @plotTypes  = ("stepSize", "keyBkgSub", "keyFlows");
+  my @plotTypes  = ("stepSize", "keyBkgSub", "keyFlows", "flowResidual");
   my @plotSuffix = (".empty", "",           "",        ".nbrsub");
   for(my $iPlot=0; $iPlot < @plotTypes; $iPlot++) {
     my $plotType = $plotTypes[$iPlot];
@@ -317,6 +318,8 @@ sub writeBlockHtml {
   print $fh "  <img src=\"$plotFile\" height=$imgHeight />\n" if(-e $plotFile);
   $plotFile = sprintf("%s/keyBkgSub.inlet.png",$plotDir);
   print $fh "  <img src=\"$plotFile\" height=$imgHeight />\n" if(-e $plotFile);
+  $plotFile = sprintf("%s/flowResidual.inlet.nbrsub.png",$plotDir);
+  print $fh "  <img src=\"$plotFile\" height=$imgHeight />\n" if(-e $plotFile);
 }
 
 sub findNucStepDir {
@@ -372,7 +375,7 @@ sub writeSubHtml {
   print $htmlSubFh "<hr>\n";
   print $htmlSubFh "<table border=2 cellpadding=5>\n";
   my $imgHeight=300;
-  my @plotTypes = ("stepSize", "nucSteps", "nucSmooth");
+  my @plotTypes = ("stepSize", "flowResidual", "nucSteps", "nucSmooth");
   my @wellTypes = ("bead","empty","nbrsub");
   foreach my $wellType (@wellTypes) {
     print $htmlSubFh "<th>$wellType</th>";
