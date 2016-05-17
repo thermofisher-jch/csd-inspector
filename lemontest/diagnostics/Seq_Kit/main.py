@@ -1,53 +1,30 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
+import json
 import sys
 from lemontest.diagnostics.common.inspector_utils import *
 
 
-def load_explog(path):
-    data = {}
-    for line in open(path):
-        # Trying extra hard to accomodate formatting issues in explog
-        datum = line.split(":", 1)
-        if len(datum) == 2:
-            key, value = datum
-            data[key.strip()] = value.strip()
-    return data
-
-
-def validate(archive_path):
-    explog = read_explog(archive_path)
-    data = {}
-    data['inspector_seq_kit'] = explog.get("SeqKitDesc", None)
-    if not data['inspector_seq_kit']:
-        data['inspector_seq_kit'] = explog.get("SeqKitPlanDesc", None)
-        if not data['inspector_seq_kit']:
-            return "Seq Kit missing from explog_final.txt", data, False
-    return explog, data, True
-
-
-def report(data):
-    kit_name = data.get("inspector_seq_kit")
-    if "IC" in kit_name:
-        print("Info")
-        print(20)
-        print(u"Chef kit, {}".format(kit_name))
-    else:
-        print("Info")
-        print(20)
-        print(u"OneTouch kit, {}".format(kit_name))
-        
-
-def main():
+try:
     archive_path, output_path = sys.argv[1:3]
-    raw, data, valid = validate(archive_path)
-    if not valid:
-        print("N\A")
-        print(0)
-        print(raw)
-        sys.exit()
-    else:
-        report(data)
 
-main()
+    # read the ion params file
+    params = dict()
+    with open(os.path.join(archive_path, 'ion_params_00.json')) as params_file:
+        params = json.load(params_file)
+
+    # check if the key is present in the dictionary
+    if 'plan' not in params and 'templatingKitName' not in params['plan']:
+        raise Exception("The templating kit name was not recorded.")
+
+    # get the sequencing kit description from the exp log
+    exp_log = read_explog(archive_path)
+    inspector_seq_kit = exp_log.get("SeqKitDesc", None) or exp_log.get("SeqKitPlanDesc", None)
+    if not inspector_seq_kit:
+        raise Exception("Seq Kit missing from explog_final.txt")
+
+    print_info("Sequencing Kit: <b>" + inspector_seq_kit + "</b> | Templating Kit Name: <b>" + params['plan']['templatingKitName'] + "</b>")
+
+except Exception as exc:
+    print_na(str(exc))
