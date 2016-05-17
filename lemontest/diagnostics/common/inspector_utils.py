@@ -24,6 +24,7 @@ def read_explog(archive_path):
 
     return data
 
+
 def print_alert(message):
     """
     print an alert message
@@ -32,6 +33,7 @@ def print_alert(message):
     print("Alert")
     print(40)
     print(message)
+
 
 def print_warning(message):
     """
@@ -79,15 +81,13 @@ def get_xml_from_run_log(archive_path):
     :param archive_path: The path to the archive
     :return: The root xml element
     """
-    for path, dirs, names in os.walk(archive_path):
-        if "test_results" not in path:
-            for name in names:
-                if "logs.tar" not in name:
-                    rel_dir = os.path.relpath(path, archive_path)
-                    rel = os.path.join(rel_dir, name)
-                    full = os.path.join(path, name)
-                    if rel.startswith("var/log/IonChef/RunLog/") and rel.endswith(".xml"):
-                        xml_path = full
+
+    # get path to all of the logs and xml data
+    xml_path = ""
+    run_log_directory = os.path.join(archive_path, 'var', 'log', 'IonChef', 'RunLog')
+    for run_log in os.listdir(run_log_directory):
+        if run_log.endswith('.xml'):
+            xml_path = os.path.join(run_log_directory, run_log)
 
     if not os.path.exists(xml_path):
         raise Exception("No chef run log xml file.")
@@ -102,6 +102,21 @@ def get_xml_from_run_log(archive_path):
 
     return ElementTree.fromstring(xml)
 
+
+def get_lines_from_chef_gui_logs(archive_path):
+    """
+    This method will concatenate all of lines from all of the gui log files for a chef data set
+    :param archive_path: The root path of the archive
+    :return: A list of strings for each line
+    """
+
+    gui_lines = list()
+    gui_log_directory = os.path.join(archive_path, 'var', 'log', 'IonChef', 'ICS')
+    for gui_log in os.listdir(gui_log_directory):
+        if gui_log.startswith('gui') and gui_log.endswith('.log'):
+            with open(os.path.join(gui_log_directory, gui_log)) as gui_log_file:
+                gui_lines += gui_log_file.readlines()
+    return gui_lines
 
 def get_chip_type_from_exp_log(explog):
     """
