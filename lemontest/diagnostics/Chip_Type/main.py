@@ -15,7 +15,7 @@ try:
         chip_efuse = data['Chip Efuse'].split(',')
         l = chip_efuse[0].split(':')[1]
         w = chip_efuse[1].split(':')[1]
-        chip_type += " | " + l + "W" + w
+        chip_type += " | Lot " + l + "W" + w
 
     print_info(chip_type)
 
