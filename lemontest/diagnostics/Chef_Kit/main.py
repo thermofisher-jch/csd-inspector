@@ -1,64 +1,29 @@
 #!/usr/bin/env python
 
-from xml.etree import ElementTree
-import xml.etree 
 import sys
-import os
-import os.path
-import re
+from lemontest.diagnostics.common.inspector_utils import *
 
-if __name__ == "__main__":
+# setup a map for all of the kit names to human readable outputs
+kit_names = {
+    "pgm_ic_v2": "Ion PGM Hi-Q Chef Kit",
+    "pgm_ic_v1": "Ion PGM IC 200 Kit",
+    "pi_ic_v1": "Ion PI IC 200 Kit",
+    "pi_ic_v2": "Ion PI Hi-Q Chef Kit",
+    "s530_1": "Ion 520/530 Kit-Chef",
+    "s540_1": "Ion 540 Kit-Chef",
+    "as_1": "Ion AmpliSeq Kit for Chef DL8"
+}
+
+try:
     archive, output = sys.argv[1:3]
-    file_count = 0
-    files = []
-    output_name = ''
-    xml_path = ''
-    errors = []
-    error_summary = ""
 
-    for path, dirs, names in os.walk(archive):
-        if "test_results" not in path:
-            for name in names:
-                if "logs.tar" not in name:
-                    rel_dir = os.path.relpath(path, archive)
-                    rel = os.path.join(rel_dir, name)
-                    full = os.path.join(path, name)
-                    files.append(rel)
-                    file_count += 1
-                    if rel.startswith("var/log/IonChef/RunLog/") and rel.endswith(".xml"):
-                        xml_path = full
+    root = get_xml_from_run_log(archive)
+    name_tag = root.find("RunInfo/kit")
+    if name_tag is None:
+        raise Exception("No kit info")
 
-    if xml_path:
-        # groom the xml of known error conditions
-        xml = ''
-        with open(xml_path, 'r') as xml_file:
-            xml = xml_file.read()
+    kit_name = name_tag.text.strip()
+    print_info(kit_names.get(kit_name, kit_name))
 
-        xml = re.sub('< *', '<', xml)
-        xml = re.sub('</ *', '</', xml)
-        xml = re.sub('> *', '>', xml)
-
-        try:
-            root = ElementTree.fromstring(xml)
-        except Exception as err:
-            errors.append("Error reading run log: " + str(err))
-        else:
-            name_tag = root.find("RunInfo/kit")
-            if name_tag is None:
-                error_summary = "No kit info"
-            else:
-                output_name = name_tag.text.strip()                
-    else:
-        error_summary = "No Run Log."
-
-    if error_summary:
-        print("N/A")
-        print("0")
-        print(error_summary)
-    else:
-        summary = output_name
-        print("Info")
-        print("20")
-        print(summary)
-
-
+except Exception as exc:
+    print_na(str(exc))

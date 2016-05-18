@@ -58,7 +58,6 @@ try:
             if 'process: PAUSE' in is_line:
                 time_string = is_line.split(' ', 1)[0].strip()
                 pause_time = datetime.strptime(date_string + " " + time_string, '%Y-%m-%d %H:%M:%S.%f')
-                print pause_time
 
             if 'process: UNPAUSE' in is_line:
                 time_string = is_line.split(' ', 1)[0].strip()
@@ -72,5 +71,3 @@ try:
     print_info(summary)
 except Exception as exc:
     print_na(str(exc))
-
-traceback.print_exc()
