@@ -15,16 +15,17 @@ try:
         params = json.load(params_file)
 
     # check if the key is present in the dictionary
-    if 'plan' not in params and 'templatingKitName' not in params['plan']:
-        raise Exception("The templating kit name was not recorded.")
+    template_kit_name = "Unknown Templating Kit"
+    if 'plan' in params and 'templatingKitName' in params['plan']:
+        template_kit_name = params['plan']['templatingKitName']
 
     # get the sequencing kit description from the exp log
     exp_log = read_explog(archive_path)
-    inspector_seq_kit = exp_log.get("SeqKitDesc", None) or exp_log.get("SeqKitPlanDesc", None)
-    if not inspector_seq_kit:
-        raise Exception("Seq Kit missing from explog_final.txt")
+    inspector_seq_kit = exp_log.get("SeqKitDesc", None) or exp_log.get("SeqKitPlanDesc", None) or "Unknown Sequencing Kit"
+    system_type = exp_log.get("SystemType", None) or "Unknown System Type"
 
-    print_info("Sequencing Kit: <b>" + inspector_seq_kit + "</b> | Templating Kit Name: <b>" + params['plan']['templatingKitName'] + "</b>")
+    # print the details
+    print_info(" | ".join([system_type, inspector_seq_kit, template_kit_name]))
 
 except Exception as exc:
     print_na(str(exc))

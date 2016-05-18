@@ -10,7 +10,7 @@
     "Chip_Noise",
     "Chip_Gain",
     "Auto_pH",
-    "Seq_Kit",
+    "Sequencing_Details",
     "Reference_Electrode",
     "Chip_Type"
   ],
@@ -23,7 +23,7 @@
     "Chip_Gain",
     "Proton_Pressure",
     "Auto_pH",
-    "Seq_Kit",
+    "Sequencing_Details",
     "Flow",
     "Chip_Type",
     "flowErr"
@@ -35,7 +35,7 @@
     "ISP_Loading",
     "Chip_Noise",
     "Chip_Gain",
-    "Seq_Kit",
+    "Sequencing_Details",
     "S5_Pressure",
     "Version_Check",
     "Raw_Trace",
