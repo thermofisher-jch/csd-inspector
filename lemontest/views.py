@@ -33,6 +33,7 @@ status_highlights = {
 }
 
 archive_type_files = {
+    "Raptor_S5": "archive.zip",
     "PGM_Run": "archive.zip",
     "Proton": "archive.zip",
     "Ion_Chef": "logs.tar",
