@@ -1,8 +1,0 @@
-The reference electrode should be within these ranges for these chip types:
-314: OK (0.4-1.2) < Alert
-316: OK (0.4-1.2) < Alert
-318: OK (0.4-1.2) < Alert
-P1: OK <= 170.0 < Alert
-520: n/a
-530: n/a
-540: n/a
