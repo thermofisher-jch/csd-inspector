@@ -9,7 +9,7 @@ ranges = {
         "314": (0.67, 0.70),
         "316": (0.67, 0.70),
         "318": (0.67, 0.70),
-        "P1": (170.0, 170.0),
+        "P1": (1.0, 1.1),
         "520": (1.0, 1.1),
         "530": (1.0, 1.1),
         "540": (1.0, 1.1)
@@ -30,12 +30,12 @@ try:
 
     low, high = ranges[chip_type]
     gain = float(data["Gain"] if "Gain" in data else data["ChipGain"])
-    if gain > high:
-        print_alert("Chip gain {:.2f} is too high for chip type '{}'.".format(gain, chip_type))
-    elif gain < low:
-        print_alert("Chip gain {:.2f} is a to low for chip type '{}'.".format(gain, chip_type))
+    if gain >= high:
+        print_alert("Chip gain {:.2f} is high.".format(gain))
+    elif gain <= low:
+        print_alert("Chip gain {:.2f} is low.".format(gain))
     else:
-        print_ok("Chip gain {:.2f} is within range for chip type '{}'.".format(gain, chip_type))
+        print_ok("Chip gain {:.2f} is within range.".format(gain))
 
 except Exception as exc:
     print_na(str(exc))
