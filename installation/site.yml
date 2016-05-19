@@ -27,7 +27,6 @@
       with_items:
        - python-virtualenv
        - python-psycopg2 #Needed as a system package for ansible
-       - python-numpy
        - python-dev
        - supervisor
        - nginx

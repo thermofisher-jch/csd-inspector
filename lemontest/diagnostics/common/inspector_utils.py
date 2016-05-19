@@ -1,3 +1,4 @@
+import csv
 import os
 import re
 from xml.etree import ElementTree
@@ -75,6 +76,40 @@ def print_na(message):
     print(message)
 
 
+def get_csv_from_run_log(archive_path):
+    """
+    Reads the csv data from run logs
+    :param archive_path: The path to the archive
+    :return: A dictionary of lists, keyed by column name
+    """
+
+    # get path to all of the logs and xml data
+    csv_path = ""
+    run_log_directory = os.path.join(archive_path, 'var', 'log', 'IonChef', 'RunLog')
+    for run_log in os.listdir(run_log_directory):
+        if run_log.endswith('.csv'):
+            csv_path = os.path.join(run_log_directory, run_log)
+            break
+
+    if not os.path.exists(csv_path):
+        raise Exception("No chef run log csv file.")
+
+    # groom the xml of known error conditions
+    run_log = dict()
+    with open(csv_path, 'r') as csv_file:
+        csv_reader = csv.DictReader(csv_file, delimiter=',')
+        # create a dictionary of lists
+        for header in csv_reader.fieldnames:
+            run_log[header] = list()
+
+        # populate the lists in the dictionary
+        for row in csv_reader:
+            for header in csv_reader.fieldnames:
+                run_log[header].append(row[header])
+
+    return run_log
+
+
 def get_xml_from_run_log(archive_path):
     """
     Reads the xml data from run logs
@@ -88,6 +123,7 @@ def get_xml_from_run_log(archive_path):
     for run_log in os.listdir(run_log_directory):
         if run_log.endswith('.xml'):
             xml_path = os.path.join(run_log_directory, run_log)
+            break
 
     if not os.path.exists(xml_path):
         raise Exception("No chef run log xml file.")
