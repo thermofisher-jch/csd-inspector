@@ -42,7 +42,7 @@ try:
     total_minutes = int(name_tag.text)
     hours = int(total_minutes / 60)
     minutes = total_minutes % 60
-    summary = "No delay." if total_minutes == 0 else "Timer Option Used: "
+    summary = "QC Pause option used." if total_minutes == 0 else "Timer Option Used: "
     if hours:
         summary += "{} Hours ".format(hours)
     if minutes:
