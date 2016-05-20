@@ -21,7 +21,6 @@
     "Proton_Pressure",
     "Auto_pH",
     "Sequencing_Details",
-    "Flow",
     "Chip_Type",
     "flowErr"
   ],
@@ -35,7 +34,6 @@
     "S5_Pressure",
     "Version_Check",
     "Raw_Trace",
-    "Flow",
     "Ion_S5_Reagent_Lots",
     "Chip_Type",
     "flowErr"
