@@ -168,10 +168,7 @@ sub output{
 		$chart->plot2d($dataSet);
 
 		#print to html file in the Results directory
-
-	
-		#print HTML_FILE "<img src=\"plot$num.png\" />";
-		print $html_file "<img src=\"plot$num.png\" />";
+		print $html_file "<p style=\"text-align:center;\"><img src=\"plot$num.png\" /></p>";
 
 	#if not enough data in the vectors it is some case not considered in the program => fail
 	}else{
@@ -181,11 +178,13 @@ sub output{
 
 	}
 
+	# add a reference to the raw init
+	print $html_file "<br /><h2 align=\"center\">Raw Init Plot</h2><p style=\"text-align:center;\"><img src=\"../../RawInit.jpg\" /></p>" if -e "$ARCHIVE/RawInit.jpg";
+
 	#close (OFILE); 
 	close ($ofile); 
 	#close (HTML_FILE);
 	close ($html_file);
-
 }
 
 sub finish{
