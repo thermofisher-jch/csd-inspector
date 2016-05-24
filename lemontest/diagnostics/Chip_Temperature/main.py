@@ -4,42 +4,19 @@
 import sys
 from lemontest.diagnostics.common.inspector_utils import *
 
-def validate(archive_path):
+try:
+    archive_path, output_path = sys.argv[1:3]
     explog = read_explog(archive_path)
     if "ChipTemperature" not in explog:
-        return "ChipTemperature missing from explog_final.txt", False
+        raise Exception("ChipTemperature missing from explog_final.txt")
 
-    if explog.get('PGM HW', None) == '1.1':
-        return "Not needed for PGM 1.1", False
-
-    return explog, True
-
-
-def report(data):
-    temperature = float(data["ChipTemperature"].split(" - ")[1])
+    temperature = float(explog["ChipTemperature"].split(" - ")[1])
     if temperature < 46:
-        print("Alert")
-        print(40)
-        print(u"Chip temperature {:.2f} C is too cold.".format(temperature))
+        print_alert(u"Chip temperature {:.2f} C is too cold.".format(temperature))
     elif temperature > 54:
-        print("Alert")
-        print(40)
-        print(u"Chip temperature {:.2f} C is not cool.".format(temperature))
+        print_alert(u"Chip temperature {:.2f} C is not cool.".format(temperature))
     else:
-        print("OK")
-        print(10)
-        print(u"Chip temperature {:.2f} C is just right.".format(temperature))
-        
+        print_ok(u"Chip temperature {:.2f} C is just right.".format(temperature))
+except Exception as exc:
+    print_na(str(exc))
 
-def main():
-    archive_path, output_path = sys.argv[1:3]
-    data, valid = validate(archive_path)
-    if not valid:
-        print("N\A")
-        print(0)
-        print(data)
-        sys.exit()
-    else:
-        report(data)
-
-main()
