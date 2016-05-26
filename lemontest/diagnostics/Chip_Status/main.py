@@ -80,11 +80,11 @@ try:
         low, high = electrode_ranges[chip_type]
         gain = float(data["Ref Electrode"].split(' ')[0])
         if gain > high:
-            electrode_report = "Chip gain {:.2f} is high.".format(gain)
+            electrode_report = "Reference Electrode {:.2f} is high.".format(gain)
         elif gain < low:
-            electrode_report = "Chip gain {:.2f} is low.".format(gain)
+            electrode_report = "Reference Electrode {:.2f} is low.".format(gain)
         else:
-            electrode_report = "Chip gain {:.2f} is within range.".format(gain)
+            electrode_report = "Reference Electrode {:.2f} is within range.".format(gain)
         if electode_alert:
             electrode_report = "<b>" + electrode_report + "</b>"
         reports.append(electrode_report)

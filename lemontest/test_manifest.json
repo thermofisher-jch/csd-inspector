@@ -10,7 +10,8 @@
     "Chip_Status",
     "Auto_pH",
     "Sequencing_Details",
-    "Chip_Type"
+    "Chip_Type",
+    "Test_Fragments"
   ],
   "Proton":[
     "Filter_Metrics",
@@ -21,9 +22,9 @@
     "Proton_Pressure",
     "Auto_pH",
     "Sequencing_Details",
-    "Flow",
     "Chip_Type",
-    "flowErr"
+    "flowErr",
+    "Test_Fragments"
   ],
   "Raptor_S5":[
     "Filter_Metrics",
@@ -35,10 +36,10 @@
     "S5_Pressure",
     "Version_Check",
     "Raw_Trace",
-    "Flow",
     "Ion_S5_Reagent_Lots",
     "Chip_Type",
-    "flowErr"
+    "flowErr",
+    "Test_Fragments"
   ],
   "OT_Log": [
     "Plots",
