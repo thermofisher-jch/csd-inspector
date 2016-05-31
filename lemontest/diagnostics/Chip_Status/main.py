@@ -3,16 +3,20 @@
 import sys
 from lemontest.diagnostics.common.inspector_utils import *
 
+REPORT_LEVEL_INFO = 0
+REPORT_LEVEL_WARN = 1
+REPORT_LEVEL_ALERT = 2
+
 
 # the ranges based on chip type for which the gain value is valid
 gain_ranges = {
-    "314": (0.67, 0.70),
-    "316": (0.67, 0.70),
-    "318": (0.67, 0.70),
-    "P1": (1.0, 1.1),
-    "520": (1.0, 1.1),
-    "530": (1.0, 1.1),
-    "540": (1.0, 1.1)
+    "314": (0.66, 0.71),
+    "316": (0.66, 0.71),
+    "318": (0.66, 0.71),
+    "P1": (0.89, 1.11),
+    "520": (0.89, 1.11),
+    "530": (0.89, 1.11),
+    "540": (0.89, 1.11)
 }
 
 noise_thresholds = {
@@ -37,6 +41,7 @@ try:
     archive_path, output_path = sys.argv[1:3]
     data = read_explog(archive_path)
     chip_type = get_chip_type_from_exp_log(data)
+    report_level = REPORT_LEVEL_INFO
 
     # check to see if the we have a lookup value for the chip type
     if chip_type not in noise_thresholds:
@@ -56,6 +61,7 @@ try:
     noise_report = "Chip noise " + noise + (" is too high." if noise_alert else " is low enough.")
     if noise_alert:
         noise_report = "<b>" + noise_report + "</b>"
+        report_level = max(report_level, REPORT_LEVEL_ALERT)
 
     # detect issues with the gain
     low, high = gain_ranges[chip_type]
@@ -64,9 +70,11 @@ try:
     if gain >= high:
         gain_report = "Chip gain {:.2f} is high.".format(gain)
         gain_alert = True
+        report_level = max(report_level, REPORT_LEVEL_ALERT)
     elif gain <= low:
         gain_report = "Chip gain {:.2f} is low.".format(gain)
         gain_alert = True
+        report_level = max(report_level, REPORT_LEVEL_WARN)
     else:
         gain_report = "Chip gain {:.2f} is within range.".format(gain)
     if gain_alert:
@@ -81,16 +89,24 @@ try:
         gain = float(data["Ref Electrode"].split(' ')[0])
         if gain > high:
             electrode_report = "Reference Electrode {:.2f} is high.".format(gain)
+            electode_alert = True
+            report_level = max(report_level, REPORT_LEVEL_ALERT)
         elif gain < low:
             electrode_report = "Reference Electrode {:.2f} is low.".format(gain)
+            electode_alert = True
+            report_level = max(report_level, REPORT_LEVEL_ALERT)
         else:
             electrode_report = "Reference Electrode {:.2f} is within range.".format(gain)
+
         if electode_alert:
             electrode_report = "<b>" + electrode_report + "</b>"
         reports.append(electrode_report)
 
-    if noise_alert or gain_alert or electode_alert:
+    # report here
+    if report_level == REPORT_LEVEL_ALERT:
         print_alert(" | ".join(reports))
+    elif report_level == REPORT_LEVEL_WARN:
+        print_warning(" | ".join(reports))
     else:
         print_info(" | ".join(reports))
 
