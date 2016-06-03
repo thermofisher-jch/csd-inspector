@@ -23,7 +23,7 @@
     "Auto_pH",
     "Sequencing_Details",
     "Chip_Type",
-    "flowErr",
+    "Flow_Error",
     "Test_Fragments"
   ],
   "Raptor_S5":[
@@ -38,7 +38,7 @@
     "Raw_Trace",
     "Ion_S5_Reagent_Lots",
     "Chip_Type",
-    "flowErr",
+    "Flow_Error",
     "Test_Fragments"
   ],
   "OT_Log": [
