@@ -9,14 +9,16 @@ REPORT_LEVEL_ALERT = 2
 
 
 # the ranges based on chip type for which the gain value is valid
+PGM_GAIN_RANGE = (0.67, 0.71)
+PROTON_S5_GAIN_RANGE = (0.9, 1.2)
 gain_ranges = {
-    "314": (0.66, 0.71),
-    "316": (0.66, 0.71),
-    "318": (0.66, 0.71),
-    "P1": (0.89, 1.11),
-    "520": (0.89, 1.11),
-    "530": (0.89, 1.11),
-    "540": (0.89, 1.11)
+    "314": PGM_GAIN_RANGE,
+    "316": PGM_GAIN_RANGE,
+    "318": PGM_GAIN_RANGE,
+    "P1": PROTON_S5_GAIN_RANGE,
+    "520": PROTON_S5_GAIN_RANGE,
+    "530": PROTON_S5_GAIN_RANGE,
+    "540": PROTON_S5_GAIN_RANGE
 }
 
 noise_thresholds = {
