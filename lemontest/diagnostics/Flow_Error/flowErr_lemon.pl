@@ -67,11 +67,6 @@ die "$0: unable to read R functions file $rFnsFile\n" if (! -r $rFnsFile);
 my $rLibDir = &findRLibDir($0);
 
 mkpath $opt->{"out-dir"} || die "$0: unable to make directory ".$opt->{"out-dir"}.": $!\n";
-my $htmlFile = $opt->{"out-dir"} . "/results.html";
-my $htmlFh = FileHandle->new("> $htmlFile") || die "$0: problem writing $htmlFile: $!\n";
-my $htmlTitle = $opt->{"plugin-name"} . " for " . $opt->{"analysis-name"};
-my $htmlHeaderLine = $htmlTitle;
-&writeHtmlHeader($htmlTitle,$htmlHeaderLine,$htmlFh);
 
 my $plotDir = "plots";
 
@@ -108,9 +103,14 @@ if(!$opt->{"html-only"}) {
     my $command = "R CMD BATCH --slave --no-save --no-timing $rTempFile $rLogFile";
     $retVal = system($command);
   }
-  &rLogPrintHtml($htmlFh,$rLogFile,"<br>Problem running R\n") if($retVal != 0);
+  # &rLogPrintHtml($htmlFh,$rLogFile,"<br>Problem running R\n") if($retVal != 0);
 }
 
+my $htmlFile = $opt->{"out-dir"} . "/results.html";
+my $htmlFh = FileHandle->new("> $htmlFile") || die "$0: problem writing $htmlFile: $!\n";
+my $htmlTitle = $opt->{"plugin-name"} . " for " . $opt->{"analysis-name"};
+my $htmlHeaderLine = $htmlTitle;
+&writeHtmlHeader($htmlTitle,$htmlHeaderLine,$htmlFh);
 
 my $blockHtmlFile = $opt->{"out-dir"}."/".$opt->{"plugin-name"}."_block.html";
 my $blockHtmlFh = FileHandle->new("> $blockHtmlFile") || die "$0: problem writing $blockHtmlFile: $!\n";
@@ -121,38 +121,33 @@ chdir $opt->{"out-dir"};
 &finishHtml($blockHtmlFh);
 close $blockHtmlFh;
 
-&writeHtmlPlots($htmlFh,$plotDir);
+&writeHtmlPlots($htmlFh, $plotDir);
 
 if(!$opt->{"debug"}) {
   &finishHtml($htmlFh);
 }
 
-
 sub writeHtmlPlots {
-  my($htmlFh,$plotDir) = @_;
-
-  print $htmlFh "<table border=2 cellpadding=5>\n";
+  my($htmlFh, $plotDir) = @_;
 
   my @plotTypes = ();
   my $plotType = "";
 
-  @plotTypes = (
-    "per_base.regional.error.dynamic.png",
-    "per_base.regional.aligned.dynamic.png",
-    "spatial_filter.png"
-  );
-  print $htmlFh "  <tr>\n";
-  for(my $i=0; $i <= $#plotTypes; $i++) {
-    my $plotType = $plotTypes[$i];
-    my @files = glob(sprintf("%s/*.%s",$plotDir,$plotType));
-    if(@files==1) {
-      print $htmlFh "    <td><img src=\"".$files[0]."\"/></td>\n";
-    } else {
-      print $htmlFh "    <td>NA</td>\n";
+  my $errorImage   = sprintf("%s/%s.%s", $plotDir, "per_base.regional.error.dynamic.png");
+  my $alignedImage = sprintf("%s/%s.%s", $plotDir, "per_base.regional.aligned.dynamic.png");
+  my $filterImage  = sprintf("%s/%s.%s", $plotDir, "spatial_filter.png");
+  my @plotImages = ($errorImage, $alignedImage, $filterImage);
+  if( -e $errorImage or -e $alignedImage or -e $filterImage){
+    print $htmlFh "<table border=2 cellpadding=5>\n";
+    print $htmlFh "  <tr>\n";
+    foreach my $plotImage (@plotImages) {
+      print $htmlFh "    <td><img src=\"".$plotImage."\"/></td>\n";
     }
+    print $htmlFh "  </tr>\n";
+    print $htmlFh "</table>\n";
+  } else {
+    print $htmlFh "<h3>No data available.</h3>"
   }
-  print $htmlFh "  </tr>\n";
-  print $htmlFh "</table>\n";
 
   # Per-HP results
   print $htmlFh "<h1>Per-HP Error Rates</h1>\n";
