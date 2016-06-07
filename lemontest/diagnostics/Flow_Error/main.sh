@@ -17,7 +17,7 @@ if [ ! -s ${ERROR_SUMMARY} ]; then
     fi
 
     HTML=${OUTPUT}/results.html
-    echo "<html><head><center><h1>flowErr Plots</h1><head><body>" > ${HTML}
+    echo "<html><head><center><h1>Flow Error Plots</h1><head><body>" > ${HTML}
 
     for h5file in ${error_summaries}
     do
@@ -39,7 +39,7 @@ if [ ! -s ${ERROR_SUMMARY} ]; then
 
     echo Info
     echo 20
-    echo Plots of flowErr.
+    echo Plots of Flow Error.
 
 else
     var=$(./flowErr_lemon.pl -e ${ERROR_SUMMARY} -o $OUTPUT 2>&1)
@@ -47,7 +47,7 @@ else
     if [ "$?" = "0" ]; then
       echo Info
       echo 20
-      echo Plots of flowErr.
+      echo Plots of Flow Error.
     else
       echo N/A
       echo 0

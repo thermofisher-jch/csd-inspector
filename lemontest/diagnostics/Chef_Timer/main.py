@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from datetime import datetime
+from datetime import datetime, timedelta
 import gzip
 import sys
 import os
@@ -63,6 +63,10 @@ try:
                 time_string = is_line.split(' ', 1)[0].strip()
                 unpause_time = datetime.strptime(date_string + " " + time_string, '%Y-%m-%d %H:%M:%S.%f')
                 break
+
+    run_log_csv = get_csv_from_run_log(archive)
+    last_time_stamp = timedelta(seconds=float(run_log_csv['timestamp'][-1]))
+    summary += " | Total Time: " + str(last_time_stamp)
 
     if pause_time and unpause_time:
         paused_length = unpause_time - pause_time
