@@ -4,6 +4,7 @@ import json
 import sys
 import os.path
 from lemontest.diagnostics.common.inspector_utils import *
+from math import floor
 
 try:
     archive_path, output_path = sys.argv[1:3]
@@ -20,7 +21,8 @@ try:
     rates = list()
     for key in tf_stats.keys():
         if key.startswith('TF_') and "50Q17" in tf_stats[key] and "Num" in tf_stats[key]:
-            rates.append(key + " - " + str(100.0 * (float(tf_stats[key]["50Q17"]) / float(tf_stats[key]["Num"]))) + "%")
+            percent = int(floor(100.0 * (float(tf_stats[key]["50Q17"]) / float(tf_stats[key]["Num"]))))
+            rates.append(key + " - " + str(percent) + "%")
 
     # check that we got any test fragment information to report
     if len(rates) == 0:
