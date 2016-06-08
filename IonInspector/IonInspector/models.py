@@ -3,7 +3,7 @@ This will hold all of the data models for the inspector.
 """
 from django.conf import settings
 from django.db import models
-from IonInspector.local_celery import app
+from IonInspector.celery import app
 import zipfile
 import os
 
@@ -86,6 +86,11 @@ TEST_MANIFEST = {
     "Fans"
   ]
 }
+
+
+@app.task()
+def dummy():
+    return "I've got no strings to hold me down!"
 
 
 @app.task()

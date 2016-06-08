@@ -2,7 +2,7 @@ from django.core.urlresolvers import reverse
 from django.template import RequestContext
 from django.shortcuts import render_to_response, HttpResponseRedirect
 from IonInspector.forms import ArchiveForm
-from IonInspector.models import Archive, TEST_MANIFEST
+from IonInspector.models import Archive, TEST_MANIFEST, dummy
 from datetime import datetime
 from IonInspector.tables import ArchiveTable
 from django_tables2 import RequestConfig
@@ -14,6 +14,9 @@ def index(request):
     :param request:
     :return:
     """
+
+    async_result = dummy.delay()
+    r = async_result.get()
 
     ctx = RequestContext(request, {})
     return render_to_response("index.html", context_instance=ctx)
