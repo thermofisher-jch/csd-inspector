@@ -1,22 +1,22 @@
 FROM ubuntu:14.04
+MAINTAINER Brian Bourke-Martin "brian.bourke-martin@thermofisher.com"
 
 # setup variables
 ENV PROJECT_DIR /opt/inspector
+RUN mkdir -p $PROJECT_DIR
+WORKDIR ${PROJECT_DIR}/IonInspector
+
 
 # install all of the software
 RUN apt-get update
 RUN apt-get -y upgrade
-RUN apt-get install -y sqlite python-django python-pip rabbitmq-server celeryd python-dev
-
-# make a working source directory
-RUN mkdir -p $PROJECT_DIR
-ADD . $PROJECT_DIR
+RUN apt-get install -y sqlite python-pip rabbitmq-server celeryd python-dev
 
 # set the working directory to be the inspector directory
-WORKDIR ${PROJECT_DIR}/IonInspector
+ADD IonInspector/requirements.txt ${PROJECT_DIR}/IonInspector/requirements.txt
 RUN pip install -r requirements.txt
 
-# expose the development port
-EXPOSE 8000
-EXPOSE 5672
-EXPOSE 15672
+# setup the celery service
+RUN sed -i 's/ENABLED="false"/ENABLED="true"/' /etc/default/celeryd
+RUN sed -i 's/CELERYD_CHDIR="\/opt\/Myproject\/"/CELERYD_CHDIR="\/opt\/inspector\/IonInspector\/"/' /etc/default/celeryd
+RUN sed -i 's/CELERY_CONFIG_MODULE="celeryconfig"/CELERY_CONFIG_MODULE="inspector_celery"/' /etc/default/celeryd

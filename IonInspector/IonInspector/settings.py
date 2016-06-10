@@ -48,7 +48,7 @@ INSTALLED_APPS = (
     'IonInspector',
     'south',
     'django_tables2',
-    'IonInspector.celery'
+    'IonInspector.inspector_celery'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -103,7 +103,7 @@ MEDIA_URL = '/media/'
 
 CELERY_IMPORTS = "IonInspector.models"
 CELERY_IGNORE_RESULT = False
-#BROKER_HOST = "127.0.0.1" #IP address of the server running RabbitMQ and Celery
-BROKER_PORT = 5672
-BROKER_URL = 'amqp://'
-CELERY_RESULT_BACKEND = "amqp"
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_RESULT_BACKEND = 'amqp'
+CELERY_RESULT_SERIALIZER = 'json'

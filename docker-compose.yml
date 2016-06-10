@@ -1,0 +1,26 @@
+rabbitmq:
+  image: rabbitmq
+
+celery:
+  image: inspector
+  volumes:
+    - .:/opt/inspector
+  environment:
+    - C_FORCE_ROOT=true
+  working_dir: /opt/inspector/IonInspector
+  command: celery worker -A IonInspector.inspector_celery -E -l info --concurrency=3
+  links:
+    - rabbitmq
+
+django:
+  image: inspector
+  working_dir: /opt/inspector/IonInspector
+  command: python manage.py runserver 0.0.0.0:80
+  volumes:
+    - .:/opt/inspector
+  ports:
+    - "80:80"
+  links:
+    - celery
+    - rabbitmq
+

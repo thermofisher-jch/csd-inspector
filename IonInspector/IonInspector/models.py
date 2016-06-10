@@ -3,7 +3,7 @@ This will hold all of the data models for the inspector.
 """
 from django.conf import settings
 from django.db import models
-from IonInspector.celery import app
+from IonInspector.inspector_celery import app
 import zipfile
 import os
 
