@@ -15,9 +15,6 @@ def index(request):
     :return:
     """
 
-    async_result = dummy.delay()
-    r = async_result.get()
-
     ctx = RequestContext(request, {})
     return render_to_response("index.html", context_instance=ctx)
 
