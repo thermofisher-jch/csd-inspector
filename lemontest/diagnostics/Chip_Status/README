@@ -1,8 +1,32 @@
-The chip gain should be within these ranges for these chip types:
-314: OK (0.67-0.70) < Alert
-316: OK (0.67-0.70) < Alert
-318: OK (0.67-0.70) < Alert
-P1: OK <= 170.0 < Alert
-520: OK (between 1.00 and 1.10) < Alert
-530: OK (between 1.00 and 1.10) < Alert
-540: OK (between 1.00 and 1.10) < Alert
+     Gain - Info Only
+Chip Type   |Low(<) |High(>)|
+-----------------------------
+314         | 0.67  | 0.71  |
+316         | 0.67  | 0.71  |
+318         | 0.67  | 0.71  |
+P1          | 0.90  | 1.20  |
+520         | 0.90  | 1.20  |
+530         | 0.90  | 1.20  |
+540         | 0.90  | 1.20  |
+
+ Reference Electrode - Alert
+Chip Type   |Low(<) |High(>)|
+-----------------------------
+314         | 0.40  | 0.72  |
+316         | 0.40  | 0.72  |
+318         | 0.40  | 0.72  |
+P1          | 170.0 | 17.0.0|
+520         | NA    | NA    |
+530         | NA    | NA    |
+540         | NA    | NA    |
+
+      Noise - Alert
+Chip Type   | Threshold(>)
+-----------------------------
+314         | 6.0
+316         | 8.0
+318         | 10.0
+P1          | 170.0
+520         | 140.0
+530         | 140.0
+540         | 170.0

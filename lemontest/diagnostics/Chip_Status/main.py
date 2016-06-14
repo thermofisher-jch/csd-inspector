@@ -68,19 +68,12 @@ try:
     # detect issues with the gain
     low, high = gain_ranges[chip_type]
     gain = float(data["Gain"] if "Gain" in data else data["ChipGain"])
-    gain_alert = False
-    if gain >= high:
+    if gain > high:
         gain_report = "Chip gain {:.2f} is high.".format(gain)
-        gain_alert = True
-        report_level = max(report_level, REPORT_LEVEL_ALERT)
-    elif gain <= low:
+    elif gain < low:
         gain_report = "Chip gain {:.2f} is low.".format(gain)
-        gain_alert = True
-        report_level = max(report_level, REPORT_LEVEL_WARN)
     else:
         gain_report = "Chip gain {:.2f} is within range.".format(gain)
-    if gain_alert:
-        gain_report = "<b>" + gain_report + "</b>"
 
     reports = [noise_report, gain_report]
 
