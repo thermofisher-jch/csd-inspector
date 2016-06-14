@@ -97,6 +97,7 @@ def dummy():
 def execute(diagnostic):
     """
     This will execute a diagnostic on an archive
+    :param diagnostic: The diagnostic to execute
     """
 
     try:
@@ -105,6 +106,7 @@ def execute(diagnostic):
         diagnostic.save()
 
         # do the process here...
+
 
     except Exception as exc:
         # record the exception in the details and rely on the finally statement to call save
@@ -118,6 +120,7 @@ def execute(diagnostic):
         except:
             # swallow up any exceptions here
             pass
+
 
 def get_file_path(instance, filename):
     """
@@ -196,11 +199,11 @@ class Diagnostic(models.Model):
     )
 
     # model attributes
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, default="")
     status = models.CharField(max_length=255, choices=DIAGNOSTIC_STATUSES, default=UNEXECUTED)
-    details = models.CharField(max_length=2048)
-    error = models.CharField(max_length=2048)
-    html = models.CharField(max_length=255)
+    details = models.CharField(max_length=2048, default="")
+    error = models.CharField(max_length=2048, default="")
+    html = models.CharField(max_length=255, default="")
 
     # model relationships
     archive = models.ForeignKey(Archive, related_name="diagnostics", on_delete=models.CASCADE)
