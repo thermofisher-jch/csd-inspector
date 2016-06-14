@@ -7,14 +7,14 @@ celery:
     - .:/opt/inspector
   environment:
     - C_FORCE_ROOT=true # I feel dirty
-  working_dir: /opt/inspector/IonInspector
+  working_dir: /opt/inspector
   command: celery worker -A IonInspector.inspector_celery -E -l info --concurrency=3
   links:
     - rabbitmq
 
 django:
   image: inspector
-  working_dir: /opt/inspector/IonInspector
+  working_dir: /opt/inspector
   command: bash -c "python manage.py syncdb --noinput && python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:80"
   volumes:
     - .:/opt/inspector

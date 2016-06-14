@@ -11,3 +11,4 @@ lemontest/static/img/plots
 .vagrant
 *.sqlite3
 venv
+media/archive_files
