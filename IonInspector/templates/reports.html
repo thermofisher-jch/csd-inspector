@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load render_table from django_tables2 %}
+{% block extra_head_js %}
+    <link rel="stylesheet" href="{{ STATIC_URL }}django_tables2/themes/paleblue/css/screen.css" />
+    <style type="text/css">
+    tr td:nth-child(3), tr td:nth-child(4) {
+        white-space: nowrap;
+    }
+    #reports td {
+        padding: 0;
+    }
+    #reports td a {
+        padding: 12px 8px;
+        display: block;
+        color: #333333;
+    }
+    #reports td a:hover {
+        text-decoration: none;
+     }
+
+    #reports thead tr th {
+        border-top: 0 none;
+        background-image: linear-gradient(to bottom, white, #EFEFEF);
+    }
+    #reports thead tr.filter-row th {
+        padding-top: 0;
+        background-image: none;
+        background-color: #EEEEEE;
+    }
+    #reports thead tr th:last-child {
+        border-right: 0 none;
+    }
+    #reports th input, #reports th select {
+        margin: 0;
+        width: auto;
+    }
+    #filter_name, #filter_site {
+        max-width: 150px;
+    }
+    </style>
+{% endblock extra_head_js %}
+
+{% block content %}
+        {% render_table archives %}
+{% endblock content %}
