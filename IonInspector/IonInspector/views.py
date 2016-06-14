@@ -2,7 +2,7 @@ from django.core.urlresolvers import reverse
 from django.template import RequestContext
 from django.shortcuts import render_to_response, HttpResponseRedirect
 from IonInspector.forms import ArchiveForm
-from IonInspector.models import Archive, TEST_MANIFEST, dummy
+from IonInspector.models import Archive, TEST_MANIFEST
 from datetime import datetime
 from IonInspector.tables import ArchiveTable
 from django_tables2 import RequestConfig

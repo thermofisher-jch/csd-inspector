@@ -10,7 +10,7 @@ WORKDIR ${PROJECT_DIR}/IonInspector
 # install all of the software
 RUN apt-get update
 RUN apt-get -y upgrade
-RUN apt-get install -y sqlite python-pip rabbitmq-server celeryd python-dev
+RUN apt-get install -y sqlite python-pip rabbitmq-server celeryd python-dev r-base r-cran-rjson
 
 # set the working directory to be the inspector directory
 ADD IonInspector/requirements.txt ${PROJECT_DIR}/IonInspector/requirements.txt

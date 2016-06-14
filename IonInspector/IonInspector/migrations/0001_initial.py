@@ -24,11 +24,12 @@ class Migration(SchemaMigration):
         # Adding model 'Diagnostic'
         db.create_table(u'IonInspector_diagnostic', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
+            ('name', self.gf('django.db.models.fields.CharField')(default='', max_length=255)),
             ('status', self.gf('django.db.models.fields.CharField')(default='Unexecuted', max_length=255)),
-            ('details', self.gf('django.db.models.fields.CharField')(max_length=2048)),
-            ('error', self.gf('django.db.models.fields.CharField')(max_length=2048)),
-            ('html', self.gf('django.db.models.fields.CharField')(max_length=255)),
+            ('details', self.gf('django.db.models.fields.CharField')(default='', max_length=2048)),
+            ('error', self.gf('django.db.models.fields.CharField')(default='', max_length=2048)),
+            ('html', self.gf('django.db.models.fields.CharField')(default='', max_length=255)),
+            ('priority', self.gf('django.db.models.fields.IntegerField')(default=0)),
             ('archive', self.gf('django.db.models.fields.related.ForeignKey')(related_name='diagnostics', to=orm['IonInspector.Archive'])),
         ))
         db.send_create_signal(u'IonInspector', ['Diagnostic'])
@@ -68,11 +69,12 @@ class Migration(SchemaMigration):
         u'IonInspector.diagnostic': {
             'Meta': {'object_name': 'Diagnostic'},
             'archive': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'diagnostics'", 'to': u"orm['IonInspector.Archive']"}),
-            'details': ('django.db.models.fields.CharField', [], {'max_length': '2048'}),
-            'error': ('django.db.models.fields.CharField', [], {'max_length': '2048'}),
-            'html': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'details': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '2048'}),
+            'error': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '2048'}),
+            'html': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '255'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'name': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '255'}),
+            'priority': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'status': ('django.db.models.fields.CharField', [], {'default': "'Unexecuted'", 'max_length': '255'})
         },
         u'IonInspector.tag': {
