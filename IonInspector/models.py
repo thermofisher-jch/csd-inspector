@@ -207,7 +207,8 @@ class Diagnostic(models.Model):
             # execute the script
             env = os.environ.copy()
             env['PYTHONPATH'] = os.path.join('/', 'opt', 'inspector')
-            test_process = Popen([script, archive_folder, results_folder], stdout=PIPE, stderr=PIPE, cwd=script_folder, env=env)
+            cmd = [script, archive_folder, results_folder, self.archive.archive_type]
+            test_process = Popen(cmd, stdout=PIPE, stderr=PIPE, cwd=script_folder, env=env)
             stdout, self.error = test_process.communicate()
 
             # deal with the output

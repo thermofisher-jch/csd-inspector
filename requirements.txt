@@ -8,4 +8,3 @@ anyjson==0.3.3
 pytz==2016.4
 python-memcached==1.58
 librabbitmq==1.6.1
-matplotlib==1.5.1

@@ -10,7 +10,7 @@ WORKDIR ${PROJECT_DIR}
 # install all of the software
 RUN apt-get update
 RUN apt-get -y upgrade
-RUN apt-get install -y sqlite python-pip rabbitmq-server celeryd python-dev r-base r-cran-rjson libfreetype6-dev
+RUN apt-get install -y sqlite python-pip rabbitmq-server celeryd python-dev r-base r-cran-rjson python-matplotlib
 
 # set the working directory to be the inspector directory
 ADD requirements.txt ${PROJECT_DIR}/requirements.txt
