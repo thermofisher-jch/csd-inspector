@@ -10,19 +10,6 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 
-def is_proton(init_log):
-    """
-    Determines if the archive is a proton
-    :param init_log: The lines of the InitLog.txt
-    :return: a boolean true if this is a proton
-    """
-
-    for log_line in init_log:
-        if log_line.startswith('Proton Release_version'):
-            return True
-
-    return False
-
 try:
     # data to be populated
     failure = ""
@@ -33,7 +20,7 @@ try:
     y = list()
 
     # get the paths
-    archive_path, output_path = sys.argv[1:3]
+    archive_path, output_path, archive_type = sys.argv[1:4]
     init_log_path = os.path.join(archive_path, 'InitLog.txt')
     if not os.path.exists(init_log_path):
         raise Exception("InitLog.txt is not present so test cannot be run.")
@@ -49,7 +36,7 @@ try:
         html_handle.write("</head><body>")
         html_handle.write("<h1 align=\"center\">AutopH plot</h1>")
 
-        if is_proton(init_log):
+        if "Proton" == archive_type:
             for line in init_log:
                 if line.startswith("AUTOPH"):
                     bits = line.split(" ")

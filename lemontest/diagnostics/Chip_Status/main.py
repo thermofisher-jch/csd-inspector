@@ -40,7 +40,7 @@ electrode_ranges = {
 
 try:
     # get the path to the log file
-    archive_path, output_path = sys.argv[1:3]
+    archive_path, output_path, archive_type = sys.argv[1:4]
     data = read_explog(archive_path)
     chip_type = get_chip_type_from_exp_log(data)
     report_level = REPORT_LEVEL_INFO
@@ -59,21 +59,23 @@ try:
     noise = data.get('ChipNoise', None) or data.get('Noise', None)
     if not noise:
         raise Exception("The noise value could not be found in the log.")
-    noise_alert = float(noise) > noise_thresholds[chip_type]
-    noise_report = "Chip noise " + noise + (" is too high." if noise_alert else " is low enough.")
+    noise = round(float(noise), 2)
+
+    noise_alert = noise > noise_thresholds[chip_type]
+    noise_report = "Chip noise " + str(noise) + (" is too high." if noise_alert else " is low enough.")
     if noise_alert:
         noise_report = "<b>" + noise_report + "</b>"
         report_level = max(report_level, REPORT_LEVEL_ALERT)
 
     # detect issues with the gain
     low, high = gain_ranges[chip_type]
-    gain = float(data["Gain"] if "Gain" in data else data["ChipGain"])
+    gain = round(float(data["Gain"] if "Gain" in data else data["ChipGain"]), 2)
     if gain > high:
-        gain_report = "Chip gain {:.2f} is high.".format(gain)
+        gain_report = "Chip gain {} is high.".format(gain)
     elif gain < low:
-        gain_report = "Chip gain {:.2f} is low.".format(gain)
+        gain_report = "Chip gain {} is low.".format(gain)
     else:
-        gain_report = "Chip gain {:.2f} is within range.".format(gain)
+        gain_report = "Chip gain {} is within range.".format(gain)
 
     reports = [noise_report, gain_report]
 
@@ -81,17 +83,17 @@ try:
     electode_alert = False
     if "Ref Electrode" in data and chip_type in electrode_ranges:
         low, high = electrode_ranges[chip_type]
-        gain = float(data["Ref Electrode"].split(' ')[0])
+        gain = round(float(data["Ref Electrode"].split(' ')[0]), 2)
         if gain > high:
-            electrode_report = "Reference Electrode {:.2f} is high.".format(gain)
+            electrode_report = "Reference Electrode {} is high.".format(gain)
             electode_alert = True
             report_level = max(report_level, REPORT_LEVEL_ALERT)
         elif gain < low:
-            electrode_report = "Reference Electrode {:.2f} is low.".format(gain)
+            electrode_report = "Reference Electrode {} is low.".format(gain)
             electode_alert = True
             report_level = max(report_level, REPORT_LEVEL_ALERT)
         else:
-            electrode_report = "Reference Electrode {:.2f} is within range.".format(gain)
+            electrode_report = "Reference Electrode {} is within range.".format(gain)
 
         if electode_alert:
             electrode_report = "<b>" + electrode_report + "</b>"
