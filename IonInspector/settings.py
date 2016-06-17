@@ -99,7 +99,7 @@ STATICFILES_DIRS = [
 ]
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL = '/media/'
+MEDIA_URL = 'media/'
 
 CELERY_IMPORTS = "IonInspector.models"
 CELERY_IGNORE_RESULT = False
@@ -107,3 +107,4 @@ CELERY_TASK_SERIALIZER = 'pickle'
 CELERY_ACCEPT_CONTENT = ['pickle', 'json']
 CELERY_RESULT_BACKEND = 'amqp'
 CELERY_RESULT_SERIALIZER = 'pickle'
+SITE_ROOT = os.path.dirname(os.path.dirname(__file__))

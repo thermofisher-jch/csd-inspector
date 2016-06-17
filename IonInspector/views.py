@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
 from django.shortcuts import render_to_response, HttpResponseRedirect
@@ -6,6 +7,7 @@ from IonInspector.models import Archive, TEST_MANIFEST
 from datetime import datetime
 from IonInspector.tables import ArchiveTable
 from django_tables2 import RequestConfig
+import os
 
 
 def index(request):
@@ -94,3 +96,15 @@ def documentation(request):
     """
 
     return render_to_response("documentation.html")
+
+
+def readme(request, diagnostic_name):
+    """
+    Get the diagnostic readme
+    :param request:
+    :param diagnostic_name:
+    :return:
+    """
+
+    contents = open(os.path.join(settings.SITE_ROOT, 'lemontest', 'diagnostics', diagnostic_name, 'README')).read()
+    return render_to_response("readme.html", {'readme': contents})

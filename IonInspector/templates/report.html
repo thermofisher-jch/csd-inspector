@@ -128,12 +128,16 @@
                             </td>
                             <td>
                                 <div class="links">
+                                    {% if test.html %}
                                     <div>
-                                        <a href="{% static 'test.html' %}">Results</a>
+                                        <a href="/media/archive_files/{{ archive.id }}/test_results/{{ test.name }}/{{ test.html }}">Results</a>
                                     </div>
+                                    {% endif %}
+                                    {% if test.readme %}
                                     <div>
-                                        <a href="{% static 'test_readme/test.name' %}">Readme</a>
+                                        <a href="/diagnostic/{{ test.name }}">Readme</a>
                                     </div>
+                                    {% endif %}
                                 </div>
                                 {{ test.details }}
                             </td>

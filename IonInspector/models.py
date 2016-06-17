@@ -1,6 +1,7 @@
 """
 This will hold all of the data models for the inspector.
 """
+from cached_property import cached_property
 from django.conf import settings
 from django.db import models
 from celery.contrib.methods import task
@@ -80,15 +81,6 @@ TEST_MANIFEST = {
 }
 
 
-
-def execute(diagnostic):
-    """
-    This will execute a diagnostic on an archive
-    :param diagnostic: The diagnostic to execute
-    """
-
-
-
 def get_file_path(instance, filename):
     """
     Used for determining a path for the file to be saved to
@@ -146,6 +138,9 @@ class Archive(models.Model):
         diagnostic_list = TEST_MANIFEST[self.archive_type]
         for diagnostic_name in diagnostic_list:
             diagnostic = Diagnostic(name=diagnostic_name, archive=self)
+            readme_file = os.path.join(settings.SITE_ROOT, 'lemontest', 'diagnostics', diagnostic_name, 'README')
+            if os.path.exists(readme_file):
+                diagnostic.readme = os.path.basename(readme_file)
             diagnostic.save()
             diagnostic.execute()
 
@@ -176,6 +171,10 @@ class Diagnostic(models.Model):
 
     # model relationships
     archive = models.ForeignKey(Archive, related_name="diagnostics", on_delete=models.CASCADE)
+
+    @cached_property
+    def readme(self):
+        return os.path.exists(os.path.join(settings.SITE_ROOT, 'lemontest', 'diagnostics', self.name, 'README'))
 
     @task()
     def execute(self):
@@ -220,7 +219,7 @@ class Diagnostic(models.Model):
             self.details = self.error if self.error else u"<br />".join(output[2:]).rstrip()
             html_path = os.path.join(results_folder, "results.html")
             if os.path.exists(html_path):
-                self.html = html_path
+                self.html = os.path.basename(html_path)
 
             self.status = Diagnostic.COMPLETED
 
