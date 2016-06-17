@@ -152,12 +152,20 @@ class Diagnostic(models.Model):
 
     UNEXECUTED = "Unexecuted"
     EXECUTING = "Executing"
-    COMPLETED = "Completed"
+    ALERT = "Alert"
+    INFO = "Info"
+    WARNING = "Warning"
+    OK = "OK"
+    NA = "NA"
     FAILED = "Failed"
     DIAGNOSTIC_STATUSES = (
         ('U', UNEXECUTED),
         ('E', EXECUTING),
-        ('C', COMPLETED),
+        ('A', ALERT),
+        ('I', INFO),
+        ('W', WARNING),
+        ('O', OK),
+        ('N', NA),
         ('F', FAILED)
     )
 
@@ -214,14 +222,18 @@ class Diagnostic(models.Model):
             open(os.path.join(results_folder, "standard_output.log"), 'wb').write(stdout)
             open(os.path.join(results_folder, "standard_error.log"), 'wb').write(self.error)
             output = stdout.splitlines()
-            self.status = output[0] if stdout else ""
-            self.priority = int(output[1]) if stdout else 0
+            self.priority = 0
+            self.status = Diagnostic.FAILED
+            if stdout:
+                for short_name, long_name in Diagnostic.DIAGNOSTIC_STATUSES:
+                    if output[0] == long_name:
+                        self.status = long_name
+                self.priority = int(output[1])
+
             self.details = self.error if self.error else u"<br />".join(output[2:]).rstrip()
             html_path = os.path.join(results_folder, "results.html")
             if os.path.exists(html_path):
                 self.html = os.path.basename(html_path)
-
-            self.status = Diagnostic.COMPLETED
 
         except Exception as exc:
             # record the exception in the details and rely on the finally statement to call save

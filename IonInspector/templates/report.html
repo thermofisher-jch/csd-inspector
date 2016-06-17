@@ -85,8 +85,8 @@
 
                 <div class="row-fluid">
                     <div class="span6">
-                        <input name="summary" class="form-h4" placeholder="Summary" value="${archive.summary}" style="width: 300px;" maxlength="30"></input><br/>
-                        <input name="tags" placeholder="Tags" value="${tag_string}"></input>
+                        <input name="summary" class="form-h4" placeholder="Summary" value="${archive.summary}" style="width: 300px;" maxlength="30" /><br/>
+                        <input name="tags" placeholder="Tags" value="${tag_string}" />
                     </div>
                     <div class="span6" style="text-align: right;">
                         <p><em>${archive.time.strftime("%c")}, uploaded by ${archive.submitter_name}</em></p>
@@ -116,7 +116,11 @@
             <table id="test-summary" class="table table-striped table-hover">
                 <thead>
                     <tr>
-                        <th>Test</th><th>Status</th><th>Details</th>
+                        <th>Test</th>
+                        <th>Status</th>
+                        <th>Details</th>
+                        <th>Results</th>
+                        <th>Readme</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -124,22 +128,38 @@
                         <tr>
                             <td>{{ test.name }}</td>
                             <td>
-                                <span class="label">{{ test.status }}</span>
+                                {% if test.status == 'Unexecuted' %}
+                                <span class="label" style="background-color: lightgray">{{ test.status }}</span>
+                                {% elif test.status == 'Executing' %}
+                                <span class="label" style="background-color: lightyellow">{{ test.status }}</span>
+                                {% elif test.status == 'Alert' %}
+                                <span class="label" style="background-color: red">{{ test.status }}</span>
+                                {% elif test.status == 'Info' %}
+                                <span class="label" style="background-color: deepskyblue">{{ test.status }}</span>
+                                {% elif test.status == 'Warning' %}
+                                <span class="label" style="background-color: yellow">{{ test.status }}</span>
+                                {% elif test.status == 'OK' %}
+                                <span class="label" style="background-color: green">{{ test.status }}</span>
+                                {% elif test.status == 'NA' %}
+                                <span class="label" style="background-color: dimgray">{{ test.status }}</span>
+                                {% elif test.status == 'Failed' %}
+                                <span class="label" style="background-color: darkred">{{ test.status }}</span>
+                                {% else %}
+                                <span class="label" >{{ test.status }}</span>
+                                {% endif %}
                             </td>
                             <td>
-                                <div class="links">
-                                    {% if test.html %}
-                                    <div>
-                                        <a href="/media/archive_files/{{ archive.id }}/test_results/{{ test.name }}/{{ test.html }}">Results</a>
-                                    </div>
-                                    {% endif %}
-                                    {% if test.readme %}
-                                    <div>
-                                        <a href="/diagnostic/{{ test.name }}">Readme</a>
-                                    </div>
-                                    {% endif %}
-                                </div>
-                                {{ test.details }}
+                                {{ test.details|safe }}
+                            </td>
+                            <td>
+                                {% if test.html %}
+                                <a href="/media/archive_files/{{ archive.id }}/test_results/{{ test.name }}/{{ test.html }}">Results</a>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if test.readme %}
+                                <a href="/diagnostic/{{ test.name }}">Readme</a>
+                                {% endif %}
                             </td>
                         </tr>
                     {% endfor %}
