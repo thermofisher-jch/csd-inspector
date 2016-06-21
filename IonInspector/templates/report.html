@@ -39,8 +39,7 @@
         <div class="span12 alert alert-danger">
             <h2>Delete this upload forever?</h2>
             <button id="no_delete" class="btn btn-primary" >Keep</button>
-            <form  method="POST" action="${request.route_url('super_delete', archive_id=archive.id)}" style="margin: 0 0 0 100px; display: inline">
-                <input type="hidden" name="csrf_token" value="${request.session.get_csrf_token()}"/>
+            <form method="post" action="{% url 'api_dispatch_remove_archive' resource_name='Archive' api_name='v1' pk=archive.pk %}" style="margin: 0 0 0 100px; display: inline">
                 <button type="submit" class="btn" >Delete Forever</button>
             </form>
         </div>
@@ -100,8 +99,7 @@
                     <a class="btn btn-success" href="/archives/${basename}/${download_file}"><i class="icon-arrow-down icon-white"></i> Download Archive</a>
                     <a class="btn" href="/archives/${basename}/"><i class="icon-folder-open"></i> View Files</a>
                     <a id="edit" class="btn" href="#"><i class="icon-pencil"></i> Edit</a>
-                    <form method="POST" action="${request.route_url('rerun', archive_id=archive.id)}" style="margin: 0; display: inline">
-                        <input type="hidden" name="csrf_token" value="${request.session.get_csrf_token()}"/>
+                    <form method="POST" action="{% url 'api_dispatch_rerun_archive' resource_name='Archive' api_name='v1' pk=archive.pk %}" style="margin: 0; display: inline">
                         <button type="submit" class="btn"><i class="icon-repeat"></i> Re-run Tests</button>
                     </form>
                 </div>

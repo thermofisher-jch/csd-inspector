@@ -4,7 +4,10 @@ This will hold all of the data models for the inspector.
 from cached_property import cached_property
 from django.conf import settings
 from django.db import models
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
 from celery.contrib.methods import task
+import shutil
 from subprocess import *
 import zipfile
 import os
@@ -130,9 +133,13 @@ class Archive(models.Model):
         if not os.path.exists(self.doc_file.path):
             raise Exception("The archive file is not present at: " + self.doc_file.path)
 
-        doc_folder = os.path.dirname(self.doc_file.path)
         doc_archive = zipfile.ZipFile(self.doc_file.path)
-        doc_archive.extractall(path=doc_folder)
+        doc_archive.extractall(path=self.archive_root)
+
+        # delete all other diagnostics first
+        tests = Diagnostic.objects.filter(archive=self)
+        for test in tests:
+            test.delete()
 
         # get all of the diagnostics to be run on this type of archive
         diagnostic_list = TEST_MANIFEST[self.archive_type]
@@ -142,7 +149,22 @@ class Archive(models.Model):
             if os.path.exists(readme_file):
                 diagnostic.readme = os.path.basename(readme_file)
             diagnostic.save()
-            diagnostic.execute()
+            diagnostic.execute.delay()
+
+    @cached_property
+    def archive_root(self):
+        """
+        The archive root path
+        """
+        return os.path.dirname(self.doc_file.path)
+
+
+@receiver(pre_delete, sender=Archive, dispatch_uid="delete_archive")
+def on_archive_delete(sender, instance, **kwargs):
+    """
+    Triggered when the archives are deleted
+    """
+    shutil.rmtree(instance.archive_root)
 
 
 class Diagnostic(models.Model):
@@ -181,6 +203,18 @@ class Diagnostic(models.Model):
     archive = models.ForeignKey(Archive, related_name="diagnostics", on_delete=models.CASCADE)
 
     @cached_property
+    def diagnostic_root(self):
+        """
+        returns the root of the files used in the diagnostic
+        """
+        test_folder = os.path.join(self.archive.archive_root, 'test_results')
+        if not os.path.exists(test_folder):
+            os.mkdir(test_folder)
+        results_folder = os.path.join(test_folder, self.name)
+        if not os.path.exists(results_folder):
+            os.mkdir(results_folder)
+
+    @cached_property
     def readme(self):
         return os.path.exists(os.path.join(settings.SITE_ROOT, 'lemontest', 'diagnostics', self.name, 'README'))
 
@@ -195,16 +229,6 @@ class Diagnostic(models.Model):
             self.status = self.EXECUTING
             self.save()
 
-            # fire off the diagnostic executable
-            # create results directory
-            archive_folder = os.path.dirname(self.archive.doc_file.path)
-            test_folder = os.path.join(archive_folder, 'test_results')
-            if not os.path.exists(test_folder):
-                os.mkdir(test_folder)
-            results_folder = os.path.join(test_folder, self.name)
-            if not os.path.exists(results_folder):
-                os.mkdir(results_folder)
-
             # find the executable to use
             script_folder = os.path.join(DIAGNOSTICS_SCRIPT_DIR, self.name)
             script = os.path.join(script_folder, 'main.py')
@@ -214,13 +238,13 @@ class Diagnostic(models.Model):
             # execute the script
             env = os.environ.copy()
             env['PYTHONPATH'] = os.path.join('/', 'opt', 'inspector')
-            cmd = [script, archive_folder, results_folder, self.archive.archive_type]
+            cmd = [script, self.archive.archive_root, self.diagnostic_root, self.archive.archive_type]
             test_process = Popen(cmd, stdout=PIPE, stderr=PIPE, cwd=script_folder, env=env)
             stdout, self.error = test_process.communicate()
 
             # deal with the output
-            open(os.path.join(results_folder, "standard_output.log"), 'wb').write(stdout)
-            open(os.path.join(results_folder, "standard_error.log"), 'wb').write(self.error)
+            open(os.path.join(self.diagnostic_root, "standard_output.log"), 'wb').write(stdout)
+            open(os.path.join(self.diagnostic_root, "standard_error.log"), 'wb').write(self.error)
             output = stdout.splitlines()
             self.priority = 0
             self.status = Diagnostic.FAILED
@@ -231,7 +255,7 @@ class Diagnostic(models.Model):
                 self.priority = int(output[1])
 
             self.details = self.error if self.error else u"<br />".join(output[2:]).rstrip()
-            html_path = os.path.join(results_folder, "results.html")
+            html_path = os.path.join(self.diagnostic_root, "results.html")
             if os.path.exists(html_path):
                 self.html = os.path.basename(html_path)
 
@@ -241,6 +265,14 @@ class Diagnostic(models.Model):
             self.status = Diagnostic.FAILED
 
         self.save()
+
+
+@receiver(pre_delete, sender=Diagnostic, dispatch_uid="delete_diagnostic")
+def on_diagnostic_delete(sender, instance, **kwargs):
+    """
+    Triggered when the diagnostic are deleted
+    """
+    shutil.rmtree(instance.diagnostic_root)
 
 
 class Tag(models.Model):

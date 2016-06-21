@@ -48,7 +48,8 @@ INSTALLED_APPS = (
     'IonInspector',
     'south',
     'django_tables2',
-    'IonInspector.inspector_celery'
+    'IonInspector.inspector_celery',
+    'tastypie'
 )
 
 MIDDLEWARE_CLASSES = (
