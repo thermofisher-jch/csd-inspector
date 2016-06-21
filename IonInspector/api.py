@@ -53,7 +53,8 @@ class ArchiveResource(ModelResource):
         obj = self.cached_obj_get(bundle, **self.remove_api_resource_names(kwargs))
         archive = Archive.objects.get(pk=obj.id)
         archive.execute_diagnostics()
-        return HttpResponseRedirect(reverse('IonInspector.views.report', archive.pk))
+        my_url = reverse('IonInspector.views.report', args=[archive.pk])
+        return HttpResponseRedirect(my_url)
 
     class Meta:
         queryset = Archive.objects.all()

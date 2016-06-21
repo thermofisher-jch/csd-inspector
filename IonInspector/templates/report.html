@@ -96,8 +96,8 @@
             </form>
             <div class="form-actions">
                 <div class="pull-left">
-                    <a class="btn btn-success" href="/archives/${basename}/${download_file}"><i class="icon-arrow-down icon-white"></i> Download Archive</a>
-                    <a class="btn" href="/archives/${basename}/"><i class="icon-folder-open"></i> View Files</a>
+                    <a class="btn btn-success" href="/media/{{ archive.doc_file }}"><i class="icon-arrow-down icon-white"></i> Download Archive</a>
+                    <a class="btn" href="/media/archive_files/{{ archive.pk }}/"><i class="icon-folder-open"></i> View Files</a>
                     <a id="edit" class="btn" href="#"><i class="icon-pencil"></i> Edit</a>
                     <form method="POST" action="{% url 'api_dispatch_rerun_archive' resource_name='Archive' api_name='v1' pk=archive.pk %}" style="margin: 0; display: inline">
                         <button type="submit" class="btn"><i class="icon-repeat"></i> Re-run Tests</button>
@@ -117,6 +117,7 @@
                         <th>Test</th>
                         <th>Status</th>
                         <th>Details</th>
+                        <th>Run At</th>
                         <th>Results</th>
                         <th>Readme</th>
                     </tr>
@@ -148,6 +149,9 @@
                             </td>
                             <td>
                                 {{ test.details|safe }}
+                            </td>
+                            <td>
+                                {{ test.start_execute }}
                             </td>
                             <td>
                                 {% if test.html %}

@@ -21,7 +21,7 @@ urlpatterns = patterns(
     url(r'^report/(\d+)/$', 'IonInspector.views.report', name='report'),
     url(r'^diagnostic/(\w+)$', 'IonInspector.views.readme', name='readme'),
     url(r'^documentation', 'IonInspector.views.documentation', name='documentation'),
-    url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
+    url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}),
 )
 
 urlpatterns.extend(patterns(

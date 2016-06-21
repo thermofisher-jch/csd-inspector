@@ -30,6 +30,7 @@ class Migration(SchemaMigration):
             ('error', self.gf('django.db.models.fields.CharField')(default='', max_length=2048)),
             ('html', self.gf('django.db.models.fields.CharField')(default='', max_length=255)),
             ('priority', self.gf('django.db.models.fields.IntegerField')(default=0)),
+            ('start_execute', self.gf('django.db.models.fields.DateTimeField')(null=True)),
             ('archive', self.gf('django.db.models.fields.related.ForeignKey')(related_name='diagnostics', to=orm['IonInspector.Archive'])),
         ))
         db.send_create_signal(u'IonInspector', ['Diagnostic'])
@@ -75,6 +76,7 @@ class Migration(SchemaMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '255'}),
             'priority': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'start_execute': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
             'status': ('django.db.models.fields.CharField', [], {'default': "'Unexecuted'", 'max_length': '255'})
         },
         u'IonInspector.tag': {

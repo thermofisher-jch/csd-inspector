@@ -11,6 +11,7 @@ import shutil
 from subprocess import *
 import zipfile
 import os
+import datetime
 
 # check to see if the settings are configured
 if not settings.configured:
@@ -138,8 +139,8 @@ class Archive(models.Model):
 
         # delete all other diagnostics first
         tests = Diagnostic.objects.filter(archive=self)
-        for test in tests:
-            test.delete()
+        for run_test in tests:
+            run_test.delete()
 
         # get all of the diagnostics to be run on this type of archive
         diagnostic_list = TEST_MANIFEST[self.archive_type]
@@ -198,6 +199,7 @@ class Diagnostic(models.Model):
     error = models.CharField(max_length=2048, default="")
     html = models.CharField(max_length=255, default="")
     priority = models.IntegerField(default=0)
+    start_execute = models.DateTimeField(null=True)
 
     # model relationships
     archive = models.ForeignKey(Archive, related_name="diagnostics", on_delete=models.CASCADE)
@@ -213,6 +215,7 @@ class Diagnostic(models.Model):
         results_folder = os.path.join(test_folder, self.name)
         if not os.path.exists(results_folder):
             os.mkdir(results_folder)
+        return results_folder
 
     @cached_property
     def readme(self):
@@ -227,6 +230,7 @@ class Diagnostic(models.Model):
         try:
             # set the status
             self.status = self.EXECUTING
+            self.start_execute = datetime.datetime.utcnow()
             self.save()
 
             # find the executable to use
