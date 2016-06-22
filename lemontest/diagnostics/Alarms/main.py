@@ -7,7 +7,7 @@ import re
 import xml.etree 
 from datetime import datetime
 from xml.etree import ElementTree
-from mako.template import Template
+from django.template import Context, Template
 
 if __name__ == "__main__":
     archive, output = sys.argv[1:3]
@@ -58,15 +58,15 @@ if __name__ == "__main__":
                     record[0] = d.strftime("%Y %b %d %H:%M:%S")
                     warnings.append(record)
 
-    context = {
+    context = Context({
         "files": files,
         "warnings": warnings,
         "headers": headers,
         "xml_path": rel_xml_path,
         "errors": errors
-    }
-    template = Template(filename="logs.mako")
-    result = template.render(**context)
+    })
+    template = Template(open("logs.html").read())
+    result = template.render(context)
     with open(os.path.join(output, "results.html"), 'w') as out:
         out.write(result.encode("UTF-8"))
     summary = ""

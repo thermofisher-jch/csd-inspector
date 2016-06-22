@@ -3,7 +3,7 @@
 import csv
 import sys
 import os.path
-from mako.template import Template
+from django.template import Context, Template
 from lemontest.diagnostics.common.inspector_utils import *
 
 # constants
@@ -35,8 +35,8 @@ try:
     plt.savefig(figure_path, dpi=90)
 
     # write out the html resutls
-    template = Template(filename="logs.mako")
-    result = template.render(**dict())
+    template = Template(open("logs.html").read())
+    result = template.render(Context())
     with open(os.path.join(output, "results.html"), 'w') as out:
         out.write(result.encode("UTF-8"))
 

@@ -11,26 +11,19 @@
 <body>
 
 <div class="container">
-<h4>Chef versions</h4>
-<p>
-	Serial Number: ${serial}
-</p>
+<h4>Script Line:</h4>
+<pre>{{script_line}}</pre>
 <table class="table table-striped table-hover">
-	<thead>
+	{% for header, value in rows %}
 		<tr>
-			<th>Name</th>
-			<th>Version</th>
+			<th>{{header}}</th>
+			<td>{{value}}</td>
 		</tr>
-	</thead>
-	<tbody>
-	% for header, value in versions:
-		<tr>
-			<td>${header}</td>
-			<td>${value}</td>
-		</tr>
-	% endfor
-	</tbody>
+	{% endfor %}
 </table>
+{% if time %}
+	<p>Expected run time: ${time}</p>
+{% endif %}
 </div>
 
 </body>

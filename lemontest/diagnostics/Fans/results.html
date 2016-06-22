@@ -13,11 +13,11 @@
 <body>
 <div class="container-fluid">
 	<div class="row">
-	 	% for plot in plots:
+	 	{% for plot in plots %}
 		<div class="plot">
-			<img src="${plot}" />
+			<img src="{{plot}}" />
 		</div>
-		% endfor
+		{% endfor %}
 	</div>
 </div>
 </body>

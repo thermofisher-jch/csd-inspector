@@ -3,7 +3,7 @@
 import sys
 import os
 import os.path
-from mako.template import Template
+from django.template import Context, Template
 import csv
 import numpy as np
 import matplotlib
@@ -69,11 +69,11 @@ if __name__ == "__main__":
             for name, speed in zip(fan_names, fans):
                 plot_fan_speed(time, speed, name)
 
-            context = {
+            context = Context({
                 "plots": map(lambda s: s + ".png", fan_names)
-            }
-            template = Template(filename="results.mako")
-            result = template.render(**context)
+            })
+            template = Template(open("results.html").read())
+            result = template.render(context)
             with open(os.path.join(output, "results.html"), 'w') as out:
                 out.write(result.encode("UTF-8"))
     else:

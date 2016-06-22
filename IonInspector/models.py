@@ -12,6 +12,7 @@ from subprocess import *
 import zipfile
 import os
 import datetime
+import tarfile
 
 # check to see if the settings are configured
 if not settings.configured:
@@ -134,8 +135,13 @@ class Archive(models.Model):
         if not os.path.exists(self.doc_file.path):
             raise Exception("The archive file is not present at: " + self.doc_file.path)
 
-        doc_archive = zipfile.ZipFile(self.doc_file.path)
-        doc_archive.extractall(path=self.archive_root)
+        if self.doc_file.path.endswith('.zip'):
+            doc_archive = zipfile.ZipFile(self.doc_file.path)
+            doc_archive.extractall(path=self.archive_root)
+        elif self.doc_file.path.endswith('.tar.gz'):
+            tar = tarfile.open(self.doc_file.path, "r:gz")
+            tar.extractall()
+            tar.close()
 
         # delete all other diagnostics first
         tests = Diagnostic.objects.filter(archive=self)
@@ -242,6 +248,7 @@ class Diagnostic(models.Model):
             # execute the script
             env = os.environ.copy()
             env['PYTHONPATH'] = os.path.join('/', 'opt', 'inspector')
+            env['DJANGO_SETTINGS_MODULE'] = 'IonInspector.settings'
             cmd = [script, self.archive.archive_root, self.diagnostic_root, self.archive.archive_type]
             test_process = Popen(cmd, stdout=PIPE, stderr=PIPE, cwd=script_folder, env=env)
             stdout, self.error = test_process.communicate()

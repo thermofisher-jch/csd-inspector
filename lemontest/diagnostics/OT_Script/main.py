@@ -4,7 +4,7 @@
 import csv
 import sys
 import os.path
-from mako.template import Template
+from django.template import Context, Template
 
 
 scripts = {
@@ -55,13 +55,13 @@ time = kit_times.get(script, None)
 if time:
     summary += ": Expected run time %s" % time
 
-context = {
+context = Context({
     "script_line": script_line,
     "rows": rows,
     "time": time,
-}
-template = Template(filename="results.mako")
-result = template.render(**context)
+})
+template = Template(open("results.html").read())
+result = template.render(context)
 with open(os.path.join(output, "results.html"), 'w') as out:
     out.write(result.encode("UTF-8"))
 

@@ -4,7 +4,7 @@ import fnmatch
 import json
 import os
 import sys
-from mako.template import Template
+from django.template import Context, Template
 from lemontest.diagnostics.common.inspector_utils import *
 
 def find_summary(matches):
@@ -47,8 +47,8 @@ try:
     summary = find_summary(matches)
 
     print_info(summary)
-    template = Template(filename="results.mako")
-    result = template.render(**context)
+    template = Template(open("results.html").read())
+    result = template.render(Context(context))
     with open(os.path.join(output, "results.html"), 'w') as out:
         out.write(result.encode("UTF-8"))
 
