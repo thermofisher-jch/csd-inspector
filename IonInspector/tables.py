@@ -8,18 +8,25 @@ class ArchiveTable(tables.Table):
     Table for rendering archives.
     """
 
-    link = tables.LinkColumn('report', args=[A('pk')], orderable=False, empty_values=(), verbose_name='Report Details', accessor='pk')
+    time = tables.Column(verbose_name='Upload Time')
+    identifier = tables.Column(verbose_name='Identifier')
+    site = tables.Column(verbose_name='Site')
+    submitter_name = tables.Column(verbose_name='Submitter Name')
+    archive_type = tables.Column(verbose_name='Type')
+    link = tables.LinkColumn('IonInspector.views.report', args=[A('pk')], orderable=True, empty_values=(),
+                             verbose_name='Identifier', accessor='identifier')
 
     class Meta:
         model = Archive
+        per_page = 25
         attrs = {
             "class": "paleblue",
-            "width": "1000px"
+            "id": "archive_table"
         }
 
         # setup the column sequence
-        sequence = ('time', 'label', 'site', 'submitter_name', 'archive_type', 'link')
+        sequence = ('time', 'site', 'submitter_name', 'archive_type', 'link')
 
         # exclude the summary column data
-        exclude = ('summary', 'doc_file', 'id')
+        exclude = ('summary', 'doc_file', 'id', 'identifier')
 

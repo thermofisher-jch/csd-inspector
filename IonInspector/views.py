@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
-from django.shortcuts import render_to_response, HttpResponseRedirect
+from django.shortcuts import render_to_response, HttpResponseRedirect, render
 from IonInspector.forms import ArchiveForm
 from IonInspector.models import Archive, TEST_MANIFEST
 from datetime import datetime
@@ -33,7 +33,7 @@ def upload(request):
         form = ArchiveForm(data=request.POST, files=request.FILES)
 
         archive = Archive(
-            label=form.data['archive_label'],
+            id=form.data['archive_label'],
             site=form.data['site_name'],
             time=datetime.utcnow(),
             submitter_name=form.data['name'],

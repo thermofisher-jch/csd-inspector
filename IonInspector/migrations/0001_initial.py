@@ -11,7 +11,7 @@ class Migration(SchemaMigration):
         # Adding model 'Archive'
         db.create_table(u'IonInspector_archive', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('label', self.gf('django.db.models.fields.CharField')(max_length=255)),
+            ('identifier', self.gf('django.db.models.fields.CharField')(max_length=255)),
             ('site', self.gf('django.db.models.fields.CharField')(max_length=255)),
             ('time', self.gf('django.db.models.fields.DateTimeField')()),
             ('submitter_name', self.gf('django.db.models.fields.CharField')(max_length=255)),
@@ -61,7 +61,7 @@ class Migration(SchemaMigration):
             'archive_type': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'doc_file': ('django.db.models.fields.files.FileField', [], {'max_length': '100'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'label': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'identifier': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'site': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'submitter_name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'summary': ('django.db.models.fields.CharField', [], {'default': "u''", 'max_length': '255'}),

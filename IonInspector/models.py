@@ -112,7 +112,7 @@ class Archive(models.Model):
     )
 
     # model attributes
-    label = models.CharField(max_length=255)
+    identifier = models.CharField(max_length=255)
     site = models.CharField(max_length=255)
     time = models.DateTimeField()
     submitter_name = models.CharField(max_length=255)
