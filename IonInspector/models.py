@@ -48,7 +48,7 @@ TEST_MANIFEST = {
     "Chip_Status",
     "Proton_Pressure",
     "Auto_pH",
-    "Flow",
+    "Flow_Error",
     "Sequencing_Details",
     "Chip_Type"
   ],
@@ -61,7 +61,7 @@ TEST_MANIFEST = {
     "S5_Pressure",
     "Version_Check",
     "Raw_Trace",
-    "Flow",
+    "Flow_Error",
     "Ion_S5_Reagent_Lots",
     "Sequencing_Details",
     "Chip_Type"

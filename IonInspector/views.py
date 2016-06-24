@@ -33,7 +33,7 @@ def upload(request):
         form = ArchiveForm(data=request.POST, files=request.FILES)
 
         archive = Archive(
-            id=form.data['archive_label'],
+            identifier=form.data['archive_identifier'],
             site=form.data['site_name'],
             time=datetime.utcnow(),
             submitter_name=form.data['name'],

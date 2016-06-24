@@ -2,25 +2,41 @@ rabbitmq:
   image: rabbitmq
 
 celery:
-  image: inspector
+  build: ./
   volumes:
     - .:/opt/inspector
-  environment:
-    - C_FORCE_ROOT=true # I feel dirty
   working_dir: /opt/inspector
-  command: celery worker -A IonInspector.inspector_celery -E -l info --concurrency=3
+  command: sudo -H -u celery bash -c 'celery worker -A IonInspector.inspector_celery -E -l info --concurrency=3'
   links:
     - rabbitmq
+    - postgres
 
 django:
-  image: inspector
+  build: ./
   working_dir: /opt/inspector
-  command: bash -c "python manage.py syncdb --noinput && python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:80"
+  command: bash -c "sleep 5 && ./manage.py syncdb --noinput && ./manage.py migrate --noinput && ./manage.py runserver 0.0.0.0:80"
   volumes:
     - .:/opt/inspector
   ports:
     - "80:80"
-  links:
-    - celery
-    - rabbitmq
 
+  links:
+    - postgres:postgres
+
+data:
+  image: postgres:9.3
+  volumes:
+    - /var/lib/postgresql
+  command: "true"
+
+postgres:
+  image: postgres:9.3
+  restart: always
+  volumes_from:
+    - data
+  ports:
+    - "5432:5432"
+  environment:
+    - POSTGRES_USER=docker
+    - POSTGRES_PASSWORD=docker
+    - POSTGRES_DB=IonInspector
