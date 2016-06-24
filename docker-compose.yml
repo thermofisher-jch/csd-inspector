@@ -6,7 +6,9 @@ celery:
   volumes:
     - .:/opt/inspector
   working_dir: /opt/inspector
-  command: sudo -H -u celery bash -c 'celery worker -A IonInspector.inspector_celery -E -l info --concurrency=3'
+  environment:
+    - C_FORCE_ROOT=true # argh!
+  command: celery worker -A IonInspector.inspector_celery -E -l info --concurrency=3
   links:
     - rabbitmq
     - postgres
@@ -22,6 +24,8 @@ django:
 
   links:
     - postgres:postgres
+    - celery
+    - rabbitmq
 
 data:
   image: postgres:9.3
