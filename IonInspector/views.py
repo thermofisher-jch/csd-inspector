@@ -65,12 +65,35 @@ def reports(request):
     :param request:
     :return:
     """
+    site_search = ''
+    submitter_name_search = ''
+    archive_type_search = ''
+    identifier_search = ''
 
-    archive_types = TEST_MANIFEST.keys()
+    search = Archive.objects.all()
+    if request.GET.get('site', ''):
+        site_search = request.GET['site']
+        search = search.filter(site=site_search)
+    if request.GET.get('submitter_name', ''):
+        submitter_name_search = request.GET['submitter_name']
+        search = search.filter(submitter_name=submitter_name_search)
+    if request.GET.get('archive_type', ''):
+        archive_type_search = request.GET['archive_type']
+        search = search.filter(archive_type=archive_type_search)
+    if request.GET.get('identifier', ''):
+        identifier_search = request.GET['identifier']
+        search = search.filter(identifier=identifier_search)
 
-    table = ArchiveTable(Archive.objects.all())
+    table = ArchiveTable(search)
     RequestConfig(request).configure(table)
-    ctx = RequestContext(request, {'archives': table, 'archive_types': archive_types})
+    ctx = RequestContext(request, {
+        'archives': table,
+        'archive_types': TEST_MANIFEST.keys(),
+        'site_search': site_search,
+        'submitter_name_search': submitter_name_search,
+        'archive_type_search': archive_type_search,
+        'identifier_search': identifier_search
+    })
     return render_to_response("reports.html", context_instance=ctx)
 
 
