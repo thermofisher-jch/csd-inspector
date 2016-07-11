@@ -1,6 +1,7 @@
 import csv
 import os
 import re
+import traceback
 from xml.etree import ElementTree
 
 
@@ -24,6 +25,21 @@ def read_explog(archive_path):
             data[key.strip()] = value.strip()
 
     return data
+
+
+def handle_exception(exc, output_path):
+    """
+    Prints out a NA message and
+    :param exc: The exception which occured
+    :param output_path: The output path:
+    :return:
+    """
+    print_na(str(exc))
+    results_path = os.path.join(output_path, "results.html")
+    if os.path.exists(results_path):
+        os.remove(results_path)
+    with open(results_path, 'w') as results_path:
+        traceback.print_exc(file=results_path)
 
 
 def print_alert(message):

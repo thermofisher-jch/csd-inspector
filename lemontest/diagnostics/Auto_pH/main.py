@@ -10,6 +10,8 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 
+archive_path, output_path, archive_type = sys.argv[1:4]
+results_path = os.path.join(output_path, "results.html")
 try:
     # data to be populated
     failure = ""
@@ -20,7 +22,7 @@ try:
     y = list()
 
     # get the paths
-    archive_path, output_path, archive_type = sys.argv[1:4]
+
     init_log_path = os.path.join(archive_path, 'InitLog.txt')
     if not os.path.exists(init_log_path):
         raise Exception("InitLog.txt is not present so test cannot be run.")
@@ -31,7 +33,7 @@ try:
         init_log = init_log_handle.readlines()
 
     # TODO: perhaps move this to a template
-    with open(os.path.join(output_path, "results.html"), 'w') as html_handle:
+    with open(results_path, 'w') as html_handle:
         html_handle.write("<html><link rel=stylesheet href=some.css type=text/css>\n")
         html_handle.write("</head><body>")
         html_handle.write("<h1 align=\"center\">AutopH plot</h1>")
@@ -59,29 +61,37 @@ try:
                     raw_traces.append(line.strip())
 
         else:
-            # logic for getting PGM data
+            # gather up all of the steps reported in the log and organize them according to their step number
+            step_lines = dict()
             for line in init_log:
                 if re.search("^\d+\)", line):
-                    # get the ph, but let the next one be the end value for the current step
-                    if "W2 pH=" in line:
-                        step_ph = float(line.split('=')[1])
-                        if starting_ph == -1:
-                            starting_ph = step_ph
-                        else:
-                            y.append(step_ph)
-
-                    elif "Adding" in line:
-                        volume_added = float(line.split(' ')[2])
-                        if len(x) == 0:
-                            x.append(volume_added)
-                        else:
-                            x.append(volume_added + x[-1])
+                    line_split = line.split(')', 1)
+                    step_number = int(line_split[0])
+                    step_line = line_split[1].strip()
+                    if step_number not in step_lines:
+                        step_lines[step_number] = dict()
+                    if step_line.startswith('W2'):
+                        step_lines[step_number]['W2'] = float(step_line.split('=', 1)[1])
+                    if step_line.startswith('Adding'):
+                        step_lines[step_number]['Adding'] = float(step_line.split(' ')[1])
                 elif line.startswith("FAILEDUNDERSHOT"):
                     failure = "Undershot the pH."
                 elif line.startswith("RawTraces:"):
                     reagent_check = line.split(": ")[1]
                 elif line.startswith("RawTraces "):
                     raw_traces.append(line.split(" ", 1)[1])
+
+            starting_ph = float(step_lines[1]['W2'])
+
+            # parse the lines for information
+            for step_number in step_lines.keys():
+                step_values = step_lines[step_number]
+                if 'W2' in step_values and 'Adding' in step_values:
+                    volume_added = 0
+                    for i in range(step_number):
+                        volume_added += step_lines[i + 1]['Adding']
+                    x.append(volume_added)
+                    y.append(step_values['W2'])
 
         # check to make sure we get all of the required information
         if len(x) == 0 or len(y) == 0:
@@ -129,4 +139,5 @@ try:
         else:
             print_info("Starting pH: {} | W1 added (ml): {} | Reagent Check: {}".format(starting_ph, x[-1], reagent_check))
 except Exception as exc:
-    print_na(str(exc))
+    handle_exception(exc, output_path)
+
