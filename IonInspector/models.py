@@ -275,6 +275,7 @@ class Diagnostic(models.Model):
             self.details = str(exc)
             self.status = Diagnostic.FAILED
 
+        self.details = self.details[:100]
         self.save()
 
 
