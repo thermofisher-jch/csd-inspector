@@ -4,6 +4,19 @@ import re
 import traceback
 from xml.etree import ElementTree
 
+MAX_MESSAGE_LENGTH = 100
+
+
+def check_supported(explog):
+    """
+    this will go through the explog and look for invalid hardware
+    :param explog:
+    """
+
+    chipType = get_chip_type_from_exp_log(exp_log=explog)
+    if chipType in ['521']:
+        raise Exception("The " + chipType + " Chip has been blacklisted and cannot be evaulated.")
+
 
 def read_explog(archive_path):
     """
@@ -16,7 +29,7 @@ def read_explog(archive_path):
         raise Exception("explog_final.txt missing")
 
     # parse the log file for all of the values in a colon delimited parameter
-    data = {}
+    data = dict()
     for line in open(path):
         # Trying extra hard to accommodate formatting issues in explog
         datum = line.split(":", 1)
@@ -39,7 +52,11 @@ def handle_exception(exc, output_path):
     if os.path.exists(results_path):
         os.remove(results_path)
     with open(results_path, 'w') as results_path:
+        results_path.write('<head></head><body>')
+        results_path.write('<strong>Error which occurred during test execution</strong>')
+        results_path.write('<p style="white-space: pre-wrap; word-wrap: break-word;">')
         traceback.print_exc(file=results_path)
+        results_path.write('</p></body>')
 
 
 def print_alert(message):
@@ -49,7 +66,7 @@ def print_alert(message):
     """
     print("Alert")
     print(40)
-    print(message)
+    print(message[:MAX_MESSAGE_LENGTH])
 
 
 def print_warning(message):
@@ -59,7 +76,7 @@ def print_warning(message):
     """
     print("Warning")
     print(30)
-    print(message)
+    print(message[:MAX_MESSAGE_LENGTH])
 
 
 def print_info(message):
@@ -69,7 +86,7 @@ def print_info(message):
     """
     print("Info")
     print(20)
-    print(message)
+    print(message[:MAX_MESSAGE_LENGTH])
 
 
 def print_ok(message):
@@ -79,7 +96,7 @@ def print_ok(message):
     """
     print("OK")
     print(10)
-    print(message)
+    print(message[:MAX_MESSAGE_LENGTH])
 
 
 def print_na(message):
@@ -89,7 +106,7 @@ def print_na(message):
     """
     print("N/A")
     print(0)
-    print(message)
+    print(message[:MAX_MESSAGE_LENGTH])
 
 
 def get_csv_from_run_log(archive_path):

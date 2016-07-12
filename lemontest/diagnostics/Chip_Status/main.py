@@ -42,6 +42,7 @@ try:
     # get the path to the log file
     archive_path, output_path, archive_type = sys.argv[1:4]
     data = read_explog(archive_path)
+    check_supported(data)
     chip_type = get_chip_type_from_exp_log(data)
     report_level = REPORT_LEVEL_INFO
 

@@ -9,11 +9,6 @@ OK_STRING = "TS Version is acceptable at <strong>%s</strong>"
 ALERT_STRING = "Advise customer to upgrade their Torrent Server.  Their version is out-dated at <strong>%s</strong>"
 
 
-def validate(archive_path):
-    explog = read_explog(archive_path)
-    return explog, True
-
-
 def printResult(alert, msg):
     """
     Helper method to print the alert statement
@@ -24,21 +19,14 @@ def printResult(alert, msg):
     print("40" if alert else "10")
     print(msg)
 
-if __name__ == "__main__":
-    outpath = sys.argv[1]
-    explog, valid = validate(outpath)
-    if not valid:
-        print("N/A")
-        print("0")
-        print "Could not find a valid explog."
-        exit()
-
-    version_path = os.path.join(outpath, "version.txt")
+archive_path, output_path, archive_type = sys.argv[1:4]
+try:
+    # check that this is a valid hardware set for evaluation
+    explog = read_explog(archive_path)
+    check_supported(explog)
+    version_path = os.path.join(output_path, "version.txt")
     if not os.path.exists(version_path):
-        print("N/A")
-        print("0")
-        print("No version.txt included")
-        exit()
+        raise Exception("Missing file: " + version_path)
 
     # get the version number
     line = open(version_path).readline()
@@ -71,5 +59,6 @@ if __name__ == "__main__":
             printResult(False, OK_STRING % version)
         else:
             printResult(True, "Could not get a valid version to check against.")
-
+except Exception as exc:
+    handle_exception(exc, output_path)
 
