@@ -5,10 +5,12 @@ celery:
   build: ./
   volumes:
     - .:/opt/inspector
+    - ./celery:/var/log/celery/
   working_dir: /opt/inspector
-  environment:
-    - C_FORCE_ROOT=true # argh!
-  command: celery worker -A IonInspector.inspector_celery -E -l info --concurrency=3
+  #environment:
+  #  - C_FORCE_ROOT=true # argh!
+  #command: celery worker -A IonInspector.celeryconfig -E -l info --concurrency=3
+  command: bash -c "service celeryd start && sleep infinity"
   links:
     - rabbitmq
     - postgres
@@ -21,9 +23,8 @@ django:
     - .:/opt/inspector
   ports:
     - "80:80"
-
   links:
-    - postgres:postgres
+    - postgres
     - celery
     - rabbitmq
 

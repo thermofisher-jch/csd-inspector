@@ -48,6 +48,14 @@ def handle_exception(exc, output_path):
     :return:
     """
     print_na(str(exc))
+    write_error_html(output_path)
+
+
+def write_error_html(output_path):
+    """
+    Write the results html for an errorful run
+    :param output_path:
+    """
     results_path = os.path.join(output_path, "results.html")
     if os.path.exists(results_path):
         os.remove(results_path)

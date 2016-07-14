@@ -7,12 +7,14 @@ from django.db import models
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from celery.contrib.methods import task
-import shutil
 from subprocess import *
-import zipfile
+from lemontest.diagnostics.common.inspector_utils import *
 import os
 import datetime
+import shutil
+import stat
 import tarfile
+import zipfile
 
 # check to see if the settings are configured
 if not settings.configured:
@@ -93,6 +95,21 @@ def get_file_path(instance, filename):
     :param filename: The name of the file to be saved
     :return: The path to save the archive file to
     """
+
+    media_dir = 'media'
+    if not os.path.exists(media_dir):
+        os.mkdir(media_dir, 0777)
+    os.chmod(media_dir, 0777)
+
+    archive_dirs = os.path.join(media_dir, 'archive_files')
+    if not os.path.exists(archive_dirs):
+        os.mkdir(archive_dirs)
+    os.chmod(archive_dirs, 0777)
+
+    instance_dir = os.path.join(archive_dirs, str(instance.pk))
+    if not os.path.exists(instance_dir):
+        os.mkdir(instance_dir, 0777)
+    os.chmod(instance_dir, 0777)
 
     return os.path.join('archive_files', str(instance.pk), filename)
 
@@ -218,6 +235,9 @@ class Diagnostic(models.Model):
         test_folder = os.path.join(self.archive.archive_root, 'test_results')
         if not os.path.exists(test_folder):
             os.mkdir(test_folder)
+
+        os.chmod(test_folder, 0777)
+
         results_folder = os.path.join(test_folder, self.name)
         if not os.path.exists(results_folder):
             os.mkdir(results_folder)
@@ -271,10 +291,12 @@ class Diagnostic(models.Model):
                 self.html = os.path.basename(html_path)
 
         except Exception as exc:
-            # record the exception in the details and rely on the finally statement to call save
             self.details = str(exc)
+            # record the exception in the details and rely on the finally statement to call save
+            write_error_html(self.diagnostic_root)
             self.status = Diagnostic.FAILED
 
+        # constrain the length of the details to 100
         self.details = self.details[:100]
         self.save()
 
