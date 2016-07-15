@@ -23,9 +23,12 @@ def get_lot_from_lines(log_lines, lot_type):
             return "<b>" + key_value[1].strip() + "</b>"
     return '<b>Unknown</b>'
 
+archive, output, archive_type = sys.argv[1:4]
 try:
+    data = read_explog(archive)
+    check_supported(data)
+
     # get the archive and output from argument list
-    archive, output = sys.argv[1:3]
     path = os.path.join(archive, "InitLog.txt")
 
     # read all the lines into an array
