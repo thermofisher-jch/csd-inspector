@@ -86,10 +86,10 @@ try:
             # parse the lines for information
             for step_number in step_lines.keys():
                 step_values = step_lines[step_number]
-                if 'W2' in step_values and 'Adding' in step_values:
+                if 'W2' in step_values:
                     volume_added = 0
                     for i in range(step_number):
-                        volume_added += step_lines[i + 1]['Adding']
+                        volume_added += step_lines[i + 1].get('Adding', 0.0)
                     x.append(volume_added)
                     y.append(step_values['W2'])
 
