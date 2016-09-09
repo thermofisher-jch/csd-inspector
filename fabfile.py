@@ -23,7 +23,7 @@ def deploy():
         run("git pull --rebase")
         run("docker-compose -f docker-compose.yml -f docker-compose.prod.yml build")
         run("docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d")
-        upload_template("./conf/nginx.conf", "/etc/sites-enabled/inspector.conf", {
+        upload_template("./conf/nginx.conf", "/etc/nginx/sites-enabled/inspector.conf", {
 
         })
         sudo("service nginx reload")

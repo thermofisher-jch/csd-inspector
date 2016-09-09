@@ -18,4 +18,4 @@ RUN pip install -r requirements.txt
 RUN sed -i 's/ENABLED="false"/ENABLED="true"/' /etc/default/celeryd
 RUN sed -i 's/CELERYD_CHDIR="\/opt\/Myproject\/"/CELERYD_CHDIR="\/opt\/inspector\/"/' /etc/default/celeryd
 RUN sed -i 's/CELERYD_OPTS="--time-limit=300 --concurrency=8"/CELERYD_OPTS="--time-limit=300 --concurrency=8 --broker=amqp:\/\/guest:guest@rabbitmq:5672\/\/ --config=IonInspector.celeryconfig"/' /etc/default/celeryd
-RUN echo "export DJANGO_SEnTTINGS_MODULE=\"IonInspector.settings\"" >> /etc/default/celeryd
+RUN echo "export DJANGO_SETTINGS_MODULE=\"IonInspector.settings\"" >> /etc/default/celeryd
