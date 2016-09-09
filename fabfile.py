@@ -16,6 +16,7 @@ def provision():
     with cd(HOST_DATA_DIR):
         run("git clone -b django ssh://git@stash.amer.thermo.com:7999/io/inspector.git")
     sudo("mkdir -p {dir}/postgres".format(dir=HOST_DATA_DIR))
+    sudo("mkdir -p {dir}/celery".format(dir=HOST_DATA_DIR))
 
 
 def deploy():

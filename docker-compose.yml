@@ -1,3 +1,4 @@
+# This is the base docker compose file used in both dev and prod
 rabbitmq:
   image: rabbitmq
 
@@ -34,8 +35,8 @@ postgres:
   volumes:
     - ./postgresql_data:/var/lib/postgresql/data
     - ./postgresql_log:/var/log/postgresql
-  expose:
-    - "5432"
+  ports:
+    - "5432:5432"
   environment:
     - POSTGRES_USER=docker
     - POSTGRES_PASSWORD=docker

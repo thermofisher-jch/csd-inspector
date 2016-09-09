@@ -12,3 +12,4 @@ lemontest/static/img/plots
 *.sqlite3
 venv
 media/archive_files
+.local

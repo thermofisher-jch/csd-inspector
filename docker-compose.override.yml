@@ -1,0 +1,16 @@
+# This file is used in dev only and is automatically merged when running docker-compose
+celery:
+  volumes:
+    - .:/opt/inspector
+    - ./.local/celery:/var/log/celery/
+
+django:
+  volumes:
+    - .:/opt/inspector
+  ports:
+    - "8080:80"
+
+postgres:
+  volumes:
+      - ./.local/postgresql_data:/var/lib/postgresql/data
+      - ./.local/postgresql_log:/var/log/postgresql
