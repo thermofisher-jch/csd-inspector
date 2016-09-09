@@ -1,4 +1,11 @@
 django:
-  volumes:
+  volumes: []
   ports:
     - "8657:80"
+  environment:
+      PRODUCTION: 'true'
+
+postgres:
+  volumes:
+    - /var/lib/inspector/postgres/postgresql_data:/var/lib/postgresql/data
+    - /var/lib/inspector/postgres/postgresql_log:/var/log/postgresql
