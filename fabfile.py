@@ -25,5 +25,5 @@ def deploy():
         run("docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d")
         upload_template("./conf/nginx.conf", "/etc/nginx/sites-enabled/inspector.conf", {
 
-        })
+        }, use_sudo=True)
         sudo("service nginx reload")
