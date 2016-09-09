@@ -1,5 +1,5 @@
 from django import forms
-from IonInspector.models import TEST_MANIFEST
+from reports.models import TEST_MANIFEST
 
 
 class ArchiveForm(forms.Form):

@@ -1,0 +1,4 @@
+django:
+  volumes:
+  ports:
+    - "8657:80"

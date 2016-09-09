@@ -1,11 +1,9 @@
 from django.conf.urls import url
 from django.core.urlresolvers import reverse
 from django.shortcuts import HttpResponseRedirect
-from IonInspector.models import Archive
+from reports.models import Archive
 from tastypie.authorization import Authorization
 from tastypie.resources import ModelResource
-from tastypie.http import HttpAccepted
-
 
 class ArchiveResource(ModelResource):
     """

@@ -9,7 +9,7 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         # Adding model 'Archive'
-        db.create_table(u'IonInspector_archive', (
+        db.create_table(u'reports_archive', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('identifier', self.gf('django.db.models.fields.CharField')(max_length=255)),
             ('site', self.gf('django.db.models.fields.CharField')(max_length=255)),
@@ -19,10 +19,10 @@ class Migration(SchemaMigration):
             ('summary', self.gf('django.db.models.fields.CharField')(default=u'', max_length=255)),
             ('doc_file', self.gf('django.db.models.fields.files.FileField')(max_length=100)),
         ))
-        db.send_create_signal(u'IonInspector', ['Archive'])
+        db.send_create_signal(u'reports', ['Archive'])
 
         # Adding model 'Diagnostic'
-        db.create_table(u'IonInspector_diagnostic', (
+        db.create_table(u'reports_diagnostic', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(default='', max_length=255)),
             ('status', self.gf('django.db.models.fields.CharField')(default='Unexecuted', max_length=255)),
@@ -31,32 +31,32 @@ class Migration(SchemaMigration):
             ('html', self.gf('django.db.models.fields.CharField')(default='', max_length=255)),
             ('priority', self.gf('django.db.models.fields.IntegerField')(default=0)),
             ('start_execute', self.gf('django.db.models.fields.DateTimeField')(null=True)),
-            ('archive', self.gf('django.db.models.fields.related.ForeignKey')(related_name='diagnostics', to=orm['IonInspector.Archive'])),
+            ('archive', self.gf('django.db.models.fields.related.ForeignKey')(related_name='diagnostics', to=orm['reports.Archive'])),
         ))
-        db.send_create_signal(u'IonInspector', ['Diagnostic'])
+        db.send_create_signal(u'reports', ['Diagnostic'])
 
         # Adding model 'Tag'
-        db.create_table(u'IonInspector_tag', (
+        db.create_table(u'reports_tag', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('archive', self.gf('django.db.models.fields.related.ForeignKey')(related_name='tags', to=orm['IonInspector.Archive'])),
+            ('archive', self.gf('django.db.models.fields.related.ForeignKey')(related_name='tags', to=orm['reports.Archive'])),
         ))
-        db.send_create_signal(u'IonInspector', ['Tag'])
+        db.send_create_signal(u'reports', ['Tag'])
 
 
     def backwards(self, orm):
         # Deleting model 'Archive'
-        db.delete_table(u'IonInspector_archive')
+        db.delete_table(u'reports_archive')
 
         # Deleting model 'Diagnostic'
-        db.delete_table(u'IonInspector_diagnostic')
+        db.delete_table(u'reports_diagnostic')
 
         # Deleting model 'Tag'
-        db.delete_table(u'IonInspector_tag')
+        db.delete_table(u'reports_tag')
 
 
     models = {
-        u'IonInspector.archive': {
+        u'reports.archive': {
             'Meta': {'object_name': 'Archive'},
             'archive_type': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'doc_file': ('django.db.models.fields.files.FileField', [], {'max_length': '100'}),
@@ -67,9 +67,9 @@ class Migration(SchemaMigration):
             'summary': ('django.db.models.fields.CharField', [], {'default': "u''", 'max_length': '255'}),
             'time': ('django.db.models.fields.DateTimeField', [], {})
         },
-        u'IonInspector.diagnostic': {
+        u'reports.diagnostic': {
             'Meta': {'object_name': 'Diagnostic'},
-            'archive': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'diagnostics'", 'to': u"orm['IonInspector.Archive']"}),
+            'archive': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'diagnostics'", 'to': u"orm['reports.Archive']"}),
             'details': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '2048'}),
             'error': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '2048'}),
             'html': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '255'}),
@@ -79,12 +79,12 @@ class Migration(SchemaMigration):
             'start_execute': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
             'status': ('django.db.models.fields.CharField', [], {'default': "'Unexecuted'", 'max_length': '255'})
         },
-        u'IonInspector.tag': {
+        u'reports.tag': {
             'Meta': {'object_name': 'Tag'},
-            'archive': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'tags'", 'to': u"orm['IonInspector.Archive']"}),
+            'archive': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'tags'", 'to': u"orm['reports.Archive']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'})
         }
     }
 
-    complete_apps = ['IonInspector']
+    complete_apps = ['reports']

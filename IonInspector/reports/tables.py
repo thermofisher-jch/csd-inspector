@@ -1,6 +1,6 @@
 import django_tables2 as tables
 from django_tables2.utils import A
-from IonInspector.models import Archive
+from reports.models import Archive
 
 
 class ArchiveTable(tables.Table):

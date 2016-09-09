@@ -22,7 +22,7 @@ django:
   volumes:
     - .:/opt/inspector
   ports:
-    - "80:80"
+    - "8080:80"
   links:
     - postgres
     - celery
@@ -34,8 +34,8 @@ postgres:
   volumes:
     - ./postgresql_data:/var/lib/postgresql/data
     - ./postgresql_log:/var/log/postgresql
-  ports:
-    - "5432:5432"
+  expose:
+    - "5432"
   environment:
     - POSTGRES_USER=docker
     - POSTGRES_PASSWORD=docker
