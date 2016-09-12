@@ -99,7 +99,7 @@ def get_file_path(instance, filename):
     media_dir = settings.MEDIA_ROOT
     if not os.path.exists(media_dir):
         os.mkdir(media_dir, 0777)
-    os.chmod(media_dir, 0777)
+        os.chmod(media_dir, 0777)
 
     archive_dirs = os.path.join(media_dir, 'archive_files')
     if not os.path.exists(archive_dirs):
