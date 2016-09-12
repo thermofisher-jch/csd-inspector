@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+BASE_DIR = os.path.dirname(__file__)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
@@ -48,7 +48,6 @@ INSTALLED_APPS = (
     'reports',
     'south',
     'django_tables2',
-    'IonInspector.celeryconfig',
     'tastypie'
 )
 
@@ -105,10 +104,13 @@ STATICFILES_DIRS = [
     '/usr/share/pyshared/django_tables2/static/',
 ]
 
+TEMPLATE_DIRS = (
+    os.path.join(BASE_DIR, 'templates'),
+)
+
 MEDIA_ROOT = '/var/lib/inspector/media'
 MEDIA_URL = 'media/'
 
-CELERY_IMPORTS = "IonInspector.models"
 CELERY_IGNORE_RESULT = False
 CELERY_TASK_SERIALIZER = 'pickle'
 CELERY_ACCEPT_CONTENT = ['pickle', 'json']

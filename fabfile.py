@@ -1,4 +1,5 @@
-from fabric.api import env, run, cd, sudo
+import os
+from fabric.api import env, run, cd, sudo, local
 from fabric.contrib.files import upload_template
 
 env.user = 'deploy'
@@ -13,9 +14,9 @@ def provision():
     sudo("pip install docker-compose")
     sudo("mkdir -p {dir}".format(dir=HOST_DATA_DIR))
     sudo("chown deploy:deploy {dir}".format(dir=HOST_DATA_DIR))
-    sudo("mkdir -p {dir}/postgres; chmod 0777 {dir}/postgres".format(dir=HOST_DATA_DIR))
-    sudo("mkdir -p {dir}/celery; chmod 0777 {dir}/celery".format(dir=HOST_DATA_DIR))
-    sudo("mkdir -p {dir}/media; chmod 0777 {dir}/media".format(dir=HOST_DATA_DIR))
+    sudo("mkdir -p {dir}/postgres; chown deploy:deploy {dir}; chmod 777 {dir}/postgres".format(dir=HOST_DATA_DIR))
+    sudo("mkdir -p {dir}/celery; chown deploy:deploy {dir}; chmod 777 {dir}/celery".format(dir=HOST_DATA_DIR))
+    sudo("mkdir -p {dir}/media; chown deploy:deploy {dir}; chmod 777 {dir}/media".format(dir=HOST_DATA_DIR))
     with cd(HOST_DATA_DIR):
         run("git clone -b django ssh://git@stash.amer.thermo.com:7999/io/inspector.git")
 

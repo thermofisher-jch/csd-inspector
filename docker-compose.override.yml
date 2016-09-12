@@ -3,6 +3,7 @@ celery:
   volumes:
     - .:/opt/inspector
     - ./.local/celery:/var/log/celery
+    - ./.local/media:/var/lib/inspector/media
 
 django:
   volumes:

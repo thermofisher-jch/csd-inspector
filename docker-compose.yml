@@ -3,12 +3,10 @@ rabbitmq:
   image: rabbitmq
 
 celery:
+  user: celery
   build: ./
   working_dir: /opt/inspector
-  #environment:
-  #  - C_FORCE_ROOT=true # argh!
-  #command: celery worker -A IonInspector.celeryconfig -E -l info --concurrency=3
-  command: bash -c "service celeryd start && sleep infinity"
+  command: celery -A IonInspector.celeryconfig worker -l info --concurrency=3
   links:
     - rabbitmq
     - postgres
