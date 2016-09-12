@@ -105,7 +105,7 @@ STATICFILES_DIRS = [
     '/usr/share/pyshared/django_tables2/static/',
 ]
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = '/var/lib/inspector/media'
 MEDIA_URL = 'media/'
 
 CELERY_IMPORTS = "IonInspector.models"

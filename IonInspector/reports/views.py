@@ -51,7 +51,7 @@ def upload(request):
         archive.execute_diagnostics()
 
         # Redirect to the document list after POST
-        return HttpResponseRedirect(reverse('IonInspector.views.report', args=[archive.pk]))
+        return HttpResponseRedirect(reverse('reports.views.report', args=[archive.pk]))
     else:
         form = ArchiveForm()
 

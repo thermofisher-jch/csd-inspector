@@ -1,9 +1,11 @@
 # This file is used in prod only and has to be mauanlly merged when running docker-compose
 celery:
   volumes:
-    - /var/lib/inspector/celery:/var/log/celery/
+    - /var/lib/inspector/celery:/var/log/celery
 
 django:
+  volumes:
+    - /var/lib/inspector/media:/var/lib/inspector/media
   ports:
     - "8657:80"
 

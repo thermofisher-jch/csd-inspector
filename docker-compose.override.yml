@@ -2,11 +2,12 @@
 celery:
   volumes:
     - .:/opt/inspector
-    - ./.local/celery:/var/log/celery/
+    - ./.local/celery:/var/log/celery
 
 django:
   volumes:
     - .:/opt/inspector
+    - ./.local/media:/var/lib/inspector/media
   ports:
     - "8080:80"
 
