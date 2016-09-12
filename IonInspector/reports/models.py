@@ -96,7 +96,7 @@ def get_file_path(instance, filename):
     :return: The path to save the archive file to
     """
 
-    media_dir = 'media'
+    media_dir = settings.MEDIA_ROOT
     if not os.path.exists(media_dir):
         os.mkdir(media_dir, 0777)
     os.chmod(media_dir, 0777)
