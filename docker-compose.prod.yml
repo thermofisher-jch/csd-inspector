@@ -8,7 +8,7 @@ django:
   volumes:
     - /var/lib/inspector/media:/var/lib/inspector/media
   ports:
-    - "8657:80"
+    - "8657:8080"
 
 postgres:
   volumes:
