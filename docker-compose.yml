@@ -35,8 +35,6 @@ postgres:
   volumes:
     - ./postgresql_data:/var/lib/postgresql/data
     - ./postgresql_log:/var/log/postgresql
-  ports:
-    - "5432:5432"
   environment:
     - POSTGRES_USER=docker
     - POSTGRES_PASSWORD=docker
