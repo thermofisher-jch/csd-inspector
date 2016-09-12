@@ -13,7 +13,7 @@ class ArchiveTable(tables.Table):
     site = tables.Column(verbose_name='Site')
     submitter_name = tables.Column(verbose_name='Submitter Name')
     archive_type = tables.Column(verbose_name='Type')
-    link = tables.LinkColumn('IonInspector.views.report', args=[A('pk')], orderable=True, empty_values=(),
+    link = tables.LinkColumn('reports.views.report', args=[A('pk')], orderable=True, empty_values=(),
                              verbose_name='Identifier', accessor='identifier')
 
     class Meta:
