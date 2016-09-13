@@ -1,29 +1,17 @@
 ## Development
-Install vagrant on your machine: http://docs.vagrantup.com/v2/installation/index.html
 
-Run `vagrant up` from this directory.
+Run `docker-compose up` from this directory.
 
-You can copy the production db to the local machine by running `fabric clone_db` on the local machine.
-Unlike `fab deploy`, you would run this either on sherlock.itw or inside your vagrant vm.
-
-TODO: Make `fabric clone_db` copy some filesystem data.
 
 ## Deployment
-Install ansible on your machine: http://docs.ansible.com/ansible/intro_installation.html
 
 Install fabric on your machine: http://www.fabfile.org/installing.html
 
 Commit and push your changes to this repository.
 
-### To Testing (sherlock.itw)
-Copy your public key to sherlock.itw: `ssh-copy-id ionadmin@sherlock.itw`
+### To Testing (inspector.vulcan.itw)
 
-Run `fab deploy:testing` from this directory.
-    
-### To Production (inspector.itw)
-Copy your public key to inspector.itw: `ssh-copy-id ionadmin@inspector.itw`
-
-Run `fab deploy` from this directory. 
+Run `fab deploy -H vulcan.itw` from this directory.
 
 ### Old Production Deployment (for reference) 
 
