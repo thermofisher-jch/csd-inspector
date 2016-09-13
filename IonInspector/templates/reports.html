@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% load render_table from django_tables2 %}
 {% block extra_head_js %}
-    <link rel="stylesheet" href="{{ STATIC_URL }}django_tables2/themes/paleblue/css/screen.css" />
     <style>
         .table-container{
             width: 100%;
@@ -10,7 +9,6 @@
             width: 100%;
         }
         #archive_table > thead * th{
-            height: 80px;
             vertical-align: middle;
             horiz-align: center;
         }
@@ -19,7 +17,7 @@
             horiz-align: center;
         }
         #archive_table > thead * {
-            font-size: 28px;
+
         }
         #archive_table > tbody * {
             font-size: 16px;

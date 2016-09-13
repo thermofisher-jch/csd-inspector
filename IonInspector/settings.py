@@ -101,7 +101,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
-    '/usr/share/pyshared/django_tables2/static/',
 ]
 
 TEMPLATE_DIRS = (

@@ -20,7 +20,7 @@ class ArchiveTable(tables.Table):
         model = Archive
         per_page = 25
         attrs = {
-            "class": "paleblue",
+            "class": "table table-striped table-hover",
             "id": "archive_table"
         }
 
