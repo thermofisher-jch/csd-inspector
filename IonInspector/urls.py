@@ -13,7 +13,7 @@ urlpatterns = patterns(
     '',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', 'reports.views.index', name='index'),
-    url(r'^', include("reports.urls")),
+    url(r'^', include("IonInspector.reports.urls")),
     url(r'^media/(?P<path>.*)$', 'django.views.static.serve',
         {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}),
 )

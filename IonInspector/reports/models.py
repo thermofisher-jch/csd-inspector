@@ -57,7 +57,6 @@ TEST_MANIFEST = {
   RAPTOR_S5: [
     "Filter_Metrics",
     "Raw_Trace",
-    "Version_Check",
     "ISP_Loading",
     "Chip_Status",
     "S5_Pressure",

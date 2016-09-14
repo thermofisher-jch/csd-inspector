@@ -4,6 +4,7 @@ from django.shortcuts import HttpResponseRedirect
 from reports.models import Archive
 from tastypie.authorization import Authorization
 from tastypie.resources import ModelResource
+import sys
 
 class ArchiveResource(ModelResource):
     """
@@ -38,21 +39,34 @@ class ArchiveResource(ModelResource):
         """
         The remove the archive
         """
-        bundle = self.build_bundle(request=request)
-        obj = self.cached_obj_get(bundle, **self.remove_api_resource_names(kwargs))
-        Archive.objects.get(pk=obj.id).delete()
-        return HttpResponseRedirect(reverse('IonInspector.views.reports'))
+
+        try:
+            bundle = self.build_bundle(request=request)
+            obj = self.cached_obj_get(bundle, **self.remove_api_resource_names(kwargs))
+            dead_man_walking = Archive.objects.get(pk=obj.id)
+            dead_man_walking.doc_file.delete(save=True)
+            dead_man_walking.delete()
+        except Exception as exc:
+            pass
+
+        return HttpResponseRedirect(reverse('reports'))
+
 
     def post_rerun(self, request, **kwargs):
         """
         The remove the archive
         """
-        bundle = self.build_bundle(request=request)
-        obj = self.cached_obj_get(bundle, **self.remove_api_resource_names(kwargs))
-        archive = Archive.objects.get(pk=obj.id)
-        archive.execute_diagnostics()
-        my_url = reverse('IonInspector.views.report', args=[archive.pk])
-        return HttpResponseRedirect(my_url)
+
+        try:
+            bundle = self.build_bundle(request=request)
+            obj = self.cached_obj_get(bundle, **self.remove_api_resource_names(kwargs))
+            archive = Archive.objects.get(pk=obj.id)
+            archive.execute_diagnostics()
+            my_url = reverse('report', kwargs={'pk': obj.id})
+            return HttpResponseRedirect(my_url)
+        except Exception as exc:
+            return HttpResponseRedirect(reverse('reports'))
+
 
     class Meta:
         queryset = Archive.objects.all()
