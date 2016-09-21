@@ -47,8 +47,13 @@ def upload(request):
         archive.doc_file = request.FILES['doc_file']
         archive.save()
 
-        # fire off the diagnostics in the background automatically
-        archive.execute_diagnostics()
+        try:
+            # fire off the diagnostics in the background automatically
+            archive.execute_diagnostics()
+        except:
+            # if we get an exception we need to remove the database entry and folder since it was invalid
+            archive.delete()
+            raise
 
         # Redirect to the document list after POST
         return HttpResponseRedirect(reverse('reports.views.report', args=[archive.pk]))
