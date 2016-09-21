@@ -57,12 +57,15 @@ try:
 
             if 'process: PAUSE' in is_line:
                 time_string = is_line.split(' ', 1)[0].strip()
-                pause_time = datetime.strptime(date_string + " " + time_string, '%Y-%m-%d %H:%M:%S.%f')
+                t = datetime.strptime(date_string + " " + time_string, '%Y-%m-%d %H:%M:%S.%f')
+                if not pause_time or t > pause_time:
+                    pause_time = t
 
             if 'process: UNPAUSE' in is_line:
                 time_string = is_line.split(' ', 1)[0].strip()
-                unpause_time = datetime.strptime(date_string + " " + time_string, '%Y-%m-%d %H:%M:%S.%f')
-                break
+                t = datetime.strptime(date_string + " " + time_string, '%Y-%m-%d %H:%M:%S.%f')
+                if not unpause_time or t > unpause_time:
+                    unpause_time = t
 
     run_log_csv = get_csv_from_run_log(archive)
     last_time_stamp = timedelta(seconds=float(run_log_csv['timestamp'][-1]))
