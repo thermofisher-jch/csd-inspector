@@ -114,9 +114,7 @@ def get_file_path(instance, filename):
 
 
 class Archive(models.Model):
-    """
-    An archive sample
-    """
+    """An archive sample"""
 
     # define a list of archive types
     ARCHIVE_TYPES = (
@@ -136,16 +134,14 @@ class Archive(models.Model):
     summary = models.CharField(max_length=255, default=u"")
 
     # use the get_file_path method to direct the file field on where to store the zip file
-    doc_file = models.FileField(upload_to=get_file_path)
+    doc_file = models.FileField(upload_to=get_file_path, blank=True, null=True)
 
     # model relationships
     # diagnostics : Foreign Key from diagnostic class
     # tags : Foreign Key from tag class
 
     def execute_diagnostics(self):
-        """
-        this method will execute all of the diagnostics
-        """
+        """this method will execute all of the diagnostics"""
 
         # if the file is not there then there is nothing we can do
         if not os.path.exists(self.doc_file.path):
@@ -153,10 +149,10 @@ class Archive(models.Model):
 
         if self.doc_file.path.endswith('.zip'):
             doc_archive = zipfile.ZipFile(self.doc_file.path)
-            doc_archive.extractall(path=self.archive_root)
+            doc_archive.extractall(path=os.path.dirname(self.doc_file.path))
         elif self.doc_file.path.endswith('.tar.gz'):
             tar = tarfile.open(self.doc_file.path, "r:gz")
-            tar.extractall()
+            tar.extractall(path=os.path.dirname(self.doc_file.path))
             tar.close()
 
         # delete all other diagnostics first
@@ -176,24 +172,24 @@ class Archive(models.Model):
 
     @cached_property
     def archive_root(self):
-        """
-        The archive root path
-        """
+        """The archive root path"""
         return os.path.dirname(self.doc_file.path)
 
 
 @receiver(pre_delete, sender=Archive, dispatch_uid="delete_archive")
 def on_archive_delete(sender, instance, **kwargs):
-    """
-    Triggered when the archives are deleted
-    """
-    shutil.rmtree(instance.archive_root)
+    """Triggered when the archives are deleted"""
+
+    archive_root = os.path.join(settings.MEDIA_ROOT, 'archive_files', str(instance.pk))
+    try:
+        shutil.rmtree(archive_root)
+    except:
+        # do nothing here as this is just a clean up
+        pass
 
 
 class Diagnostic(models.Model):
-    """
-    A test to run against an archive
-    """
+    """A test to run against an archive"""
 
     UNEXECUTED = "Unexecuted"
     EXECUTING = "Executing"
@@ -228,9 +224,7 @@ class Diagnostic(models.Model):
 
     @cached_property
     def diagnostic_root(self):
-        """
-        returns the root of the files used in the diagnostic
-        """
+        """returns the root of the files used in the diagnostic"""
         test_folder = os.path.join(self.archive.archive_root, 'test_results')
         if not os.path.exists(test_folder):
             os.mkdir(test_folder)
@@ -248,9 +242,7 @@ class Diagnostic(models.Model):
 
     @task()
     def execute(self):
-        """
-        This will execute the this diagnostic
-        """
+        """This will execute the this diagnostic"""
 
         try:
             # set the status
@@ -302,16 +294,12 @@ class Diagnostic(models.Model):
 
 @receiver(pre_delete, sender=Diagnostic, dispatch_uid="delete_diagnostic")
 def on_diagnostic_delete(sender, instance, **kwargs):
-    """
-    Triggered when the diagnostic are deleted
-    """
+    """Triggered when the diagnostic are deleted"""
     shutil.rmtree(instance.diagnostic_root)
 
 
 class Tag(models.Model):
-    """
-    A tag for an archive
-    """
+    """A tag for an archive"""
 
     # model attributes
     name = models.CharField(max_length=255)

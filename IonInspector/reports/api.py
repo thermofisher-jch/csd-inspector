@@ -40,14 +40,10 @@ class ArchiveResource(ModelResource):
         The remove the archive
         """
 
-        try:
-            bundle = self.build_bundle(request=request)
-            obj = self.cached_obj_get(bundle, **self.remove_api_resource_names(kwargs))
-            dead_man_walking = Archive.objects.get(pk=obj.id)
-            dead_man_walking.doc_file.delete(save=True)
-            dead_man_walking.delete()
-        except Exception as exc:
-            pass
+        bundle = self.build_bundle(request=request)
+        obj = self.cached_obj_get(bundle, **self.remove_api_resource_names(kwargs))
+        dead_man_walking = Archive.objects.get(pk=obj.id)
+        dead_man_walking.delete()
 
         return HttpResponseRedirect(reverse('reports'))
 
