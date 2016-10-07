@@ -11,7 +11,15 @@ kit_names = {
     "pi_ic_v2": "Ion PI Hi-Q Chef Kit",
     "s530_1": "Ion 520/530 Kit-Chef",
     "s540_1": "Ion 540 Kit-Chef",
-    "as_1": "Ion AmpliSeq Kit for Chef DL8"
+    "as_1": "Ion AmpliSeq Kit for Chef DL8",
+    "pgm_ionchef_200_kit": "Ion PGM IC 200 Kit",
+    "pi_ic200": "Ion PI IC 200 Kit",
+    "pgm_3": "Ion PGM Hi-Q View Chef Kit",
+    "hid_s530_1": "Ion Chef HID S530 V1",
+    "hid_s530_2": "Ion Chef HID S530 V2",
+    "hid_as_1": "Ion Chef HID Library V1",
+    "hid_as_2": "Ion Chef HID Library V2",
+    "s521_1": "Ion 520/530 ExT Kit-Chef V1",
 }
 
 try:
