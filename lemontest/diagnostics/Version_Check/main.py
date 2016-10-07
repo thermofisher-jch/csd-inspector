@@ -24,7 +24,7 @@ try:
     # check that this is a valid hardware set for evaluation
     explog = read_explog(archive_path)
     check_supported(explog)
-    version_path = os.path.join(output_path, "version.txt")
+    version_path = os.path.join(archive_path, "version.txt")
     if not os.path.exists(version_path):
         raise Exception("Missing file: " + version_path)
 
