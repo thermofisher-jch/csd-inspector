@@ -125,6 +125,12 @@ try:
             html_handle.write("<p style=\"text-align:center;\">")
             html_handle.write("<img src=\"../../RawInit.jpg\" />")
             html_handle.write("</p>")
+        elif os.path.exists(os.path.join(archive_path, 'InitRawTrace0.png')):
+            html_handle.write("<br />")
+            html_handle.write("<h2 align=\"center\">Raw Init Plot</h2>")
+            html_handle.write("<p style=\"text-align:center;\">")
+            html_handle.write("<img src=\"../../InitRawTrace0.png\" />")
+            html_handle.write("</p>")
 
         # write the raw traces
         html_handle.write("<br>")
