@@ -88,11 +88,9 @@ try:
         if gain > high:
             electrode_report = "Reference Electrode {} is high.".format(gain)
             electode_alert = True
-            report_level = max(report_level, REPORT_LEVEL_ALERT)
         elif gain < low:
             electrode_report = "Reference Electrode {} is low.".format(gain)
             electode_alert = True
-            report_level = max(report_level, REPORT_LEVEL_ALERT)
         else:
             electrode_report = "Reference Electrode {} is within range.".format(gain)
 
