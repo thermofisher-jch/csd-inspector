@@ -8,6 +8,13 @@ from math import floor
 
 try:
     archive_path, output_path = sys.argv[1:3]
+
+    # read the exp log
+    exp_log = read_explog(archive_path)
+    if exp_log['LibKit'] == 'IonPicoPlex':
+        print_na("TF's not reported for ReproSeq")
+        exit()
+
     tf_stats_path = os.path.join(archive_path, 'basecaller_results', 'TFStats.json')
     if not os.path.exists(tf_stats_path):
         raise Exception("TFStats.json file is missing so this test cannot be evaluated.")

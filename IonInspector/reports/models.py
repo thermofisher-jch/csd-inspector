@@ -40,7 +40,8 @@ TEST_MANIFEST = {
     "Chip_Status",
     "Auto_pH",
     "Sequencing_Details",
-    "Chip_Type"
+    "Chip_Type",
+    "Test_Fragments"
   ],
   PROTON: [
     "Filter_Metrics",
@@ -52,7 +53,8 @@ TEST_MANIFEST = {
     "Auto_pH",
     "Flow_Error",
     "Sequencing_Details",
-    "Chip_Type"
+    "Chip_Type",
+    "Test_Fragments"
   ],
   RAPTOR_S5: [
     "Filter_Metrics",
