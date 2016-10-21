@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 import gzip
 import sys
 import os
-import traceback
 from lemontest.diagnostics.common.inspector_utils import *
 
 
@@ -32,49 +31,64 @@ def get_instrument_server_logs(archive_path):
 try:
     archive, output = sys.argv[1:3]
 
-    # extract the "mrcoffee" element from the run log
-    root = get_xml_from_run_log(archive)
-    name_tag = root.find("RunInfo/mrcoffee")
-    if name_tag is None:
-        raise Exception("Failed to find mrcoffee xml element.")
+    # the amount of time mr coffee was requested to pause for
+    mrcoffee_pause_time = 0
+    mrcoffee_pause_time_date_time = None
 
-    # parse the total time into the summary
-    total_minutes = int(name_tag.text)
-    hours = int(total_minutes / 60)
-    minutes = total_minutes % 60
-    summary = "QC Pause option used." if total_minutes == 0 else "Timer Option Used: "
-    if hours:
-        summary += "{} Hours ".format(hours)
-    if minutes:
-        summary += "{} Minutes".format(minutes)
+    # the boolean flag for a manual pause time request
+    user_pause_request = False
+    user_pause_request_date_time = None
 
-    # get any pause times in the log
-    pause_time = None
-    unpause_time = None
+    # the start date time for the manual pause
+    user_pause_start = None
+
+    # the end date time for the manual pause
+    user_pause_end = None
+
+    # total time that the chef process ran (don't bother parsing, just keep it as a string)
+    total_time = ''
+    total_time_date_time = None
+
+    # get a dictionary key'ed off of the log names and get all of the information
+    run_log_csv = get_csv_from_run_log(archive)
     for file_name, is_log in get_instrument_server_logs(archive).iteritems():
         date_string = file_name.split('-', 1)[1].split('.')[0].rsplit('-', 2)[0]
         for is_line in is_log:
+            try:
+                time_string = is_line.split(' ', 1)[0].strip()
+                line_date_time = datetime.strptime(date_string + " " + time_string, '%Y-%m-%d %H:%M:%S.%f')
+            except:
+                continue
 
             if 'process: PAUSE' in is_line:
-                time_string = is_line.split(' ', 1)[0].strip()
-                t = datetime.strptime(date_string + " " + time_string, '%Y-%m-%d %H:%M:%S.%f')
-                if not pause_time or t > pause_time:
-                    pause_time = t
+                if not user_pause_start or line_date_time > user_pause_start:
+                    user_pause_start = line_date_time
 
             if 'process: UNPAUSE' in is_line:
-                time_string = is_line.split(' ', 1)[0].strip()
-                t = datetime.strptime(date_string + " " + time_string, '%Y-%m-%d %H:%M:%S.%f')
-                if not unpause_time or t > unpause_time:
-                    unpause_time = t
+                if not user_pause_end or line_date_time > user_pause_end:
+                    user_pause_end = line_date_time
 
-    run_log_csv = get_csv_from_run_log(archive)
-    last_time_stamp = timedelta(seconds=float(run_log_csv['timestamp'][-1]))
-    summary += " | Total Time: " + str(last_time_stamp)
+            if 'process: mrcoffee' in is_line:
+                if not mrcoffee_pause_time_date_time or line_date_time > mrcoffee_pause_time_date_time:
+                    mrcoffee_pause_time_date_time = line_date_time
+                    mrcoffee_pause_time = int(is_line.split(':')[-1].strip())
 
-    if pause_time and unpause_time:
-        paused_length = unpause_time - pause_time
-        summary += " | Paused: {}".format(paused_length)
+            if 'process: user_pause' in is_line:
+                if not user_pause_request_date_time or line_date_time > user_pause_request_date_time:
+                    user_pause_request_date_time = line_date_time
+                    user_pause_request = is_line.split(':')[-1].strip().lower() in ['true', 't', '1']
 
+            if 'timing: ' in is_line:
+                if not total_time_date_time or line_date_time > total_time_date_time:
+                    total_time_date_time = line_date_time
+                    total_time = is_line.split(':', 4)[-1].strip()
+
+    manual_pause = "User Pause Option: "
+    manual_pause += str(user_pause_end - user_pause_start) if user_pause_start and user_pause_end else 'No manual pause'
+    mrcoffee_pause_time_sting = "Mr Coffee Pause: " + str(timedelta(seconds=mrcoffee_pause_time))
+
+    summary = "Total Time: " + total_time + " - "
+    summary += manual_pause if user_pause_request else mrcoffee_pause_time_sting
     print_info(summary)
 except Exception as exc:
     print_na(str(exc))
