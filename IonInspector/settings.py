@@ -116,3 +116,9 @@ CELERY_ACCEPT_CONTENT = ['pickle', 'json']
 CELERY_RESULT_BACKEND = 'amqp'
 CELERY_RESULT_SERIALIZER = 'pickle'
 SITE_ROOT = os.path.dirname(os.path.dirname(__file__))
+
+
+try:
+    from local_settings import *
+except ImportError:
+    pass

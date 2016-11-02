@@ -13,3 +13,4 @@ lemontest/static/img/plots
 venv
 media/archive_files
 .local
+local_settings.py
