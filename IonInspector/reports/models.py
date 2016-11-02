@@ -41,7 +41,8 @@ TEST_MANIFEST = {
     "Auto_pH",
     "Sequencing_Details",
     "Chip_Type",
-    "Test_Fragments"
+    "Test_Fragments",
+    "Pressure_And_Temperature"
   ],
   PROTON: [
     "Filter_Metrics",
@@ -54,7 +55,8 @@ TEST_MANIFEST = {
     "Flow_Error",
     "Sequencing_Details",
     "Chip_Type",
-    "Test_Fragments"
+    "Test_Fragments",
+    "Pressure_And_Temperature"
   ],
   RAPTOR_S5: [
     "Filter_Metrics",
@@ -67,7 +69,8 @@ TEST_MANIFEST = {
     "Flow_Error",
     "Ion_S5_Reagent_Lots",
     "Sequencing_Details",
-    "Chip_Type"
+    "Chip_Type",
+    "Pressure_And_Temperature"
   ],
   OT_LOG: [
     "Plots",
