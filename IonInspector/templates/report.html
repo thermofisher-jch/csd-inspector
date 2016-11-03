@@ -89,7 +89,7 @@
                 <tbody>
                     {% for test in archive.diagnostics.all %}
                         <tr>
-                            <td>{{ test.name }}</td>
+                            <td>{{ test.display_name }}</td>
                             <td>
                                 {% if test.status == 'Unexecuted' %}
                                 <span class="label">{{ test.status }}</span>

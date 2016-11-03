@@ -233,6 +233,10 @@ class Diagnostic(models.Model):
     archive = models.ForeignKey(Archive, related_name="diagnostics", on_delete=models.CASCADE)
 
     @cached_property
+    def display_name(self):
+        return self.name.replace("_", " ").title()
+
+    @cached_property
     def diagnostic_root(self):
         """returns the root of the files used in the diagnostic"""
         test_folder = os.path.join(self.archive.archive_root, 'test_results')
