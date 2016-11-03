@@ -18,12 +18,16 @@ def provision():
     sudo("mkdir -p {dir}/celery; chown deploy:deploy {dir}; chmod 777 {dir}/celery".format(dir=HOST_DATA_DIR))
     sudo("mkdir -p {dir}/media; chown deploy:deploy {dir}; chmod 777 {dir}/media".format(dir=HOST_DATA_DIR))
     with cd(HOST_DATA_DIR):
-        run("git clone -b django ssh://git@stash.amer.thermo.com:7999/io/inspector.git")
+        run("git clone -b master ssh://git@stash.amer.thermo.com:7999/io/inspector.git")
 
 
-def deploy():
+def deploy(tag=None):
+    if not tag:
+        print "Deploy must be passed a specific git tag!"
+        exit()
     with cd(HOST_DATA_DIR + "/inspector"):
-        run("git pull --rebase")
+        run("git fetch")
+        run("git checkout %s" % tag)
         run("docker-compose -f docker-compose.yml -f docker-compose.prod.yml build")
         run("docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d")
         upload_template("./conf/nginx.conf", "/etc/nginx/sites-enabled/inspector.conf", {
