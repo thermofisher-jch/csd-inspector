@@ -22,10 +22,10 @@ TARGET_FIELDS = [
     ["tach_zone2", "Above Deck Fan 2 (rev/s)", float],
     ["tach_cfg", "Recovery Centrifuge Motor Fan (10x rev/s)", lambda x: float(x) / 10.0],  # Scaled down so it fits
     # Temps
-    ["get_zone1_sample", "Sample Temperature (f)", lambda x: float(x) / 10.0],
-    ["get_zone1_block", "Block Temperature (f)", lambda x: float(x) / 10.0],
-    ["get_zone1_sink", "Sink Temperature (f)", lambda x: float(x) / 10.0],
-    ["get_lid_temp", "PCR Lid Temperature (f)", lambda x: float(x) / 10.0]
+    ["get_zone1_sample", "Sample Temperature (c)", lambda x: float(x) / 10.0],
+    ["get_zone1_block", "Block Temperature (c)", lambda x: float(x) / 10.0],
+    ["get_zone1_sink", "Sink Temperature (c)", lambda x: float(x) / 10.0],
+    ["get_lid_temp", "PCR Lid Temperature (c)", lambda x: float(x) / 10.0]
 ]
 
 archive_path, output_path, device_type = sys.argv[1:4]
