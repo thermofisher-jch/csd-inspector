@@ -87,7 +87,8 @@ TEST_MANIFEST = {
     "Chef_Version",
     "Flow",
     "Run_Type",
-    "Fans"
+    "Fans",
+    "Chef_Run_Log"
   ]
 }
 
