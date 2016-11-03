@@ -75,21 +75,22 @@ def reports(request):
     archive_type_search = ''
     identifier_search = ''
 
-    search = Archive.objects.all()
+    archives = Archive.objects.order_by("time")
     if request.GET.get('site', ''):
         site_search = request.GET['site']
-        search = search.filter(site=site_search)
+        archives = archives.filter(site=site_search)
     if request.GET.get('submitter_name', ''):
         submitter_name_search = request.GET['submitter_name']
-        search = search.filter(submitter_name=submitter_name_search)
+        archives = archives.filter(submitter_name=submitter_name_search)
     if request.GET.get('archive_type', ''):
         archive_type_search = request.GET['archive_type']
-        search = search.filter(archive_type=archive_type_search)
+        archives = archives.filter(archive_type=archive_type_search)
     if request.GET.get('identifier', ''):
         identifier_search = request.GET['identifier']
-        search = search.filter(identifier=identifier_search)
+        archives = archives.filter(identifier=identifier_search)
 
-    table = ArchiveTable(search)
+    table = ArchiveTable(archives, order_by="-time")
+    table.paginate(page=request.GET.get('page', 1), per_page=100)
     RequestConfig(request).configure(table)
     ctx = RequestContext(request, {
         'archives': table,

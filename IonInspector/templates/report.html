@@ -3,7 +3,7 @@
 {% block extra_head_js %}
         <script>
         $(function(){
-            var report_url = "/archives/{{ archive.id ]}/report.pdf";
+            var report_url = "/archives/{{ archive.id }}/report.pdf";
             var pdf_template = '<object type="application/pdf" data="/archives/${basename}/report.pdf" height="600px" width="100%"><p>Your browser does not support PDF display</p></object>';
             console.log("merp");
             $.ajax({
@@ -92,19 +92,19 @@
                             <td>{{ test.name }}</td>
                             <td>
                                 {% if test.status == 'Unexecuted' %}
-                                <span class="label" style="background-color: lightgray">{{ test.status }}</span>
+                                <span class="label">{{ test.status }}</span>
                                 {% elif test.status == 'Executing' %}
-                                <span class="label" style="background-color: lightyellow">{{ test.status }}</span>
+                                <span class="label">{{ test.status }}</span>
                                 {% elif test.status == 'Alert' %}
-                                <span class="label" style="background-color: red">{{ test.status }}</span>
+                                <span class="label label-important">{{ test.status }}</span>
                                 {% elif test.status == 'Info' %}
-                                <span class="label" style="background-color: deepskyblue">{{ test.status }}</span>
+                                <span class="label label-info">{{ test.status }}</span>
                                 {% elif test.status == 'Warning' %}
-                                <span class="label" style="background-color: yellow">{{ test.status }}</span>
+                                <span class="label label-warning">{{ test.status }}</span>
                                 {% elif test.status == 'OK' %}
-                                <span class="label" style="background-color: green">{{ test.status }}</span>
+                                <span class="label label-success">{{ test.status }}</span>
                                 {% elif test.status == 'NA' %}
-                                <span class="label" style="background-color: dimgray">{{ test.status }}</span>
+                                <span class="label">{{ test.status }}</span>
                                 {% elif test.status == 'Failed' %}
                                 <span class="label" style="background-color: darkred">{{ test.status }}</span>
                                 {% else %}
