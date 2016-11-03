@@ -93,4 +93,4 @@ with open(template_path, "r") as template_file:
         results_file.write(template_file.read().replace("\"%raw_data%\"", json.dumps(run_log_data)))
 
 # Write out status
-print_info("See results for details.")
+print_info("See results for flow, fan, and temperature plots.")

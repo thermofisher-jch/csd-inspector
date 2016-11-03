@@ -85,9 +85,9 @@ TEST_MANIFEST = {
     "Chef_Chip",
     "Chef_Timer",
     "Chef_Version",
-    "Flow",
+    # "Flow", Now plotted by Chef_Run_Log
     "Run_Type",
-    "Fans",
+    # "Fans", Now plotted by Chef_Run_Log
     "Chef_Run_Log"
   ]
 }
