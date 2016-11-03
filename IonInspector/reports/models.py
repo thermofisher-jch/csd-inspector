@@ -160,6 +160,10 @@ class Archive(models.Model):
             tar = tarfile.open(self.doc_file.path, "r:gz")
             tar.extractall(path=os.path.dirname(self.doc_file.path))
             tar.close()
+        elif self.doc_file.path.endswith('.tar'):
+            tar = tarfile.open(self.doc_file.path, "r")
+            tar.extractall(path=os.path.dirname(self.doc_file.path))
+            tar.close()
 
         # delete all other diagnostics first
         tests = Diagnostic.objects.filter(archive=self)
