@@ -113,7 +113,13 @@ def report(request, pk):
 
     archive = Archive.objects.get(pk=pk)
 
-    ctx = RequestContext(request, {'archive': archive})
+    pdf_path = os.path.join(archive.archive_root, "report.pdf")
+    pdf_present = os.path.exists(pdf_path)
+
+    ctx = RequestContext(request, {
+        'archive': archive,
+        'pdf_present': pdf_present
+    })
     return render_to_response("report.html", ctx)
 
 
