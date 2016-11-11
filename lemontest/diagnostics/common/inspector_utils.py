@@ -112,7 +112,7 @@ def print_na(message):
     prints the na message
     :param message:
     """
-    print("N/A")
+    print("NA")
     print(0)
     print(message[:MAX_MESSAGE_LENGTH])
 
