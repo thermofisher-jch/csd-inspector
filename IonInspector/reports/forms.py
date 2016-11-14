@@ -11,4 +11,5 @@ class ArchiveForm(forms.Form):
     site_name = forms.CharField(label='Site Name', required=True)
     archive_identifier = forms.CharField(label='Archive Identifier', required=True)
     archive_type = forms.ChoiceField(label='Archive Type', required=True, choices=[device.replace("_", " ") for device in TEST_MANIFEST.keys()])
+    taser_ticket_number = forms.IntegerField(label='Taser Ticket Number', required=False, min_value=0)
     doc_file = forms.FileField(label='Select file', required=True)

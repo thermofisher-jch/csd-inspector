@@ -133,11 +133,24 @@ class Archive(models.Model):
 
     # model attributes
     identifier = models.CharField(max_length=255)
+
+    # the site from which the archive was found
     site = models.CharField(max_length=255)
+
+    # the time that it was submitted
     time = models.DateTimeField()
+
+    # the name of the person who submitted it
     submitter_name = models.CharField(max_length=255)
+
+    # the type of archive which this is
     archive_type = models.CharField(max_length=255, choices=ARCHIVE_TYPES)
+
+    # any summary information
     summary = models.CharField(max_length=255, default=u"")
+
+    # an optional taser ticket reference
+    taser_ticket_number = models.IntegerField(null=True)
 
     # use the get_file_path method to direct the file field on where to store the zip file
     doc_file = models.FileField(upload_to=get_file_path, blank=True, null=True)

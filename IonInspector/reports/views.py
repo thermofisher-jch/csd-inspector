@@ -38,6 +38,7 @@ def upload(request):
             time=datetime.utcnow(),
             submitter_name=form.data['name'],
             archive_type=form.data['archive_type'].replace(" ", "_"),
+            taser_ticket_number=int(form.data['taser_ticket_number']) if form.data['taser_ticket_number'] else None
         )
         # perform a save here in order to assert that we have a pk for this entry, otherwise we can't get a directory
         # on the file system to save the doc_file or results too.
@@ -74,6 +75,7 @@ def reports(request):
     submitter_name_search = ''
     archive_type_search = ''
     identifier_search = ''
+    taser_ticket_number_search = ''
 
     archives = Archive.objects.order_by("time")
     if request.GET.get('site', ''):
@@ -88,6 +90,9 @@ def reports(request):
     if request.GET.get('identifier', ''):
         identifier_search = request.GET['identifier']
         archives = archives.filter(identifier=identifier_search)
+    if request.GET.get('taser_ticket_number_name', ''):
+        taser_ticket_number_search = request.GET['taser_ticket_number_name']
+        archives = archives.filter(taser_ticket_number=int(taser_ticket_number_search))
 
     table = ArchiveTable(archives, order_by="-time")
     table.paginate(page=request.GET.get('page', 1), per_page=100)
@@ -98,7 +103,8 @@ def reports(request):
         'site_search': site_search,
         'submitter_name_search': submitter_name_search,
         'archive_type_search': archive_type_search,
-        'identifier_search': identifier_search
+        'identifier_search': identifier_search,
+        'taser_ticket_number_search': taser_ticket_number_search
     })
     return render_to_response("reports.html", context_instance=ctx)
 

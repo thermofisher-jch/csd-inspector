@@ -10,8 +10,8 @@
                 <tr>
                     {% for column in table.columns %}
                         {% if column.orderable %}
-                            <th {{ column.attrs.th.as_html }}><a
-                                    href="{% querystring table.prefixed_order_by_field=column.order_by_alias.next %}">{{ column.header }}</a>
+                            <th {{ column.attrs.th.as_html }}>
+                                <a href="{% querystring table.prefixed_order_by_field=column.order_by_alias.next %}">{{ column.header }}</a>
                             </th>
                         {% else %}
                             <th {{ column.attrs.th.as_html }}>{{ column.header }}</th>
@@ -22,8 +22,10 @@
                 <tr class="filter-row">
                     <th></th>
                     <th>
-                        <input title="Search by Submitter Name" class="search_text" type="text"
-                               name="submitter_name" value="{{ submitter_name_search }}">
+                        <input title="Search TASER Number" class="search_number" type="number" name="taser_ticket_number_name" value="{{ taser_ticket_number_search }}">
+                    </th>
+                    <th>
+                        <input title="Search by Submitter Name" class="search_text" type="text" name="submitter_name" value="{{ submitter_name_search }}">
                     </th>
                     <th></th>
                     <th>
@@ -38,14 +40,11 @@
                         </select>
                     </th>
                     <th>
-                        <input title="Search by Site" class="search_text" type="text" name="site"
-                               value="{{ site_search }}">
+                        <input title="Search by Site" class="search_text" type="text" name="site" value="{{ site_search }}">
                     </th>
                     <th>
-                        <input title="Search by Identifier" class="search_text" type="text" name="identifier"
-                               value="{{ identifier_search }}">
+                        <input title="Search by Identifier" class="search_text" type="text" name="identifier" value="{{ identifier_search }}">
                     </th>
-                    <th></th>
                 </tr>
                 </thead>
             {% endblock table.thead %}

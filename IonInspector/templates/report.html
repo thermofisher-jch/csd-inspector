@@ -22,6 +22,10 @@
                 {% if archive.summary %}
                     <h4>{{ archive.summary }}</h4>
                 {% endif %}
+                {% if archive.taser_ticket_number %}
+                    <a href="https://jira.amer.thermo.com/browse/FST-{{ archive.taser_ticket_number }}" target="_blank">TASER: {{ archive.taser_ticket_number }}</a>
+                {% endif %}
+
                 {% if archive.tags.all %}
                     <div id="tags">
                         {% for tag in archive.tags %}

@@ -42,8 +42,8 @@
 {% endblock extra_head_js %}
 
 {% block content %}
-    <form action="{% url "reports.views.reports" %}">
+    <form action="{% url 'reports.views.reports' %}">
         {% render_table archives "tables/reports.html" %}
-    <input type="submit" style="height: 0px; width: 0px; border: none; padding: 0px;" hidefocus="true">
+        <input type="submit" style="height: 0px; width: 0px; border: none; padding: 0px;" hidefocus="true">
     </form>
 {% endblock content %}
