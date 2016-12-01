@@ -9,6 +9,10 @@ env.use_ssh_config = True
 HOST_DATA_DIR = "/var/lib/inspector"
 
 
+def dev():
+    local("docker-compose up")
+
+
 def test():
     local("docker-compose run django python manage.py test")
 

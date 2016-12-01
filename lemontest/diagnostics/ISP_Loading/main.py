@@ -15,9 +15,7 @@ def load_ini(file_path, namespace="global"):
 archive_path, output_path = sys.argv[1:3]
 explog = read_explog(archive_path)
 if explog['ChipType'] == "314R":
-    print("N\A")
-    print(0)
-    print("Loading for 314 chips is not actionable :(")
+    print_na("Loading for 314 chips is not actionable :(")
     sys.exit()
 
 stats_path = None
@@ -42,6 +40,4 @@ if stats_path:
         print(40)
     print("{:.1%} of wells found ISPs".format(bead_loading))
 else:
-    print("N/A")
-    print(0)
-    print("Required stats files not included")
+    print_na("Required stats files not included")
