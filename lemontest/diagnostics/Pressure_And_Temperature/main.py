@@ -5,7 +5,7 @@ import os
 import json
 import collections
 
-from lemontest.diagnostics.common.inspector_utils import print_info, handle_exception
+from lemontest.diagnostics.common.inspector_utils import print_info, handle_exception, read_explog
 
 archive_path, output_path, device_type = sys.argv[1:4]
 exp_log_file_path = os.path.join(archive_path, "explog_final.txt")
@@ -30,7 +30,7 @@ def parse_experiment_info_log_line(line):
 
 
 # PGM Parsing
-def parse_flow_data_pgm(fp):
+def parse_flow_data_pgm(fp, new_pgm_format):
     # Flot friendly format
     data = {
         "pressure": {
@@ -38,11 +38,14 @@ def parse_flow_data_pgm(fp):
         },
         "temperature": {
             "internalTemperature": {"data": [], "label": "Internal Temperature"},
-            "restrictorTemperature": {"data": [], "label": "Restrictor Temperature"},
-            "chipHeatsinkTemperature": {"data": [], "label": "Chip Heatsink Temperature"},
             "chipTemperature": {"data": [], "label": "Chip Temperature"},
         }
     }
+    if new_pgm_format:  # PGM 1.1
+        data["temperature"]["restrictorTemperature"] = {"data": [], "label": "Restrictor Temperature"}
+        data["temperature"]["chipHeatsinkTemperature"] = {"data": [], "label": "Chip Heatsink Temperature"}
+    else:  # PGM 1.0
+        pass
     reached_target_section = False
     flow_count = 0
     for line in fp:
@@ -52,11 +55,16 @@ def parse_flow_data_pgm(fp):
             # Now we have a line we want
             dat_meta = line.strip().split()
             # Now we need to coerce some values
-            data["pressure"]["pressure"]["data"].append([flow_count, float(dat_meta[1])])
-            data["temperature"]["internalTemperature"]["data"].append([flow_count, float(dat_meta[2])])
-            data["temperature"]["restrictorTemperature"]["data"].append([flow_count, float(dat_meta[3])])
-            data["temperature"]["chipHeatsinkTemperature"]["data"].append([flow_count, float(dat_meta[4])])
-            data["temperature"]["chipTemperature"]["data"].append([flow_count, float(dat_meta[5])])
+            if new_pgm_format:  # PGM 1.1
+                data["pressure"]["pressure"]["data"].append([flow_count, float(dat_meta[1])])
+                data["temperature"]["internalTemperature"]["data"].append([flow_count, float(dat_meta[2])])
+                data["temperature"]["restrictorTemperature"]["data"].append([flow_count, float(dat_meta[3])])
+                data["temperature"]["chipHeatsinkTemperature"]["data"].append([flow_count, float(dat_meta[4])])
+                data["temperature"]["chipTemperature"]["data"].append([flow_count, float(dat_meta[5])])
+            else:  # PGM 1.0
+                data["pressure"]["pressure"]["data"].append([flow_count, float(dat_meta[1])])
+                data["temperature"]["internalTemperature"]["data"].append([flow_count, float(dat_meta[2])])
+                data["temperature"]["chipTemperature"]["data"].append([flow_count, float(dat_meta[3])])
             flow_count += 1
     return data
 
@@ -144,7 +152,13 @@ with open(exp_log_file_path) as exp_log_file:
     flow_data = {}
     try:
         if device_type == "PGM_Run":
-            flow_data = parse_flow_data_pgm(exp_log_file)
+            pgm_version = read_explog(archive_path).get("PGM HW", "").strip()
+            if pgm_version == "1.1":
+                flow_data = parse_flow_data_pgm(exp_log_file, True)
+            elif pgm_version == "1.0":
+                flow_data = parse_flow_data_pgm(exp_log_file, False)
+            else:
+                raise KeyError("Unknown PGM Version:%s" % pgm_version)
         elif device_type == "Proton":
             flow_data = parse_flow_data_proton(exp_log_file)
         elif device_type == "Raptor_S5":
@@ -155,14 +169,14 @@ with open(exp_log_file_path) as exp_log_file:
         handle_exception(e, output_path)
         exit()
 
-    # Convert the flow data dicts into lists
-    flow_data["pressure"] = flow_data["pressure"].values()
-    flow_data["temperature"] = flow_data["temperature"].values()
+# Convert the flow data dicts into lists
+flow_data["pressure"] = flow_data["pressure"].values()
+flow_data["temperature"] = flow_data["temperature"].values()
 
-    # Write out results html
-    with open(template_path, "r") as template_file:
-        with open(results_path, "w") as results_file:
-            results_file.write(template_file.read().replace("\"%raw_data%\"", json.dumps(flow_data)))
+# Write out results html
+with open(template_path, "r") as template_file:
+    with open(results_path, "w") as results_file:
+        results_file.write(template_file.read().replace("\"%raw_data%\"", json.dumps(flow_data)))
 
-    # Write out status
-    print_info("See results for details.")
+# Write out status
+print_info("See results for details.")
