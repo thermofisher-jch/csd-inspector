@@ -47,7 +47,7 @@ def handle_exception(exc, output_path):
     :param output_path: The output path:
     :return:
     """
-    print_na(str(exc))
+    print_failed(str(exc))
     write_error_html(output_path)
 
 
@@ -113,6 +113,16 @@ def print_na(message):
     :param message:
     """
     print("NA")
+    print(0)
+    print(message[:MAX_MESSAGE_LENGTH])
+
+
+def print_failed(message):
+    """
+    prints the failed message
+    :param message:
+    """
+    print("Failed")
     print(0)
     print(message[:MAX_MESSAGE_LENGTH])
 
