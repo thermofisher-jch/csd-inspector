@@ -6,6 +6,7 @@ from django.conf import settings
 from django.db import models
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
+from django.utils import timezone
 from celery.contrib.methods import task
 from subprocess import *
 from lemontest.diagnostics.common.inspector_utils import *
@@ -159,7 +160,7 @@ class Archive(models.Model):
     # diagnostics : Foreign Key from diagnostic class
     # tags : Foreign Key from tag class
 
-    def execute_diagnostics(self):
+    def execute_diagnostics(self, async=True):
         """this method will execute all of the diagnostics"""
 
         # if the file is not there then there is nothing we can do
@@ -191,7 +192,10 @@ class Archive(models.Model):
             if os.path.exists(readme_file):
                 diagnostic.readme = os.path.basename(readme_file)
             diagnostic.save()
-            diagnostic.execute.delay()
+            if async:
+                diagnostic.execute.delay()
+            else:
+                diagnostic.execute.apply()
 
     @cached_property
     def archive_root(self):
@@ -274,7 +278,7 @@ class Diagnostic(models.Model):
         try:
             # set the status
             self.status = self.EXECUTING
-            self.start_execute = datetime.datetime.utcnow()
+            self.start_execute = timezone.now()
             self.save()
 
             # find the executable to use

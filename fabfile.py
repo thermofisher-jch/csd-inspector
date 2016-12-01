@@ -9,6 +9,10 @@ env.use_ssh_config = True
 HOST_DATA_DIR = "/var/lib/inspector"
 
 
+def test():
+    local("docker-compose run django python manage.py test")
+
+
 def provision():
     sudo("apt-get install -y python python-pip docker-engine nginx")
     sudo("pip install docker-compose")

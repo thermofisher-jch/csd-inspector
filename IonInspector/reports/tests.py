@@ -1,0 +1,98 @@
+from django.test import TestCase
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.utils import timezone
+from reports.models import Archive
+from reports.models import PGM_RUN, PROTON, RAPTOR_S5, OT_LOG, ION_CHEF  # Constants
+from reports.models import Diagnostic
+import os
+
+DIAGNOSTIC_FAILURE_STATUSES = [
+    Diagnostic.EXECUTING,
+    Diagnostic.UNEXECUTED,
+    Diagnostic.FAILED
+]
+
+
+def get_test_archive(name):
+    path = os.path.join("/opt/inspector/.local/test_archives/", name)
+    if not os.path.exists(path):
+        raise ValueError("Could not find test archive '%s'! "
+                         "Place the test archives in a .local/test_data/ directory in the repo root." % name)
+    return SimpleUploadedFile(name, open(path, 'rb').read())
+
+
+def get_diagnostic_debug_info(diagnostic):
+    return "\n".join([
+        "'%s' failed with status: %s" % (diagnostic.display_name, diagnostic.get_status_display()),
+        "- stdout below\n" + open(os.path.join(diagnostic.diagnostic_root, "standard_output.log")).read(),
+        "- stderr below\n" + open(os.path.join(diagnostic.diagnostic_root, "standard_error.log")).read()
+    ])
+
+
+class PGMTestCase(TestCase):
+    def setUp(self):
+        self.archive_v1_0 = Archive(
+            identifier="PGM",
+            site="PGM",
+            time=timezone.now(),
+            submitter_name="PGM",
+            archive_type=PGM_RUN,
+            taser_ticket_number=None
+        )
+        self.archive_v1_0.save()
+        self.archive_v1_0.doc_file = get_test_archive("pgm_1.0.zip")
+        self.archive_v1_0.save()
+
+        self.archive_v1_1 = Archive(
+            identifier="PGM",
+            site="PGM",
+            time=timezone.now(),
+            submitter_name="PGM",
+            archive_type=PGM_RUN,
+            taser_ticket_number=None
+        )
+        self.archive_v1_1.save()
+        self.archive_v1_1.doc_file = get_test_archive("pgm_1.1.zip")
+        self.archive_v1_1.save()
+
+    def test_diagnostics_v1_0(self):
+        self.archive_v1_0.execute_diagnostics(async=False)
+        for diagnostic in self.archive_v1_0.diagnostics.all():
+            self.assertNotIn(
+                diagnostic.get_status_display(),
+                DIAGNOSTIC_FAILURE_STATUSES,
+                get_diagnostic_debug_info(diagnostic)
+            )
+
+    def test_diagnostics_v1_1(self):
+        self.archive_v1_1.execute_diagnostics(async=False)
+        for diagnostic in self.archive_v1_1.diagnostics.all():
+            self.assertNotIn(
+                diagnostic.get_status_display(),
+                DIAGNOSTIC_FAILURE_STATUSES,
+                get_diagnostic_debug_info(diagnostic)
+            )
+
+
+class ProtonTestCase(TestCase):
+    def setUp(self):
+        self.archive = Archive(
+            identifier="PROTON",
+            site="PROTON",
+            time=timezone.now(),
+            submitter_name="PROTON",
+            archive_type=PROTON,
+            taser_ticket_number=None
+        )
+        self.archive.save()
+        self.archive.doc_file = get_test_archive("proton.zip")
+        self.archive.save()
+
+    def test_diagnostics(self):
+        self.archive.execute_diagnostics(async=False)
+        for diagnostic in self.archive.diagnostics.all():
+            self.assertNotIn(
+                diagnostic.get_status_display(),
+                DIAGNOSTIC_FAILURE_STATUSES,
+                get_diagnostic_debug_info(diagnostic)
+            )
