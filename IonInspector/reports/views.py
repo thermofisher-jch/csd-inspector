@@ -7,6 +7,7 @@ from reports.models import Archive, TEST_MANIFEST
 from datetime import datetime
 from reports.tables import ArchiveTable
 from django_tables2 import RequestConfig
+import json
 import os
 
 
@@ -123,6 +124,9 @@ def report(request, pk):
     pdf_present = os.path.exists(pdf_path)
 
     ctx = RequestContext(request, {
+        'archive_type_choices_json': json.dumps(
+            [{"name": k, "value": v} for v, k in archive._meta.get_field('archive_type').choices]
+        ),
         'archive': archive,
         'pdf_present': pdf_present
     })
