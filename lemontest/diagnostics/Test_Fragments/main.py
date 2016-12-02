@@ -6,12 +6,12 @@ import os.path
 from lemontest.diagnostics.common.inspector_utils import *
 from math import floor
 
-try:
-    archive_path, output_path = sys.argv[1:3]
+archive_path, output_path = sys.argv[1:3]
 
+try:
     # read the exp log
     exp_log = read_explog(archive_path)
-    if exp_log['LibKit'] == 'IonPicoPlex':
+    if exp_log.get('LibKit') == 'IonPicoPlex':
         print_na("TF's not reported for ReproSeq")
         exit()
 
@@ -37,4 +37,4 @@ try:
 
     print_info(" | ".join(rates))
 except Exception as exc:
-    print_na(str(exc))
+    handle_exception(exc, output_path)
