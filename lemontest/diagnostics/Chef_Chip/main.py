@@ -6,6 +6,7 @@ import sys
 import os
 import os.path
 import re
+from lemontest.diagnostics.common.inspector_utils import *
 
 if __name__ == "__main__":
     archive, output = sys.argv[1:3]
@@ -41,7 +42,8 @@ if __name__ == "__main__":
         try:
             root = ElementTree.fromstring(xml)
         except Exception as err:
-            errors.append("Error reading run log: " + str(err))
+            handle_exception(err, output)
+            exit()
         else:
             name_tag = root.find("RunInfo/chip")
             if name_tag is None:
@@ -58,13 +60,8 @@ if __name__ == "__main__":
         error_summary = "No Run Log."
 
     if error_summary:
-        print("N/A")
-        print("0")
-        print(error_summary)
+        print_na(error_summary)
     else:        
-        summary = output_name
-        print("Info")
-        print("20")
-        print(summary)
+        print_info(output_name)
 
 
