@@ -124,11 +124,11 @@ class Archive(models.Model):
 
     # define a list of archive types
     ARCHIVE_TYPES = (
-        ('PGM', PGM_RUN),
-        ('PROTON', PROTON),
-        ('RAPTOR', RAPTOR_S5),
-        ('OT', OT_LOG),
-        ('CHEF', ION_CHEF)
+        (PGM_RUN, 'PGM'),
+        (PROTON, 'PROTON'),
+        (RAPTOR_S5, 'RAPTOR'),
+        (OT_LOG, 'OT'),
+        (ION_CHEF, 'CHEF')
     )
 
     # model attributes

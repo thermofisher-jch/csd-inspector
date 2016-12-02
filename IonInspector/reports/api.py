@@ -4,6 +4,7 @@ from django.shortcuts import HttpResponseRedirect
 from reports.models import Archive
 from tastypie.authorization import Authorization
 from tastypie.resources import ModelResource
+from tastypie.fields import CharField
 import sys
 
 class ArchiveResource(ModelResource):
@@ -63,6 +64,18 @@ class ArchiveResource(ModelResource):
         except Exception as exc:
             return HttpResponseRedirect(reverse('reports'))
 
+    def dehydrate_doc_file(self, bundle):
+        # Work around for this bug: https://groups.google.com/forum/#!topic/django-tastypie/cxrI6Cl1z4s
+        # need dehydrate to return the path instead of the url
+        # patch first gets the dehydrated model and then modifies it
+        # which breaks when the file field gets turned from a path into a url
+        return bundle.obj.doc_file
+
+    doc_file_url = CharField(readonly=True)
+
+    def dehydrate_doc_file_url(self, bundle):
+        # The api consumer probably wants the url instead of the file path
+        return bundle.obj.doc_file.url
 
     class Meta:
         queryset = Archive.objects.all()

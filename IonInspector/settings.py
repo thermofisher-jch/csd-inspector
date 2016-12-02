@@ -107,8 +107,8 @@ TEMPLATE_DIRS = (
     os.path.join(BASE_DIR, 'templates'),
 )
 
-MEDIA_ROOT = '/var/lib/inspector/media'
-MEDIA_URL = 'media/'
+MEDIA_ROOT = '/var/lib/inspector/media/'
+MEDIA_URL = '/media/'
 
 CELERY_IGNORE_RESULT = False
 CELERY_TASK_SERIALIZER = 'pickle'

@@ -152,6 +152,7 @@
         //Archive editor
         var reportEditorApp = {
             archiveId: '{{ archive.pk }}',
+            archiveType: '{{ archive.archive_type }}',
             archiveTypes: JSON.parse('{{ archive_type_choices_json|safe }}'),
             elements: {
                 editButton: $("#archive-edit"),
@@ -191,33 +192,29 @@
                 }.bind(this));
 
                 //Switch text to inputs
-                [{
-                    element: this.elements.archiveType,
-                    fontSize: 18
-                }].map(function (item) {
-                    var value = item.element.text();
-                    var select = $("<select/>", {
-                        type: "text",
-                        dir: "rtl",
-                        style: "font-size:" + item.fontSize + "px;" +
-                        "height: auto;" +
-                        "vertical-align: top;" +
-                        "margin-bottom: 0px;" +
-                        "height: 30px;" +
-                        "border-radius: 4px;" +
-                        "box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);" +
-                        "box-sizing: border-box;" +
-                        "width: 100%;"
-                    });
-                    this.archiveTypes.map(function (type) {
-                        select.append($("<option/>", {
-                            text: type.name,
-                            value: type.value,
-                            selected: value == type.value
-                        }));
-                    }.bind(this));
-                    item.element.html("").append(select);
+
+                var archiveTypeSelect = $("<select/>", {
+                    type: "text",
+                    dir: "rtl",
+                    style: "font-size: 18px;" +
+                    "height: auto;" +
+                    "vertical-align: top;" +
+                    "margin-bottom: 0px;" +
+                    "height: 30px;" +
+                    "border-radius: 4px;" +
+                    "box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);" +
+                    "box-sizing: border-box;" +
+                    "width: 100%;"
+                });
+                this.archiveTypes.map(function (type) {
+                    archiveTypeSelect.append($("<option/>", {
+                        text: type.name,
+                        value: type.value,
+                        selected: this.archiveType == type.value
+                    }));
                 }.bind(this));
+                this.elements.archiveType.html("").append(archiveTypeSelect);
+
             },
             save: function () {
                 $.ajax({
