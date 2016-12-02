@@ -96,3 +96,75 @@ class ProtonTestCase(TestCase):
                 DIAGNOSTIC_FAILURE_STATUSES,
                 get_diagnostic_debug_info(diagnostic)
             )
+
+
+class S5TestCase(TestCase):
+    def setUp(self):
+        self.archive = Archive(
+            identifier="S5",
+            site="S5",
+            time=timezone.now(),
+            submitter_name="S5",
+            archive_type=RAPTOR_S5,
+            taser_ticket_number=None
+        )
+        self.archive.save()
+        self.archive.doc_file = get_test_archive("s5.zip")
+        self.archive.save()
+
+    def test_diagnostics(self):
+        self.archive.execute_diagnostics(async=False)
+        for diagnostic in self.archive.diagnostics.all():
+            self.assertNotIn(
+                diagnostic.get_status_display(),
+                DIAGNOSTIC_FAILURE_STATUSES,
+                get_diagnostic_debug_info(diagnostic)
+            )
+
+
+class OneTouchTestCase(TestCase):
+    def setUp(self):
+        self.archive = Archive(
+            identifier="OT",
+            site="OT",
+            time=timezone.now(),
+            submitter_name="OT",
+            archive_type=OT_LOG,
+            taser_ticket_number=None
+        )
+        self.archive.save()
+        self.archive.doc_file = get_test_archive("ot.log")
+        self.archive.save()
+
+    def test_diagnostics(self):
+        self.archive.execute_diagnostics(async=False)
+        for diagnostic in self.archive.diagnostics.all():
+            self.assertNotIn(
+                diagnostic.get_status_display(),
+                DIAGNOSTIC_FAILURE_STATUSES,
+                get_diagnostic_debug_info(diagnostic)
+            )
+
+
+class ChefTestCase(TestCase):
+    def setUp(self):
+        self.archive = Archive(
+            identifier="Chef",
+            site="Chef",
+            time=timezone.now(),
+            submitter_name="Chef",
+            archive_type=ION_CHEF,
+            taser_ticket_number=None
+        )
+        self.archive.save()
+        self.archive.doc_file = get_test_archive("chef.tar")
+        self.archive.save()
+
+    def test_diagnostics(self):
+        self.archive.execute_diagnostics(async=False)
+        for diagnostic in self.archive.diagnostics.all():
+            self.assertNotIn(
+                diagnostic.get_status_display(),
+                DIAGNOSTIC_FAILURE_STATUSES,
+                get_diagnostic_debug_info(diagnostic)
+            )
