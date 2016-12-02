@@ -4,7 +4,7 @@ import re
 import traceback
 from xml.etree import ElementTree
 
-MAX_MESSAGE_LENGTH = 100
+MAX_MESSAGE_LENGTH = 140
 
 
 def check_supported(explog):

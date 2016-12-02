@@ -319,8 +319,8 @@ class Diagnostic(models.Model):
             write_error_html(self.diagnostic_root)
             self.status = Diagnostic.FAILED
 
-        # constrain the length of the details to 100
-        self.details = self.details[:100]
+        # constrain the length of the details to 140 (one tweet)
+        self.details = self.details[:140]
         self.save()
 
 
