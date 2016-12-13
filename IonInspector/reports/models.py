@@ -153,7 +153,7 @@ class Archive(models.Model):
     taser_ticket_number = models.IntegerField(null=True)
 
     # use the get_file_path method to direct the file field on where to store the zip file
-    doc_file = models.FileField(upload_to=get_file_path, blank=True, null=True)
+    doc_file = models.FileField(upload_to=get_file_path, blank=True, null=True, max_length=1000)
 
     # model relationships
     # diagnostics : Foreign Key from diagnostic class
