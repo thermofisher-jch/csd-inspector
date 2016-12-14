@@ -33,7 +33,7 @@ TEST_MANIFEST = {
   PGM_RUN: [
     "Filter_Metrics",
     "Raw_Trace",
-    "Version_Check",
+    "Run_Details",
     "ISP_Loading",
     "Chip_Temperature",
     "Chip_Status",
@@ -46,7 +46,7 @@ TEST_MANIFEST = {
   PROTON: [
     "Filter_Metrics",
     "Raw_Trace",
-    "Version_Check",
+    "Run_Details",
     "ISP_Loading",
     "Chip_Status",
     "Auto_pH",
@@ -61,7 +61,7 @@ TEST_MANIFEST = {
     "Raw_Trace",
     "ISP_Loading",
     "Chip_Status",
-    "Version_Check",
+    "Run_Details",
     "Flow_Error",
     "Ion_S5_Reagent_Lots",
     "Sequencing_Details",

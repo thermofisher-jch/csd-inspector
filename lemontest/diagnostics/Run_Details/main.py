@@ -24,41 +24,30 @@ try:
     # check that this is a valid hardware set for evaluation
     explog = read_explog(archive_path)
     check_supported(explog)
+
     version_path = os.path.join(archive_path, "version.txt")
     if not os.path.exists(version_path):
         raise Exception("Missing file: " + version_path)
+
+    run_date = explog.get('Start Time', 'Unknown')
+    run_name = explog.get('runName', 'Unknown')
+    device_name = explog.get('DeviceName', 'Unknown')
+
+    if run_name.startswith(device_name):
+        run_name = run_name[len(device_name)+1:]
+    run_number = run_name.split('-', 1)[0]
+
+    # remove the time from the run_date
+    if ' ' in run_date:
+        run_date = run_date.split(' ', 1)[0]
 
     # get the version number
     line = open(version_path).readline()
     version = line.split('=')[-1].strip()
     version = version.split()[0]
 
-    if "S5 Release_version" in explog:
-        # version check for S5 XL
-        if explog['SystemType'] == 'S5XL':
-            if StrictVersion(version) >= StrictVersion('5.0'):
-                printResult(False, OK_STRING % version)
-            else:
-                printResult(True, ALERT_STRING % version)
-        # version check for S5
-        if explog['SystemType'] == 'S5':
-            if StrictVersion(version) >= StrictVersion('5.0.2'):
-                printResult(False, OK_STRING % version)
-            else:
-                printResult(True, ALERT_STRING % version)
-
-    # version check for PGM
-    elif "PGM SW Release" in explog:
-        if StrictVersion(version) >= StrictVersion('4.6'):
-            printResult(False, OK_STRING % version)
-        else:
-            printResult(True, ALERT_STRING % version)
-    # fallback version check
-    else:
-        if version:
-            printResult(False, OK_STRING % version)
-        else:
-            printResult(True, "Could not get a valid version to check against.")
+    details = "TS <strong>%s</strong> | Device Name <strong>%s</strong> | Run Number <strong>%s</strong> | Run Date <strong>%s</strong>" % (version, device_name, run_number, run_date)
+    print_info(details)
 except Exception as exc:
     handle_exception(exc, output_path)
 
