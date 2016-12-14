@@ -49,9 +49,9 @@
 </head>
 <body>
 <div class="container">
-    <div class="h3 lead">Pressure</div>
+    <div class="h3 lead">{{ pressure_message }}</div>
     <div id="pressure-placeholder"></div>
-    <div class="h3 lead">Temperature</div>
+    <div class="h3 lead">{{ temperature_message }}</div>
     <div id="temperature-placeholder"></div>
     <br><br><br>
     <div class="text-center text-muted">Plots are zoomable and lines can be hovered over for specific values.</div>
@@ -65,7 +65,9 @@
 <script language="javascript" type="text/javascript"
         src="http://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.navigate.min.js"></script>
 <script type="text/javascript">
-    var flowData = "%raw_data%";
+    {% autoescape off %}
+        var flowData = {{ raw_data }};
+    {% endautoescape %}
     //Pressure Plot
     $.plot("#pressure-placeholder", flowData["pressure"], {
         legend: {position: "ne"},
