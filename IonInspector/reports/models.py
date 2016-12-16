@@ -63,7 +63,7 @@ TEST_MANIFEST = {
     "Chip_Status",
     "Run_Details",
     "Flow_Error",
-    "Ion_S5_Reagent_Lots",
+    "S5_Reagents",
     "Sequencing_Details",
     "Chip_Type",
     "Pressure_And_Temperature"

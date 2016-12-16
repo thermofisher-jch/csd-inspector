@@ -35,10 +35,20 @@ try:
         lines = f.readlines()
 
     # construct the html response message
-    cleaningLot = "Cleaning " + get_lot_from_lines(lines, ['Ion S5 Cleaning Solution'])
-    sequencingLot = "Sequencing " + get_lot_from_lines(lines, ['Ion S5 Sequencing Reagent', 'Ion S5 ExT Sequencing Reagent'])
-    washLot = "Wash " + get_lot_from_lines(lines, ['Ion S5 Wash Solution', 'Ion S5 ExT Wash Solution'])
+    cleaningLot = "Cleaning Lot " + get_lot_from_lines(lines, ['Ion S5 Cleaning Solution'])
+    sequencingLot = "Sequencing Lot " + get_lot_from_lines(lines, ['Ion S5 Sequencing Reagent', 'Ion S5 ExT Sequencing Reagent'])
+    washLot = "Wash Lot " + get_lot_from_lines(lines, ['Ion S5 Wash Solution', 'Ion S5 ExT Wash Solution'])
 
     print_info(" | ".join([cleaningLot, sequencingLot, washLot]))
+
+    # write out reagent image
+    if os.path.exists(os.path.join(archive, 'InitRawTrace0.png')):
+        with open(os.path.join(output, "results.html"), "w") as html_handle:
+            html_handle.write("<html><body>")
+            html_handle.write("<h2 align='center'>Reagent Check</h2>")
+            html_handle.write("<p style='text-align:center;'>")
+            html_handle.write("<img src='../../InitRawTrace0.png' />")
+            html_handle.write("</p></body></html>")
+
 except Exception as exc:
-    print_na(str(exc))
+    handle_exception(exc, output)
