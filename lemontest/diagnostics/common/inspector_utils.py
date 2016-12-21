@@ -1,6 +1,7 @@
 import csv
 import os
 import re
+import json
 import traceback
 from xml.etree import ElementTree
 
@@ -39,6 +40,19 @@ def read_explog(archive_path):
 
     return data
 
+
+def read_base_caller_json(archive_path):
+    """
+    This method will read and output a nested dict from parsing basecaller_results/BaseCaller.json
+    :param archive_path: the root directory of the archive
+    :return:
+    """
+    path = os.path.join(archive_path, "basecaller_results", "BaseCaller.json")
+    if not os.path.exists(path):
+        raise Exception("BaseCaller.json missing")
+    with open(path) as base_caller_fh:
+        base_caller_json = json.load(base_caller_fh)
+    return base_caller_json
 
 def handle_exception(exc, output_path):
     """

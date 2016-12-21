@@ -34,6 +34,10 @@ try:
     with open(os.path.join(archive, "InitLog.txt")) as f:
         lines = f.readlines()
 
+    # read in carry forward
+    base_caller = read_base_caller_json(archive)
+    cf = float(base_caller["Phasing"]["CF"]) * 100
+
     # construct the html response message
     cleaningLot = "Cleaning Lot " + get_lot_from_lines(lines, ['Ion S5 Cleaning Solution'])
     sequencingLot = "Sequencing Lot " + get_lot_from_lines(lines, ['Ion S5 Sequencing Reagent', 'Ion S5 ExT Sequencing Reagent'])
@@ -41,14 +45,26 @@ try:
 
     print_info(" | ".join([cleaningLot, sequencingLot, washLot]))
 
-    # write out reagent image
-    if os.path.exists(os.path.join(archive, 'InitRawTrace0.png')):
-        with open(os.path.join(output, "results.html"), "w") as html_handle:
-            html_handle.write("<html><body>")
+    # write out results.html
+    with open(os.path.join(output, "results.html"), "w") as html_handle:
+        # html header
+        html_handle.write("<html><head></head><body>")
+
+        # write out reagent image
+        if os.path.exists(os.path.join(archive, 'InitRawTrace0.png')):
             html_handle.write("<h2 align='center'>Reagent Check</h2>")
             html_handle.write("<p style='text-align:center;'>")
             html_handle.write("<img src='../../InitRawTrace0.png' />")
-            html_handle.write("</p></body></html>")
+            html_handle.write("</p>")
+
+        # write out carry forward for checking reagent leaks
+        html_handle.write("<h2 align='center'>Phasing - Carry Forward</h2>")
+        html_handle.write("<p style='text-align:center;'>")
+        html_handle.write("CF = {0:.2f}%".format(cf))
+        html_handle.write("</p>")
+
+        # html footer
+        html_handle.write("</body></html>")
 
 except Exception as exc:
     handle_exception(exc, output)
