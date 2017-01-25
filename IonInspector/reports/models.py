@@ -182,7 +182,7 @@ class Archive(models.Model):
             run_test.delete()
 
         # get all of the diagnostics to be run on this type of archive
-        diagnostic_list = TEST_MANIFEST[self.archive_type]
+        diagnostic_list = TEST_MANIFEST[str(self.archive_type)]
         for diagnostic_name in diagnostic_list:
             diagnostic = Diagnostic(name=diagnostic_name, archive=self)
             readme_file = os.path.join(settings.SITE_ROOT, 'lemontest', 'diagnostics', diagnostic_name, 'README')

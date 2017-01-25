@@ -120,8 +120,12 @@ def report(request, pk):
 
     archive = Archive.objects.get(pk=pk)
 
-    pdf_path = os.path.join(archive.archive_root, "report.pdf")
-    pdf_present = os.path.exists(pdf_path)
+    pdf_present = False
+    try:
+        pdf_path = os.path.join(archive.archive_root, "report.pdf")
+        pdf_present = os.path.exists(pdf_path)
+    except ValueError:
+        pass
 
     ctx = RequestContext(request, {
         'archive_type_choices_json': json.dumps(
