@@ -13,7 +13,6 @@ then
         echo "Unable to find the OT csv file"
 else
         #Remove output from  a possible previous run
-        echo "Removing csv file from a previous run" >&2
         rm -f $OUTPUT/*
 
         #For some users' log file, the 1st line is the header and does not have a "Script ..." line
