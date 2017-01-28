@@ -81,16 +81,16 @@ def reports(request):
     archives = Archive.objects.order_by("time")
     if request.GET.get('site', ''):
         site_search = request.GET['site']
-        archives = archives.filter(site=site_search)
+        archives = archives.filter(site__icontains=site_search)
     if request.GET.get('submitter_name', ''):
         submitter_name_search = request.GET['submitter_name']
-        archives = archives.filter(submitter_name=submitter_name_search)
+        archives = archives.filter(submitter_name__icontains=submitter_name_search)
     if request.GET.get('archive_type', ''):
         archive_type_search = request.GET['archive_type']
         archives = archives.filter(archive_type=archive_type_search)
     if request.GET.get('identifier', ''):
         identifier_search = request.GET['identifier']
-        archives = archives.filter(identifier=identifier_search)
+        archives = archives.filter(identifier__icontains=identifier_search)
     if request.GET.get('taser_ticket_number_name', ''):
         taser_ticket_number_search = request.GET['taser_ticket_number_name']
         archives = archives.filter(taser_ticket_number=int(taser_ticket_number_search))
