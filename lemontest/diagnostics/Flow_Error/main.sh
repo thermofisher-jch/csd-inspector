@@ -6,7 +6,7 @@ ERROR_SUMMARY=${ARCHIVE}/rawlib.ionstats_error_summary.h5
 
 # handle barcode situation
 if [ ! -s ${ERROR_SUMMARY} ]; then
-    error_summaries=$(ls ${ARCHIVE}/*_rawlib.ionstats_error_summary.h5 | xargs -n1 basename)
+    error_summaries=$(ls ${ARCHIVE}/*_rawlib.ionstats_error_summary.h5 2>/dev/null | xargs -n1 basename 2>/dev/null)
 
     # check if there is no error summary and exit out with a simple message
     if [ -z "$error_summaries" ]; then
