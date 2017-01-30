@@ -119,7 +119,7 @@ def report(request, pk):
     """
 
     archive = Archive.objects.get(pk=pk)
-
+    diagnostics = archive.diagnostics.order_by("name")
     pdf_present = False
     try:
         pdf_path = os.path.join(archive.archive_root, "report.pdf")
@@ -132,6 +132,7 @@ def report(request, pk):
             [{"name": k, "value": v} for v, k in archive._meta.get_field('archive_type').choices]
         ),
         'archive': archive,
+        'diagnostics': diagnostics,
         'pdf_present': pdf_present
     })
     return render_to_response("report.html", ctx)
