@@ -52,7 +52,7 @@ def create_plot(data, title, image_path):
 
 archive_path, output_path, archive_type = sys.argv[1:4]
 try:
-    font = {'family': 'normal', 'weight': 'normal', 'size': 10}
+    font = {'family': 'sans-serif', 'weight': 'normal', 'size': 10}
     matplotlib.rc('font', **font)
 
     # check that this is a valid hardware set for evaluation
