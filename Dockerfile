@@ -8,6 +8,10 @@ RUN groupadd -r inspector --gid=8247 && useradd -r -g inspector --uid=8247 inspe
 # install all of the software
 RUN apt-get update && apt-get install -y python-pip celeryd python-dev r-base r-cran-rjson python-matplotlib libpq-dev
 
+# install R deps
+RUN Rscript -e "source('http://bioconductor.org/biocLite.R')"
+RUN Rscript -e "library(BiocInstaller); biocLite('rhdf5')"
+
 # setup variables
 ENV PROJECT_DIR /opt/inspector
 ENV PYTHONPATH  /opt/inspector/IonInspector:$PYTHONPATH

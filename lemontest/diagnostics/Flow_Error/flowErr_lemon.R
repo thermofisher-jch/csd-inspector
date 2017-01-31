@@ -1,5 +1,4 @@
 library(rhdf5,lib.loc=libDir)
-library(torrentR)
 
 system(sprintf("mkdir -p %s",plotDir))
 

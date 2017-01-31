@@ -133,9 +133,9 @@ sub writeHtmlPlots {
   my @plotTypes = ();
   my $plotType = "";
 
-  my $errorImage   = sprintf("%s/%s.%s", $plotDir, "per_base.regional.error.dynamic.png");
-  my $alignedImage = sprintf("%s/%s.%s", $plotDir, "per_base.regional.aligned.dynamic.png");
-  my $filterImage  = sprintf("%s/%s.%s", $plotDir, "spatial_filter.png");
+  my $errorImage   = sprintf("%s/%s", $plotDir, "per_base.regional.error.dynamic.png");
+  my $alignedImage = sprintf("%s/%s", $plotDir, "per_base.regional.aligned.dynamic.png");
+  my $filterImage  = sprintf("%s/%s", $plotDir, "spatial_filter.png");
   my @plotImages = ($errorImage, $alignedImage, $filterImage);
   if( -e $errorImage or -e $alignedImage or -e $filterImage){
     print $htmlFh "<table border=2 cellpadding=5>\n";
