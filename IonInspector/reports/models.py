@@ -66,6 +66,7 @@ TEST_MANIFEST = {
     "S5_Reagents",
     "Sequencing_Details",
     "Chip_Type",
+    "Test_Fragments",
     "Pressure_And_Temperature"
   ],
   OT_LOG: [
