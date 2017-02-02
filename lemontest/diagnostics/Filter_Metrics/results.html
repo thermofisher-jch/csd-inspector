@@ -17,12 +17,12 @@
 
         <table border="0">
             <tr>
-                <td align="center">
+                <td align="center" colspan="2">
                     <h1>Filter Meters Plots</h1>
                 </td>
             </tr>
             <tr>
-                <td align="center">
+                <td align="center" colspan="2">
                     <h2>Primary Well Categorization</h2>
                 </td>
             </tr>
@@ -35,7 +35,7 @@
                         <tr>
                             <th>Catagory</th>
                             <th>Reads</th>
-                            <th>Percentage</th>
+                            <th>Percentage Total</th>
                         </tr>
                         <tr>
                             <td>Beads</td>
@@ -65,7 +65,7 @@
                 </td>
             </tr>
             <tr>
-                <td align="center">
+                <td align="center" colspan="2">
                     <h2>Loaded Well Categorization</h2>
                 </td>
             </tr>
@@ -78,7 +78,7 @@
                         <tr>
                             <th>Catagory</th>
                             <th>Reads</th>
-                            <th>Percentage</th>
+                            <th>Percentage Beads</th>
                         </tr>
                         <tr>
                             <td>Library</td>
@@ -95,15 +95,11 @@
                             <td>{{ loaded_duds }}</td>
                             <td>{{ loaded_duds_perc|floatformat  }}%</td>
                         </tr>
-                        <tr>
-                            <td>Total</td>
-                            <td colspan="2">{{ pwc_total }}</td>
-                        </tr>
                     </table>
                 </td>
             </tr>
             <tr>
-                <td align="center">
+                <td align="center" colspan="2">
                     <h2>Library Well Categorization</h2>
                 </td>
             </tr>
@@ -116,12 +112,12 @@
                         <tr>
                             <th>Catagory</th>
                             <th>Reads</th>
-                            <th>Percentage</th>
+                            <th>Percentage Library</th>
                         </tr>
                         <tr>
                             <td>Low Quality: High PPF</td>
                             <td>{{ libarary_low_quality_high_ppf }}</td>
-                            <td>{{ libarary_low_quality_high_ppf_prec }}</td>
+                            <td>{{ libarary_low_quality_high_ppf_prec|floatformat }}%</td>
                         </tr>
                         <tr>
                             <td>Polyclonal</td>
@@ -158,10 +154,7 @@
                             <td>{{ libarary_final_library_isps }}</td>
                             <td>{{ libarary_final_library_isps_perc|floatformat  }}%</td>
                         </tr>
-                        <tr>
-                            <td>Total</td>
-                            <td colspan="2">{{ library_total }}</td>
-                        </tr>
+
                     </table>
                 </td>
             </tr>

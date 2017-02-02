@@ -40,11 +40,15 @@ def create_plot(plot_data, image_path):
     y_pos = np.arange(len(labels))
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.bar(y_pos, plot_data.values(), align='center', alpha=0.5, color=color_scheme[:len(plot_data.keys())], linewidth=0)
+    ax.bar(y_pos, plot_data.values(), align='center', alpha=0.5, color=color_scheme[:len(plot_data.keys())])
     ax.set_xticks(y_pos)
     ax.set_xticklabels(labels)
+    ax.tick_params(top='off', right='off', bottom='off')
     ax.set_ylabel("Reads (1,000's)")
+    ax.spines['right'].set_linewidth(0.0)
+    ax.spines['top'].set_linewidth(0.0)
     autolabel(ax.patches)
+
     fig.savefig(image_path)
 
 
@@ -86,7 +90,7 @@ try:
     library = get_param_sigproc(sigproc_log, "Library")
     tfbead = get_param_sigproc(sigproc_log, "TFBead")
     duds = get_param_sigproc(sigproc_log, "Duds")
-    loaded_total = library + tfbead + duds
+
     create_plot({
         'Library': library/1000,
         'TFBead': tfbead/1000,
@@ -110,7 +114,7 @@ try:
     primer_dimer = int(d['adapter_trim'])
     low_quality_quality_trim = int(d['quality_trim'])
     final_library_isps = int(d['valid'])
-    library_total = low_quality_high_ppf + polyclonal + low_quality_bad_key + low_quality_short_read + low_quality_failed_keypass + primer_dimer + low_quality_quality_trim + final_library_isps
+
     data = {
         'Low\nQuality:\nHigh\nPPF':       low_quality_high_ppf / 1000,
         'Polyclonal': polyclonal/1000,
@@ -130,19 +134,17 @@ try:
         'pwc_pinned': pinned, 'pwc_pinned_perc': float(pinned) / float(pwc_total) * 100.0,
         'pwc_ignored':                           ignored, 'pwc_ignored_perc': float(ignored) / float(pwc_total) * 100.0,
         'pwc_total':                             pwc_total,
-        'loaded_library':                        library, 'loaded_library_perc': float(library) / float(loaded_total) * 100.0,
-        'loaded_tfbead':                         tfbead, 'loaded_tfbead_perc': float(tfbead) / float(loaded_total) * 100.0,
-        'loaded_duds':                           duds, 'loaded_duds_perc': float(duds) / float(loaded_total) * 100.0,
-        'loaded_total':                          loaded_total,
-        'libarary_low_quality_high_ppf':         low_quality_high_ppf, 'libarary_low_quality_high_ppf_prec': float(low_quality_high_ppf) / float(library_total) * 100.0,
-        'libarary_polyclonal':                   polyclonal, 'libarary_polyclonal_perc': float(polyclonal) / float(library_total) * 100.0,
-        'libarary_low_quality_bad_key':          low_quality_bad_key, 'libarary_low_quality_bad_key_perc': float(low_quality_bad_key) / float(library_total) * 100.0,
-        'libarary_low_quality_short_read_key':   low_quality_short_read, 'libarary_low_quality_short_read_perc': float(low_quality_short_read) / float(library_total) * 100.0,
-        'libarary_low_quality_failed_keypass':   low_quality_failed_keypass, 'libarary_low_quality_failed_keypass_perc': float(low_quality_failed_keypass) / float(library_total) * 100.0,
-        'libarary_primer_dimer': primer_dimer, 'libarary_primer_dimer_perc': float(primer_dimer) / float(library_total) * 100.0,
-        'libarary_low_quality_quality_trim': low_quality_quality_trim, 'libarary_low_quality_quality_trim_perc': float(low_quality_quality_trim) / float(library_total) * 100.0,
-        'libarary_final_library_isps': final_library_isps, 'libarary_final_library_isps_perc': float(final_library_isps) / float(library_total) * 100.0,
-        'library_total': library_total,
+        'loaded_library':                        library, 'loaded_library_perc': float(library) / float(beads) * 100.0,
+        'loaded_tfbead':                         tfbead, 'loaded_tfbead_perc': float(tfbead) / float(beads) * 100.0,
+        'loaded_duds':                           duds, 'loaded_duds_perc': float(duds) / float(beads) * 100.0,
+        'libarary_low_quality_high_ppf':         low_quality_high_ppf, 'libarary_low_quality_high_ppf_prec': float(low_quality_high_ppf) / float(library) * 100.0,
+        'libarary_polyclonal':                   polyclonal, 'libarary_polyclonal_perc': float(polyclonal) / float(library) * 100.0,
+        'libarary_low_quality_bad_key':          low_quality_bad_key, 'libarary_low_quality_bad_key_perc': float(low_quality_bad_key) / float(library) * 100.0,
+        'libarary_low_quality_short_read_key':   low_quality_short_read, 'libarary_low_quality_short_read_perc': float(low_quality_short_read) / float(library) * 100.0,
+        'libarary_low_quality_failed_keypass':   low_quality_failed_keypass, 'libarary_low_quality_failed_keypass_perc': float(low_quality_failed_keypass) / float(library) * 100.0,
+        'libarary_primer_dimer': primer_dimer, 'libarary_primer_dimer_perc': float(primer_dimer) / float(library) * 100.0,
+        'libarary_low_quality_quality_trim': low_quality_quality_trim, 'libarary_low_quality_quality_trim_perc': float(low_quality_quality_trim) / float(library) * 100.0,
+        'libarary_final_library_isps': final_library_isps, 'libarary_final_library_isps_perc': float(final_library_isps) / float(library) * 100.0,
     }))
     with open(os.path.join(output_path, "results.html"), 'w') as out:
         out.write(result.encode("UTF-8"))
