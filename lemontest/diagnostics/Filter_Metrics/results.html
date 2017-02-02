@@ -15,11 +15,157 @@
     </head>
     <body>
 
-        <div class="plot" >
-            <img src="primary.png" />
-            <img src="loaded.png" />
-            <img src="library.png" />
-        </div>
+        <table border="0">
+            <tr>
+                <td align="center">
+                    <h1>Filter Meters Plots</h1>
+                </td>
+            </tr>
+            <tr>
+                <td align="center">
+                    <h2>Primary Well Categorization</h2>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <img src="primary.png" />
+                </td>
+                <td>
+                    <table border="1">
+                        <tr>
+                            <th>Catagory</th>
+                            <th>Reads</th>
+                            <th>Percentage</th>
+                        </tr>
+                        <tr>
+                            <td>Beads</td>
+                            <td>{{ pwc_beads }}</td>
+                            <td>{{ pwc_beads_perc|floatformat }}%</td>
+                        </tr>
+                        <tr>
+                            <td>Empties</td>
+                            <td>{{ pwc_empties }}</td>
+                            <td>{{ pwc_empties_perc|floatformat  }}%</td>
+                        </tr>
+                        <tr>
+                            <td>Pinned</td>
+                            <td>{{ pwc_pinned }}</td>
+                            <td>{{ pwc_pinned_perc|floatformat  }}%</td>
+                        </tr>
+                        <tr>
+                            <td>Ignored</td>
+                            <td>{{ pwc_ignored }}</td>
+                            <td>{{ pwc_ignored_perc|floatformat  }}%</td>
+                        </tr>
+                        <tr>
+                            <td>Total</td>
+                            <td colspan="2">{{ pwc_total }}</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td align="center">
+                    <h2>Loaded Well Categorization</h2>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <img src="loaded.png" />
+                </td>
+                <td>
+                    <table border="1">
+                        <tr>
+                            <th>Catagory</th>
+                            <th>Reads</th>
+                            <th>Percentage</th>
+                        </tr>
+                        <tr>
+                            <td>Library</td>
+                            <td>{{ loaded_library }}</td>
+                            <td>{{ loaded_library_perc|floatformat  }}%</td>
+                        </tr>
+                        <tr>
+                            <td>TF Beads</td>
+                            <td>{{ loaded_tfbead }}</td>
+                            <td>{{ loaded_tfbead_perc|floatformat  }}%</td>
+                        </tr>
+                        <tr>
+                            <td>Duds</td>
+                            <td>{{ loaded_duds }}</td>
+                            <td>{{ loaded_duds_perc|floatformat  }}%</td>
+                        </tr>
+                        <tr>
+                            <td>Total</td>
+                            <td colspan="2">{{ pwc_total }}</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td align="center">
+                    <h2>Library Well Categorization</h2>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <img src="library.png" />
+                </td>
+                <td>
+                    <table border="1">
+                        <tr>
+                            <th>Catagory</th>
+                            <th>Reads</th>
+                            <th>Percentage</th>
+                        </tr>
+                        <tr>
+                            <td>Low Quality: High PPF</td>
+                            <td>{{ libarary_low_quality_high_ppf }}</td>
+                            <td>{{ libarary_low_quality_high_ppf_prec }}</td>
+                        </tr>
+                        <tr>
+                            <td>Polyclonal</td>
+                            <td>{{ libarary_polyclonal }}</td>
+                            <td>{{ libarary_polyclonal_perc|floatformat  }}%</td>
+                        </tr>
+                        <tr>
+                            <td>Low Quality: Bad Key</td>
+                            <td>{{ libarary_low_quality_bad_key }}</td>
+                            <td>{{ libarary_low_quality_bad_key_perc|floatformat  }}%</td>
+                        </tr>
+                        <tr>
+                            <td>Low Quality: Short Read Key</td>
+                            <td>{{ libarary_low_quality_short_read_key }}</td>
+                            <td>{{ libarary_low_quality_short_read_perc|floatformat  }}%</td>
+                        </tr>
+                        <tr>
+                            <td>Low Quality: Failed Keypass</td>
+                            <td>{{ libarary_low_quality_failed_keypass }}</td>
+                            <td>{{ libarary_low_quality_failed_keypass_perc|floatformat  }}%</td>
+                        </tr>
+                        <tr>
+                            <td>Primer Dimer</td>
+                            <td>{{ libarary_primer_dimer }}</td>
+                            <td>{{ libarary_primer_dimer_perc|floatformat  }}%</td>
+                        </tr>
+                        <tr>
+                            <td>Low Quality: Quality Trim</td>
+                            <td>{{ libarary_low_quality_quality_trim }}</td>
+                            <td>{{ libarary_low_quality_quality_trim_perc|floatformat  }}%</td>
+                        </tr>
+                        <tr>
+                            <td>Final Library ISP's</td>
+                            <td>{{ libarary_final_library_isps }}</td>
+                            <td>{{ libarary_final_library_isps_perc|floatformat  }}%</td>
+                        </tr>
+                        <tr>
+                            <td>Total</td>
+                            <td colspan="2">{{ library_total }}</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
 
     </body>
 </html>
