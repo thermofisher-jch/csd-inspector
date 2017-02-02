@@ -3,21 +3,19 @@
 import sys
 import os
 from distutils.version import StrictVersion
+from dateutil.parser import parse
 from lemontest.diagnostics.common.inspector_utils import *
 
 OK_STRING = "TS Version is acceptable at <strong>%s</strong>"
 ALERT_STRING = "Advise customer to upgrade their Torrent Server.  Their version is out-dated at <strong>%s</strong>"
 
 
-def printResult(alert, msg):
-    """
-    Helper method to print the alert statement
-    :param alert: boolean if this is an alert
-    :param msg: The message to be printed
-    """
-    print("Alert" if alert else "OK")
-    print("40" if alert else "10")
-    print(msg)
+def format_run_date(raw_string):
+    try:
+        run_date = parse(raw_string)
+    except Exception as e:
+        return "Unknown"
+    return run_date.strftime("%d %b %Y")
 
 archive_path, output_path, archive_type = sys.argv[1:4]
 try:
@@ -29,17 +27,13 @@ try:
     if not os.path.exists(version_path):
         raise Exception("Missing file: " + version_path)
 
-    run_date = explog.get('Start Time', 'Unknown')
+    run_date = format_run_date(explog.get('Start Time', 'Unknown'))
     run_name = explog.get('runName', 'Unknown')
     device_name = explog.get('DeviceName', 'Unknown')
 
     if run_name.startswith(device_name):
         run_name = run_name[len(device_name)+1:]
     run_number = run_name.split('-', 1)[0]
-
-    # remove the time from the run_date
-    if ' ' in run_date:
-        run_date = run_date.split(' ', 1)[0]
 
     # get the version number
     line = open(version_path).readline()
