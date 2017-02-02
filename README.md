@@ -11,7 +11,7 @@ Commit and push your changes to this repository.
 
 ### To Testing (inspector.vulcan.itw)
 
-Run `fab deploy -H vulcan.itw` from this directory.
+Run `fab deploy:<tag name> -H vulcan.itw` from this directory.
 
 ### Old Production Deployment (for reference) 
 
