@@ -1,5 +1,19 @@
 {% extends "base.html" %}
 {% load staticfiles %}
+
+{% block extra_head_js %}
+    <script>
+        $(function(){
+            $("#ask_delete").click(function(){
+                $("#delete_prompt").slideDown();
+            });
+            $("#no_delete").click(function(){
+                $("#delete_prompt").slideUp();
+            });
+        });
+    </script>
+{% endblock extra_head_js %}
+
 {% block content %}
     <div id="delete_prompt" class="row-fluid" style="display: none;">
         <div class="span12 alert alert-danger">
