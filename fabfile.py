@@ -10,6 +10,7 @@ HOST_DATA_DIR = "/var/lib/inspector"
 
 
 def dev():
+    local("docker-compose build")
     local("docker-compose up")
 
 
