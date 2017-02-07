@@ -48,6 +48,7 @@ def create_plot(plot_data, image_path):
     ax.spines['right'].set_linewidth(0.0)
     ax.spines['top'].set_linewidth(0.0)
     autolabel(ax.patches)
+    fig.tight_layout()
 
     fig.savefig(image_path)
 
