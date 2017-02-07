@@ -305,7 +305,7 @@ class Diagnostic(models.Model):
                         self.status = long_name
                 self.priority = int(output[1])
 
-            self.details = self.error if self.error else u"<br />".join(output[2:]).rstrip()
+            self.details = self.error if self.error else "<br />".join(output[2:]).rstrip()
             html_path = os.path.join(self.diagnostic_root, "results.html")
             if os.path.exists(html_path):
                 self.html = os.path.basename(html_path)
