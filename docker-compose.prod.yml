@@ -7,7 +7,7 @@ celery:
 
 django:
   volumes:
-    - /var/lib/inspector/media:/var/lib/inspector/media
+    - /mnt/raid/inspector/media:/var/lib/inspector/media
     - /var/log/inspector:/var/log/inspector
   ports:
     - "8657:8080"
