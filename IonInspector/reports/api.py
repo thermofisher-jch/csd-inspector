@@ -5,7 +5,9 @@ from reports.models import Archive
 from tastypie.authorization import Authorization
 from tastypie.resources import ModelResource
 from tastypie.fields import CharField
-import sys
+import logging
+
+logger = logging.getLogger(__name__)
 
 class ArchiveResource(ModelResource):
     """
@@ -62,6 +64,7 @@ class ArchiveResource(ModelResource):
             my_url = reverse('report', kwargs={'pk': obj.id})
             return HttpResponseRedirect(my_url)
         except Exception as exc:
+            logger.exception(exc)
             return HttpResponseRedirect(reverse('reports'))
 
     def dehydrate_doc_file(self, bundle):
