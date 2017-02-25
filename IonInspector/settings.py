@@ -70,7 +70,7 @@ WSGI_APPLICATION = 'IonInspector.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
-#  HOST Note!!! this is defined by the name of the docker container which is running postgres
+# HOST Note!!! this is defined by the name of the docker container which is running postgres
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -80,6 +80,26 @@ DATABASES = {
         'HOST': 'postgres',
         'PORT': ''
     }
+}
+
+# Logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/var/log/inspector/django.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
 }
 
 # Internationalization

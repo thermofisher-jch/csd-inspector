@@ -9,8 +9,9 @@ django:
   volumes:
     - .:/opt/inspector
     - ./.local/media:/var/lib/inspector/media
+    - ./.local/logs:/var/log/inspector
   ports:
-    - "8080:8080"
+    - "8090:8080"
 
 postgres:
   volumes:

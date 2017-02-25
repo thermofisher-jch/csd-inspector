@@ -324,7 +324,8 @@ class Diagnostic(models.Model):
 @receiver(pre_delete, sender=Diagnostic, dispatch_uid="delete_diagnostic")
 def on_diagnostic_delete(sender, instance, **kwargs):
     """Triggered when the diagnostic are deleted"""
-    shutil.rmtree(instance.diagnostic_root)
+    if os.path.exists(instance.diagnostic_root):
+        shutil.rmtree(instance.diagnostic_root)
 
 
 class Tag(models.Model):
