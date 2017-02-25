@@ -4,6 +4,7 @@ celery:
     - .:/opt/inspector
     - ./.local/celery:/var/log/celery
     - ./.local/media:/var/lib/inspector/media
+    - ./.local/logs:/var/log/inspector
 
 django:
   volumes:
