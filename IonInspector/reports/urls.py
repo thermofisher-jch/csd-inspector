@@ -1,4 +1,5 @@
 from django.conf.urls import patterns, url
+from django.views.generic import RedirectView
 
 urlpatterns = patterns(
     '',
@@ -8,4 +9,7 @@ urlpatterns = patterns(
     url(r'^report/(?P<pk>\d+)/$', 'reports.views.report', name='report'),
     url(r'^diagnostic/(\w+)$', 'reports.views.readme', name='readme'),
     url(r'^documentation', 'reports.views.documentation', name='documentation'),
+
+    # legacy redirect
+    url(r'^check/(?P<pk>\d+)/$', RedirectView.as_view(pattern_name='report', permanent=False)),
 )
