@@ -35,8 +35,8 @@ def deploy(tag=None):
         print "Deploy must be passed a specific git tag!"
         exit()
     with cd(HOST_DATA_DIR + "/inspector"):
-        run("git fetch")
         run("git checkout %s" % tag)
+        run("git pull")
         run("docker-compose -f docker-compose.yml -f docker-compose.prod.yml build")
         run("docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d")
         upload_template("./conf/nginx.conf", "/etc/nginx/sites-enabled/inspector.conf", {

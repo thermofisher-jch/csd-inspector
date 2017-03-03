@@ -41,7 +41,7 @@ class Command(BaseCommand):
                 id=id,
                 identifier=row["label"],
                 site=row["site"],
-                time=row["time"] + "-0000",
+                time=row["time"] + "-0800",
                 submitter_name=row["submitter_name"],
                 archive_type=archive_type,
                 summary=row["summary"],
