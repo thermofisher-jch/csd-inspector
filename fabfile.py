@@ -7,6 +7,7 @@ env.forward_agent = True
 env.use_ssh_config = True
 
 HOST_DATA_DIR = "/var/lib/inspector"
+PRODUCTION_HOSTS = ["vulcan", "inspector"]
 
 
 def dev():
@@ -34,6 +35,9 @@ def deploy(tag=None):
     if not tag:
         print "Deploy must be passed a specific git tag!"
         exit()
+    if any([host in env.host for host in PRODUCTION_HOSTS]):
+        if raw_input("This looks like a deploy to production! Enter PRODUCTION to continue: ") != "PRODUCTION":
+            exit()
     with cd(HOST_DATA_DIR + "/inspector"):
         run("git checkout %s" % tag)
         run("git pull")
