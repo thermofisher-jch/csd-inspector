@@ -175,7 +175,9 @@ class Archive(models.Model):
             tar.extractall(path=os.path.dirname(self.doc_file.path))
             tar.close()
         elif self.doc_file.path.endswith('.log'):  # One Touch
-            shutil.copy(self.doc_file.path, os.path.join(os.path.dirname(self.doc_file.path), "onetouch.log"))
+            target_path = os.path.join(os.path.dirname(self.doc_file.path), "onetouch.log")
+            if not os.path.exists(target_path):
+                shutil.copy(self.doc_file.path, target_path)
 
         # delete all other diagnostics first
         tests = Diagnostic.objects.filter(archive=self)
