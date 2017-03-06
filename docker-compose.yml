@@ -6,7 +6,7 @@ celery:
   user: inspector
   build: ./
   working_dir: /opt/inspector
-  command: celery -A IonInspector.celeryconfig worker -l info --concurrency=8
+  command: celery -A IonInspector.celeryconfig worker -l info
   links:
     - rabbitmq
     - postgres
