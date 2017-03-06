@@ -19,7 +19,7 @@ def test():
 
 
 def provision():
-    sudo("apt-get install -y python python-pip docker-engine nginx")
+    sudo("apt-get install -y python python-pip docker-ce nginx")
     sudo("pip install docker-compose")
     sudo("mkdir -p {dir}".format(dir=HOST_DATA_DIR))
     sudo("chown deploy:deploy {dir}".format(dir=HOST_DATA_DIR))
