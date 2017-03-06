@@ -1,0 +1,17 @@
+.transition-fade-wrapper {
+    position: relative;
+}
+
+.transition-fade-wrapper .label {
+    width: 70px;
+    position: absolute;
+    text-align: center;
+}
+
+.transition-fade-enter-active, .transition-fade-leave-active {
+    transition: all 0.5s;
+}
+
+.transition-fade-enter, .transition-fade-leave-active {
+    opacity: 0;
+}

@@ -1,0 +1,48 @@
+{% verbatim %}
+<div id="diagnostics-table-template">
+    <table id="test-summary" class="table table-striped table-hover" v-cloak>
+        <thead>
+        <tr>
+            <th style="width: 200px">Test</th>
+            <th style="width: 100px">Status</th>
+            <th style="">Details</th>
+            <th style="width: 150px">Run At</th>
+            <th style="width: 80px">Results</th>
+            <th style="width: 80px">Readme</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="diagnostic in resource.diagnostics">
+            <td v-text="diagnostic.display_name"></td>
+            <td class="transition-fade-wrapper">
+                <transition name="transition-fade">
+                <span :key='diagnostic.status_class' :class="'label ' + diagnostic.status_class"
+                      v-text="diagnostic.status" class="label"></span>
+                </transition>
+            </td>
+            <td class="transition-fade-wrapper">
+                <transition name="transition-fade">
+                    <span :key='diagnostic.details' v-html="diagnostic.details"></span>
+                </transition>
+            </td>
+            <td class="transition-fade-wrapper">
+                <transition name="transition-fade">
+                    <span :key="diagnostic.display_start_execute" v-text="diagnostic.display_start_execute"></span>
+                </transition>
+            </td>
+            <td class="transition-fade-wrapper">
+                <transition name="transition-fade">
+                    <a v-if="diagnostic.html"
+                       :href="'/media/archive_files/' + resource.id + '/test_results/' + diagnostic.name + '/' + diagnostic.html">Results</a>
+                </transition>
+            </td>
+            <td class="transition-fade-wrapper">
+                <transition name="transition-fade">
+                    <a v-if="diagnostic.readme" :href="'/diagnostic/' + diagnostic.name">Readme</a>
+                </transition>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+{% endverbatim %}

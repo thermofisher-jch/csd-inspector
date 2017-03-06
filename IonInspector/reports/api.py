@@ -1,18 +1,32 @@
 from django.conf.urls import url
 from django.core.urlresolvers import reverse
 from django.shortcuts import HttpResponseRedirect
-from reports.models import Archive
+from reports.models import Archive, Diagnostic
 from tastypie.authorization import Authorization
 from tastypie.resources import ModelResource
-from tastypie.fields import CharField
+from tastypie.fields import CharField, ToManyField
 import logging
 
 logger = logging.getLogger(__name__)
+
+
+class DiagnosticResource(ModelResource):
+    readme = CharField(readonly=True)
+
+    def dehydrate_readme(self, bundle):
+        return bundle.obj.readme
+
+    class Meta:
+        queryset = Diagnostic.objects.all()
+        resource_name = 'Diagnostic'
+        authorization = Authorization()
+
 
 class ArchiveResource(ModelResource):
     """
     Resource for archive
     """
+    diagnostics = ToManyField(DiagnosticResource, 'diagnostics', full=True, use_in="detail")
 
     def prepend_urls(self):
         """
@@ -86,4 +100,4 @@ class ArchiveResource(ModelResource):
         authorization = Authorization()
         remove_allowed_methods = ['post', ]
         rerun_allowed_methods = ['post', ]
-
+        ordering = ['id', ]

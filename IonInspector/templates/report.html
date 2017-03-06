@@ -1,19 +1,5 @@
 {% extends "base.html" %}
 {% load staticfiles %}
-
-{% block extra_head_js %}
-    <script>
-        $(function(){
-            $("#ask_delete").click(function(){
-                $("#delete_prompt").slideDown();
-            });
-            $("#no_delete").click(function(){
-                $("#delete_prompt").slideUp();
-            });
-        });
-    </script>
-{% endblock extra_head_js %}
-
 {% block content %}
     <div id="delete_prompt" class="row-fluid" style="display: none;">
         <div class="span12 alert alert-danger">
@@ -68,11 +54,7 @@
                     <a class="btn" href="/media/archive_files/{{ archive.pk }}/"><i class="icon-folder-open"></i> View
                         Files</a>
                     <a class="btn" id="archive-edit"><i class="icon-edit"></i> Edit</a>
-                    <form method="POST"
-                          action="{% url 'api_dispatch_rerun_archive' resource_name='Archive' api_name='v1' pk=archive.pk %}"
-                          style="margin: 0; display: inline">
-                        <button type="submit" class="btn"><i class="icon-repeat"></i> Re-run Tests</button>
-                    </form>
+                    <button id="run-tests" class="btn"><i class="icon-repeat"></i> Re-run Tests</button>
                 </div>
                 <div class="pull-right">
                     <button id="ask_delete" class="btn btn-danger"><i class="icon-trash icon-white"></i> Delete</button>
@@ -83,62 +65,7 @@
 
     <div class="row-fluid">
         <div class="span12">
-            <table id="test-summary" class="table table-striped table-hover">
-                <thead>
-                <tr>
-                    <th>Test</th>
-                    <th>Status</th>
-                    <th>Details</th>
-                    <th>Run At</th>
-                    <th>Results</th>
-                    <th>Readme</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for test in diagnostics %}
-                    <tr>
-                        <td>{{ test.display_name }}</td>
-                        <td>
-                            {% if test.status == 'Unexecuted' %}
-                                <span class="label">{{ test.status }}</span>
-                            {% elif test.status == 'Executing' %}
-                                <span class="label">{{ test.status }}</span>
-                            {% elif test.status == 'Alert' %}
-                                <span class="label label-important">{{ test.status }}</span>
-                            {% elif test.status == 'Info' %}
-                                <span class="label label-info">{{ test.status }}</span>
-                            {% elif test.status == 'Warning' %}
-                                <span class="label label-warning">{{ test.status }}</span>
-                            {% elif test.status == 'OK' %}
-                                <span class="label label-success">{{ test.status }}</span>
-                            {% elif test.status == 'NA' %}
-                                <span class="label">{{ test.status }}</span>
-                            {% elif test.status == 'Failed' %}
-                                <span class="label" style="background-color: darkred">{{ test.status }}</span>
-                            {% else %}
-                                <span class="label">{{ test.status }}</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {{ test.details|safe }}
-                        </td>
-                        <td>
-                            {{ test.start_execute }}
-                        </td>
-                        <td>
-                            {% if test.html %}
-                                <a href="/media/archive_files/{{ archive.id }}/test_results/{{ test.name }}/{{ test.html }}">Results</a>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if test.readme %}
-                                <a href="/diagnostic/{{ test.name }}">Readme</a>
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+            {% include "partials/diagnostics.html" %}
         </div>
     </div>
     {% if pdf_present %}
@@ -162,111 +89,32 @@
             </div>
         </div>
     {% endif %}
+    <script src="/static/js/moment.min.js"></script>
+    <script src="/static/js/vue.min.js"></script>
+    <script src="/static/js/report-editor.js"></script>
+    <script src="/static/js/diagnostics-table.js"></script>
     <script>
-        //Archive editor
-        var reportEditorApp = {
-            archiveId: '{{ archive.pk }}',
-            archiveTypes: JSON.parse('{{ archive_type_choices_json|safe }}'),
-            elements: {
-                editButton: $("#archive-edit"),
-                archiveIdentifier: $("#archive-identifier"),
-                archiveSite: $("#archive-site"),
-                archiveType: $("#archive-type"),
-                archiveSummary: $("#archive-summary"),
-                archiveTaser: $("#archive-taser")
-            },
-            init: function () {
-                this.elements.editButton.click(this.enable.bind(this));
-            },
-            enable: function () {
-                // Switch button to save button
-                this.elements.editButton.html("<i class='icon-ok icon-white'></i> Save");
-                this.elements.editButton.addClass("btn-primary");
-                this.elements.editButton.off('click');
-                this.elements.editButton.click(this.save.bind(this));
-
-                // Switch text to inputs
-                [{
-                    element: this.elements.archiveIdentifier,
-                    fontSize: 25,
-                    type: "text"
-                }, {
-                    element: this.elements.archiveSite,
-                    fontSize: 25,
-                    type: "text"
-                }, {
-                    element: this.elements.archiveSummary,
-                    fontSize: 14,
-                    type: "text"
-                }, {
-                    element: this.elements.archiveTaser,
-                    fontSize: 14,
-                    type: "number"
-                }].map(function (item) {
-                    var value = item.element.text();
-                    item.element.html("").append($("<input/>", {
-                        type: item.type,
-                        value: item.element.data("value"),
-                        style: "font-size:" + item.fontSize + "px;" +
-                        "height: auto;" +
-                        "vertical-align: top;" +
-                        "margin-bottom: 0px;" +
-                        "box-sizing: border-box;" +
-                        "width: 100%;"
-                    }))
-                }.bind(this));
-
-                //Switch text to inputs
-
-                var archiveTypeSelect = $("<select/>", {
-                    type: "text",
-                    dir: "rtl",
-                    style: "font-size: 25px;" +
-                    "height: auto;" +
-                    "vertical-align: top;" +
-                    "margin-bottom: 0px;" +
-                    "height: 40px;" +
-                    "border-radius: 4px;" +
-                    "box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);" +
-                    "box-sizing: border-box;" +
-                    "width: 100%;"
-                });
-                this.archiveTypes.map(function (type) {
-                    archiveTypeSelect.append($("<option/>", {
-                        text: type.name,
-                        value: type.value,
-                        selected: this.elements.archiveType.data("value") == type.value
-                    }));
-                }.bind(this));
-                this.elements.archiveType.html("").append(archiveTypeSelect);
-
-            },
-            save: function () {
-                $.ajax({
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    url: '/api/v1/Archive/' + this.archiveId + '/',
-                    type: 'PATCH',
-                    data: JSON.stringify({
-                        identifier: this.elements.archiveIdentifier.find("input").val(),
-                        site: this.elements.archiveSite.find("input").val(),
-                        archive_type: this.elements.archiveType.find("select").val(),
-                        summary: this.elements.archiveSummary.find("input").val(),
-                        taser_ticket_number: this.elements.archiveTaser.find("input").val() || null
-                    }),
-                    success: function (response, textStatus, jqXhr) {
-                    },
-                    error: function (jqXHR, textStatus, errorThrown) {
-                        alert("Error saving changes!");
-                    },
-                    complete: function () {
-                        window.location = "";
-                    }
-                });
-            }
-        };
-        reportEditorApp.init();
+        //Setup archive details editor
+        reportEditorApp.init('{{ archive.pk }}', JSON.parse('{{ archive_type_choices_json|safe }}'));
+        //Setup diagnostic table
+        diagnosticsTableApp.init('#diagnostics-table-template', {{ api_resource|safe }});
+        //Setup rerun test button
+        $("#run-tests").click(function () {
+            diagnosticsTableApp.setUnexecuted();
+            $.ajax({
+                type: "POST",
+                url: "{% url 'api_dispatch_rerun_archive' resource_name='Archive' api_name='v1' pk=archive.pk %}",
+                success: function () {
+                    diagnosticsTableApp.update();
+                }
+            })
+        });
+        //Setup delete button
+        $("#ask_delete").click(function(){
+            $("#delete_prompt").slideDown();
+        });
+        $("#no_delete").click(function(){
+            $("#delete_prompt").slideUp();
+        });
     </script>
 {% endblock content %}

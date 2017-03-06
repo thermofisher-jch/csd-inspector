@@ -235,6 +235,9 @@ class Diagnostic(models.Model):
         ('F', FAILED)
     )
 
+    class Meta:
+        ordering = ['name']
+
     # model attributes
     name = models.CharField(max_length=255, default="")
     status = models.CharField(max_length=255, choices=DIAGNOSTIC_STATUSES, default=UNEXECUTED)

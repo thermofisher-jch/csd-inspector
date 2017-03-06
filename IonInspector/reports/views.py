@@ -4,6 +4,8 @@ from django.template import RequestContext
 from django.shortcuts import render_to_response, HttpResponseRedirect, render
 from reports.forms import ArchiveForm
 from reports.models import Archive, TEST_MANIFEST
+from utils import get_serialized_model
+from api import ArchiveResource
 from datetime import datetime
 from reports.tables import ArchiveTable
 from django_tables2 import RequestConfig
@@ -133,7 +135,8 @@ def report(request, pk):
         ),
         'archive': archive,
         'diagnostics': diagnostics,
-        'pdf_present': pdf_present
+        'pdf_present': pdf_present,
+        'api_resource': get_serialized_model(archive, ArchiveResource)
     })
     return render_to_response("report.html", ctx)
 
