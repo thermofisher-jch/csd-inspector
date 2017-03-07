@@ -1,3 +1,13 @@
+#archive_table {
+	table-layout: fixed;
+}
+#archive_table th {
+	padding-right: 20px;
+}
+#archive_table th input, #archive_table th select{
+	width: 100%;
+}
+
 .show_hide_table_spacing {
 	padding-right: 20px;
 }
