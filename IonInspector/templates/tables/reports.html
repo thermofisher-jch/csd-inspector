@@ -20,14 +20,17 @@
                 </tr>
                 <!-- Custom filters -->
                 <tr class="filter-row">
-                    <th></th>
+                    <th><!-- place holder for id column --></th>
+                    <th>
+                        <input title="Search by Identifier" class="search_text" type="text" name="identifier" value="{{ identifier_search }}">
+                    </th>
                     <th>
                         <input title="Search TASER Number" class="search_number" type="number" name="taser_ticket_number_name" value="{{ taser_ticket_number_search }}">
                     </th>
                     <th>
                         <input title="Search by Submitter Name" class="search_text" type="text" name="submitter_name" value="{{ submitter_name_search }}">
                     </th>
-                    <th></th>
+                    <th><!-- place holder for date column --></th>
                     <th>
                         <select title="Search by Device Type" name="archive_type">
                             <option value="">-----</option>
@@ -42,9 +45,6 @@
                     <th>
                         <input title="Search by Site" class="search_text" type="text" name="site" value="{{ site_search }}">
                     </th>
-                    <th>
-                        <input title="Search by Identifier" class="search_text" type="text" name="identifier" value="{{ identifier_search }}">
-                    </th>
                 </tr>
                 </thead>
             {% endblock table.thead %}
@@ -52,7 +52,6 @@
                 <tbody>
                 {% for row in table.page.object_list|default:table.rows %} {# support pagination #}
                     {% block table.tbody.row %}
-                        <!-- Make the row clickable here -->
                         <tr {{ row.attrs.as_html }} onclick="window.document.location='{% url 'reports.views.report' row.record.id %}';">
                             {% for column, cell in row.items %}
                                 <td {{ column.attrs.td.as_html }}>

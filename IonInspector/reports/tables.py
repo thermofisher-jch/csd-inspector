@@ -11,12 +11,10 @@ class ArchiveTable(tables.Table):
 
     id = tables.Column(verbose_name='ID')
     time = tables.Column(verbose_name='Date')
-    identifier = tables.Column(verbose_name='Label')
+    identifier = tables.LinkColumn('reports.views.report', args=[A('pk')], orderable=True, empty_values=(), verbose_name='Label', accessor='identifier')
     site = tables.Column(verbose_name='Site')
     submitter_name = tables.Column(verbose_name='Submitter')
     archive_type = tables.Column(verbose_name='Type')
-    link = tables.LinkColumn('reports.views.report', args=[A('pk')], orderable=True, empty_values=(), verbose_name='Identifier', accessor='identifier')
-    summary = tables.Column(verbose_name='Summary')
     taser_ticket_number = tables.Column(verbose_name="TASER")
 
     def render_time(self, value):
@@ -31,7 +29,7 @@ class ArchiveTable(tables.Table):
         }
 
         # setup the column sequence
-        sequence = ('id', 'taser_ticket_number', 'submitter_name', 'time', 'archive_type', 'site', 'identifier')
+        sequence = ('id', 'identifier', 'taser_ticket_number', 'submitter_name', 'time', 'archive_type', 'site')
 
         # exclude the summary column data
-        exclude = ('doc_file', 'link', 'summary')
+        exclude = ('doc_file', 'summary', )
