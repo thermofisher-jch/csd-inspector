@@ -174,7 +174,7 @@ class Archive(models.Model):
             tar = tarfile.open(self.doc_file.path, "r")
             tar.extractall(path=os.path.dirname(self.doc_file.path))
             tar.close()
-        elif self.doc_file.path.endswith('.log'):  # One Touch
+        elif self.doc_file.path.endswith('.log') or self.doc_file.path.endswith('.csv'):  # One Touch
             target_path = os.path.join(os.path.dirname(self.doc_file.path), "onetouch.log")
             if not os.path.exists(target_path):
                 shutil.copy(self.doc_file.path, target_path)
