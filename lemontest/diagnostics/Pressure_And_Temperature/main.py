@@ -5,7 +5,8 @@ import os
 import json
 import collections
 from django.template import Context, Template
-from lemontest.diagnostics.common.inspector_utils import print_info, print_alert, handle_exception, read_explog
+from lemontest.diagnostics.common.inspector_utils import print_info, print_alert, print_warning, handle_exception, \
+    read_explog
 
 archive_path, output_path, device_type = sys.argv[1:4]
 try:
@@ -110,12 +111,25 @@ try:
         pressure = explog.get("PGMPressure", "") or explog["ProtonPressure"]
         pressure = float(pressure.split(" ")[1])
         target_pressure = float(explog["pres"])
-        low, high = (7.8, 8.1) if target_pressure == 8.0 else (10.4, 10.6)
-        if pressure < low:
+        if target_pressure == 8.0:
+            low, high = (7.8, 8.1)
+            very_low, very_high = (7.8, 8.1)
+        else:
+            low, high = (10.2, 10.8)
+            very_low, very_high = (10.0, 11.0)
+        # Very high/low
+        if pressure < very_low:
             message_level = 'alert'
-            pressure_message = "Proton pressure {:.2f} is too low.".format(pressure)
+            pressure_message = "Proton pressure {:.2f} is very low.".format(pressure)
+        elif pressure > very_high:
+            message_level = 'alert'
+            pressure_message = "Proton pressure {:.2f} is very high.".format(pressure)
+        # High/low
+        elif pressure < low:
+            message_level = 'warn'
+            pressure_message = "Proton pressure {:.2f} is low.".format(pressure)
         elif pressure > high:
-            message_level = 'alert'
+            message_level = 'warn'
             pressure_message = "Proton pressure {:.2f} is high.".format(pressure)
         else:
             message_level = 'info'
@@ -252,6 +266,8 @@ try:
     # Write out status
     if message_level == 'info':
         print_info("See results for details.")
+    elif message_level == 'warn':
+        print_warning("See results for details.")
     else:
         print_alert("See results for details.")
 except Exception as exc:
