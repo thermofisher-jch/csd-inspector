@@ -30,15 +30,16 @@
     <div class="row-fluid">
         <div class="span6">
             <span class="muted" id="archive-summary"
-                  data-value="{{ archive.summary }}">{{ archive.summary | default:"No Summary" }}</span>
+                  data-value="{{ archive.summary }}">{{ archive.summary }}</span>
         </div>
         <div class="span3">
             {% if archive.taser_ticket_number %}
-                <a id="archive-taser" href="https://jira.amer.thermo.com/browse/FST-{{ archive.taser_ticket_number }}"
-                   target="_blank"
-                   data-value="{{ archive.taser_ticket_number }}">TASER: {{ archive.taser_ticket_number }}</a>
+                <span id="archive-taser" data-value="{{ archive.taser_ticket_number }}">
+                    <a href="https://jira.amer.thermo.com/browse/FST-{{ archive.taser_ticket_number }}"
+                       target="_blank">TASER: {{ archive.taser_ticket_number }}</a>
+                </span>
             {% else %}
-                <span id="archive-taser" class="muted" data-value="">No TASER Ticket</span>
+                <span id="archive-taser" class="muted" data-value=""></span>
             {% endif %}
         </div>
         <div class="span3">

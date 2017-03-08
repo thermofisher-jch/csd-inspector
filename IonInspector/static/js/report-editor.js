@@ -25,24 +25,29 @@ var reportEditorApp = {
         [{
             element: this.elements.archiveIdentifier,
             fontSize: 25,
-            type: "text"
+            type: "text",
+            placeholder: "No Label"
         }, {
             element: this.elements.archiveSite,
             fontSize: 25,
-            type: "text"
+            type: "text",
+            placeholder: "No Site"
         }, {
             element: this.elements.archiveSummary,
             fontSize: 14,
-            type: "text"
+            type: "text",
+            placeholder: "No Summary"
         }, {
             element: this.elements.archiveTaser,
             fontSize: 14,
-            type: "number"
+            type: "number",
+            placeholder: "No TASER #"
         }].map(function (item) {
             var value = item.element.text();
             item.element.html("").append($("<input/>", {
                 type: item.type,
                 value: item.element.data("value"),
+                placeholder: item.placeholder,
                 style: "font-size:" + item.fontSize + "px;" +
                 "height: auto;" +
                 "vertical-align: top;" +
