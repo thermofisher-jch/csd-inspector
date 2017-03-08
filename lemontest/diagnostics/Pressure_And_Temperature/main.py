@@ -182,13 +182,13 @@ try:
 
         if pressure < low:
             message_level = 'alert'
-            pressure_message = "Proton pressure {:.2f} is too low.".format(pressure)
+            pressure_message = "S5 pressure {:.2f} is too low.".format(pressure)
         elif pressure > high:
             message_level = 'alert'
-            pressure_message = "Proton pressure {:.2f} is high.".format(pressure)
+            pressure_message = "S5 pressure {:.2f} is high.".format(pressure)
         else:
             message_level = 'info'
-            pressure_message = "Proton pressure {:.2f} is just right.".format(pressure)
+            pressure_message = "S5 pressure {:.2f} is just right.".format(pressure)
         temperature_message = 'Temperature'
 
         # Flot friendly format
