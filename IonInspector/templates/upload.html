@@ -9,17 +9,19 @@
           window.location.href = "${request.route_url('old_browser')}";
         }
         $(function(){
-          var sourcerer = function (what) {
+          var sourcerer = function (field) {
             return function (query, process) {
               $.getJSON(
-                "/api/auto_complete",
-                {what: what, match: query},
-                process
+                "/api/v1/Archive/values/",
+                {field: field, q: query},
+                  function (response) {
+                      return process(response.values)
+                  }
               );
             };
           };
-          $("#name").typeahead({source: sourcerer("name")});
-          $("#site").typeahead({source: sourcerer("site")});
+          $("#id_name").typeahead({source: sourcerer("submitter_name")});
+          $("#id_site_name").typeahead({source: sourcerer("site")});
 
           function on_upload_progress(event) {
             var progress = Math.round(event.loaded / event.total * 100)+'%';

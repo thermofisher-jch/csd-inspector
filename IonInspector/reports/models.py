@@ -132,13 +132,13 @@ class Archive(models.Model):
     identifier = models.CharField(max_length=255)
 
     # the site from which the archive was found
-    site = models.CharField(max_length=255)
+    site = models.CharField(max_length=255, db_index=True)
 
     # the time that it was submitted
     time = models.DateTimeField()
 
     # the name of the person who submitted it
-    submitter_name = models.CharField(max_length=255)
+    submitter_name = models.CharField(max_length=255, db_index=True)
 
     # the type of archive which this is
     archive_type = models.CharField(max_length=255, choices=ARCHIVE_TYPES)
