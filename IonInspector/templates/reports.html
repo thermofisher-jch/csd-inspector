@@ -35,9 +35,31 @@
             color: #333333;
         }
         #archive_table td {
-            padding: 12px 8px;
+            padding: 0px;
             cursor: pointer;
         }
+        #archive_table {
+            table-layout: fixed;
+        }
+        #archive_table th {
+            padding-right: 20px;
+        }
+        #archive_table th input, #archive_table th select{
+            width: 100%;
+        }
+        #archive_table tr td a {
+            padding: 12px 8px;
+            display: inline-block;
+            width: 100%;
+        }
+        #archive_table tr td a:focus {
+            outline: none;
+        }
+        #archive_table tr td a.no-underline {
+            text-decoration: none;
+            color: #333333;
+        }
+
     </style>
 {% endblock extra_head_js %}
 

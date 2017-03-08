@@ -52,7 +52,7 @@
                 <tbody>
                 {% for row in table.page.object_list|default:table.rows %} {# support pagination #}
                     {% block table.tbody.row %}
-                        <tr {{ row.attrs.as_html }} onclick="window.document.location='{% url 'reports.views.report' row.record.id %}';">
+                        <tr {{ row.attrs.as_html }}>
                             {% for column, cell in row.items %}
                                 <td {{ column.attrs.td.as_html }}>
                                     {% if column.localize == None %}{{ cell }}{% else %}{% if column.localize %}

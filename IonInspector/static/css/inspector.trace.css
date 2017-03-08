@@ -1,49 +1,5 @@
-#archive_table {
-	table-layout: fixed;
-}
-#archive_table th {
-	padding-right: 20px;
-}
-#archive_table th input, #archive_table th select{
-	width: 100%;
-}
-
 .show_hide_table_spacing {
 	padding-right: 20px;
-}
-
-#analysis td {
-	padding: 0;
-}
-
-#analysis td a {
-	padding: 12px 8px;
-	display: block;
-	color: #333333;
-}
-
-#analysis td a:hover {
-	text-decoration: none;
-}
-
-#analysis thead tr th {
-	border-top: 0 none;
-	background-image: linear-gradient(to bottom, white, #EFEFEF);
-}
-
-#analysis thead tr.filter-row th {
-	padding-top: 0;
-	background-image: none;
-	background-color: #EEEEEE;
-}
-
-#analysis thead tr th:last-child {
-	border-right: 0 none;
-}
-
-#analysis th input, #analysis th select {
-	margin: 0;
-	width: auto;
 }
 
 .hide_me {
