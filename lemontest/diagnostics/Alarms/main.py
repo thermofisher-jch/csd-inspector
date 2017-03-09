@@ -1,13 +1,10 @@
 #!/usr/bin/env python
 
 import sys
-import os
 import os.path
-import re
-import xml.etree 
 from datetime import datetime
-from xml.etree import ElementTree
 from django.template import Context, Template
+from lemontest.diagnostics.common.inspector_utils import *
 
 if __name__ == "__main__":
     archive, output = sys.argv[1:3]
@@ -32,19 +29,9 @@ if __name__ == "__main__":
                         xml_path = full
                         rel_xml_path = rel
 
-
     if xml_path:
-        # groom the xml of known error conditions
-        xml = ''
-        with open(xml_path, 'r') as xml_file:
-            xml = xml_file.read()
-
-        xml = re.sub('< *', '<', xml)
-        xml = re.sub('</ *', '</', xml)
-        xml = re.sub('> *', '>', xml)
-
         try:
-            root = ElementTree.fromstring(xml)
+            root = get_xml_from_run_log(archive)
         except Exception as err:
             errors.append("Error reading run log: " + str(err))
         else:

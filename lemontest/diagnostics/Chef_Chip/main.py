@@ -1,11 +1,6 @@
 #!/usr/bin/env python
 
-from xml.etree import ElementTree
-import xml.etree 
 import sys
-import os
-import os.path
-import re
 from lemontest.diagnostics.common.inspector_utils import *
 
 if __name__ == "__main__":
@@ -30,17 +25,8 @@ if __name__ == "__main__":
                         xml_path = full
 
     if xml_path:
-        # groom the xml of known error conditions
-        xml = ''
-        with open(xml_path, 'r') as xml_file:
-            xml = xml_file.read()
-
-        xml = re.sub('< *', '<', xml)
-        xml = re.sub('</ *', '</', xml)
-        xml = re.sub('> *', '>', xml)
-
         try:
-            root = ElementTree.fromstring(xml)
+            root = get_xml_from_run_log(archive)
         except Exception as err:
             handle_exception(err, output)
             exit()

@@ -4,6 +4,7 @@ import re
 import json
 import traceback
 from xml.etree import ElementTree
+from bs4 import BeautifulSoup
 
 MAX_MESSAGE_LENGTH = 140
 
@@ -193,15 +194,12 @@ def get_xml_from_run_log(archive_path):
     if not os.path.exists(xml_path):
         raise Exception("No chef run log xml file.")
 
-    # groom the xml of known error conditions
+    # Use bs4/lxml parser first to repair invalid xml
     with open(xml_path, 'r') as xml_file:
-        xml = xml_file.read()
+        soup = BeautifulSoup(xml_file, "xml")
 
-    xml = re.sub('< *', '<', xml)
-    xml = re.sub('</ *', '</', xml)
-    xml = re.sub('> *', '>', xml)
-
-    return ElementTree.fromstring(xml)
+    # Then parse the repaired xml using xml.etree
+    return ElementTree.fromstring(str(soup))
 
 
 def get_lines_from_chef_gui_logs(archive_path):
