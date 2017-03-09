@@ -202,7 +202,9 @@ try:
                 "manifoldHeaterTemperature": {"data": [], "label": "Manifold Heater Temperature"},
                 "wasteTemperature": {"data": [], "label": "Waste Temperature"},
                 "tecTemperature": {"data": [], "label": "TEC Temperature"},
-                "ambientTemperature": {"data": [], "label": "Ambient Temperature"}
+                "ambientTemperature": {"data": [], "label": "Ambient Temperature"},
+
+                "chipTemperature": {"data": [], "label": "Chip Temperature"}
             }
         }
         reached_target_section = False
@@ -225,9 +227,10 @@ try:
                 data["temperature"]["manifoldTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][1])])
                 data["temperature"]["tecTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][2])])
                 data["temperature"]["ambientTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][3])])
-                data["temperature"]["wasteTemperature"]["data"].append(
-                    [flow_count, float(dat_meta["ManTemp"][0])]
-                )
+                data["temperature"]["wasteTemperature"]["data"].append([flow_count, float(dat_meta["ManTemp"][0])])
+                # Chip temp
+                data["temperature"]["chipTemperature"]["data"].append([flow_count, float(dat_meta["chipTemp"][0])])
+
                 flow_count += 1
         return data, message_level, pressure_message, temperature_message
 
