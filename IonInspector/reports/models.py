@@ -85,7 +85,8 @@ TEST_MANIFEST = {
     # "Flow", Now plotted by Chef_Run_Log
     "Run_Type",
     # "Fans", Now plotted by Chef_Run_Log
-    "Chef_Run_Log"
+    "Chef_Run_Log",
+    "Integrity_Check"
   ]
 }
 
