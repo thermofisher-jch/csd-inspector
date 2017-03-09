@@ -166,14 +166,12 @@ class Archive(models.Model):
         if self.doc_file.path.endswith('.zip'):
             doc_archive = zipfile.ZipFile(self.doc_file.path)
             doc_archive.extractall(path=os.path.dirname(self.doc_file.path))
-        elif self.doc_file.path.endswith('.tar.gz'):
-            tar = tarfile.open(self.doc_file.path, "r:gz")
-            tar.extractall(path=os.path.dirname(self.doc_file.path))
-            tar.close()
-        elif self.doc_file.path.endswith('.tar'):
+        # Watch out. Some chef archives are .tar but are really .tar.gz
+        elif self.doc_file.path.endswith('.tar') or self.doc_file.path.endswith('.tar.gz'):
             tar = tarfile.open(self.doc_file.path, "r")
             tar.extractall(path=os.path.dirname(self.doc_file.path))
             tar.close()
+        # Watch out. Some ot logs are are .log and some are .csv
         elif self.doc_file.path.endswith('.log') or self.doc_file.path.endswith('.csv'):  # One Touch
             target_path = os.path.join(os.path.dirname(self.doc_file.path), "onetouch.log")
             if not os.path.exists(target_path):
