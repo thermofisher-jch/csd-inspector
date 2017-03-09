@@ -60,7 +60,7 @@ try:
             temperature_message = u"PGM temperature {:.2f} C is too cold.".format(temperature)
         elif temperature > 34:
             message_level = 'alert'
-            temperature_message = u"PGM temperature {:.2f} C is not cool.".format(temperature)
+            temperature_message = u"PGM temperature {:.2f} C is too warm.".format(temperature)
         else:
             if message_level != 'alert':
                 message_level = 'info'
