@@ -15,8 +15,8 @@ def dev():
     local("docker-compose up")
 
 
-def test():
-    local("docker-compose run django python manage.py test")
+def test(path=""):
+    local("docker-compose run django python manage.py test %s" % path)
 
 
 def provision():
