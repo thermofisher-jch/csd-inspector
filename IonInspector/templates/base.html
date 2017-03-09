@@ -30,6 +30,10 @@
       [v-cloak] {
           display: none;
       }
+
+      #footer {
+          margin-top: 40px;
+      }
     </style>
     <script src="{% static 'js/jquery-1.8.3.min.js' %}"></script>
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
@@ -66,14 +70,19 @@
         </div>
       </div>
     </div>
-
     <div class="container-fluid">
         {% block content %}
         {% endblock content %}
-        <footer style="clear: both;">
-            <h5 style="float: left">&copy; Ion Torrent 2016</h5>
-            <h5 style="float: right">Version: {{ version }}-Django</h5>
-        </footer>
+        <div class="row-fluid" id="footer">
+            <div class="span4">
+                <span style="float: left">&copy; Ion Torrent 2017</span>
+            </div>
+            <div class="span4 muted" style="text-align: center">For support contact <a href="mailto:diane.mccauley@thermofisher.com">Diane McCauley</a>
+            </div>
+            <div class="span4">
+                <span style="float: right">Version: {{ version }}-Django</span>
+            </div>
+        </div>
     </div> <!-- /container -->
 
     <script type="text/javascript">
