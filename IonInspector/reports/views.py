@@ -148,7 +148,8 @@ def documentation(request):
     :return:
     """
 
-    return render_to_response("documentation.html")
+    ctx = RequestContext(request, {})
+    return render_to_response("documentation.html", ctx)
 
 
 def readme(request, diagnostic_name):
@@ -160,4 +161,5 @@ def readme(request, diagnostic_name):
     """
 
     contents = open(os.path.join(settings.SITE_ROOT, 'lemontest', 'diagnostics', diagnostic_name, 'README')).read()
-    return render_to_response("readme.html", {'readme': contents})
+    ctx = RequestContext(request, {'readme': contents})
+    return render_to_response("readme.html", ctx)
