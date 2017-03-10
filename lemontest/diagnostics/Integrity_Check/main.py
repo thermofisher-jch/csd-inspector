@@ -4,7 +4,9 @@
 import sys
 import magic
 import os
+import traceback
 import xml.etree.ElementTree
+import xml.parsers.expat
 
 from lemontest.diagnostics.common.inspector_utils import *
 
@@ -56,7 +58,13 @@ if device_type == "Ion_Chef":
     try:
         xml.etree.ElementTree.parse(xml_path)
     except Exception as e:
-        print_failed("Invalid run log xml: %s" % str(e))
+        with open(os.path.join(output_path, "results.html"), 'w') as output_file:
+            traceback.print_exc(file=output_file)
+        if getattr(e, "code", None) == 4:
+            print_failed(
+                "Run log contains invalid characters. Possibly a known issue with IC before v5.4.")
+        else:
+            print_failed("Invalid run log xml: %s" % str(e))
         exit()
 
     print_ok("")
