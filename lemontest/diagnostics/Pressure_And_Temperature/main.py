@@ -41,10 +41,12 @@ try:
         if "PGMPressure" not in explog:
             raise Exception("PGMPressure missing from explog_final.txt")
         pressure = float(explog["PGMPressure"].split(" - ")[1])
-        if pressure < 9.5:
+        low, high = (9.5, 11)
+
+        if pressure < low:
             message_level = 'alert'
             pressure_message = "PGM pressure {:.2f} is too low.".format(pressure)
-        elif pressure > 11:
+        elif pressure > high:
             message_level = 'alert'
             pressure_message = "PGM pressure {:.2f} is high.".format(pressure)
         else:
@@ -110,13 +112,9 @@ try:
             raise Exception("PGMPressure missing from explog_final.txt")
         pressure = explog.get("PGMPressure", "") or explog["ProtonPressure"]
         pressure = float(pressure.split(" ")[1])
-        target_pressure = float(explog["pres"])
-        if target_pressure == 8.0:
-            low, high = (7.8, 8.1)
-            very_low, very_high = (7.8, 8.1)
-        else:
-            low, high = (10.2, 10.8)
-            very_low, very_high = (10.0, 11.0)
+        low, high = (10.2, 10.8)
+        very_low, very_high = (10.0, 11.0)
+
         # Very high/low
         if pressure < very_low:
             message_level = 'alert'
@@ -177,8 +175,7 @@ try:
             raise Exception("PGMPressure missing from explog_final.txt")
         pressure = explog.get("PGMPressure", "") or explog["ProtonPressure"]
         pressure = float(pressure.split(" ")[1])
-        target_pressure = float(explog["pres"])
-        low, high = (7.2, 8.8) if target_pressure == 8.0 else (10.4, 10.6)
+        low, high = (7.2, 8.8)
 
         if pressure < low:
             message_level = 'alert'
