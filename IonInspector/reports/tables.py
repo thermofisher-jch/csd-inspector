@@ -48,7 +48,7 @@ class ArchiveTable(tables.Table):
         if value:
             return mark_safe(
                 "<a href='https://jira.amer.thermo.com/browse/FST-%i' target='_blank'>TASER: %i</a>" % (value, value))
-        return mark_safe("<a href='%s' class='no-underline' target='_blank'></a>" % reverse('report', args=[record.id]))
+        return mark_safe("<a href='%s' class='no-underline' target='_blank'>&nbsp;</a>" % reverse('report', args=[record.id]))
 
     class Meta:
         model = Archive
