@@ -4,3 +4,7 @@ This will produce information for the following items
 * Device Name
 * Run Number
 * Run Date
+
+INPUTS:
+explog_final.txt
+version.txt

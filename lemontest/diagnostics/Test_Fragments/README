@@ -2,3 +2,7 @@ This test will report the conversion rate for test fragments.
 
 TF_C conversion rate = 100.0% * TFStats.json["TF_C"]["50Q17"] / TFStats.json["TF_C"]["Num"]
 TF_1 conversion rate = 100.0% * TFStats.json["TF_1"]["50Q17"] / TFStats.json["TF_1"]["Num"]
+
+INPUTS:
+explog_final.txt
+basecaller_results/TFStats.json

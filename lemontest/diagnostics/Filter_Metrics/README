@@ -22,3 +22,7 @@ Primary well categorization:
                 Empty – wells without ISPs (that did not pin or were ignored)
                 Pinned – "pinned wells" are wells where A/D converter went out of range. These wells are not processed.
                 Ignored – corner wells not fluidically addressable
+
+INPUTS:
+explog_final.txt
+sigproc_results/sigproc.log

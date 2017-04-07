@@ -1,3 +1,6 @@
 The user's Torrent Suite version should be >= 3.0.
 
 If the user's Torrent Suite version is below 3.0, you should strongly enourage them to upgrade to the latest available version.
+
+INPUTS:
+*_rawlib.ionstats_error_summary.h5
