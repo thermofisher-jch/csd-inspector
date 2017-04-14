@@ -23,7 +23,6 @@ django:
 
 postgres:
   image: postgres:9.3
-  restart: always
   environment:
     - POSTGRES_USER=docker
     - POSTGRES_PASSWORD=docker
