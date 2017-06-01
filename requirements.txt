@@ -13,3 +13,4 @@ django-tastypie==0.11.1
 psycopg2==2.6.1
 python-dateutil==2.6.0
 python-magic==0.4.12
+pyliblzma==0.5.3

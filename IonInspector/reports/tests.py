@@ -1,10 +1,12 @@
 from django.test import TestCase
+from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils import timezone
 from reports.models import Archive
 from reports.models import PGM_RUN, PROTON, RAPTOR_S5, OT_LOG, ION_CHEF  # Constants
 from reports.models import Diagnostic
 import os
+import shutil
 
 DIAGNOSTIC_FAILURE_STATUSES = [
     Diagnostic.EXECUTING,
@@ -29,6 +31,10 @@ def get_diagnostic_debug_info(diagnostic):
     ])
 
 
+def delete_archive_root(archive):
+    shutil.rmtree(os.path.join(settings.MEDIA_ROOT, 'archive_files', str(archive.pk)))
+
+
 class PGMTestCase(TestCase):
     def setUp(self):
         self.archive_v1_0 = Archive(
@@ -40,6 +46,7 @@ class PGMTestCase(TestCase):
             taser_ticket_number=None
         )
         self.archive_v1_0.save()
+        delete_archive_root(self.archive_v1_0)
         self.archive_v1_0.doc_file = get_test_archive("pgm_1.0.zip")
         self.archive_v1_0.save()
 
@@ -52,6 +59,7 @@ class PGMTestCase(TestCase):
             taser_ticket_number=None
         )
         self.archive_v1_1.save()
+        delete_archive_root(self.archive_v1_1)
         self.archive_v1_1.doc_file = get_test_archive("pgm_1.1.zip")
         self.archive_v1_1.save()
 
@@ -85,6 +93,7 @@ class ProtonTestCase(TestCase):
             taser_ticket_number=None
         )
         self.archive.save()
+        delete_archive_root(self.archive)
         self.archive.doc_file = get_test_archive("proton.zip")
         self.archive.save()
 
@@ -109,6 +118,7 @@ class S5TestCase(TestCase):
             taser_ticket_number=None
         )
         self.archive.save()
+        delete_archive_root(self.archive)
         self.archive.doc_file = get_test_archive("s5.zip")
         self.archive.save()
 
@@ -133,6 +143,7 @@ class OneTouchTestCase(TestCase):
             taser_ticket_number=None
         )
         self.archive.save()
+        delete_archive_root(self.archive)
         self.archive.doc_file = get_test_archive("ot.log")
         self.archive.save()
 
@@ -157,7 +168,33 @@ class ChefTestCase(TestCase):
             taser_ticket_number=None
         )
         self.archive.save()
+        delete_archive_root(self.archive)
         self.archive.doc_file = get_test_archive("chef.tar")
+        self.archive.save()
+
+    def test_diagnostics(self):
+        self.archive.execute_diagnostics(async=False)
+        for diagnostic in self.archive.diagnostics.all():
+            self.assertNotIn(
+                diagnostic.get_status_display(),
+                DIAGNOSTIC_FAILURE_STATUSES,
+                get_diagnostic_debug_info(diagnostic)
+            )
+
+
+class FieldSupportCase(TestCase):
+    def setUp(self):
+        self.archive = Archive(
+            identifier="FieldSupport",
+            site="FieldSupport",
+            time=timezone.now(),
+            submitter_name="FieldSupport",
+            archive_type=RAPTOR_S5,
+            taser_ticket_number=None
+        )
+        self.archive.save()
+        delete_archive_root(self.archive)
+        self.archive.doc_file = get_test_archive("s5.FieldSupport.tar.xz")
         self.archive.save()
 
     def test_diagnostics(self):

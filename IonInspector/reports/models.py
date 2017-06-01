@@ -16,6 +16,8 @@ import shutil
 import stat
 import tarfile
 import zipfile
+import lzma
+import contextlib
 
 # check to see if the settings are configured
 if not settings.configured:
@@ -172,6 +174,12 @@ class Archive(models.Model):
             tar = tarfile.open(self.doc_file.path, "r")
             tar.extractall(path=os.path.dirname(self.doc_file.path))
             tar.close()
+        # Python 2.7 requires the use of lzma for tar.xz
+        elif self.doc_file.path.endswith('.tar.xz'):
+            with contextlib.closing(lzma.LZMAFile(self.doc_file.path)) as xz:
+                tar = tarfile.open(fileobj=xz)
+                tar.extractall(path=os.path.dirname(self.doc_file.path))
+                tar.close()
         # Watch out. Some ot logs are are .log and some are .csv
         elif self.doc_file.path.endswith('.log') or self.doc_file.path.endswith('.csv'):  # One Touch
             target_path = os.path.join(os.path.dirname(self.doc_file.path), "onetouch.log")

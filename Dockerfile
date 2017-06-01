@@ -6,7 +6,7 @@ MAINTAINER Brian Bourke-Martin "brian.bourke-martin@thermofisher.com"
 RUN groupadd -r inspector --gid=8247 && useradd -r -g inspector --uid=8247 inspector
 
 # install all of the software
-RUN apt-get update && apt-get install -y python-pip celeryd python-dev r-base r-cran-rjson python-matplotlib libpq-dev python-lxml python-bs4
+RUN apt-get update && apt-get install -y python-pip celeryd python-dev r-base r-cran-rjson python-matplotlib libpq-dev python-lxml python-bs4 python-lzma
 
 # install R deps
 RUN Rscript -e "source('http://bioconductor.org/biocLite.R')"
