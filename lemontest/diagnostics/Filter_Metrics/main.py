@@ -67,6 +67,11 @@ try:
     explog = read_explog(archive_path)
     check_supported(explog)
 
+    with open(os.path.join(archive_path, 'basecaller_results', 'BaseCaller.json')) as base_caller_handle:
+        base_caller = json.load(base_caller_handle)
+
+    quality_filter = base_caller.get('Filtering', dict()).get('ReadDetails', dict()).get('lib', dict()).get('quality_filter', 0)
+
     # get the information from the signal processing results
     sigproc_path = os.path.join(archive_path, 'sigproc_results', 'sigproc.log')
     if not os.path.exists(sigproc_path):
@@ -146,6 +151,8 @@ try:
         'libarary_primer_dimer': primer_dimer, 'libarary_primer_dimer_perc': float(primer_dimer) / float(library) * 100.0,
         'libarary_low_quality_quality_trim': low_quality_quality_trim, 'libarary_low_quality_quality_trim_perc': float(low_quality_quality_trim) / float(library) * 100.0,
         'libarary_final_library_isps': final_library_isps, 'libarary_final_library_isps_perc': float(final_library_isps) / float(library) * 100.0,
+        'quality_filter': quality_filter,
+        'quality_filter_perc': float(quality_filter) / float(library) * 100.0,
     }))
     with open(os.path.join(output_path, "results.html"), 'w') as out:
         out.write(result.encode("UTF-8"))

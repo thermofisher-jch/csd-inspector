@@ -26,3 +26,4 @@ Primary well categorization:
 INPUTS:
 explog_final.txt
 sigproc_results/sigproc.log
+basecaller_results/BaseCaller.json
