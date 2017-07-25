@@ -15,9 +15,9 @@ def check_supported(explog):
     :param explog:
     """
 
-    chipType = get_chip_type_from_exp_log(exp_log=explog)
-    if chipType in ['521']:
-        raise Exception("The " + chipType + " Chip has been blacklisted and cannot be evaulated.")
+    chip_type = get_chip_type_from_exp_log(exp_log=explog)
+    if chip_type in ['521']:
+        raise Exception("The " + chip_type + " Chip has been blacklisted and cannot be evaulated.")
 
 
 def read_explog(archive_path):
@@ -30,9 +30,13 @@ def read_explog(archive_path):
     if not os.path.exists(path):
         raise Exception("explog_final.txt missing")
 
+    return read_explog_from_handle(open(path))
+
+
+def read_explog_from_handle(explog_handle):
     # parse the log file for all of the values in a colon delimited parameter
     data = dict()
-    for line in open(path):
+    for line in explog_handle:
         # Trying extra hard to accommodate formatting issues in explog
         datum = line.split(":", 1)
         if len(datum) == 2:
@@ -54,6 +58,7 @@ def read_base_caller_json(archive_path):
     with open(path) as base_caller_fh:
         base_caller_json = json.load(base_caller_fh)
     return base_caller_json
+
 
 def handle_exception(exc, output_path):
     """

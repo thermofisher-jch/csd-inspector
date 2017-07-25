@@ -47,17 +47,20 @@ def upload(request):
         # on the file system to save the doc_file or results too.
         archive.save()
 
-        # save the file second since we will need an id
+        # save the file against since we will need an id in order to create the save path
         archive.doc_file = request.FILES['doc_file']
         archive.save()
 
         try:
             # fire off the diagnostics in the background automatically
             archive.execute_diagnostics()
-        except:
+        except Exception as exc:
             # if we get an exception we need to remove the database entry and folder since it was invalid
             archive.delete()
-            raise
+
+            # render a error response
+            ctx = RequestContext(request, {'error_msg': exc.message})
+            return render_to_response("error.html", context_instance=ctx)
 
         # Redirect to the document list after POST
         return HttpResponseRedirect(reverse('reports.views.report', args=[archive.pk]))

@@ -1,4 +1,6 @@
 from django.http import HttpRequest
+from lemontest.diagnostics.common.inspector_utils import read_explog_from_handle
+import zipfile
 
 
 def get_serialized_model(model, resource):
@@ -6,3 +8,13 @@ def get_serialized_model(model, resource):
     resource_instance = resource()
     bundle = resource_instance.build_bundle(obj=model, request=HttpRequest())
     return resource_instance.serialize(None, resource_instance.full_dehydrate(bundle), 'application/json')
+
+
+def check_for_dx_zip(path_to_zip):
+    """ Checks a zip file for indicators that it's a Dx archive. Returns true if this is a Dx archive. """
+    explog_data = dict();
+    with zipfile.ZipFile(path_to_zip) as zip_handle:
+        with zip_handle.open('explog_final.txt') as explog_handle:
+            explog_data = read_explog_from_handle(explog_handle)
+
+    return 'Dx' in explog_data.get('SeqKitName', '')

@@ -7,6 +7,7 @@ from django.db import models
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from django.utils import timezone
+from reports.utils import check_for_dx_zip
 from celery.contrib.methods import task
 from subprocess import *
 from lemontest.diagnostics.common.inspector_utils import *
@@ -167,6 +168,8 @@ class Archive(models.Model):
             raise Exception("The archive file is not present at: " + self.doc_file.path)
 
         if self.doc_file.path.endswith('.zip'):
+            if check_for_dx_zip(self.doc_file.path):
+                raise Exception("This is a Dx package which is not allowed to be submitted in inspector.")
             doc_archive = zipfile.ZipFile(self.doc_file.path)
             doc_archive.extractall(path=os.path.dirname(self.doc_file.path))
         # Watch out. Some chef archives are .tar but are really .tar.gz

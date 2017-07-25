@@ -38,7 +38,7 @@ if device_type == "Ion_Chef":
             exit()
 
         if EXTENSION_MIME_TYPES[file_extension] != file_mime_type:
-            print_failed("Archive extension '%s' does not match file type '%s'" % (file_extension, file_mime_type))
+            print_failed("Archive extension '%s' does not match file type '%s'" % (compressed_archive_path, file_mime_type))
             exit()
 
     else:
