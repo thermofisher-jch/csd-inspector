@@ -4,5 +4,5 @@ TF_C conversion rate = 100.0% * TFStats.json["TF_C"]["50Q17"] / TFStats.json["TF
 TF_1 conversion rate = 100.0% * TFStats.json["TF_1"]["50Q17"] / TFStats.json["TF_1"]["Num"]
 
 INPUTS:
-explog_final.txt
+explog_final.txt or explog.txt
 basecaller_results/TFStats.json

@@ -28,7 +28,9 @@ def read_explog(archive_path):
     """
     path = os.path.join(archive_path, "explog_final.txt")
     if not os.path.exists(path):
-        raise Exception("explog_final.txt missing")
+        path = os.path.join(archive_path, "explog.txt")
+    if not os.path.exists(path):
+        raise Exception("explog_final.txt and explog.txt are missing.")
 
     return read_explog_from_handle(open(path))
 

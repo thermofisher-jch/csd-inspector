@@ -12,9 +12,13 @@ def get_serialized_model(model, resource):
 
 def check_for_dx_zip(path_to_zip):
     """ Checks a zip file for indicators that it's a Dx archive. Returns true if this is a Dx archive. """
-    explog_data = dict();
+    explog_data = dict()
+
     with zipfile.ZipFile(path_to_zip) as zip_handle:
-        with zip_handle.open('explog_final.txt') as explog_handle:
+        # make sure that the explog_final.txt exists and if not then fall back to explog.txt
+        explog_filename = 'explog_final.txt' if 'explog_final.txt' in zip_handle.namelist() else 'explog.txt'
+
+        with zip_handle.open(explog_filename) as explog_handle:
             explog_data = read_explog_from_handle(explog_handle)
 
     return 'Dx' in explog_data.get('SeqKitName', '')

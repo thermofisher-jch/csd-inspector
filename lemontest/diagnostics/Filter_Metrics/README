@@ -24,6 +24,6 @@ Primary well categorization:
                 Ignored – corner wells not fluidically addressable
 
 INPUTS:
-explog_final.txt
+explog_final.txt or explog.txt
 sigproc_results/sigproc.log
 basecaller_results/BaseCaller.json
