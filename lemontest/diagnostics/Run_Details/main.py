@@ -30,17 +30,21 @@ try:
     if not os.path.exists(version_path):
         raise Exception("Missing file: " + version_path)
 
-    run_date = format_run_date(explog.get('Start Time', 'Unknown'))
-    run_name = explog.get('runName', 'Unknown')
-    run_number = ion_params.get('exp_json', dict()).get('log', dict()).get('run_number', 'Unknown')
-    pgm_name = ion_params.get('exp_json', dict()).get('pgmName', dict())
-
     # get the version number
     line = open(version_path).readline()
     version = line.split('=')[-1].strip()
     version = version.split()[0]
 
-    details = "TS <strong>%s</strong> | Device Name <strong>%s</strong> | Run Number <strong>%s</strong> | Run Date <strong>%s</strong>" % (version, pgm_name, run_number, run_date)
+    write_results_from_template({
+        'tss_version': version,
+        'device_name': ion_params.get('exp_json', dict()).get('pgmName', dict()),
+        'run_number': ion_params.get('exp_json', dict()).get('log', dict()).get('run_number', 'Unknown'),
+        'run_date': format_run_date(explog.get('Start Time', 'Unknown')),
+        'chef_name': ion_params.get('exp_json', dict()).get('chefInstrumentName', ''),
+        'sample_pos': ion_params.get('exp_json', dict()).get('chefSamplePos', ''),
+    }, output_path)
+
+    details = "See results"
     print_info(details)
 except Exception as exc:
     handle_exception(exc, output_path)

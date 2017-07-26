@@ -3,6 +3,7 @@ import os
 import re
 import json
 import traceback
+from django.template import Context, Template
 from xml.etree import ElementTree
 from bs4 import BeautifulSoup
 
@@ -243,3 +244,10 @@ def get_chip_type_from_exp_log(exp_log):
         chip = exp_log['ChipVersion'].split(".")[0]
 
     return chip if len(chip) < 3 else chip[:3]
+
+
+def write_results_from_template(data_dict, output_dir):
+    template = Template(open("results.html").read())
+    result = template.render(Context(data_dict))
+    with open(os.path.join(output_dir, "results.html"), 'w') as out:
+        out.write(result.encode("UTF-8"))
