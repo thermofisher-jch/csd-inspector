@@ -16,9 +16,11 @@ gain_ranges = {
     "316": PGM_GAIN_RANGE,
     "318": PGM_GAIN_RANGE,
     "P1": PROTON_S5_GAIN_RANGE,
+    "510": PROTON_S5_GAIN_RANGE,
     "520": PROTON_S5_GAIN_RANGE,
     "530": PROTON_S5_GAIN_RANGE,
-    "540": PROTON_S5_GAIN_RANGE
+    "540": PROTON_S5_GAIN_RANGE,
+    "P2": (1.1, 1.4),
 }
 
 noise_thresholds = {
@@ -26,9 +28,11 @@ noise_thresholds = {
     "316": 8.0,
     "318": 10.0,
     "P1": 170,
+    "510": 140,
     "520": 140,
     "530": 140,
     "540": 170,
+    "P2": 280,
 }
 
 electrode_ranges = {
