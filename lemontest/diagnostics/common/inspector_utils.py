@@ -243,7 +243,8 @@ def get_chip_type_from_exp_log(exp_log):
 
         chip = exp_log['ChipVersion'].split(".")[0]
 
-    return chip if len(chip) < 3 else chip[:3]
+    chip_type = chip if len(chip) < 3 else chip[:3]
+    return 'PQ' if chip_type == 'P2' else chip_type
 
 
 def write_results_from_template(data_dict, output_dir):
