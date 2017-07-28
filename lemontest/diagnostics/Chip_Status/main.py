@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import ConfigParser
 import sys
 from lemontest.diagnostics.common.inspector_utils import *
 
@@ -42,6 +43,14 @@ electrode_ranges = {
     "P1": (170.0, 170.0),
 }
 
+
+def load_ini(file_path, namespace="global"):
+    parse = ConfigParser.ConfigParser()
+    parse.optionxform = str # preserve the case
+    parse.read(file_path)
+    return dict(parse.items(namespace))
+
+
 try:
     # get the path to the log file
     archive_path, output_path, archive_type = sys.argv[1:4]
@@ -82,10 +91,9 @@ try:
     else:
         gain_report = "Chip gain {} is within range.".format(gain)
 
-    reports = [noise_report, gain_report]
-
     # detect reference electrode record indicating pgm and look for issues
     electode_alert = False
+    electrode_report = ''
     if "Ref Electrode" in data and chip_type in electrode_ranges:
         low, high = electrode_ranges[chip_type]
         gain = round(float(data["Ref Electrode"].split(' ')[0]), 2)
@@ -100,15 +108,37 @@ try:
 
         if electode_alert:
             electrode_report = "<b>" + electrode_report + "</b>"
-        reports.append(electrode_report)
 
-    # report here
+    # get the isp loading
+    if chip_type != '314':
+        stats_path = None
+        for file_name in ['sigproc_results/analysis.bfmask.stats', 'sigproc_results/bfmask.stats']:
+            path = os.path.join(archive_path, file_name)
+            if os.path.exists(path):
+                stats_path = path
+                break
+
+        if stats_path:
+            data = load_ini(stats_path)
+            bead_loading = float(data["Bead Wells"]) / (float(data["Total Wells"]) - float(data["Excluded Wells"]))
+            isp_report = "{:.1%} of wells found ISPs".format(bead_loading)
+        else:
+            isp_report = "Required stats files not included"
+
+    # details genereration here
     if report_level == REPORT_LEVEL_ALERT:
-        print_alert(" | ".join(reports))
+        print_alert("See Results")
     elif report_level == REPORT_LEVEL_WARN:
-        print_warning(" | ".join(reports))
+        print_warning("See Results")
     else:
-        print_info(" | ".join(reports))
+        print_info("See Results")
+
+    write_results_from_template({
+        'noise_report': noise_report,
+        'gain_report': gain_report,
+        'electrode_report': electrode_report,
+        'isp_report': isp_report
+    }, output_path)
 
 except Exception as exc:
     print_na(str(exc))

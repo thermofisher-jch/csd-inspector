@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="/static/css/bootstrap.css"/>
+    </head>
+    <body>
+        <div class="container-fluid">
+            <div class="row" style="text-align: center;">
+                Noise: {{ noise_report }}<br />
+                Gain: {{ gain_report }}<br />
+                {% if electrode_report %}
+                Electrode: {{ electrode_report }}<br />
+                {% endif %}
+                ISP Loading: {{ isp_report }}
+            </div>
+        </div>
+    </body>
+</html>

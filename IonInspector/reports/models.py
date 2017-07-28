@@ -37,7 +37,6 @@ TEST_MANIFEST = {
     "Filter_Metrics",
     "Raw_Trace",
     "Run_Details",
-    "ISP_Loading",
     "Chip_Temperature",
     "Chip_Status",
     "Auto_pH",
@@ -50,7 +49,6 @@ TEST_MANIFEST = {
     "Filter_Metrics",
     "Raw_Trace",
     "Run_Details",
-    "ISP_Loading",
     "Chip_Status",
     "Auto_pH",
     "Flow_Error",
@@ -62,7 +60,6 @@ TEST_MANIFEST = {
   RAPTOR_S5: [
     "Filter_Metrics",
     "Raw_Trace",
-    "ISP_Loading",
     "Chip_Status",
     "Run_Details",
     "Flow_Error",
