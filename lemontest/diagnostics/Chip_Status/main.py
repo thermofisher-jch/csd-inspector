@@ -78,7 +78,6 @@ try:
     noise_alert = noise > noise_thresholds[chip_type]
     noise_report = "Chip noise " + str(noise) + (" is too high." if noise_alert else " is low enough.")
     if noise_alert:
-        noise_report = "<b>" + noise_report + "</b>"
         report_level = max(report_level, REPORT_LEVEL_ALERT)
 
     # detect issues with the gain
@@ -105,9 +104,6 @@ try:
             electode_alert = True
         else:
             electrode_report = "Reference Electrode {} is within range.".format(gain)
-
-        if electode_alert:
-            electrode_report = "<b>" + electrode_report + "</b>"
 
     # get the isp loading
     if chip_type != '314':
