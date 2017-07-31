@@ -25,46 +25,52 @@ def get_lot_from_lines(log_lines, lot_types):
                     return "<b>" + key_value[1].strip() + "</b>"
     return '<b>Unknown</b>'
 
-archive, output, archive_type = sys.argv[1:4]
-try:
-    data = read_explog(archive)
-    check_supported(data)
 
-    # read all the lines into an array
-    with open(os.path.join(archive, "InitLog.txt")) as f:
-        lines = f.readlines()
+def execute(archive_path, output_path, archive_type):
+    """Executes the test"""
+    try:
+        data = read_explog(archive_path)
+        check_supported(data)
 
-    # read in carry forward
-    base_caller = read_base_caller_json(archive)
-    cf = float(base_caller["Phasing"]["CF"]) * 100
+        # read all the lines into an array
+        with open(os.path.join(archive_path, "InitLog.txt")) as f:
+            lines = f.readlines()
 
-    # construct the html response message
-    cleaningLot = "Cleaning Lot " + get_lot_from_lines(lines, ['Ion S5 Cleaning Solution'])
-    sequencingLot = "Sequencing Lot " + get_lot_from_lines(lines, ['Ion S5 Sequencing Reagent', 'Ion S5 ExT Sequencing Reagent'])
-    washLot = "Wash Lot " + get_lot_from_lines(lines, ['Ion S5 Wash Solution', 'Ion S5 ExT Wash Solution'])
+        # read in carry forward
+        base_caller = read_base_caller_json(archive_path)
+        cf = float(base_caller["Phasing"]["CF"]) * 100
 
-    print_info(" | ".join([cleaningLot, sequencingLot, washLot]))
+        # construct the html response message
+        cleaningLot = "Cleaning Lot " + get_lot_from_lines(lines, ['Ion S5 Cleaning Solution'])
+        sequencingLot = "Sequencing Lot " + get_lot_from_lines(lines, ['Ion S5 Sequencing Reagent', 'Ion S5 ExT Sequencing Reagent'])
+        washLot = "Wash Lot " + get_lot_from_lines(lines, ['Ion S5 Wash Solution', 'Ion S5 ExT Wash Solution'])
 
-    # write out results.html
-    with open(os.path.join(output, "results.html"), "w") as html_handle:
-        # html header
-        html_handle.write("<html><head></head><body>")
+        print_info(" | ".join([cleaningLot, sequencingLot, washLot]))
 
-        # write out reagent image
-        if os.path.exists(os.path.join(archive, 'InitRawTrace0.png')):
-            html_handle.write("<h2 align='center'>Reagent Check</h2>")
+        # write out results.html
+        with open(os.path.join(output_path, "results.html"), "w") as html_handle:
+            # html header
+            html_handle.write("<html><head></head><body>")
+
+            # write out reagent image
+            if os.path.exists(os.path.join(archive_path, 'InitRawTrace0.png')):
+                html_handle.write("<h2 align='center'>Reagent Check</h2>")
+                html_handle.write("<p style='text-align:center;'>")
+                html_handle.write("<img src='../../InitRawTrace0.png' />")
+                html_handle.write("</p>")
+
+            # write out carry forward for checking reagent leaks
+            html_handle.write("<h2 align='center'>Phasing - Carry Forward</h2>")
             html_handle.write("<p style='text-align:center;'>")
-            html_handle.write("<img src='../../InitRawTrace0.png' />")
+            html_handle.write("CF = {0:.2f}%".format(cf))
             html_handle.write("</p>")
 
-        # write out carry forward for checking reagent leaks
-        html_handle.write("<h2 align='center'>Phasing - Carry Forward</h2>")
-        html_handle.write("<p style='text-align:center;'>")
-        html_handle.write("CF = {0:.2f}%".format(cf))
-        html_handle.write("</p>")
+            # html footer
+            html_handle.write("</body></html>")
 
-        # html footer
-        html_handle.write("</body></html>")
+    except Exception as exc:
+        handle_exception(exc, output_path)
 
-except Exception as exc:
-    handle_exception(exc, output)
+if __name__ == "__main__":
+    archive_path, output_path, archive_type = sys.argv[1:4]
+    execute(archive_path, output_path, archive_type)

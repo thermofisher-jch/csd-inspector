@@ -294,8 +294,6 @@ class Diagnostic(models.Model):
             # find the executable to use
             script_folder = os.path.join(DIAGNOSTICS_SCRIPT_DIR, self.name)
             script = os.path.join(script_folder, 'main.py')
-            if not os.path.exists(script):
-                script = os.path.join(script_folder, 'main.sh')
 
             # execute the script
             env = os.environ.copy()

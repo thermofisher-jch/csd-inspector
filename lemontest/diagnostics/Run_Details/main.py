@@ -17,35 +17,41 @@ def format_run_date(raw_string):
         return "Unknown"
     return run_date.strftime("%d %b %Y")
 
-archive_path, output_path, archive_type = sys.argv[1:4]
-try:
-    # check that this is a valid hardware set for evaluation
-    explog = read_explog(archive_path)
-    check_supported(explog)
 
-    with open(os.path.join(archive_path, 'ion_params_00.json')) as ion_params_handle:
-        ion_params = json.load(ion_params_handle)
+def execute(archive_path, output_path, archive_type):
+    """Executes the test"""
 
-    version_path = os.path.join(archive_path, "version.txt")
-    if not os.path.exists(version_path):
-        raise Exception("Missing file: " + version_path)
+    try:
+        # check that this is a valid hardware set for evaluation
+        explog = read_explog(archive_path)
+        check_supported(explog)
 
-    # get the version number
-    line = open(version_path).readline()
-    version = line.split('=')[-1].strip()
-    version = version.split()[0]
+        with open(os.path.join(archive_path, 'ion_params_00.json')) as ion_params_handle:
+            ion_params = json.load(ion_params_handle)
 
-    write_results_from_template({
-        'tss_version': version,
-        'device_name': ion_params.get('exp_json', dict()).get('pgmName', dict()),
-        'run_number': ion_params.get('exp_json', dict()).get('log', dict()).get('run_number', 'Unknown'),
-        'run_date': format_run_date(explog.get('Start Time', 'Unknown')),
-        'chef_name': ion_params.get('exp_json', dict()).get('chefInstrumentName', ''),
-        'sample_pos': ion_params.get('exp_json', dict()).get('chefSamplePos', ''),
-    }, output_path)
+        version_path = os.path.join(archive_path, "version.txt")
+        if not os.path.exists(version_path):
+            raise Exception("Missing file: " + version_path)
 
-    details = "See results"
-    print_info(details)
-except Exception as exc:
-    handle_exception(exc, output_path)
+        # get the version number
+        line = open(version_path).readline()
+        version = line.split('=')[-1].strip()
+        version = version.split()[0]
 
+        write_results_from_template({
+            'tss_version': version,
+            'device_name': ion_params.get('exp_json', dict()).get('pgmName', dict()),
+            'run_number': ion_params.get('exp_json', dict()).get('log', dict()).get('run_number', 'Unknown'),
+            'run_date': format_run_date(explog.get('Start Time', 'Unknown')),
+            'chef_name': ion_params.get('exp_json', dict()).get('chefInstrumentName', ''),
+            'sample_pos': ion_params.get('exp_json', dict()).get('chefSamplePos', ''),
+        }, output_path)
+
+        details = "See results"
+        print_info(details)
+    except Exception as exc:
+        handle_exception(exc, output_path)
+
+if __name__ == "__main__":
+    archive_path, output_path, archive_type = sys.argv[1:4]
+    execute(archive_path, output_path, archive_type)

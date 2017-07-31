@@ -7,8 +7,9 @@ from django.template import Context, Template
 
 from lemontest.diagnostics.common.inspector_utils import *
 
-if __name__ == "__main__":
-    archive, output = sys.argv[1:3]
+
+def execute(archive_path, output_path, archive_type):
+    """Executes the test"""
     file_count = 0
     files = []
     headers = []
@@ -18,12 +19,11 @@ if __name__ == "__main__":
     rel_xml_path = ''
     errors = []
 
-    
-    for path, dirs, names in os.walk(archive):
+    for path, dirs, names in os.walk(archive_path):
         if "test_results" not in path:
             for name in names:
                 if "logs.tar" not in name:
-                    rel_dir = os.path.relpath(path, archive)
+                    rel_dir = os.path.relpath(path, archive_path)
                     rel = os.path.join(rel_dir, name)
                     full = os.path.join(path, name)
                     files.append(rel)
@@ -34,7 +34,7 @@ if __name__ == "__main__":
 
     if xml_path:
         try:
-            root = get_xml_from_run_log(archive)
+            root = get_xml_from_run_log(archive_path)
         except Exception as err:
             errors.append("Error reading run log: " + str(err))
         else:
@@ -64,7 +64,7 @@ if __name__ == "__main__":
     })
     template = Template(open("logs.html").read())
     result = template.render(context)
-    with open(os.path.join(output, "results.html"), 'w') as out:
+    with open(os.path.join(output_path, "results.html"), 'w') as out:
         out.write(result.encode("UTF-8"))
     summary = ""
     if not rel_xml_path:
@@ -80,3 +80,7 @@ if __name__ == "__main__":
         print("OK")
         print("10")
     print(summary)
+
+if __name__ == "__main__":
+    archive_path, output_path, archive_type = sys.argv[1:4]
+    execute(archive_path, output_path, archive_type)

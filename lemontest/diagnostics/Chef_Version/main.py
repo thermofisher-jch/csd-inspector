@@ -7,6 +7,7 @@ import sys
 from django.template import Context, Template
 from lemontest.diagnostics.common.inspector_utils import *
 
+
 def find_summary(matches):
     """
     Helper method for finding the chef package version
@@ -24,33 +25,38 @@ def find_summary(matches):
     return "Could not find any gui log to look up the chef version."
 
 
-try:
-    archive, output = sys.argv[1:3]
-    context = {
-        "serial": "None",
-        "versions": [],
-    }
+def execute(archive_path, output_path, archive_type):
+    """Executes the test"""
+    try:
+        context = {
+            "serial": "None",
+            "versions": [],
+        }
 
-    matches = list()
-    for root, dirnames, filenames in os.walk(os.path.join(archive, 'var', 'log', 'IonChef', 'ICS')):
-        for filename in fnmatch.filter(filenames, 'gui-*.log'):
-            matches.append(os.path.join(root, filename))
+        matches = list()
+        for root, dirnames, filenames in os.walk(os.path.join(archive_path, 'var', 'log', 'IonChef', 'ICS')):
+            for filename in fnmatch.filter(filenames, 'gui-*.log'):
+                matches.append(os.path.join(root, filename))
 
-    root = get_xml_from_run_log(archive)
-    name_tag = root.find("Versions/is")
-    is_name = name_tag.text
-    name_tag = root.find("Versions/scripts")
-    scripts_name = name_tag.text
-    context['versions'] = [(t.tag, t.text) for t in root.findall("Versions/*")]
-    context['serial'] = root.find("Instrument/serial").text
+        root = get_xml_from_run_log(archive_path)
+        name_tag = root.find("Versions/is")
+        is_name = name_tag.text
+        name_tag = root.find("Versions/scripts")
+        scripts_name = name_tag.text
+        context['versions'] = [(t.tag, t.text) for t in root.findall("Versions/*")]
+        context['serial'] = root.find("Instrument/serial").text
 
-    summary = find_summary(matches)
+        summary = find_summary(matches)
 
-    print_info(summary)
-    template = Template(open("results.html").read())
-    result = template.render(Context(context))
-    with open(os.path.join(output, "results.html"), 'w') as out:
-        out.write(result.encode("UTF-8"))
+        print_info(summary)
+        template = Template(open("results.html").read())
+        result = template.render(Context(context))
+        with open(os.path.join(output_path, "results.html"), 'w') as out:
+            out.write(result.encode("UTF-8"))
 
-except Exception as exc:
-    print_na(str(exc))
+    except Exception as exc:
+        print_na(str(exc))
+
+if __name__ == "__main__":
+    archive_path, output_path, archive_type = sys.argv[1:4]
+    execute(archive_path, output_path, archive_type)
