@@ -3,29 +3,34 @@
 import sys
 from lemontest.diagnostics.common.inspector_utils import *
 
-archive_path, output_path = sys.argv[1:3]
 
-try:
-    # get the path to the log file
-    data = read_explog(archive_path)
-    chip_type = get_chip_type_from_exp_log(data)
+def execute(archive_path, output_path, archive_type):
+    """Executes the test"""
 
-    # parse efuse line
-    efuse_dict = {}
-    for pair in data.get('Chip Efuse', '').split(','):
-        if ":" in pair:
-            key, value = pair.split(":")
-            efuse_dict[key.strip()] = value.strip()
+    try:
+        # get the path to the log file
+        data = read_explog(archive_path)
+        chip_type = get_chip_type_from_exp_log(data)
 
-    if "L" in efuse_dict:
-        chip_type += " | Lot " + efuse_dict["L"]
+        # parse efuse line
+        efuse_dict = {}
+        for pair in data.get('Chip Efuse', '').split(','):
+            if ":" in pair:
+                key, value = pair.split(":")
+                efuse_dict[key.strip()] = value.strip()
 
-    if "W" in efuse_dict:
-        chip_type += " | W " + efuse_dict["W"]
+        if "L" in efuse_dict:
+            chip_type += " | Lot " + efuse_dict["L"]
 
-    print_info(chip_type)
+        if "W" in efuse_dict:
+            chip_type += " | W " + efuse_dict["W"]
 
-except Exception as exc:
-    handle_exception(exc, output_path)
+        print_info(chip_type)
+
+    except Exception as exc:
+        handle_exception(exc, output_path)
 
 
+if __name__ == "__main__":
+    archive_path, output_path, archive_type = sys.argv[1:4]
+    execute(archive_path, output_path, archive_type)
