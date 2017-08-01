@@ -132,6 +132,7 @@ def report(request, pk):
     except ValueError:
         pass
 
+    relative_coverage_analysis_path = 'archive_files/' + str(pk) + '/coverageAnalysis/coverageAnalysis.html'
     ctx = RequestContext(request, {
         'archive_type_choices_json': json.dumps(
             [{"name": k, "value": v} for v, k in archive._meta.get_field('archive_type').choices]
@@ -139,7 +140,8 @@ def report(request, pk):
         'archive': archive,
         'diagnostics': diagnostics,
         'pdf_present': pdf_present,
-        'api_resource': get_serialized_model(archive, ArchiveResource)
+        'api_resource': get_serialized_model(archive, ArchiveResource),
+        'coverage_analysis_path': settings.MEDIA_URL + relative_coverage_analysis_path if os.path.exists(os.path.join(settings.MEDIA_ROOT, relative_coverage_analysis_path)) else ''
     })
     return render_to_response("report.html", ctx)
 

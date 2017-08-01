@@ -50,12 +50,13 @@
         <div class="span12">
             <div class="form-actions">
                 <div class="pull-left">
-                    <a class="btn btn-success" href="/media/{{ archive.doc_file }}"><i
-                            class="icon-arrow-down icon-white"></i> Download Archive</a>
-                    <a class="btn" href="/media/archive_files/{{ archive.pk }}/"><i class="icon-folder-open"></i> View
-                        Files</a>
+                    <a class="btn btn-success" href="/media/{{ archive.doc_file }}"><i class="icon-arrow-down icon-white"></i> Download Archive</a>
+                    <a class="btn" href="/media/archive_files/{{ archive.pk }}/"><i class="icon-folder-open"></i> View Files</a>
                     <a class="btn" id="archive-edit"><i class="icon-edit"></i> Edit</a>
                     <button id="run-tests" class="btn"><i class="icon-repeat"></i> Re-run Tests</button>
+                    {% if coverage_analysis_path %}
+                        <a class="btn" href="{{ coverage_analysis_path }}"> View Coverage Analysis</a>
+                    {% endif %}
                 </div>
                 <div class="pull-right">
                     <button id="ask_delete" class="btn btn-danger"><i class="icon-trash icon-white"></i> Delete</button>
@@ -73,8 +74,7 @@
         <div class="row-fluid" style="margin-top: 20px;">
             <div id="run_report" class="span12">
                 <div id="pdf">
-                    <object type="application/pdf" data="/media/archive_files/{{ archive.id }}/report.pdf"
-                            height="600px" width="100%">
+                    <object type="application/pdf" data="/media/archive_files/{{ archive.id }}/report.pdf" height="600px" width="100%">
                         <p>Your browser does not support PDF display</p>
                     </object>
                 </div>
