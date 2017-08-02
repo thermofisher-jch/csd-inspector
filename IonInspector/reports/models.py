@@ -160,31 +160,43 @@ class Archive(models.Model):
     def execute_diagnostics(self, async=True):
         """this method will execute all of the diagnostics"""
 
+        def get_immediate_subdirectories(a_dir):
+            return
+
         # if the file is not there then there is nothing we can do
         if not os.path.exists(self.doc_file.path):
             raise Exception("The archive file is not present at: " + self.doc_file.path)
 
+        archive_dir = os.path.dirname(self.doc_file.path)
         if self.doc_file.path.endswith('.zip'):
             if check_for_dx_zip(self.doc_file.path):
                 raise Exception("This is a Dx package which is not allowed to be submitted in inspector.")
             doc_archive = zipfile.ZipFile(self.doc_file.path)
-            doc_archive.extractall(path=os.path.dirname(self.doc_file.path))
+            doc_archive.extractall(path=archive_dir)
         # Watch out. Some chef archives are .tar but are really .tar.gz
         elif self.doc_file.path.endswith('.tar') or self.doc_file.path.endswith('.tar.gz'):
             tar = tarfile.open(self.doc_file.path, "r")
-            tar.extractall(path=os.path.dirname(self.doc_file.path))
+            tar.extractall(path=archive_dir)
             tar.close()
         # Python 2.7 requires the use of lzma for tar.xz
         elif self.doc_file.path.endswith('.tar.xz'):
             with contextlib.closing(lzma.LZMAFile(self.doc_file.path)) as xz:
                 tar = tarfile.open(fileobj=xz)
-                tar.extractall(path=os.path.dirname(self.doc_file.path))
+                tar.extractall(path=archive_dir)
                 tar.close()
         # Watch out. Some ot logs are are .log and some are .csv
         elif self.doc_file.path.endswith('.log') or self.doc_file.path.endswith('.csv'):  # One Touch
-            target_path = os.path.join(os.path.dirname(self.doc_file.path), "onetouch.log")
+            target_path = os.path.join(archive_dir, "onetouch.log")
             if not os.path.exists(target_path):
                 shutil.copy(self.doc_file.path, target_path)
+
+        # handle coverage analysis specific workarounds here
+        coverage_analysis_path = os.path.join(archive_dir, 'coverageAnalysis')
+        if os.path.exists(coverage_analysis_path):
+            # we are assuming any subdirectories here will be barcoded subdirectories since the pattern when creating the CSA only specifies content which is indicative of a barcode
+            for subdir in [name for name in os.listdir(coverage_analysis_path) if os.path.isdir(os.path.join(coverage_analysis_path, name))]:
+                os.symlink(os.path.join(settings.STATICFILES_DIRS[0], 'coverageAnalysis', 'flot'), os.path.join(coverage_analysis_path, subdir, 'flot'))
+                os.symlink(os.path.join(settings.STATICFILES_DIRS[0], 'coverageAnalysis', 'lifechart'), os.path.join(coverage_analysis_path, subdir, 'lifechart'))
 
         # delete all other diagnostics first
         tests = Diagnostic.objects.filter(archive=self)
