@@ -125,10 +125,15 @@ def report(request, pk):
 
     archive = Archive.objects.get(pk=pk)
     diagnostics = archive.diagnostics.order_by("name")
-    pdf_present = False
+
+    thumbnail_pdf_present = False
+    full_pdf_present = False
     try:
-        pdf_path = os.path.join(archive.archive_root, "report.pdf")
-        pdf_present = os.path.exists(pdf_path)
+        thumbnail_pdf_present = os.path.exists(os.path.join(archive.archive_root, "report.pdf"))
+    except ValueError:
+        pass
+    try:
+        full_pdf_present = os.path.exists(os.path.join(archive.archive_root, "full_report.pdf"))
     except ValueError:
         pass
 
@@ -138,7 +143,8 @@ def report(request, pk):
         ),
         'archive': archive,
         'diagnostics': diagnostics,
-        'pdf_present': pdf_present,
+        'thumbnail_pdf_present': thumbnail_pdf_present,
+        'full_pdf_present': full_pdf_present,
         'api_resource': get_serialized_model(archive, ArchiveResource)
     })
     return render_to_response("report.html", ctx)
