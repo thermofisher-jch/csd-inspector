@@ -62,8 +62,14 @@ def upload(request):
             ctx = RequestContext(request, {'error_msg': exc.message})
             return render_to_response("error.html", context_instance=ctx)
 
-        # Redirect to the document list after POST
-        return HttpResponseRedirect(reverse('reports.views.report', args=[archive.pk]))
+        # Redirect to the document list after POST if "Upload Archive" was selected
+        if form.data['upload_another'] != "yes":
+            return HttpResponseRedirect(reverse('reports.views.report', args=[archive.pk]))
+        else:
+            new_form = ArchiveForm(data=request.POST, files=request.FILES)
+            new_form.data["upload_another"] = "no"
+            ctx = RequestContext(request, {'form': new_form})
+            return render_to_response("upload.html", context_instance=ctx)
     else:
         form = ArchiveForm()
 
