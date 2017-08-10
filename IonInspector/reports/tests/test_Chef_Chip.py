@@ -2,7 +2,7 @@ from xml.etree import ElementTree
 
 from django.test import SimpleTestCase
 
-from lemontest.diagnostics.Chef_Chip.main import get_chip_names_from_element_tree
+from lemontest.diagnostics.Chef_Chip.main import get_chip_names_from_element_tree, get_kit_from_element_tree
 
 
 class ChefChipTestCase(SimpleTestCase):
@@ -33,6 +33,21 @@ class ChefChipTestCase(SimpleTestCase):
         "</RunLog>"
     ]))
 
+    test_element_tree_kit_hiq = ElementTree.fromstring("".join([
+        "<RunLog> ",
+        "	<RunInfo>",
+        "       <kit>pgm_ic_v2</kit>",
+        "	</RunInfo>",
+        "</RunLog>"
+    ]))
+
+    test_element_tree_kit_none = ElementTree.fromstring("".join([
+        "<RunLog> ",
+        "	<RunInfo>",
+        "	</RunInfo>",
+        "</RunLog>"
+    ]))
+
     def test_get_chip_names_from_element_tree_2_chips(self):
         chip_a, chip_b = get_chip_names_from_element_tree(self.test_element_tree_2_chips)
         self.assertEqual(chip_a, "P1v3")
@@ -47,3 +62,12 @@ class ChefChipTestCase(SimpleTestCase):
         chip_a, chip_b = get_chip_names_from_element_tree(self.test_element_tree_no_chips)
         self.assertEqual(chip_a, None)
         self.assertEqual(chip_b, None)
+
+    def test_get_kit_from_element_tree_hiq(self):
+        kit = get_kit_from_element_tree(self.test_element_tree_kit_hiq)
+        self.assertEqual(kit, "Ion PGM Hi-Q Chef Kit")
+
+    def test_get_kit_from_element_tree_no_kit(self):
+        kit = get_kit_from_element_tree(self.test_element_tree_kit_none)
+        self.assertEqual(kit, None)
+

@@ -78,7 +78,6 @@ TEST_MANIFEST = {
   ION_CHEF: [
     "Alarms",
     "Notifications",
-    "Chef_Kit",
     "Chef_Chip",
     "Chef_Timer",
     "Chef_Version",
