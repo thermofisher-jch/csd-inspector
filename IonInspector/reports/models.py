@@ -83,7 +83,7 @@ TEST_MANIFEST = {
     "Chef_Timer",
     "Chef_Version",
     # "Flow", Now plotted by Chef_Run_Log
-    "Run_Type",
+    "Chef_Run_Details",
     # "Fans", Now plotted by Chef_Run_Log
     "Chef_Run_Log",
     "Integrity_Check"

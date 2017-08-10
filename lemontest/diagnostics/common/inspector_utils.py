@@ -184,13 +184,7 @@ def get_csv_from_run_log(archive_path):
     return run_log
 
 
-def get_xml_from_run_log(archive_path):
-    """
-    Reads the xml data from run logs
-    :param archive_path: The path to the archive
-    :return: The root xml element
-    """
-
+def get_chef_run_log_xml_path(archive_path):
     # get path to all of the logs and xml data
     xml_path = ""
     run_log_directory = os.path.join(archive_path, 'var', 'log', 'IonChef', 'RunLog')
@@ -201,6 +195,19 @@ def get_xml_from_run_log(archive_path):
 
     if not os.path.exists(xml_path):
         raise Exception("No chef run log xml file.")
+
+    return xml_path
+
+
+def get_xml_from_run_log(archive_path):
+    """
+    Reads the xml data from run logs
+    :param archive_path: The path to the archive
+    :return: The root xml element
+    """
+
+    # get path to all of the logs and xml data
+    xml_path = get_chef_run_log_xml_path(archive_path)
 
     # Use bs4/lxml parser first to repair invalid xml
     with open(xml_path, 'r') as xml_file:
