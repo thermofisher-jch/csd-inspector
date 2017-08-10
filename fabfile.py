@@ -19,6 +19,10 @@ def test(path=""):
     local("docker-compose run django python manage.py test --noinput %s" % path)
 
 
+def test_case(name="*"):
+    local("docker-compose run django python manage.py test --noinput --pattern='test_%s.py'" % name)
+
+
 def provision():
     sudo("apt-get install -y python python-pip docker-ce nginx")
     sudo("pip install docker-compose")

@@ -1,29 +1,47 @@
 #!/usr/bin/env python
 
-import os
 import sys
+from datetime import datetime
+
 from lemontest.diagnostics.common.inspector_utils import *
 
 
-def get_lot_from_lines(log_lines, lot_types):
-    """
-    Helper method to grab the lot number from the lines variable
-    :param log_lines: The lines in the log file
-    :param lot_types: The specific type of lot looking for
-    :return: The string value of the lot type
-    """
-    for lineIndex in range(len(log_lines)):
-        line = log_lines[lineIndex].strip()
+def parse_init_log(log_lines):
+    date_formats = {
+        "expDate": "%Y/%m/%d"
+    }
+    product_dict = {}
+    current_product = None
+    for line in log_lines:
+        if line.startswith("productDesc: "):
+            # start of block we want to parse
+            current_product = line.split(":", 1)[1].strip()
+            product_dict[current_product] = {}
+        elif line.startswith("remainingUses: "):
+            # end of block we want to parse
+            product_dict[current_product]["remainingUses"] = line.split(":", 1)[1].strip()
+            current_product = None
+        elif current_product:
+            # in block we want to parse
+            key, value = line.split(":", 1)
+            if key in date_formats:
+                product_dict[current_product][key] = datetime.strptime(value.strip(), date_formats[key]).date()
+            else:
+                product_dict[current_product][key] = value.strip()
+    return product_dict
 
-        if line.startswith('productDesc'):
-            for lot_type in lot_types:
-                if lot_type in line:
-                    lot_line = log_lines[lineIndex + 2]
-                    key_value = lot_line.split(":")
-                    if key_value[0] != "lotNumber":
-                        raise Exception("Did not find a lot number in expected location")
-                    return "<b>" + key_value[1].strip() + "</b>"
-    return '<b>Unknown</b>'
+
+def parse_start_time(start_time_string):
+    date_format = "%m/%d/%Y %H:%M:%S"
+    return datetime.strptime(start_time_string, date_format).date()
+
+
+def reagents_expired(run_date, reagent_exp_dates):
+    for exp_date in reagent_exp_dates:
+        if exp_date <= run_date:
+            return True
+    else:
+        return False
 
 
 def execute(archive_path, output_path, archive_type):
@@ -36,16 +54,47 @@ def execute(archive_path, output_path, archive_type):
         with open(os.path.join(archive_path, "InitLog.txt")) as f:
             lines = f.readlines()
 
+        # parse products from lines
+        products = parse_init_log(lines)
+
         # read in carry forward
         base_caller = read_base_caller_json(archive_path)
         cf = float(base_caller["Phasing"]["CF"]) * 100
 
-        # construct the html response message
-        cleaningLot = "Cleaning Lot " + get_lot_from_lines(lines, ['Ion S5 Cleaning Solution'])
-        sequencingLot = "Sequencing Lot " + get_lot_from_lines(lines, ['Ion S5 Sequencing Reagent', 'Ion S5 ExT Sequencing Reagent'])
-        washLot = "Wash Lot " + get_lot_from_lines(lines, ['Ion S5 Wash Solution', 'Ion S5 ExT Wash Solution'])
+        # read in run date
+        explog = read_explog(archive_path)
+        run_date = parse_start_time(explog.get('Start Time', None))
 
-        print_info(" | ".join([cleaningLot, sequencingLot, washLot]))
+        # construct the html response message
+        cleaning_dict = products.get('Ion S5 Cleaning Solution', {})
+
+        sequencing_dict = {}
+        for key in ["Ion S5 Sequencing Reagents", "Ion S5 Sequencing Reagent",
+                    "Ion S5 ExT Sequencing Reagent", "Ion S5 ExT Sequencing Reagents"]:
+            if key in products:
+                sequencing_dict = products[key]
+                break
+
+        wash_dict = {}
+        for key in ["Ion S5 Wash Solution", "Ion S5 ExT Wash Solution"]:
+            if key in products:
+                wash_dict = products[key]
+                break
+
+        message = " | ".join([
+            "Cleaning Lot <strong>%s</strong>" % cleaning_dict["lotNumber"],
+            "Sequencing Lot <strong>%s</strong>" % sequencing_dict["lotNumber"],
+            "Wash Lot <strong>%s</strong>" % wash_dict["lotNumber"],
+        ])
+
+        # determine if reagents were expired when the run was executed
+        if run_date and cleaning_dict and wash_dict and sequencing_dict:
+            if reagents_expired(run_date, [cleaning_dict["expDate"], sequencing_dict["expDate"], wash_dict["expDate"]]):
+                print_alert(message + " | Expired Reagents")
+            else:
+                print_info(message)
+        else:
+            print_alert(message)
 
         # write out results.html
         with open(os.path.join(output_path, "results.html"), "w") as html_handle:
@@ -64,6 +113,32 @@ def execute(archive_path, output_path, archive_type):
             html_handle.write("<p style='text-align:center;'>")
             html_handle.write("CF = {0:.2f}%".format(cf))
             html_handle.write("</p>")
+
+            # write out reagent details
+            for title, reagent_dict in [
+                ("Cleaning", cleaning_dict),
+                ("Sequencing", sequencing_dict),
+                ("Wash", wash_dict),
+            ]:
+                days_until_expiration = None
+                if reagent_dict["expDate"] and run_date:
+                    days_until_expiration = (reagent_dict["expDate"] - run_date).days
+
+                html_handle.write("<h2 align='center'>%s</h2>" % title)
+                html_handle.write("<p style='text-align:center;'>")
+                html_handle.write("Lot: %s<br>" % reagent_dict["lotNumber"])
+                html_handle.write("Expiration Date: %s<br>" % reagent_dict["expDate"].strftime('%Y/%m/%d'))
+
+                if days_until_expiration < 0:
+                    html_handle.write(
+                        "<span style='color:red'>Run %i days after expiration.</span><br>" % abs(days_until_expiration)
+                    )
+                else:
+                    html_handle.write(
+                        "Run %i days before expiration.<br>" % abs(days_until_expiration)
+                    )
+
+                html_handle.write("</p>")
 
             # html footer
             html_handle.write("</body></html>")
