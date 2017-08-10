@@ -9,6 +9,7 @@ from api import ArchiveResource
 from datetime import datetime
 from reports.tables import ArchiveTable
 from django_tables2 import RequestConfig
+from dateutil.parser import parse as date_parse
 import json
 import os
 
@@ -88,6 +89,8 @@ def reports(request):
     archive_type_search = ''
     identifier_search = ''
     taser_ticket_number_search = ''
+    date_start_search = ''
+    date_end_search = ''
 
     archives = Archive.objects.order_by("time")
     if request.GET.get('site', ''):
@@ -105,6 +108,20 @@ def reports(request):
     if request.GET.get('taser_ticket_number_name', ''):
         taser_ticket_number_search = request.GET['taser_ticket_number_name']
         archives = archives.filter(taser_ticket_number=int(taser_ticket_number_search))
+    if request.GET.get('date_start', ''):
+        date_start_search = request.GET['date_start']
+    if request.GET.get('date_end', ''):
+        date_end_search = request.GET['date_end']
+
+    if date_start_search:
+        date_start = date_parse(date_start_search)
+        if date_start:
+            archives = archives.filter(time__gt=date_start)
+
+    if date_end_search:
+        date_end = date_parse(date_end_search)
+        if date_end:
+            archives = archives.filter(time__lt=date_end)
 
     table = ArchiveTable(archives, order_by="-time")
     table.paginate(page=request.GET.get('page', 1), per_page=100)
@@ -116,7 +133,9 @@ def reports(request):
         'submitter_name_search': submitter_name_search,
         'archive_type_search': archive_type_search,
         'identifier_search': identifier_search,
-        'taser_ticket_number_search': taser_ticket_number_search
+        'taser_ticket_number_search': taser_ticket_number_search,
+        'date_start_search': date_start_search,
+        'date_end_search': date_end_search
     })
     return render_to_response("reports.html", context_instance=ctx)
 

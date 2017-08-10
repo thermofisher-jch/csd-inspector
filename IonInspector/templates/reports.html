@@ -74,5 +74,17 @@
         searchForm.find("select").change(function () {
             searchForm.submit();
         });
+        searchForm.find("input[name='date_start']").datepicker({
+            clearBtn: true,
+            todayHighlight: true
+        }).on("changeDate", function () {
+            searchForm.submit()
+        });
+        searchForm.find("input[name='date_end']").datepicker({
+            clearBtn: true,
+            todayHighlight: true
+        }).on("changeDate", function () {
+            searchForm.submit()
+        });
     </script>
 {% endblock content %}

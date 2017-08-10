@@ -30,7 +30,13 @@
                     <th>
                         <input title="Search by Submitter Name" class="search_text" type="text" name="submitter_name" value="{{ submitter_name_search }}">
                     </th>
-                    <th><!-- place holder for date column --></th>
+                    <th>
+                        <div class="input-daterange input-group" id="datepicker">
+                            <input type="text" class="input-sm form-control" name="date_start" value="{{ date_start_search }}" style="width: 50px"/>
+                            <span style="display: inline-block; margin-top: 6px; vertical-align: top">to</span>
+                            <input type="text" class="input-sm form-control" name="date_end" value="{{ date_end_search }}" style="width: 50px"/>
+                        </div>
+                    </th>
                     <th>
                         <select title="Search by Device Type" name="archive_type">
                             <option value="">-----</option>
