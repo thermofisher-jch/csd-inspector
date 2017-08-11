@@ -83,7 +83,7 @@ def execute(archive_path, output_path, archive_type):
 
         message = " | ".join([
             "Cleaning Lot <strong>%s</strong>" % cleaning_dict["lotNumber"],
-            "Sequencing Lot <strong>%s</strong>" % sequencing_dict["lotNumber"],
+            "Reagents Lot <strong>%s</strong>" % sequencing_dict["lotNumber"],
             "Wash Lot <strong>%s</strong>" % wash_dict["lotNumber"],
         ])
 
@@ -117,7 +117,7 @@ def execute(archive_path, output_path, archive_type):
             # write out reagent details
             for title, reagent_dict in [
                 ("Cleaning", cleaning_dict),
-                ("Sequencing", sequencing_dict),
+                ("Reagents", sequencing_dict),
                 ("Wash", wash_dict),
             ]:
                 days_until_expiration = None
