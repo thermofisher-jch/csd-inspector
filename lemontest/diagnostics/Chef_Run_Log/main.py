@@ -16,7 +16,12 @@ TARGET_TEMP_FIELDS = [
     ["get_zone1_sample", "Sample Temperature (c)", lambda x: float(x) / 10.0],
     ["get_zone1_block", "Block Temperature (c)", lambda x: float(x) / 10.0],
     ["get_zone1_sink", "Sink Temperature (c)", lambda x: float(x) / 10.0],
-    ["get_lid_temp", "PCR Lid Temperature (c)", lambda x: float(x) / 10.0]
+    ["get_lid_temp", "PCR Lid Temperature (c)", lambda x: float(x) / 10.0],
+    # Reagent Temps sense_reagent	sense_chiller	sense_below	sense_above
+    ["sense_reagent", "Reagent Bay Temperature (c)", lambda x: float(x) / 10.0],
+    ["sense_chiller", "Chiller Bay Temperature (c)", lambda x: float(x) / 10.0],
+    ["sense_below", "Ambient Below Deck Temperature (c)", lambda x: float(x) / 10.0],
+    ["sense_above", "Ambient Above Deck Temperature (c)", lambda x: float(x) / 10.0],
 ]
 
 TARGET_FAN_FIELDS = [
