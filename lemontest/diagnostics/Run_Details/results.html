@@ -20,6 +20,18 @@
         {% else %}
         Sample Name: <i>Unknown</i><br />
         {% endif %}
+        {% if chef_reagents_lot %}
+        Chef Reagents Lot: {{ chef_reagents_lot }}<br />
+        {% endif %}
+        {% if chef_reagents_expiration %}
+        Chef Reagents Expiration Date: {{ chef_reagents_expiration }}<br />
+        {% endif %}
+        {% if chef_solutions_lot %}
+        Chef Solutions Lot: {{ chef_solutions_lot }}<br />
+        {% endif %}
+        {% if chef_solutions_expiration %}
+        Chef Solutions Expiration: {{ chef_solutions_expiration }}<br />
+        {% endif %}
     </p>
 </body>
 </html>

@@ -70,8 +70,12 @@ def handle_exception(exc, output_path):
     :param output_path: The output path:
     :return:
     """
-    print_failed(str(exc))
-    write_error_html(output_path)
+
+    try:
+        print_failed(str(exc))
+        write_error_html(output_path)
+    except:
+        pass
 
 
 def write_error_html(output_path):

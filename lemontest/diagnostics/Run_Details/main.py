@@ -4,18 +4,11 @@ import json
 import sys
 import os
 from dateutil.parser import parse
+from datetime import datetime
 from lemontest.diagnostics.common.inspector_utils import *
 
 OK_STRING = "TS Version is acceptable at <strong>%s</strong>"
 ALERT_STRING = "Advise customer to upgrade their Torrent Server.  Their version is out-dated at <strong>%s</strong>"
-
-
-def format_run_date(raw_string):
-    try:
-        run_date = parse(raw_string)
-    except Exception as e:
-        return "Unknown"
-    return run_date.strftime("%d %b %Y")
 
 
 def execute(archive_path, output_path, archive_type):
@@ -38,17 +31,35 @@ def execute(archive_path, output_path, archive_type):
         version = line.split('=')[-1].strip()
         version = version.split()[0]
 
+        # get the reagent and solution lots and experation dates
+        run_date = parse(explog.get('Start Time', 'Unknown'))
+        chef_reagents_lot = ion_params.get('exp_json', dict()).get('chefReagentsLot', '')
+        chef_reagents_expiration = ion_params.get('exp_json', dict()).get('chefReagentsExpiration', '')
+        chef_reagents_expiration = datetime.strptime(chef_reagents_expiration, '%y%m%d') if chef_reagents_expiration else None
+        chef_solutions_lot = ion_params.get('exp_json', dict()).get('chefSolutionsLot', '')
+        chef_solutions_expiration = ion_params.get('exp_json', dict()).get('chefSolutionsExpiration', '')
+        chef_solutions_expiration = datetime.strptime(chef_solutions_expiration, '%y%m%d') if chef_solutions_expiration else None
+
+        datetime_output_format = '%Y/%m/%d'
         write_results_from_template({
             'tss_version': version,
             'device_name': ion_params.get('exp_json', dict()).get('pgmName', dict()),
             'run_number': ion_params.get('exp_json', dict()).get('log', dict()).get('run_number', 'Unknown'),
-            'run_date': format_run_date(explog.get('Start Time', 'Unknown')),
+            'run_date': run_date.strftime(datetime_output_format),
             'chef_name': ion_params.get('exp_json', dict()).get('chefInstrumentName', ''),
             'sample_pos': ion_params.get('exp_json', dict()).get('chefSamplePos', ''),
+            'chef_reagents_lot': chef_reagents_lot,
+            'chef_reagents_expiration': chef_reagents_expiration.strftime(datetime_output_format) if chef_reagents_expiration else '',
+            'chef_solutions_lot': chef_solutions_lot,
+            'chef_solutions_expiration': chef_solutions_expiration.strftime(datetime_output_format) if chef_solutions_expiration else '',
         }, output_path)
 
-        details = "See results"
-        print_info(details)
+        if chef_reagents_expiration and chef_reagents_expiration > run_date:
+            print_alert("Chef reagents and/or solutions used were expired.  See results for details.")
+        elif chef_solutions_expiration and chef_solutions_expiration > run_date:
+            print_alert("Chef reagents and/or solutions used were expired.  See results for details.")
+        else:
+            print_info("See results")
     except Exception as exc:
         handle_exception(exc, output_path)
 
