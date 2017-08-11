@@ -169,7 +169,8 @@ def report(request, pk):
         ),
         'archive': archive,
         'diagnostics': diagnostics,
-        'pdf_present': pdf_present,
+        'thumbnail_pdf_present': thumbnail_pdf_present,
+        'full_pdf_present': full_pdf_present,
         'api_resource': get_serialized_model(archive, ArchiveResource),
         'coverage_analysis_path': settings.MEDIA_URL + relative_coverage_analysis_path if os.path.exists(os.path.join(settings.MEDIA_ROOT, relative_coverage_analysis_path)) else ''
     })
