@@ -9,6 +9,12 @@
           window.location.href = "${request.route_url('old_browser')}";
         }
         $(function(){
+            // Upload another button
+            $("#upload-another").click(function () {
+                $("input[name='upload_another']").val("yes");
+                $('#new_archive').submit();
+            });
+
           var sourcerer = function (field) {
             return function (query, process) {
               $.getJSON(
@@ -23,52 +29,6 @@
           $("#id_name").typeahead({source: sourcerer("submitter_name")});
           $("#id_site_name").typeahead({source: sourcerer("site")});
 
-          function on_upload_progress(event) {
-            var progress = Math.round(event.loaded / event.total * 100)+'%';
-            $("#progress_bar").css('width', progress);
-            $("#progress_percent").html(progress);
-          }
-
-          $('#new_archive').submit(function(event) {
-            event.preventDefault();
-            $("#file_select").hide();
-            $("#file_progress").show();
-            var formData = new FormData($('#new_archive')[0]);
-            dumb = $.ajax({
-              url: '/upload',  //server script to process data
-              type: 'POST',
-              xhr: function() {  // custom xhr
-                var myXhr = $.ajaxSettings.xhr();
-                if(myXhr.upload){ // check if upload property exists
-                  myXhr.upload.addEventListener('progress', on_upload_progress, false); // for handling the progress of the upload
-                }
-                return myXhr;
-              },
-              // Form data
-              data: formData,
-              dataType: 'json',
-              //Options to tell JQuery not to process data or worry about content-type
-              cache: false,
-              contentType: false,
-              processData: false
-            }).done(function(data){
-              $("#progress_bar").css('width', "100%");
-              $("#progress_percent").html("100%");
-              if (data.valid) {
-                window.location.href = data.url;
-              } else {
-                $("#file_select").show();
-                $("#file_progress").hide();
-                $("#log").prepend('<p class="alert alert-error">Invalid upload.<p>');
-                $("#log_container").slideDown();
-              }
-            }).fail(function(xhr, status){
-              console.log("Request failed: " + status);
-              $("#log").prepend('<p class="alert alert-error">Upload error ' + status + '. Refresh the page and retry.<p>');
-              $("#action_container").slideUp();
-              $("#log_container").slideDown();
-            });
-          });
         });
     </script>
     <style type="text/css">
@@ -85,8 +45,9 @@
     <div class="row">
         <div class="span6">
             <!-- Upload form. Note enctype attribute! -->
-            <form action="{% url "upload" %}" method="post" enctype="multipart/form-data">
+            <form id="new_archive" action="{% url "upload" %}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
+                {{ form.upload_another }}
                 <p>{{ form.non_field_errors }}</p>
                 <div class="row">
                     <div class="span3">
@@ -105,11 +66,7 @@
                     </div>
                     <div class="span3">
                         <p>{{ form.archive_type.label_tag }}</p>
-                        <select name="archive_type" id="archiveType">
-                            {% for device in form.archive_type.field.choices %}
-                                <option>{{ device }}</option>
-                            {% endfor %}
-                        </select>
+                        {{ form.archive_type }}
                     </div>
                 </div>
                 <div class="row">
@@ -129,7 +86,8 @@
                 </div>
                 <div id="action_container">
                     <div class="form-actions">
-                        <input type="submit" value="Submit Archive" class="btn btn-primary">
+                        <input type="submit" value="Upload Archive" class="btn btn-primary">
+                        <input id="upload-another" type="button" value="Upload and Add Another" class="btn">
                         <button class="btn" type="reset">Reset</button>
                     </div>
                 </div>

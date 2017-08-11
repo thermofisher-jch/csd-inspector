@@ -19,6 +19,10 @@ def test(path=""):
     local("docker-compose run django python manage.py test --noinput %s" % path)
 
 
+def test_case(name="*"):
+    local("docker-compose run django python manage.py test --noinput --pattern='test_%s.py'" % name)
+
+
 def provision():
     sudo("apt-get install -y python python-pip docker-ce nginx")
     sudo("pip install docker-compose")
@@ -39,8 +43,9 @@ def deploy(tag=None):
         if raw_input("This looks like a deploy to production! Enter PRODUCTION to continue: ") != "PRODUCTION":
             exit()
     with cd(HOST_DATA_DIR + "/inspector"):
+        run("git fetch")
         run("git checkout %s" % tag)
-        run("git pull")
+        run("git fetch")
         run("docker-compose -f docker-compose.yml -f docker-compose.prod.yml build")
         run("docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d")
         upload_template("./conf/nginx.conf", "/etc/nginx/sites-enabled/inspector.conf", {

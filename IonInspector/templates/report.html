@@ -70,7 +70,7 @@
             {% include "partials/diagnostics.html" %}
         </div>
     </div>
-    {% if pdf_present %}
+    {% if full_pdf_present %}
         <div class="row-fluid" style="margin-top: 20px;">
             <div id="run_report" class="span12">
                 <div id="pdf">
@@ -78,15 +78,24 @@
                         <p>Your browser does not support PDF display</p>
                     </object>
                 </div>
-                <a href="/media/archive_files/{{ archive.id }}/report.pdf" class="btn btn-success">
-                    <i class="icon-arrow-down icon-white"></i> Download Report
+                <a download href="/media/archive_files/{{ archive.id }}/full_report.pdf" class="btn btn-success">
+                    <i class="icon-arrow-down icon-white"></i> Download Full Report
                 </a>
             </div>
         </div>
-    {% else %}
-        <div class="row-fluid" style="">
-            <div id="no_report" class="span12 text-center" style="display:none;">
-                <small>There is no report.pdf for this archive.</small>
+    {% endif %}
+    {% if thumbnail_pdf_present %}
+        <div class="row-fluid" style="margin-top: 20px;">
+            <div id="run_report_thumbnail" class="span12">
+                <div class="pdf">
+                    <object type="application/pdf" data="/media/archive_files/{{ archive.id }}/report.pdf"
+                            height="600px" width="100%">
+                        <p>Your browser does not support PDF display</p>
+                    </object>
+                </div>
+                <a download href="/media/archive_files/{{ archive.id }}/report.pdf" class="btn btn-success">
+                    <i class="icon-arrow-down icon-white"></i> Download Thumbnail Report
+                </a>
             </div>
         </div>
     {% endif %}

@@ -1,54 +1,69 @@
 #!/usr/bin/env python
 
 import sys
+
 from lemontest.diagnostics.common.inspector_utils import *
 
 
-def execute(archive_path, output_path, archive_type):
-    """Executes the test"""
-    file_count = 0
-    files = []
-    output_name = ''
-    xml_path = ''
-    error_summary = ""
+def get_kit_from_element_tree(element_tree):
+    kit_names = {
+        "pgm_ic_v2": "Ion PGM Hi-Q Chef Kit",
+        "pgm_ic_v1": "Ion PGM IC 200 Kit",
+        "pi_ic_v1": "Ion PI IC 200 Kit",
+        "pi_ic_v2": "Ion PI Hi-Q Chef Kit",
+        "s530_1": "Ion 520/530 Kit-Chef",
+        "s540_1": "Ion 540 Kit-Chef",
+        "as_1": "Ion AmpliSeq Kit for Chef DL8",
+        "pgm_ionchef_200_kit": "Ion PGM IC 200 Kit",
+        "pi_ic200": "Ion PI IC 200 Kit",
+        "pgm_3": "Ion PGM Hi-Q View Chef Kit",
+        "hid_s530_1": "Ion Chef HID S530 V1",
+        "hid_s530_2": "Ion Chef HID S530 V2",
+        "hid_as_1": "Ion Chef HID Library V1",
+        "hid_as_2": "Ion Chef HID Library V2",
+        "s521_1": "Ion 520/530 ExT Kit-Chef V1",
+    }
 
-    for path, dirs, names in os.walk(archive_path):
-        if "test_results" not in path:
-            for name in names:
-                if "logs.tar" not in name:
-                    rel_dir = os.path.relpath(path, archive_path)
-                    rel = os.path.join(rel_dir, name)
-                    full = os.path.join(path, name)
-                    files.append(rel)
-                    file_count += 1
-                    if rel.startswith("var/log/IonChef/RunLog/") and rel.endswith(".xml"):
-                        xml_path = full
+    name_tag = element_tree.find("RunInfo/kit")
+    if name_tag is None:
+        return None
+    kit_name = name_tag.text.strip()
+    return kit_names.get(kit_name, kit_name)
 
-    if xml_path:
-        try:
-            root = get_xml_from_run_log(archive_path)
-        except Exception as err:
-            handle_exception(err, output_path)
-            return
-        else:
-            name_tag = root.find("RunInfo/chip")
-            if name_tag is None:
-                error_summary = "No chip info"
+
+def get_chip_names_from_element_tree(element_tree):
+    """
+    Extract chip name from a chef run log element tree. Two items of note:
+    * There may be two chips <chip> and <chip2>
+    * For proton chips, the <chip> element only contains the major version number. <chipVersion>
+      contains the minor version. So P1v3 would be <chip>1</chip> <chipVersion>3</chipVersion>
+    """
+    names = [None, None]
+    for i, suffix in enumerate(["", "2"]):
+        chip_element = element_tree.find("./RunInfo/chip" + suffix)
+        chip_version_element = element_tree.find("./RunInfo/chipVersion" + suffix)
+        if chip_element is not None:
+            if chip_element.text.isdigit() and int(chip_element.text) < 10:
+                if chip_version_element is not None:
+                    names[i] = "P" + chip_element.text + "v" + chip_version_element.text
             else:
-                output_name = name_tag.text.strip()
-                if output_name.isdigit():
-                    chip_number = int(output_name)
-                    if chip_number < 10:
-                        name_tag = root.find("RunInfo/chipVersion")
-                        version = name_tag.text.strip()
-                        output_name = "P{}v{}".format(chip_number, version)
-    else:
-        error_summary = "No Run Log."
+                names[i] = chip_element.text
+    return names
 
-    if error_summary:
-        print_na(error_summary)
-    else:        
-        print_info(output_name)
+
+def execute(archive_path, output_path, archive_type):
+    chef_run_log = get_xml_from_run_log(archive_path)
+    chip_a, chip_b = get_chip_names_from_element_tree(chef_run_log)
+
+    message = "Chip 1: %s" % chip_a or "Unknown"
+    if chip_b:
+        message += ", Chip 2: %s" % chip_b
+
+    kit = get_kit_from_element_tree(chef_run_log)
+    message += " | " + kit or "Unknown"
+
+    print_info(message)
+
 
 if __name__ == "__main__":
     archive_path, output_path, archive_type = sys.argv[1:4]
