@@ -1,0 +1,4 @@
+This will report if there is any ExperimentErrorLog contained in the explog_final.txt or explog.txt
+
+INPUTS:
+explog_final.txt or explog.txt

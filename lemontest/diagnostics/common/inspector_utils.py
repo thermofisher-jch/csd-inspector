@@ -39,13 +39,24 @@ def read_explog(archive_path):
 def read_explog_from_handle(explog_handle):
     # parse the log file for all of the values in a colon delimited parameter
     data = dict()
+    expError = False
+    expErrorLog = []
     for line in explog_handle:
+
         # Trying extra hard to accommodate formatting issues in explog
         datum = line.split(":", 1)
         if len(datum) == 2:
             key, value = datum
+            if "ExperimentErrorLog" in line:
+                expError = True
+                continue
             data[key.strip()] = value.strip()
-
+        if expError:
+            if line != "" and "ExpLog_Done" not in line:
+                expErrorLog.append(line.strip())
+            if "ExpLog_Done" in line:
+                data["ExperimentErrorLog"] = expErrorLog
+                expError = False
     return data
 
 
