@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-import json
 import sys
-import os
+import glob
+import shutil
 from dateutil.parser import parse
 from lemontest.diagnostics.common.inspector_utils import *
 
@@ -16,6 +16,18 @@ def format_run_date(raw_string):
     except Exception as e:
         return "Unknown"
     return run_date.strftime("%d %b %Y")
+
+
+def get_read_length_histograms(archive_path, output_path):
+    histograms = []
+    for image_path in glob.glob(os.path.join(archive_path, "basecaller_results/*sparkline.png")):
+        image_filename = os.path.basename(image_path)
+        # Copy to test dir
+        shutil.copyfile(image_path, os.path.join(output_path, image_filename))
+        # Generate name and path
+        name = image_filename.replace(".sparkline.png", "")
+        histograms.append((name, image_filename))
+    return histograms
 
 
 def execute(archive_path, output_path, archive_type):
@@ -45,6 +57,7 @@ def execute(archive_path, output_path, archive_type):
             'run_date': format_run_date(explog.get('Start Time', 'Unknown')),
             'chef_name': ion_params.get('exp_json', dict()).get('chefInstrumentName', ''),
             'sample_pos': ion_params.get('exp_json', dict()).get('chefSamplePos', ''),
+            'histograms': get_read_length_histograms(archive_path, output_path)
         }, output_path)
 
         details = "See results"
