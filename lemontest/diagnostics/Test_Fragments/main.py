@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import json
+import semver
 import sys
 import os.path
 from lemontest.diagnostics.common.inspector_utils import *
@@ -13,16 +13,22 @@ def execute(archive_path, output_path, archive_type):
     try:
         # read the exp log
         exp_log = read_explog(archive_path)
-        if exp_log.get('LibKit') == 'IonPicoPlex':
-            print_na("TF's not reported for ReproSeq")
-            return
+
+        # special rule for TS < 5.0.5
+        sw_version = exp_log.get('S5 Release_version') \
+                     or exp_log.get('Proton Release_version') \
+                     or exp_log.get('PGM SW Release') \
+                     or None
+        if semver.match(sw_version, "<5.0.5"):
+            if exp_log.get('LibKit') == 'IonPicoPlex':
+                print_na("TF's not reported for ReproSeq before TS 5.0.5")
+                return
 
         tf_stats_path = os.path.join(archive_path, 'basecaller_results', 'TFStats.json')
         if not os.path.exists(tf_stats_path):
             raise Exception("TFStats.json file is missing so this test cannot be evaluated.")
 
         # read the tf stats
-        tf_stats = dict()
         with open(tf_stats_path, 'r') as handle:
             tf_stats = json.load(handle)
 

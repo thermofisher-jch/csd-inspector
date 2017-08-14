@@ -14,3 +14,4 @@ psycopg2==2.6.1
 python-dateutil==2.6.0
 python-magic==0.4.12
 pyliblzma==0.5.3
+semver==2.7.7
