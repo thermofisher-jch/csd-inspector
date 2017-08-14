@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 
-import sys
-import os
-import json
 import collections
+import json
+import os
+import sys
+
 from django.template import Context, Template
+
 from lemontest.diagnostics.common.inspector_utils import print_info, print_alert, print_warning, handle_exception, \
     read_explog
+
 
 def execute(archive_path, output_path, archive_type):
     """Executes the test"""
@@ -33,7 +36,6 @@ def execute(archive_path, output_path, archive_type):
                 else:  # If there is no = this token is a value
                     dat_meta[dat_meta.keys()[-1]].append(token)
             return dat_name, dat_meta
-
 
         # PGM Parsing
         def parse_flow_data_pgm(fp, new_pgm_format):
@@ -105,7 +107,6 @@ def execute(archive_path, output_path, archive_type):
                     flow_count += 1
             return data, message_level, pressure_message, temperature_message
 
-
         # Proton Parsing
         def parse_flow_data_proton(fp):
             # get the pressure message
@@ -137,6 +138,7 @@ def execute(archive_path, output_path, archive_type):
 
             # Flot friendly format
             data = {
+                "flowTypes": {},
                 "pressure": {
                     "manifoldPressure": {"data": [], "label": "Manifold Pressure"},
                     "regulatorPressure": {"data": [], "label": "Regulator Pressure"},
@@ -149,6 +151,7 @@ def execute(archive_path, output_path, archive_type):
             }
             reached_target_section = False
             flow_count = 0
+            last_flow_type = None
             for line in fp:
                 if line.startswith("ExperimentInfoLog:"):
                     reached_target_section = True
@@ -165,9 +168,22 @@ def execute(archive_path, output_path, archive_type):
                     data["temperature"]["chipBayTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][0])])
                     data["temperature"]["ambientTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][1])])
                     data["temperature"]["underChipTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][2])])
+                    # Track flow types
+                    flow_type, _ = dat_name.rsplit("_", 1)
+                    if flow_type != last_flow_type:
+                        # Flow type has switched. Record the end of this flow type
+                        if last_flow_type in data["flowTypes"]:
+                            data["flowTypes"][last_flow_type]["end"] = flow_count - 1
+                        # Create a new record for this flow type
+                        data["flowTypes"][flow_type] = {
+                            "start": flow_count,
+                            "end": None
+                        }
+                        last_flow_type = flow_type
                     flow_count += 1
+            # Add an endpoint for the acq flows
+            data["flowTypes"][last_flow_type]["end"] = flow_count
             return data, message_level, pressure_message, temperature_message
-
 
         # S5 Parsing
         def parse_flow_data_s5(fp):
@@ -191,6 +207,7 @@ def execute(archive_path, output_path, archive_type):
 
             # Flot friendly format
             data = {
+                "flowTypes": {},
                 "pressure": {
                     "manifoldPressure": {"data": [], "label": "Manifold Pressure"},
                     "regulatorPressure": {"data": [], "label": "Regulator Pressure"},
@@ -207,6 +224,7 @@ def execute(archive_path, output_path, archive_type):
             }
             reached_target_section = False
             flow_count = 0
+            last_flow_type = None
             for line in fp:
                 if line.startswith("ExperimentInfoLog:"):
                     reached_target_section = True
@@ -228,10 +246,22 @@ def execute(archive_path, output_path, archive_type):
                     data["temperature"]["wasteTemperature"]["data"].append([flow_count, float(dat_meta["ManTemp"][0])])
                     # Chip temp
                     data["temperature"]["chipTemperature"]["data"].append([flow_count, float(dat_meta["chipTemp"][0])])
-
+                    # Track flow types
+                    flow_type, _ = dat_name.rsplit("_", 1)
+                    if flow_type != last_flow_type:
+                        # Flow type has switched. Record the end of this flow type
+                        if last_flow_type in data["flowTypes"]:
+                            data["flowTypes"][last_flow_type]["end"] = flow_count - 1
+                        # Create a new record for this flow type
+                        data["flowTypes"][flow_type] = {
+                            "start": flow_count,
+                            "end": None
+                        }
+                        last_flow_type = flow_type
                     flow_count += 1
+            # Add an endpoint for the acq flows
+            data["flowTypes"][last_flow_type]["end"] = flow_count
             return data, message_level, pressure_message, temperature_message
-
 
         with open(exp_log_file_path) as exp_log_file:
             flow_data = {}

@@ -45,15 +45,36 @@
             -moz-transform-origin: 0 0;
             -webkit-transform-origin: 0 0;
         }
+        .flow-legend {
+            height: 50px;
+            margin-top: 6px;
+            margin-left: 30px;
+        }
+        .flow-legend > div {
+            float: left;
+        }
+        .flow-legend > div > .flow-legend-color {
+            width: 20px;
+            height: 20px;
+            float: left;
+            outline: 1px solid #ccc;
+            outline-offset: 1px;
+        }
+        .flow-legend > div > .flow-legend-text {
+            float: right;
+            margin-right: 20px;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="h3 lead">{{ pressure_message }}</div>
     <div id="pressure-placeholder"></div>
+    <div class="flow-legend"></div>
     <div class="h3 lead">{{ temperature_message }}</div>
     <div id="temperature-placeholder"></div>
-    <br><br><br>
+    <div class="flow-legend"></div>
     <div class="text-center text-muted">Plots are zoomable and lines can be hovered over for specific values.</div>
 </div>
 <script language="javascript" type="text/javascript"
@@ -68,6 +89,51 @@
     {% autoescape off %}
         var flowData = {{ raw_data }};
     {% endautoescape %}
+
+    //Markings
+    flowTypeColors = [
+        ["beadfind_pre", "#eee"],
+        ["prerun", "#ddd"],
+        ["extraG", "#ccc"],
+        ["acq", "#ffffff"]
+    ];
+    if(flowData["flowTypes"]) {
+        //Make legend
+        flowTypeColors.forEach(function (flowTypeColor) {
+            var container = $("<div/>");
+            container.append($("<span/>", {
+                class: "flow-legend-color",
+                style: "background-color: " + flowTypeColor[1]
+            }));
+            container.append($("<span/>", {
+                class: "flow-legend-text",
+                text: flowTypeColor[0]
+            }));
+            $(".flow-legend").append(container);
+        });
+        //Generate flot config
+        var markings = [];
+        for (var flowType in flowData["flowTypes"]) {
+            if (flowData["flowTypes"].hasOwnProperty(flowType)) {
+                // Get color
+                var color = "#ddd";
+                flowTypeColors.forEach(function (flowTypeColor) {
+                    if (flowTypeColor[0] === flowType) {
+                        color = flowTypeColor[1]
+                    }
+                });
+                // Add it to the flot config
+                markings.push({
+                    xaxis: {
+                        from: flowData["flowTypes"][flowType]["start"] - 0.5,
+                        to: flowData["flowTypes"][flowType]["end"] + 0.5
+                    },
+                    color: color
+                });
+            }
+        }
+    }
+
     //Pressure Plot
     $.plot("#pressure-placeholder", flowData["pressure"], {
         legend: {position: "ne"},
@@ -75,7 +141,8 @@
             lines: {show: true}
         },
         grid: {
-            hoverable: true
+            hoverable: true,
+            markings: markings
         },
         yaxis: {
             min: 0, max: 15, tickSize: 1
@@ -94,7 +161,8 @@
             lines: {show: true}
         },
         grid: {
-            hoverable: true
+            hoverable: true,
+            markings: markings
         },
         yaxis: {
             min: 15, max: 65, tickSize: 5
