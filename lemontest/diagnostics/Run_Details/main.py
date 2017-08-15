@@ -45,6 +45,7 @@ def execute(archive_path, output_path, archive_type):
 
         # get the reagent and solution lots and experation dates
         run_date = parse(explog.get('Start Time', 'Unknown'))
+        flows = explog.get('Flows', '')
         chef_reagents_lot = ion_params.get('exp_json', dict()).get('chefReagentsLot', '')
         chef_reagents_expiration = ion_params.get('exp_json', dict()).get('chefReagentsExpiration', '')
         chef_reagents_expiration = datetime.strptime(chef_reagents_expiration, '%y%m%d') if chef_reagents_expiration else None
@@ -58,6 +59,7 @@ def execute(archive_path, output_path, archive_type):
             'device_name': ion_params.get('exp_json', dict()).get('pgmName', dict()),
             'run_number': ion_params.get('exp_json', dict()).get('log', dict()).get('run_number', 'Unknown'),
             'run_date': run_date.strftime(datetime_output_format),
+            'flows': flows,
             'chef_name': ion_params.get('exp_json', dict()).get('chefInstrumentName', ''),
             'sample_pos': ion_params.get('exp_json', dict()).get('chefSamplePos', ''),
             'chef_reagents_lot': chef_reagents_lot,
