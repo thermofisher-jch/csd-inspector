@@ -11,6 +11,12 @@ PRODUCTION_HOSTS = ["vulcan", "inspector"]
 
 
 def dev():
+    local('mkdir -p .local/celery')
+    local('mkdir -p .local/media')
+    local('mkdir -p .local/logs')
+    local('chmod 777 .local/celery')
+    local('chmod 777 .local/media')
+    local('chmod 777 .local/logs')
     local("docker-compose build")
     local("docker-compose up")
 

@@ -1,11 +1,12 @@
+## Dependencies
+Install fabric on your machine: http://www.fabfile.org/installing.html
+
 ## Development
 
-Run `docker-compose up` from this directory.
+Run `fab dev` from this directory.
 
 
 ## Deployment
-
-Install fabric on your machine: http://www.fabfile.org/installing.html
 
 Commit and push your changes to this repository.
 
