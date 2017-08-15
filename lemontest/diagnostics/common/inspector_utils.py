@@ -42,7 +42,6 @@ def read_explog_from_handle(explog_handle):
     expError = False
     expErrorLog = []
     for line in explog_handle:
-
         # Trying extra hard to accommodate formatting issues in explog
         datum = line.split(":", 1)
         if len(datum) == 2:
@@ -52,8 +51,9 @@ def read_explog_from_handle(explog_handle):
                 continue
             data[key.strip()] = value.strip()
         if expError:
+            line = line.strip()
             if line != "" and "ExpLog_Done" not in line:
-                expErrorLog.append(line.strip())
+                expErrorLog.append(line)
             if "ExpLog_Done" in line:
                 data["ExperimentErrorLog"] = expErrorLog
                 expError = False
