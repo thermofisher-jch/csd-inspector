@@ -7,6 +7,12 @@ import os
 from lemontest.diagnostics.common.inspector_utils import *
 
 
+def seconds_to_hours_minutes(total_seconds):
+    m, s = divmod(total_seconds, 60)
+    h, m = divmod(m, 60)
+    return h, m
+
+
 def get_instrument_server_logs(archive_path):
     """
     This method will concat all of the log files in the IS directory for chef
@@ -33,7 +39,7 @@ def execute(archive_path, output_path, archive_type):
     """Executes the test"""
     try:
         # the amount of time mr coffee was requested to pause for
-        mrcoffee_pause_time = 0
+        mrcoffee_pause_time_seconds = 0
         mrcoffee_pause_time_date_time = None
 
         # the boolean flag for a manual pause time request
@@ -72,7 +78,7 @@ def execute(archive_path, output_path, archive_type):
                 if 'process: mrcoffee' in is_line:
                     if not mrcoffee_pause_time_date_time or line_date_time > mrcoffee_pause_time_date_time:
                         mrcoffee_pause_time_date_time = line_date_time
-                        mrcoffee_pause_time = int(is_line.split(':')[-1].strip())
+                        mrcoffee_pause_time_seconds = int(is_line.split(':')[-1].strip())
 
                 if 'process: user_pause' in is_line:
                     if not user_pause_request_date_time or line_date_time > user_pause_request_date_time:
@@ -84,11 +90,19 @@ def execute(archive_path, output_path, archive_type):
                         total_time_date_time = line_date_time
                         total_time = is_line.split(':', 4)[-1].strip()
 
-        manual_pause = "User Pause Option: "
-        manual_pause += str(user_pause_end - user_pause_start) if user_pause_start and user_pause_end else 'No manual pause'
-        mrcoffee_pause_time_sting = "Mr Coffee Pause: " + str(timedelta(seconds=mrcoffee_pause_time))
+        # Change formatting on total_time
+        h_string, m_string, s_string = total_time.split(":")
+        total_time_string = h_string + " " + m_string
 
-        summary = "Total Time: " + total_time + " - "
+        manual_pause = "No Manual Pause"
+        if user_pause_start and user_pause_end:
+            manual_pause = "User Pause Option: %ih %im" % seconds_to_hours_minutes(
+                (user_pause_end - user_pause_start).seconds
+            )
+
+        mrcoffee_pause_time_sting = "Mr Coffee Pause: %ih %im" % seconds_to_hours_minutes(mrcoffee_pause_time_seconds)
+
+        summary = "Total Time: " + total_time_string + " - "
         summary += manual_pause if user_pause_request else mrcoffee_pause_time_sting
         print_info(summary)
     except Exception as exc:
