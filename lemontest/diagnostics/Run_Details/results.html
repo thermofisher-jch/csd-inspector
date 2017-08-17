@@ -43,6 +43,12 @@
     Run Number: {{ run_number }}<br/>
     Run Date: {{ run_date }}<br/>
 
+    {% if flows %}
+        Flows: {{ flows }}<br/>
+    {% else %}
+        Flows: <i>Missing</i><br/>
+    {% endif %}
+
     {% if chef_name %}
         Chef Name: {{ chef_name }}<br/>
     {% else %}
