@@ -18,7 +18,11 @@ def execute(archive_path, output_path, archive_type):
         sw_version = exp_log.get('S5 Release_version') \
                      or exp_log.get('Proton Release_version') \
                      or exp_log.get('PGM SW Release') \
-                     or None
+                     or ""
+
+        if sw_version.count(".") < 2:
+            sw_version += ".0"
+
         if semver.match(sw_version, "<5.0.5"):
             if exp_log.get('LibKit') == 'IonPicoPlex':
                 print_na("TF's not reported for ReproSeq before TS 5.0.5")
