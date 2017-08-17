@@ -5,4 +5,4 @@ from __future__ import absolute_import
 # Django starts so that shared_task will use this app.
 from .celeryconfig import app as celery_app
 
-import monkey_patching
+from .monkey_patching import *
