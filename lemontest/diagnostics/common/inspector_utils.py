@@ -224,9 +224,20 @@ def get_xml_from_run_log(archive_path):
     # get path to all of the logs and xml data
     xml_path = get_chef_run_log_xml_path(archive_path)
 
-    # Use bs4/lxml parser first to repair invalid xml
+    # remove spaces from xml tags. Bs4 will just throw them out and we need them for some tests
+    xml_lines = []
     with open(xml_path, 'r') as xml_file:
-        soup = BeautifulSoup(xml_file, "xml")
+        for xml_line in xml_file:
+            # Remove space after <
+            while "< " in xml_line:
+                xml_line = xml_line.replace("< ", "<")
+            # Remove space after </
+            while "</ " in xml_line:
+                xml_line = xml_line.replace("</ ", "</")
+            xml_lines.append(xml_line)
+
+    # Use bs4/lxml parser first to repair invalid xm
+    soup = BeautifulSoup("\n".join(xml_lines), "xml")
 
     # Then parse the repaired xml using xml.etree
     return ElementTree.fromstring(str(soup))
