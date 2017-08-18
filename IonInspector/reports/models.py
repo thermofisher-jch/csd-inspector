@@ -1,24 +1,24 @@
 """
 This will hold all of the data models for the inspector.
 """
+import contextlib
+import lzma
+import shutil
+import tarfile
+import zipfile
+import os
+from subprocess import *
+
 from cached_property import cached_property
+from celery.contrib.methods import task
 from django.conf import settings
 from django.db import models
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from django.utils import timezone
-from reports.utils import check_for_dx_zip
-from celery.contrib.methods import task
-from subprocess import *
+
 from lemontest.diagnostics.common.inspector_utils import *
-import os
-import datetime
-import shutil
-import stat
-import tarfile
-import zipfile
-import lzma
-import contextlib
+from reports.utils import check_for_dx_zip, force_symlink
 
 # check to see if the settings are configured
 if not settings.configured:
@@ -200,8 +200,8 @@ class Archive(models.Model):
         if os.path.exists(coverage_analysis_path):
             # we are assuming any subdirectories here will be barcoded subdirectories since the pattern when creating the CSA only specifies content which is indicative of a barcode
             for subdir in [name for name in os.listdir(coverage_analysis_path) if os.path.isdir(os.path.join(coverage_analysis_path, name))]:
-                os.symlink(os.path.join(settings.STATICFILES_DIRS[0], 'coverageAnalysis', 'flot'), os.path.join(coverage_analysis_path, subdir, 'flot'))
-                os.symlink(os.path.join(settings.STATICFILES_DIRS[0], 'coverageAnalysis', 'lifechart'), os.path.join(coverage_analysis_path, subdir, 'lifechart'))
+                force_symlink(os.path.join(settings.STATICFILES_DIRS[0], 'coverageAnalysis', 'flot'), os.path.join(coverage_analysis_path, subdir, 'flot'))
+                force_symlink(os.path.join(settings.STATICFILES_DIRS[0], 'coverageAnalysis', 'lifechart'), os.path.join(coverage_analysis_path, subdir, 'lifechart'))
 
         # delete all other diagnostics first
         tests = Diagnostic.objects.filter(archive=self)

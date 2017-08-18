@@ -1,6 +1,7 @@
 from django.http import HttpRequest
 from lemontest.diagnostics.common.inspector_utils import read_explog_from_handle
 import zipfile
+import os
 
 
 def get_serialized_model(model, resource):
@@ -22,3 +23,9 @@ def check_for_dx_zip(path_to_zip):
             explog_data = read_explog_from_handle(explog_handle)
 
     return 'Dx' in explog_data.get('SeqKitName', '')
+
+
+def force_symlink(source, link):
+    if os.path.exists(link):
+        os.remove(link)
+    os.symlink(source, link)
