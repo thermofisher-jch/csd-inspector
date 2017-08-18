@@ -25,6 +25,12 @@ def check_for_dx_zip(path_to_zip):
     return 'Dx' in explog_data.get('SeqKitName', '')
 
 
+def check_for_dx_csv(path_to_csv):
+    """ Checks a csv file for indicators that it's a Dx archive. Returns true if this is a Dx archive. """
+    with open(path_to_csv) as csv_file:
+        return "/software/scripts/run_scripts/EN/DX/" in csv_file.readline()
+
+
 def force_symlink(source, link):
     if os.path.exists(link):
         os.remove(link)
