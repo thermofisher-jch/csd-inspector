@@ -22,14 +22,7 @@ def execute(archive_path, output_path, archive_type):
         with open(os.path.join(archive_path, 'ion_params_00.json')) as ion_params_handle:
             ion_params = json.load(ion_params_handle)
 
-        version_path = os.path.join(archive_path, "version.txt")
-        if not os.path.exists(version_path):
-            raise Exception("Missing file: " + version_path)
-
-        # get the version number
-        line = open(version_path).readline()
-        version = line.split('=')[-1].strip()
-        version = version.split()[0]
+        version = get_ts_version(archive_path)
 
         # get the reagent and solution lots and experation dates
         run_date = parse(explog.get('Start Time', 'Unknown'))

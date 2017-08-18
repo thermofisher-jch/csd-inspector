@@ -15,10 +15,7 @@ def execute(archive_path, output_path, archive_type):
         exp_log = read_explog(archive_path)
 
         # special rule for TS < 5.0.5
-        sw_version = exp_log.get('S5 Release_version') \
-                     or exp_log.get('Proton Release_version') \
-                     or exp_log.get('PGM SW Release') \
-                     or ""
+        sw_version = get_ts_version(archive_path)
 
         if sw_version.count(".") < 2:
             sw_version += ".0"

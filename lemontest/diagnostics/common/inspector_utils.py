@@ -269,6 +269,18 @@ def get_chip_type_from_exp_log(exp_log):
     return 'PQ' if chip_type == 'P2' else chip_type
 
 
+def get_ts_version(archive_path):
+    version_path = os.path.join(archive_path, "version.txt")
+    if not os.path.exists(version_path):
+        raise Exception("Missing file: " + version_path)
+
+    # get the version number
+    line = open(version_path).readline()
+    version = line.split('=')[-1].strip()
+    version = version.split()[0]
+    return version.strip()
+
+
 def write_results_from_template(data_dict, output_dir):
     template = Template(open("results.html").read())
     result = template.render(Context(data_dict))
