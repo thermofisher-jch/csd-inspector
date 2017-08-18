@@ -85,7 +85,7 @@ TEST_MANIFEST = {
   ION_CHEF: [
     "Alarms",
     "Notifications",
-    "Chef_Chip",
+    "Kit_Details",
     "Chef_Timer",
     "Chef_Version",
     # "Flow", Now plotted by Chef_Run_Log

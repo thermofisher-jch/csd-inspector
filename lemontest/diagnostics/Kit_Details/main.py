@@ -52,17 +52,20 @@ def get_chip_names_from_element_tree(element_tree):
 
 
 def execute(archive_path, output_path, archive_type):
-    chef_run_log = get_xml_from_run_log(archive_path)
-    chip_a, chip_b = get_chip_names_from_element_tree(chef_run_log)
+    try:
+        chef_run_log = get_xml_from_run_log(archive_path)
+        chip_a, chip_b = get_chip_names_from_element_tree(chef_run_log)
 
-    message = "Chip 1: %s" % chip_a or "Unknown"
-    if chip_b:
-        message += ", Chip 2: %s" % chip_b
+        kit = get_kit_from_element_tree(chef_run_log)
+        message = (kit or "Unknown Kit") + " | " + "Chip 1: %s" % (chip_a or "Unknown Chip")
 
-    kit = get_kit_from_element_tree(chef_run_log)
-    message += " | " + kit or "Unknown"
+        if chip_b:
+            message += ", Chip 2: %s" % chip_b
 
-    print_info(message)
+        print_info(message)
+
+    except Exception as e:
+        handle_exception(e, output_path)
 
 
 if __name__ == "__main__":
