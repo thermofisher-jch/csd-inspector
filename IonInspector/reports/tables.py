@@ -12,7 +12,7 @@ class ArchiveTable(tables.Table):
     """
 
     id = tables.Column(verbose_name='ID', attrs={'th': {'style': 'width: 60px'}}, empty_values=())
-    time = tables.Column(verbose_name='Date', attrs={'th': {'style': 'width: 150px'}}, empty_values=())
+    time = tables.Column(verbose_name='Date', attrs={'th': {'style': 'width: 160px'}}, empty_values=())
     identifier = tables.Column(verbose_name='Label', orderable=True, empty_values=(), accessor='identifier',
                                attrs={'th': {'style': 'width: 30%'}})
     site = tables.Column(verbose_name='Site', attrs={'th': {'style': 'width: 20%'}}, empty_values=())
