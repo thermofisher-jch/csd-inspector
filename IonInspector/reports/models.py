@@ -44,7 +44,7 @@ TEST_MANIFEST = {
     "Chip_Type",
     "Test_Fragments",
     "Pressure_And_Temperature",
-    "Explog_errors",
+    "Experiment_Errors",
     "Barcode_Report"
   ],
   PROTON: [
@@ -58,7 +58,7 @@ TEST_MANIFEST = {
     "Chip_Type",
     "Test_Fragments",
     "Pressure_And_Temperature",
-    "Explog_errors",
+    "Experiment_Errors",
     "Barcode_Report"
   ],
   RAPTOR_S5: [
@@ -72,15 +72,14 @@ TEST_MANIFEST = {
     "Chip_Type",
     "Test_Fragments",
     "Pressure_And_Temperature",
-    "Explog_errors",
+    "Experiment_Errors",
     "Barcode_Report"
   ],
   OT_LOG: [
     "Plots",
     "Sample_Pump",
     "Oil_Pump",
-    "OT_Script",
-    "Explog_errors"
+    "OT_Script"
   ],
   ION_CHEF: [
     "Alarms",
@@ -92,8 +91,7 @@ TEST_MANIFEST = {
     "Chef_Run_Details",
     # "Fans", Now plotted by Chef_Run_Log
     "Chef_Run_Log",
-    "Integrity_Check",
-    "Explog_errors"
+    "Integrity_Check"
   ]
 }
 
