@@ -26,7 +26,7 @@ if [ -s $WHOLE_BLOCK_LIST ]; then
 
     echo Info
     echo 20
-    echo Plots of NucStep traces.
+    echo See results for details.
 
 else
     var=$(./rawTrace_lemon.pl -a $ARCHIVE -o $OUTPUT 2>&1)
@@ -34,7 +34,7 @@ else
     if [ "$?" = "0" ]; then
       echo Info
       echo 20
-      echo Plots of NucStep traces.
+      echo See results for details.
     else
       echo N/A
       echo 0
