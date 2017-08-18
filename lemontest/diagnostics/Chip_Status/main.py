@@ -125,11 +125,11 @@ def execute(archive_path, output_path, archive_type):
 
         # details genereration here
         if report_level == REPORT_LEVEL_ALERT:
-            print_alert("See Results")
+            print_alert("See results for details.")
         elif report_level == REPORT_LEVEL_WARN:
-            print_warning("See Results")
+            print_warning("See results for details.")
         else:
-            print_info("See Results")
+            print_info("See results for details.")
 
         write_results_from_template({
             'noise_report': noise_report,

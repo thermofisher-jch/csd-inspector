@@ -61,7 +61,7 @@ def execute(archive_path, output_path, archive_type):
         elif chef_solutions_expiration and chef_solutions_expiration > run_date:
             print_alert("Chef reagents and/or solutions used were expired.  See results for details.")
         else:
-            print_info("See results")
+            print_info("See results for details.")
     except Exception as exc:
         handle_exception(exc, output_path)
 
