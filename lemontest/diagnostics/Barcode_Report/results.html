@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Barcode Report</title>
+    <style>
+        body {
+            padding-right: 50px;
+            padding-left: 50px;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+
+        .histogram-container img {
+            height: 30px;
+            float: right;
+        }
+
+        .histogram-container {
+            margin-top: 10px;
+            width: 500px;
+            border-bottom: 1px solid #ddd;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<p style="text-align: center">
+<div class="grid">
+    {% for name, path in histograms %}
+        <div class="histogram-container">
+            <img src="{{ path }}">
+            <br>
+            {{ name }}
+        </div>
+    {% endfor %}
+</div>
+</body>
+</html>

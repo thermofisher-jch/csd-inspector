@@ -1,26 +1,14 @@
 #!/usr/bin/env python
 
 import sys
-import glob
-import shutil
-from dateutil.parser import parse
 from datetime import datetime
+
+from dateutil.parser import parse
+
 from lemontest.diagnostics.common.inspector_utils import *
 
 OK_STRING = "TS Version is acceptable at <strong>%s</strong>"
 ALERT_STRING = "Advise customer to upgrade their Torrent Server.  Their version is out-dated at <strong>%s</strong>"
-
-
-def get_read_length_histograms(archive_path, output_path):
-    histograms = []
-    for image_path in glob.glob(os.path.join(archive_path, "basecaller_results/*sparkline.png")):
-        image_filename = os.path.basename(image_path)
-        # Copy to test dir
-        shutil.copyfile(image_path, os.path.join(output_path, image_filename))
-        # Generate name and path
-        name = image_filename.replace(".sparkline.png", "")
-        histograms.append((name, image_filename))
-    return histograms
 
 
 def execute(archive_path, output_path, archive_type):
@@ -65,8 +53,7 @@ def execute(archive_path, output_path, archive_type):
             'chef_reagents_lot': chef_reagents_lot,
             'chef_reagents_expiration': chef_reagents_expiration.strftime(datetime_output_format) if chef_reagents_expiration else '',
             'chef_solutions_lot': chef_solutions_lot,
-            'chef_solutions_expiration': chef_solutions_expiration.strftime(datetime_output_format) if chef_solutions_expiration else '',
-            'histograms': get_read_length_histograms(archive_path, output_path)
+            'chef_solutions_expiration': chef_solutions_expiration.strftime(datetime_output_format) if chef_solutions_expiration else ''
         }, output_path)
 
         if chef_reagents_expiration and chef_reagents_expiration > run_date:

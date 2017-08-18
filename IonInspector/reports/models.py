@@ -44,7 +44,8 @@ TEST_MANIFEST = {
     "Chip_Type",
     "Test_Fragments",
     "Pressure_And_Temperature",
-    "Explog_errors"
+    "Explog_errors",
+    "Barcode_Report"
   ],
   PROTON: [
     "Filter_Metrics",
@@ -57,7 +58,8 @@ TEST_MANIFEST = {
     "Chip_Type",
     "Test_Fragments",
     "Pressure_And_Temperature",
-    "Explog_errors"
+    "Explog_errors",
+    "Barcode_Report"
   ],
   RAPTOR_S5: [
     "Filter_Metrics",
@@ -70,7 +72,8 @@ TEST_MANIFEST = {
     "Chip_Type",
     "Test_Fragments",
     "Pressure_And_Temperature",
-    "Explog_errors"
+    "Explog_errors",
+    "Barcode_Report"
   ],
   OT_LOG: [
     "Plots",
