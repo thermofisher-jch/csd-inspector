@@ -40,7 +40,8 @@ def execute(archive_path, output_path, archive_type):
                 return
 
             if EXTENSION_MIME_TYPES[file_extension] != file_mime_type:
-                print_failed("Archive extension '%s' does not match file type '%s'" % (compressed_archive_path, file_mime_type))
+                print_failed("Archive extension '%s' does not match file type '%s'" %
+                             (os.path.basename(compressed_archive_path), file_mime_type))
                 return
 
         else:
