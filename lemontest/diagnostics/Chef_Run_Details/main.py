@@ -12,6 +12,7 @@ run_types = {
     "cleaning": "Chef UV Clean",
     "factorytest": "Factory Test",
     "installtest": "Install Test",
+    "fullloadcheck": "Full Load Check"
 }
 
 
