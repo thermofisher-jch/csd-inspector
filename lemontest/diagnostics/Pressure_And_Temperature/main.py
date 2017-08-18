@@ -35,7 +35,7 @@ def execute(archive_path, output_path, archive_type):
                     dat_meta[key] = [value]
                 else:  # If there is no = this token is a value
                     dat_meta[dat_meta.keys()[-1]].append(token)
-            return dat_name, dat_meta
+            return dat_name.strip(), dat_meta
 
         # PGM Parsing
         def parse_flow_data_pgm(fp, new_pgm_format):
@@ -169,17 +169,18 @@ def execute(archive_path, output_path, archive_type):
                     data["temperature"]["ambientTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][1])])
                     data["temperature"]["underChipTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][2])])
                     # Track flow types
-                    flow_type, _ = dat_name.rsplit("_", 1)
-                    if flow_type != last_flow_type:
-                        # Flow type has switched. Record the end of this flow type
-                        if last_flow_type in data["flowTypes"]:
-                            data["flowTypes"][last_flow_type]["end"] = flow_count - 1
-                        # Create a new record for this flow type
-                        data["flowTypes"][flow_type] = {
-                            "start": flow_count,
-                            "end": None
-                        }
-                        last_flow_type = flow_type
+                    if dat_name:
+                        flow_type, _ = dat_name.rsplit("_", 1)
+                        if flow_type != last_flow_type:
+                            # Flow type has switched. Record the end of this flow type
+                            if last_flow_type in data["flowTypes"]:
+                                data["flowTypes"][last_flow_type]["end"] = flow_count - 1
+                            # Create a new record for this flow type
+                            data["flowTypes"][flow_type] = {
+                                "start": flow_count,
+                                "end": None
+                            }
+                            last_flow_type = flow_type
                     flow_count += 1
             # Add an endpoint for the acq flows
             data["flowTypes"][last_flow_type]["end"] = flow_count
@@ -247,17 +248,18 @@ def execute(archive_path, output_path, archive_type):
                     # Chip temp
                     data["temperature"]["chipTemperature"]["data"].append([flow_count, float(dat_meta["chipTemp"][0])])
                     # Track flow types
-                    flow_type, _ = dat_name.rsplit("_", 1)
-                    if flow_type != last_flow_type:
-                        # Flow type has switched. Record the end of this flow type
-                        if last_flow_type in data["flowTypes"]:
-                            data["flowTypes"][last_flow_type]["end"] = flow_count - 1
-                        # Create a new record for this flow type
-                        data["flowTypes"][flow_type] = {
-                            "start": flow_count,
-                            "end": None
-                        }
-                        last_flow_type = flow_type
+                    if dat_name:
+                        flow_type, _ = dat_name.rsplit("_", 1)
+                        if flow_type != last_flow_type:
+                            # Flow type has switched. Record the end of this flow type
+                            if last_flow_type in data["flowTypes"]:
+                                data["flowTypes"][last_flow_type]["end"] = flow_count - 1
+                            # Create a new record for this flow type
+                            data["flowTypes"][flow_type] = {
+                                "start": flow_count,
+                                "end": None
+                            }
+                            last_flow_type = flow_type
                     flow_count += 1
             # Add an endpoint for the acq flows
             data["flowTypes"][last_flow_type]["end"] = flow_count
