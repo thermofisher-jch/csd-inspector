@@ -57,10 +57,17 @@ def execute(archive_path, output_path, archive_type):
         chip_a, chip_b = get_chip_names_from_element_tree(chef_run_log)
 
         kit = get_kit_from_element_tree(chef_run_log)
-        message = (kit or "Unknown Kit") + " | " + "Chip 1: %s" % (chip_a or "Unknown Chip")
+        message = (kit or "Unknown Kit") + " | "
 
-        if chip_b:
+        if chip_a and chip_b:
+            message += "Chip 1: %s" % chip_a
             message += ", Chip 2: %s" % chip_b
+        elif chip_a:
+            message += "Chip: %s" % chip_a
+        elif chip_b:
+            message += "Chip: %s" % chip_a
+        else:
+            message += "Unknown Chip"
 
         print_info(message)
 
