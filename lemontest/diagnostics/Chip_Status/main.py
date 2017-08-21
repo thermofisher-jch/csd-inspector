@@ -95,19 +95,22 @@ def execute(archive_path, output_path, archive_type):
         # detect reference electrode record indicating pgm and look for issues
         electode_alert = False
         electrode_report = ''
+        electrode_gain = None
         if "Ref Electrode" in data and chip_type in electrode_ranges:
-            low, high = electrode_ranges[chip_type]
-            gain = round(float(data["Ref Electrode"].split(' ')[0]), 2)
-            if gain > high:
-                electrode_report = "Reference Electrode {} is high.".format(gain)
+            electrode_low, electrode_high = electrode_ranges[chip_type]
+            electrode_gain = round(float(data["Ref Electrode"].split(' ')[0]), 2)
+            if electrode_gain > electrode_high:
+                electrode_report = "Reference Electrode {} is high.".format(electrode_gain)
                 electode_alert = True
-            elif gain < low:
-                electrode_report = "Reference Electrode {} is low.".format(gain)
+            elif electrode_gain < electrode_low:
+                electrode_report = "Reference Electrode {} is low.".format(electrode_gain)
                 electode_alert = True
             else:
-                electrode_report = "Reference Electrode {} is within range.".format(gain)
+                electrode_report = "Reference Electrode {} is within range.".format(electrode_gain)
 
         # get the isp loading
+        bead_loading = None
+        isp_report = None
         if chip_type != '314':
             stats_path = None
             for file_name in ['sigproc_results/analysis.bfmask.stats', 'sigproc_results/bfmask.stats']:
@@ -123,13 +126,21 @@ def execute(archive_path, output_path, archive_type):
             else:
                 isp_report = "Required stats files not included"
 
+        # generate message
+        message = "Loading {} | Gain {} | Noise {}".format(
+            "{:.1%}".format(bead_loading) if bead_loading else "Unknown",
+            gain or "Unknown",
+            noise or "Unknown")
+        if electrode_gain:
+            message += " | Reference Electrode {}".format(electrode_gain)
+
         # details genereration here
         if report_level == REPORT_LEVEL_ALERT:
-            print_alert("See results for details.")
+            print_alert(message)
         elif report_level == REPORT_LEVEL_WARN:
-            print_warning("See results for details.")
+            print_warning(message)
         else:
-            print_info("See results for details.")
+            print_info(message)
 
         write_results_from_template({
             'noise_report': noise_report,
