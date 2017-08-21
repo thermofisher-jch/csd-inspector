@@ -28,7 +28,7 @@ def check_for_dx_zip(path_to_zip):
 def check_for_dx_csv(path_to_csv):
     """ Checks a csv file for indicators that it's a Dx archive. Returns true if this is a Dx archive. """
     with open(path_to_csv) as csv_file:
-        return "/software/scripts/run_scripts/EN/DX/" in csv_file.readline()
+        return "PGM_Dx_200bp.txt" in csv_file.readline()
 
 
 def force_symlink(source, link):
