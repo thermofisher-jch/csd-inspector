@@ -66,6 +66,7 @@ def execute(archive_path, output_path, archive_type):
             if getattr(e, "code", None) == 4:
                 print_failed(
                     "Run log contains invalid characters. Possibly a known issue with IC before v5.4.")
+                return
             else:
                 print_failed("Invalid run log xml: %s" % str(e))
                 return
