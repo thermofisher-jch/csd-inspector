@@ -49,9 +49,9 @@ def execute(archive_path, output_path, archive_type):
             'chef_solutions_expiration': chef_solutions_expiration.strftime(datetime_output_format) if chef_solutions_expiration else ''
         }, output_path)
 
-        if chef_reagents_expiration and chef_reagents_expiration > run_date:
+        if chef_reagents_expiration and chef_reagents_expiration < run_date:
             print_alert("Chef reagents and/or solutions used were expired.  See results for details.")
-        elif chef_solutions_expiration and chef_solutions_expiration > run_date:
+        elif chef_solutions_expiration and chef_solutions_expiration < run_date:
             print_alert("Chef reagents and/or solutions used were expired.  See results for details.")
         else:
             print_info("See results for details.")
