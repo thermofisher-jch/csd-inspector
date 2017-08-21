@@ -82,9 +82,9 @@ TEST_MANIFEST = {
     "OT_Script"
   ],
   ION_CHEF: [
-    "Alarms",
-    "Notifications",
-    "Kit_Details",
+    "Chef_Alarms",
+    "Chef_Notifications",
+    "Chef_Kit_Details",
     "Chef_Timer",
     "Chef_Version",
     # "Flow", Now plotted by Chef_Run_Log
