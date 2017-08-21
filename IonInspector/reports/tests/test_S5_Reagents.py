@@ -40,5 +40,8 @@ class S5ReagentsTestCase(SimpleTestCase):
         self.assertEqual(results, date(2017, 02, 28))
 
     def test_reagents_expired(self):
-        self.assertTrue(reagents_expired(date(2017, 02, 28), [date(2017, 02, 27)]))
+        self.assertTrue(reagents_expired(date(2017, 02, 28), [date(2017, 01, 27)]))
         self.assertFalse(reagents_expired(date(2017, 02, 28), [date(2017, 04, 29)]))
+        # Reagents that expire before a run but in the same month should not be expired:
+        # https://jira.amer.thermo.com/browse/IO-252
+        self.assertFalse(reagents_expired(date(2017, 02, 28), [date(2017, 02, 10)]))

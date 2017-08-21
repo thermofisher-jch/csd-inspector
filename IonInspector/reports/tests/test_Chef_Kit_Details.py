@@ -2,7 +2,7 @@ from xml.etree import ElementTree
 
 from django.test import SimpleTestCase
 
-from lemontest.diagnostics.Chef_Chip.main import get_chip_names_from_element_tree, get_kit_from_element_tree
+from lemontest.diagnostics.Chef_Kit_Details.main import get_chip_names_from_element_tree, get_kit_from_element_tree
 
 
 class ChefChipTestCase(SimpleTestCase):

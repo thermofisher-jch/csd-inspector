@@ -45,7 +45,8 @@ TEST_MANIFEST = {
     "Test_Fragments",
     "Pressure_And_Temperature",
     "Experiment_Errors",
-    "Barcode_Report"
+    "Barcode_Report",
+    "Run_Sequence_Details"
   ],
   PROTON: [
     "Filter_Metrics",
@@ -59,21 +60,23 @@ TEST_MANIFEST = {
     "Test_Fragments",
     "Pressure_And_Temperature",
     "Experiment_Errors",
-    "Barcode_Report"
+    "Barcode_Report",
+    "Run_Sequence_Details"
   ],
   RAPTOR_S5: [
     "Filter_Metrics",
     "Raw_Trace",
     "Chip_Status",
-    "Run_Details",
+    "Run_Chef_Details",
     "Flow_Error",
     "S5_Reagents",
-    "Sequencing_Details",
+    "Run_Kit_Details",
     "Chip_Type",
     "Test_Fragments",
     "Pressure_And_Temperature",
     "Experiment_Errors",
-    "Barcode_Report"
+    "Barcode_Report",
+    "Run_Sequence_Details"
   ],
   OT_LOG: [
     "Plots",

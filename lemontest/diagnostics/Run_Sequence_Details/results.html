@@ -44,35 +44,11 @@
     Run Date: {{ run_date }}<br/>
 
     {% if flows %}
-        Flows: {{ flows }}<br/>
+        Flow Number: {{ flows }}<br/>
     {% else %}
-        Flows: <i>Missing</i><br/>
+        Flow Number: <i>Missing</i><br/>
     {% endif %}
 
-    {% if chef_name %}
-        Chef Name: {{ chef_name }}<br/>
-    {% else %}
-        Chef Name: <i>Unknown</i><br/>
-    {% endif %}
-
-    {% if sample_pos %}
-        Sample Name: {{ sample_pos }}
-    {% else %}
-        Sample Name: <i>Unknown</i><br/>
-    {% endif %}
-
-    {% if chef_reagents_lot %}
-        Chef Reagents Lot: {{ chef_reagents_lot }}<br />
-    {% endif %}
-    {% if chef_reagents_expiration %}
-        Chef Reagents Expiration Date: {{ chef_reagents_expiration }}<br />
-    {% endif %}
-    {% if chef_solutions_lot %}
-        Chef Solutions Lot: {{ chef_solutions_lot }}<br />
-    {% endif %}
-    {% if chef_solutions_expiration %}
-        Chef Solutions Expiration: {{ chef_solutions_expiration }}<br />
-    {% endif %}
 </p>
 
 <br><br><br>

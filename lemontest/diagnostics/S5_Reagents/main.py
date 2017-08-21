@@ -38,7 +38,7 @@ def parse_start_time(start_time_string):
 
 def reagents_expired(run_date, reagent_exp_dates):
     for exp_date in reagent_exp_dates:
-        if exp_date <= run_date:
+        if exp_date.replace(day=1) < run_date.replace(day=1):
             return True
     else:
         return False
@@ -82,9 +82,9 @@ def execute(archive_path, output_path, archive_type):
                 break
 
         message = " | ".join([
-            "Cleaning Lot <strong>%s</strong>" % cleaning_dict["lotNumber"],
-            "Reagents Lot <strong>%s</strong>" % sequencing_dict["lotNumber"],
-            "Wash Lot <strong>%s</strong>" % wash_dict["lotNumber"],
+            "Cleaning Lot %s" % cleaning_dict["lotNumber"],
+            "Reagents Lot %s" % sequencing_dict["lotNumber"],
+            "Wash Lot %s" % wash_dict["lotNumber"],
         ])
 
         # determine if reagents were expired when the run was executed
