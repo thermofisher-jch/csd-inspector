@@ -10,6 +10,13 @@ OK_STRING = "TS Version is acceptable at <strong>%s</strong>"
 ALERT_STRING = "Advise customer to upgrade their Torrent Server.  Their version is out-dated at <strong>%s</strong>"
 
 
+def parse_run_number_from_run_name(name):
+    try:
+        return name.split("-")[1]
+    except Exception as e:
+        return "Unknown"
+
+
 def execute(archive_path, output_path, archive_type):
     """Executes the test"""
 
@@ -31,7 +38,9 @@ def execute(archive_path, output_path, archive_type):
         template_context = {
             'tss_version': version,
             'device_name': ion_params.get('exp_json', dict()).get('pgmName', dict()),
-            'run_number': ion_params.get('exp_json', dict()).get('log', dict()).get('run_number', 'Unknown'),
+            'run_number': parse_run_number_from_run_name(
+                ion_params.get('exp_json', dict()).get('log', dict()).get('runname')
+            ),
             'run_date': run_date.strftime(datetime_output_format),
             'flows': flows
         }
