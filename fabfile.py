@@ -1,4 +1,3 @@
-import os
 from fabric.api import env, run, cd, sudo, local
 from fabric.contrib.files import upload_template
 
@@ -22,11 +21,19 @@ def dev():
 
 
 def test(path=""):
-    local("docker-compose run django python manage.py test --noinput %s" % path)
+    local("docker-compose run django "
+          "python manage.py test --noinput %s" % path)
 
 
 def test_case(name="*"):
-    local("docker-compose run django python manage.py test --noinput --pattern='test_%s.py'" % name)
+    local("docker-compose run django "
+          "python manage.py test --noinput --pattern='test_%s.py'" % name)
+
+
+def test_case_profile(name="*"):
+    local("docker-compose run django "
+          "python -m cProfile -o /var/log/inspector/test_%s.pstats "
+          "manage.py test --noinput --pattern='test_%s.py'" % (name, name))
 
 
 def provision():

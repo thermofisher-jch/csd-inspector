@@ -26,12 +26,18 @@ def execute(archive_path, output_path, archive_type):
         run_date = parse(explog.get('Start Time', 'Unknown'))
         chef_reagents_lot = ion_params.get('exp_json', dict()).get('chefReagentsLot', '')
         chef_reagents_expiration = ion_params.get('exp_json', dict()).get('chefReagentsExpiration', '')
-        chef_reagents_expiration = datetime.strptime(chef_reagents_expiration,
+        try:
+            chef_reagents_expiration = datetime.strptime(chef_reagents_expiration,
                                                      '%y%m%d') if chef_reagents_expiration else None
+        except:
+            chef_reagents_expiration = None
         chef_solutions_lot = ion_params.get('exp_json', dict()).get('chefSolutionsLot', '')
         chef_solutions_expiration = ion_params.get('exp_json', dict()).get('chefSolutionsExpiration', '')
-        chef_solutions_expiration = datetime.strptime(chef_solutions_expiration,
+        try:
+            chef_solutions_expiration = datetime.strptime(chef_solutions_expiration,
                                                       '%y%m%d') if chef_solutions_expiration else None
+        except:
+            chef_solutions_expiration = None
 
         datetime_output_format = '%Y/%m/%d'
         template_context = {
@@ -52,7 +58,9 @@ def execute(archive_path, output_path, archive_type):
                   "Reagents Lot " + template_context["chef_reagents_lot"] + " | " + \
                   "Solutions Lot " + template_context["chef_solutions_lot"]
 
-        if chef_reagents_expiration and chef_reagents_expiration < run_date:
+        if not chef_reagents_expiration or not chef_solutions_expiration:
+            print_warning(message + "Could not parse expiration dates.")
+        elif chef_reagents_expiration and chef_reagents_expiration < run_date:
             print_alert(message + "Chef reagents expired.")
         elif chef_solutions_expiration and chef_solutions_expiration < run_date:
             print_alert(message + "Chef reagents expired.")
