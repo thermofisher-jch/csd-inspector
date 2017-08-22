@@ -40,7 +40,7 @@ def execute(archive_path, output_path, archive_type):
     try:
         # the amount of time mr coffee was requested to pause for
         mrcoffee_pause_time_seconds = 0
-        mrcoffee_pause_time_date_time = None
+        mrcoffee_line_date_time = None
 
         # the boolean flag for a manual pause time request
         user_pause_request = False
@@ -75,10 +75,9 @@ def execute(archive_path, output_path, archive_type):
                     if not user_pause_end or line_date_time > user_pause_end:
                         user_pause_end = line_date_time
 
-                if 'process: mrcoffee' in is_line:
-                    if not mrcoffee_pause_time_date_time or line_date_time > mrcoffee_pause_time_date_time:
-                        mrcoffee_pause_time_date_time = line_date_time
-                        mrcoffee_pause_time_seconds = int(is_line.split(':')[-1].strip())
+                if 'timing: Run Scheduler mrcoffee' in is_line:
+                    if not mrcoffee_line_date_time or line_date_time > mrcoffee_line_date_time:
+                        mrcoffee_pause_time_seconds = int(is_line.replace(" seconds.", "").split(" ")[-1])
 
                 if 'process: user_pause' in is_line:
                     if not user_pause_request_date_time or line_date_time > user_pause_request_date_time:
