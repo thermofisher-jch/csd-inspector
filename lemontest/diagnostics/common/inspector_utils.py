@@ -292,6 +292,12 @@ def get_ts_version(archive_path):
     return version.strip()
 
 
+def run_used_chef(archive_path):
+    with open(os.path.join(archive_path, "ion_params_00.json")) as ion_params_file:
+        ion_params_object = json.load(ion_params_file)
+    return len(ion_params_object.get("exp_json", {}).get("chefInstrumentName", "")) > 0
+
+
 def write_results_from_template(data_dict, output_dir):
     template = Template(open("results.html").read())
     result = template.render(Context(data_dict))

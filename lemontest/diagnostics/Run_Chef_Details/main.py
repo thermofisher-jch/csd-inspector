@@ -15,6 +15,10 @@ def execute(archive_path, output_path, archive_type):
     """Executes the test"""
 
     try:
+        if not run_used_chef(archive_path):
+            print_na("Ion Chef was not used for this run.")
+            exit()
+
         # check that this is a valid hardware set for evaluation
         explog = read_explog(archive_path)
         check_supported(explog)
