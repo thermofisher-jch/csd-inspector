@@ -9,7 +9,7 @@ Library Well Categorization (filters are displayed in the order which they are a
                 "Primer Dimer" (formerly known as "adapter trim") - reads discarded because adapter trimming reduced the side of the read below 4 (beyond key and barcode).
                 "Low Quality: Quality Trim" - reads discarded because quality trimming (based on sliding-window average of phred qv scores) reduced the size of read below 4 (beyond key and barcode).
                 "Final Library ISPs" (formerly known as "valid") - whatever reads survived the above filters and were saved to BaseCaller's output file (unmapped BAM or SFF in earlier versions).
-                "Quality filter" - category not applicable in PGM or <TS5.2.
+                "Quality filter" - category not applicable for PGM or TS 5.0.5 or earlier.
 
                 Note: The above filters are binned together in the sequencing run report as their naming implies.  (This means that all of the Low Quality reads are totaled and displayed as the number of "Filtered: Low Quality" and percentage of the total Library ISPs.  The same is true for "Filtered: Polyclonal", "Filtered: Primer Dimer", and "Final Library ISPs").
                
