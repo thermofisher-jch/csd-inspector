@@ -10,9 +10,11 @@ OK_STRING = "TS Version is acceptable at <strong>%s</strong>"
 ALERT_STRING = "Advise customer to upgrade their Torrent Server.  Their version is out-dated at <strong>%s</strong>"
 
 
-def parse_run_number_from_run_name(name):
+def parse_run_number_from_run_name(run_name, device_name):
+    if run_name.startswith(device_name):
+        run_name = run_name[len(device_name):]
     try:
-        return name.split("-")[1]
+        return run_name.split("-")[1]
     except Exception as e:
         return "Unknown"
 
@@ -39,12 +41,15 @@ def execute(archive_path, output_path, archive_type):
         run_date = parse(explog.get('Start Time', 'Unknown'))
         flows = explog.get('Flows', '')
 
+        device_name = ion_params.get('exp_json', dict()).get('pgmName', "")
+
         datetime_output_format = '%Y/%m/%d'
         template_context = {
             'tss_version': version,
-            'device_name': ion_params.get('exp_json', dict()).get('pgmName', dict()),
+            'device_name': device_name,
             'run_number': parse_run_number_from_run_name(
-                ion_params.get('exp_json', dict()).get('log', dict()).get('runname')
+                run_name=ion_params.get('exp_json', dict()).get('log', dict()).get('runname', ""),
+                device_name=device_name
             ),
             'run_date': run_date.strftime(datetime_output_format),
             'flows': flows
