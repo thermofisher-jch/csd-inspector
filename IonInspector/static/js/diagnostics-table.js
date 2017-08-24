@@ -10,7 +10,7 @@ var diagnosticsTableApp = {
         "Warning": "label-warning",
         "OK": "label-success",
         "NA": "",
-        "Failed": "label-important"
+        "Failed": "label-inverse"
     },
     computeDisplayValues: function (diagnostics) {
         for (var i = 0; i < diagnostics.length; i++) {
