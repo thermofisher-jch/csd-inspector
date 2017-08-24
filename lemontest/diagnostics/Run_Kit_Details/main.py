@@ -16,10 +16,12 @@ def execute(archive_path, output_path, archive_type):
             with open(params_path) as params_file:
                 params = json.load(params_file)
 
-        # check if the key is present in the dictionary
-        template_kit_name = "Unknown Templating Kit"
-        if 'plan' in params and 'templatingKitName' in params['plan']:
+        if params.get("exp_json", {}).get("chefKitType"):
+            template_kit_name = params.get("exp_json", {}).get("chefKitType")
+        elif 'plan' in params and 'templatingKitName' in params['plan']:
             template_kit_name = params['plan']['templatingKitName']
+        else:
+            template_kit_name = "Unknown Templating Kit"
 
         # get the sequencing kit description from the exp log
         exp_log = read_explog(archive_path)
