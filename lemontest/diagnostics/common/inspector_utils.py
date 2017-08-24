@@ -1,6 +1,6 @@
 import csv
 import os
-import re
+import semver
 import json
 import traceback
 from django.template import Context, Template
@@ -280,6 +280,15 @@ def get_chip_type_from_exp_log(exp_log):
     return 'PQ' if chip_type == 'P2' else chip_type
 
 
+def parse_ts_version(version_string):
+    if version_string.count(".") < 2:
+        version_string += ".0"
+    if ".RC" in version_string:
+        version_string = version_string.replace(".RC", "-rc.")
+    semver.parse_version_info(version_string)  # Ensure that the string is not valid
+    return version_string
+
+
 def get_ts_version(archive_path):
     version_path = os.path.join(archive_path, "version.txt")
     if not os.path.exists(version_path):
@@ -289,7 +298,7 @@ def get_ts_version(archive_path):
     line = open(version_path).readline()
     version = line.split('=')[-1].strip()
     version = version.split()[0]
-    return version.strip()
+    return parse_ts_version(version.strip())
 
 
 def run_used_chef(archive_path):

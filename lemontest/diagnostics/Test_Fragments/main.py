@@ -17,11 +17,8 @@ def execute(archive_path, output_path, archive_type):
         # special rule for TS < 5.0.5
         sw_version = get_ts_version(archive_path)
 
-        if sw_version.count(".") < 2:
-            sw_version += ".0"
-
-        if semver.match(sw_version, "<5.0.5"):
-            if exp_log.get('LibKit') == 'IonPicoPlex':
+        if exp_log.get('LibKit') == 'IonPicoPlex':
+            if semver.match(sw_version, "<5.0.5"):
                 print_na("TF's not reported for ReproSeq before TS 5.0.5")
                 return
 
