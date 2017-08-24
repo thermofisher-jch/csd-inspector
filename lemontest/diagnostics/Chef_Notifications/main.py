@@ -73,7 +73,7 @@ def execute(archive_path, output_path, archive_type):
         print("Alert")
         print("40")
     elif notifications:
-        print("Warning")
+        print("Alert")
         print("30")
         summary += "{} notifications.".format(len(notifications))
     else:

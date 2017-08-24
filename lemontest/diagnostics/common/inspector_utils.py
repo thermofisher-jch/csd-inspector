@@ -116,13 +116,7 @@ def print_alert(message):
 
 
 def print_warning(message):
-    """
-    prints the warning message
-    :param message: The message to print
-    """
-    print("Warning")
-    print(30)
-    print(message[:MAX_MESSAGE_LENGTH])
+    print_alert(message)
 
 
 def print_info(message):
