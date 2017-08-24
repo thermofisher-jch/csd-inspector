@@ -18,8 +18,8 @@ def execute(archive_path, output_path, archive_type):
         sw_version = get_ts_version(archive_path)
 
         if exp_log.get('LibKit') == 'IonPicoPlex':
-            if semver.match(sw_version, "<5.0.5"):
-                print_na("TF's not reported for ReproSeq before TS 5.0.5")
+            if semver.match(sw_version, "<=5.0.5"):
+                print_na("TF's not reported for reproseq in TS 5.0.5 or earlier.")
                 return
 
         tf_stats_path = os.path.join(archive_path, 'basecaller_results', 'TFStats.json')
