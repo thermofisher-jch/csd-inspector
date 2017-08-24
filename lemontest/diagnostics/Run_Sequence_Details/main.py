@@ -43,14 +43,18 @@ def execute(archive_path, output_path, archive_type):
 
         device_name = ion_params.get('exp_json', dict()).get('pgmName', "")
 
+        run_number = str(ion_params.get('exp_json', dict()).get('log', dict()).get('run_number', ""))
+        if not run_number:
+            run_number = parse_run_number_from_run_name(
+                run_name=ion_params.get('exp_json', dict()).get('log', dict()).get('runname', ""),
+                device_name=device_name
+            )
+
         datetime_output_format = '%Y/%m/%d'
         template_context = {
             'tss_version': version,
             'device_name': device_name,
-            'run_number': parse_run_number_from_run_name(
-                run_name=ion_params.get('exp_json', dict()).get('log', dict()).get('runname', ""),
-                device_name=device_name
-            ),
+            'run_number': run_number,
             'run_date': run_date.strftime(datetime_output_format),
             'flows': flows
         }
