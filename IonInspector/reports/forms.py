@@ -13,6 +13,6 @@ class ArchiveForm(forms.Form):
     archive_type = forms.ChoiceField(label='Archive Type', required=True, choices=[
         (device.replace("_", " "), device.replace("_", " ")) for device in TEST_MANIFEST.keys()
         ])
-    taser_ticket_number = forms.IntegerField(label='Taser Ticket Number', required=False, min_value=0)
+    taser_ticket_number = forms.IntegerField(label='TASER Ticket Number', required=False, min_value=0)
     doc_file = forms.FileField(label='Select file', required=True)
     upload_another = forms.CharField(initial="no", widget=forms.HiddenInput)
