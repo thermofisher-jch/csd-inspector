@@ -38,6 +38,7 @@ TEST_MANIFEST = {
     "Raw_Trace",
     "Chip_Temperature",
     "Chip_Status",
+    "Run_Chef_Details",
     "Auto_pH",
     "Run_Kit_Details",
     "Chip_Type",
