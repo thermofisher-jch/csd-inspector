@@ -296,7 +296,10 @@ def get_ts_version(archive_path):
 
 
 def run_used_chef(archive_path):
-    with open(os.path.join(archive_path, "ion_params_00.json")) as ion_params_file:
+    ion_params_path = os.path.join(archive_path, "ion_params_00.json")
+    if not os.path.exists(ion_params_path):
+        raise ValueError("Could not load ion_params_00.json.")
+    with open(ion_params_path) as ion_params_file:
         ion_params_object = json.load(ion_params_file)
     return len(ion_params_object.get("exp_json", {}).get("chefInstrumentName", "")) > 0
 

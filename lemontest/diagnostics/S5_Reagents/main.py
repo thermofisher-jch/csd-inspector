@@ -92,7 +92,7 @@ def execute(archive_path, output_path, archive_type):
             if reagents_expired(run_date, [cleaning_dict["expDate"], sequencing_dict["expDate"], wash_dict["expDate"]]):
                 print_alert(message + " | Expired Reagents")
             else:
-                print_info(message)
+                print_ok(message)
         else:
             print_alert(message)
 

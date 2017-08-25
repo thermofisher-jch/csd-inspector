@@ -29,7 +29,7 @@ def execute(archive_path, output_path, archive_type):
 
         ion_params_path = os.path.join(archive_path, 'ion_params_00.json')
         if not os.path.exists(ion_params_path):
-            print_warning("Missing ion_params_00.json file. Added in TS 5.0.3.")
+            print_info("Missing ion_params_00.json file. Added in TS 5.0.3.")
             return
         else:
             with open(ion_params_path) as ion_params_handle:

@@ -38,7 +38,7 @@ def execute(archive_path, output_path, archive_type):
         print_info(" | ".join([system_type, inspector_seq_kit, template_kit_name]))
 
     except Exception as exc:
-        print_na(str(exc))
+        print_failed(str(exc))
 
 if __name__ == "__main__":
     archive_path, output_path, archive_type = sys.argv[1:4]

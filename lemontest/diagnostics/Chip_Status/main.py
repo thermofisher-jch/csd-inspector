@@ -140,7 +140,7 @@ def execute(archive_path, output_path, archive_type):
         elif report_level == REPORT_LEVEL_WARN:
             print_warning(message)
         else:
-            print_info(message)
+            print_ok(message)
 
         write_results_from_template({
             'noise_report': noise_report,

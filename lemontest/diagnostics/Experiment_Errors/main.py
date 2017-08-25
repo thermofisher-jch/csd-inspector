@@ -24,7 +24,7 @@ try:
                 html_handle.write("<tr><td> &emsp;&emsp;&emsp;" + str(error) + "</td></tr>")
             html_handle.write("</tbody></table>")
     else:
-        print_info("No experiment errors found")
+        print_ok("No experiment errors found")
 
 except Exception as exc:
     handle_exception(exc, output_path)

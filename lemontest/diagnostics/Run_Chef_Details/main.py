@@ -15,15 +15,23 @@ def execute(archive_path, output_path, archive_type):
     """Executes the test"""
 
     try:
-        if not run_used_chef(archive_path):
-            print_na("Ion Chef was not used for this run.")
+        try:
+            if not run_used_chef(archive_path):
+                print_na("Ion Chef was not used for this run.")
+                exit()
+        except ValueError:
+            print_na("Could not find ion_params_00.json.")
             exit()
 
         # check that this is a valid hardware set for evaluation
         explog = read_explog(archive_path)
         check_supported(explog)
 
-        with open(os.path.join(archive_path, 'ion_params_00.json')) as ion_params_handle:
+        ion_params_path = os.path.join(archive_path, 'ion_params_00.json')
+        if not os.path.exists(ion_params_path):
+            print_na("Could not find ion_params_00.json.")
+            exit()
+        with open(ion_params_path) as ion_params_handle:
             ion_params = json.load(ion_params_handle)
 
         # get the reagent and solution lots and experation dates
@@ -63,13 +71,13 @@ def execute(archive_path, output_path, archive_type):
                   "Solutions Lot " + template_context["chef_solutions_lot"]
 
         if not chef_reagents_expiration or not chef_solutions_expiration:
-            print_warning(message + "Could not parse expiration dates.")
+            print_alert(message + "Could not parse expiration dates.")
         elif chef_reagents_expiration and chef_reagents_expiration < run_date:
             print_alert(message + "Chef reagents expired.")
         elif chef_solutions_expiration and chef_solutions_expiration < run_date:
             print_alert(message + "Chef reagents expired.")
         else:
-            print_info(message)
+            print_ok(message)
     except Exception as exc:
         handle_exception(exc, output_path)
 

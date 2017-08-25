@@ -142,7 +142,7 @@ def execute(archive_path, output_path, archive_type):
                 html_handle.write("</p>")
 
             if failure:
-                print_alert(failure)
+                print_failed(failure)
             else:
                 print_info("Starting pH: {} | W1 added (ml): {} | Reagent Check: {}".format(starting_ph, x[-1], reagent_check))
     except Exception as exc:

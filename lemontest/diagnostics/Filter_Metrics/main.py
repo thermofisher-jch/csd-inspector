@@ -158,7 +158,7 @@ def execute(archive_path, output_path, archive_type):
         with open(os.path.join(output_path, "results.html"), 'w') as out:
             out.write(result.encode("UTF-8"))
 
-        print_ok("See results for details.")
+        print_info("See results for details.")
     except Exception as exc:
         handle_exception(exc, output_path)
 
