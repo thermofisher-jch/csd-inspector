@@ -44,7 +44,6 @@ TEST_MANIFEST = {
     "Chip_Type",
     "Test_Fragments",
     "Pressure_And_Temperature",
-    "Experiment_Errors",
     "Barcode_Report",
     "Run_Sequence_Details"
   ],
