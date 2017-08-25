@@ -76,7 +76,7 @@ def execute(archive_path, output_path, archive_type):
         # get the information from the signal processing results
         sigproc_path = os.path.join(archive_path, 'sigproc_results', 'sigproc.log')
         if not os.path.exists(sigproc_path):
-            raise Exception("Cannot find signal processing log for thumbnail.")
+            raise Exception("Cannot find signal processing log or a thumbnail S5/Proton CSA was not uploaded.")
 
         sigproc_log = list()
         with open(sigproc_path) as sigproc_fp:
