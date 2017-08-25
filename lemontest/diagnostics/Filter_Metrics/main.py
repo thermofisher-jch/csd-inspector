@@ -131,6 +131,7 @@ def execute(archive_path, output_path, archive_type):
             'Primer\nDimer': primer_dimer/1000,
             'Low\nQuality:\nQuality\nTrim': low_quality_quality_trim/1000,
             'Final\nLibrary\nISPs': final_library_isps/1000,
+            'Quality\nFilter': quality_filter/1000,
         }
         create_plot(data, os.path.join(output_path, 'library.png'))
 
