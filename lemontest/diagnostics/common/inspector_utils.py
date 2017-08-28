@@ -21,19 +21,31 @@ def check_supported(explog):
         raise Exception("The " + chip_type + " Chip has been blacklisted and cannot be evaulated.")
 
 
+def get_explog_path(archive_path):
+    """
+    This method will find either the explog_final.txt or explog.txt
+    :return:
+    """
+    path = os.path.join(archive_path, "explog_final.txt")
+    if os.path.exists(path):
+        return path
+
+    path = os.path.join(archive_path, "explog.txt")
+    if os.path.exists(path):
+        return path
+
+    raise Exception("explog_final.txt and explog.txt are missing.")
+
+
 def read_explog(archive_path):
     """
     This method will read and output a array of colon delimited key/value pairs from the explog_final.txt
     :param archive_path: the root directory of the archive
     :return:
     """
-    path = os.path.join(archive_path, "explog_final.txt")
-    if not os.path.exists(path):
-        path = os.path.join(archive_path, "explog.txt")
-    if not os.path.exists(path):
-        raise Exception("explog_final.txt and explog.txt are missing.")
 
-    return read_explog_from_handle(open(path))
+    with open(get_explog_path(archive_path)) as explog_handle:
+        return read_explog_from_handle(explog_handle)
 
 
 def read_explog_from_handle(explog_handle):

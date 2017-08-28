@@ -1,0 +1,4 @@
+This test will simply detect which explog file will be used, explog_final.txt or explog.txt.
+
+INPUTS:
+explog_final.txt or explog.txt

@@ -8,13 +8,13 @@ import sys
 from django.template import Context, Template
 
 from lemontest.diagnostics.common.inspector_utils import print_info, print_alert, print_warning, handle_exception, \
-    read_explog
+    read_explog, get_explog_path
 
 
 def execute(archive_path, output_path, archive_type):
     """Executes the test"""
     try:
-        exp_log_file_path = os.path.join(archive_path, "explog_final.txt")
+        exp_log_file_path = get_explog_path(archive_path)
         template_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "results.html")
         results_path = os.path.join(output_path, "results.html")
         explog = read_explog(archive_path)
