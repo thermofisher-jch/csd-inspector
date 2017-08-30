@@ -8,6 +8,8 @@ from xml.etree import ElementTree
 from bs4 import BeautifulSoup
 
 MAX_MESSAGE_LENGTH = 140
+EXPLOG_FINAL = "explog_final.txt"
+EXPLOG = "explog.txt"
 
 
 def check_supported(explog):
@@ -26,11 +28,11 @@ def get_explog_path(archive_path):
     This method will find either the explog_final.txt or explog.txt
     :return:
     """
-    path = os.path.join(archive_path, "explog_final.txt")
+    path = os.path.join(archive_path, EXPLOG_FINAL)
     if os.path.exists(path):
         return path
 
-    path = os.path.join(archive_path, "explog.txt")
+    path = os.path.join(archive_path, EXPLOG)
     if os.path.exists(path):
         return path
 
