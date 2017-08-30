@@ -8,7 +8,7 @@ import sys
 from django.template import Context, Template
 
 from lemontest.diagnostics.common.inspector_utils import print_info, print_alert, print_warning, handle_exception, \
-    read_explog, get_explog_path, EXPLOG_FINAL
+    read_explog, get_explog_path, EXPLOG_FINAL, print_failed
 
 
 def execute(archive_path, output_path, archive_type):
@@ -16,7 +16,7 @@ def execute(archive_path, output_path, archive_type):
     try:
         exp_log_file_path = get_explog_path(archive_path)
         if os.path.basename(exp_log_file_path) != EXPLOG_FINAL:
-            print_alert("When explog_final.txt is not found, the explog.txt is used and has limited run information so some tests will fail.")
+            print_failed("When explog_final.txt is not found, the explog.txt is used and has limited run information so some tests will fail.")
             return
 
         template_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "results.html")
