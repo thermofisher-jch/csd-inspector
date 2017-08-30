@@ -12,7 +12,7 @@ def execute(archive_path, output_path, archive_type):
         # check the explog name and make sure we are grabbing the right one
         explog_path = get_explog_path(archive_path)
         if os.path.basename(explog_path) != EXPLOG_FINAL:
-            print_na("Could not get the final explog so not evaluation can be done.")
+            print_alert("No explog_final.txt was found so potential errors are not reported.")
             return
 
         # get the explog info
