@@ -1,0 +1,4 @@
+This will report the chip type contained in the explog_final.txt with the key TsChipType
+
+INPUTS:
+explog_final.txt or explog.txt

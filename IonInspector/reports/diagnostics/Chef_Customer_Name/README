@@ -1,0 +1,4 @@
+This test will display the customer facing kit name as reflected in the run log xml file unders RunLog\RunInfo\kit_customer_facing_name.
+
+INPUTS:
+/var/log/IonChef/RunLog/*.xml

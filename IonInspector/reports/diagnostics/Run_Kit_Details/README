@@ -1,0 +1,5 @@
+If the user is using an Ion Chef sequencing kit, it is assumed that they're using a chef.  If not, then it's assumed not.
+
+INPUTS:
+ion_params_00.json
+explog_final.txt or explog.txt

@@ -1,0 +1,21 @@
+S5
+---
+The S5 pressure should be 7.2 <= p <= 8.8. Target pressure is 8.0.
+
+Proton
+---
+The Proton pressure should be 10.2 <= p <= 10.8. Target pressure is 10.5.
+
+PGM
+---
+The PGM pressure should be 9.5 <= p <= 11.0.
+
+The PGM temperature should be 26°C <= t <= 34°C.
+
+For ideal Ion PGM™ Instrument operation the PGM Site Prep guide recommends an ambient room temperature of 20-25°C (68-77°F).
+Note: The room temperature should not fluctuate more than 2°C over a 2-hour period.
+
+NOTE: When explog_final.txt is not found, the explog.txt will be used. The explog.txt has limited run information so some inspector tests will fail to report output.
+
+INPUTS:
+explog_final.txt or explog.txt

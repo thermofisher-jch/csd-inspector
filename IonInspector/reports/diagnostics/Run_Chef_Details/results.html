@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Run Details</title>
+    <style>
+        body {
+            padding-right: 30px;
+            padding-left: 30px;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+
+        .grid {
+            display: flex;
+            flex-wrap: wrap;
+            flex-flow: row wrap;
+        }
+
+        .histogram-container {
+            background-color: #eee;
+            border-radius: 4px;
+            margin: 2px 2px 2px 2px;
+            min-width: 300px;
+            text-align: center;
+            padding: 6px;
+            flex: auto;
+            width: 300px;
+        }
+        .histogram-container img {
+            height: 30px;
+        }
+
+    </style>
+</head>
+<body>
+<p style="text-align: center">
+    Run Date: {{ run_date }}<br/>
+
+    {% if chef_name %}
+        Chef Name: {{ chef_name }}<br/>
+    {% else %}
+        Chef Name: <i>Unknown</i><br/>
+    {% endif %}
+
+    {% if sample_pos %}
+        Sample Number: {{ sample_pos }}<br/>
+    {% else %}
+        Sample Number: <i>Unknown</i><br/>
+    {% endif %}
+
+    {% if chef_reagents_lot %}
+        Chef Reagents Lot: {{ chef_reagents_lot }}<br />
+    {% endif %}
+    {% if chef_reagents_expiration %}
+        Chef Reagents Expiration Date: {{ chef_reagents_expiration }}<br />
+    {% endif %}
+    {% if chef_solutions_lot %}
+        Chef Solutions Lot: {{ chef_solutions_lot }}<br />
+    {% endif %}
+    {% if chef_solutions_expiration %}
+        Chef Solutions Expiration: {{ chef_solutions_expiration }}<br />
+    {% endif %}
+</p>
+
+<br><br><br>
+<div class="grid">
+    {% for name, path in histograms %}
+        <div class="histogram-container">
+            <img src="{{ path }}">
+            <br>
+            {{ name }}
+        </div>
+    {% endfor %}
+</div>
+</body>
+</html>

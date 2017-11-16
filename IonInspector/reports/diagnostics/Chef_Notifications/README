@@ -1,0 +1,6 @@
+Notifications are messages from the Chef which are not displayed to the user.
+
+These do not necessarily represent signficant problems, and some notifications may occur regularly.
+
+INPUTS:
+/var/log/IonChef/RunLog/*.xml
