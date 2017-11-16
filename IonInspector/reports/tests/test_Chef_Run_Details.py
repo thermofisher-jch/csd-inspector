@@ -2,7 +2,7 @@ from datetime import datetime
 
 from django.test import SimpleTestCase
 
-from lemontest.diagnostics.Chef_Run_Details.main import parse_run_date_from_xml_path
+from reports.diagnostics.Chef_Run_Details.main import parse_run_date_from_xml_path
 
 
 class ChefRunDetailsTestCase(SimpleTestCase):

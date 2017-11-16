@@ -1,6 +1,6 @@
 from django.test import SimpleTestCase
 
-from lemontest.diagnostics.common.inspector_utils import parse_ts_version
+from IonInspector.reports.diagnostics.common.inspector_utils import parse_ts_version
 
 
 class InspectorUtilsTestCase(SimpleTestCase):

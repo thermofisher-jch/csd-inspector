@@ -1,6 +1,0 @@
-This test checks for file integrity issues with the uploaded archive.
-A failure means the archive was created incorrectly or was modified before upload to inspector.
-
-INPUTS:
-*.tar.gz or *.gz or *.tar
-/var/log/IonChef/RunLog/*.xml

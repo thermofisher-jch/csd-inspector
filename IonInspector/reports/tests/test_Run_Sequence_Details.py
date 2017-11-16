@@ -1,6 +1,6 @@
 from django.test import SimpleTestCase
 
-from lemontest.diagnostics.Run_Sequence_Details.main import parse_run_number_from_run_name
+from reports.diagnostics.Run_Sequence_Details.main import parse_run_number_from_run_name
 
 
 class ChefChipTestCase(SimpleTestCase):

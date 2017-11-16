@@ -1,5 +1,5 @@
 from django.http import HttpRequest
-from lemontest.diagnostics.common.inspector_utils import read_explog_from_handle
+from IonInspector.reports.diagnostics.common.inspector_utils import read_explog_from_handle
 import zipfile
 import os
 

@@ -1,4 +1,0 @@
-This test will use the log files to detect reported issues in the Auto pH step as well as produce a scatterplot of the pH to Volume for each step.
-
-INPUTS:
-InitLog.txt

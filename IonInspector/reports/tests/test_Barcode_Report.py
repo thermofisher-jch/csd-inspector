@@ -2,7 +2,7 @@ from xml.etree import ElementTree
 
 from django.test import SimpleTestCase
 
-from lemontest.diagnostics.Barcode_Report.main import get_read_group_file_prefixes, get_read_groups
+from reports.diagnostics.Barcode_Report.main import get_read_group_file_prefixes, get_read_groups
 
 
 class BarcodeReportTestCase(SimpleTestCase):

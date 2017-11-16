@@ -196,6 +196,6 @@ def readme(request, diagnostic_name):
     :return:
     """
 
-    contents = open(os.path.join(settings.SITE_ROOT, 'lemontest', 'diagnostics', diagnostic_name, 'README')).read()
+    contents = open(os.path.join(settings.SITE_ROOT, 'IonInspector', 'reports', 'diagnostics', diagnostic_name, 'README')).read()
     ctx = RequestContext(request, {'readme': contents})
     return render_to_response("readme.html", ctx)

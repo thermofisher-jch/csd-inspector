@@ -17,7 +17,7 @@ from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from django.utils import timezone
 
-from lemontest.diagnostics.common.inspector_utils import *
+from IonInspector.reports.diagnostics.common.inspector_utils import *
 from reports.utils import check_for_dx_zip, check_for_dx_csv, force_symlink
 
 # check to see if the settings are configured
@@ -31,7 +31,7 @@ RAPTOR_S5 = "Raptor_S5"
 OT_LOG = "OT_Log"
 ION_CHEF = "Ion_Chef"
 
-DIAGNOSTICS_SCRIPT_DIR = '/opt/inspector/lemontest/diagnostics'
+DIAGNOSTICS_SCRIPT_DIR = '/opt/inspector/IonInspector/reports/diagnostics'
 TEST_MANIFEST = {
   PGM_RUN: [
     "Filter_Metrics",
@@ -216,7 +216,7 @@ class Archive(models.Model):
         diagnostic_list = TEST_MANIFEST[str(self.archive_type)]
         for diagnostic_name in diagnostic_list:
             diagnostic = Diagnostic(name=diagnostic_name, archive=self)
-            readme_file = os.path.join(settings.SITE_ROOT, 'lemontest', 'diagnostics', diagnostic_name, 'README')
+            readme_file = os.path.join(settings.SITE_ROOT, 'IonInspector', 'reports', 'diagnostics', diagnostic_name, 'README')
             if os.path.exists(readme_file):
                 diagnostic.readme = os.path.basename(readme_file)
             diagnostic.save()
@@ -300,7 +300,7 @@ class Diagnostic(models.Model):
 
     @cached_property
     def readme(self):
-        return os.path.exists(os.path.join(settings.SITE_ROOT, 'lemontest', 'diagnostics', self.name, 'README'))
+        return os.path.exists(os.path.join(settings.SITE_ROOT, 'IonInspector', 'reports', 'diagnostics', self.name, 'README'))
 
     @task()
     def execute(self):

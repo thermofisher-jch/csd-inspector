@@ -1,7 +1,7 @@
 from django.test import SimpleTestCase
 from datetime import date
 
-from lemontest.diagnostics.S5_Reagents.main import parse_init_log, parse_start_time, reagents_expired
+from reports.diagnostics.S5_Reagents.main import parse_init_log, parse_start_time, reagents_expired
 
 
 class S5ReagentsTestCase(SimpleTestCase):
