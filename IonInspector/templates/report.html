@@ -70,26 +70,11 @@
             {% include "partials/diagnostics.html" %}
         </div>
     </div>
-    {% if full_pdf_present %}
-        <div class="row-fluid" style="margin-top: 20px;">
-            <div id="run_report" class="span12">
-                <div id="pdf">
-                    <object type="application/pdf" data="/media/archive_files/{{ archive.id }}/full_report.pdf" height="600px" width="100%">
-                        <p>Your browser does not support PDF display</p>
-                    </object>
-                </div>
-                <a download href="/media/archive_files/{{ archive.id }}/full_report.pdf" class="btn btn-success">
-                    <i class="icon-arrow-down icon-white"></i> Download Full Report
-                </a>
-            </div>
-        </div>
-    {% endif %}
     {% if thumbnail_pdf_present %}
-        <div class="row-fluid" style="margin-top: 20px;">
+        <div style="display: inline-block">
             <div id="run_report_thumbnail" class="span12">
                 <div class="pdf">
-                    <object type="application/pdf" data="/media/archive_files/{{ archive.id }}/report.pdf"
-                            height="600px" width="100%">
+                    <object type="application/pdf" data="/media/archive_files/{{ archive.id }}/report.pdf" height="1150px" width="100%">
                         <p>Your browser does not support PDF display</p>
                     </object>
                 </div>
@@ -99,6 +84,21 @@
             </div>
         </div>
     {% endif %}
+    {% if full_pdf_present %}
+        <div style="display: inline-block">
+            <div id="run_report" class="span12">
+                <div id="pdf">
+                    <object type="application/pdf" data="/media/archive_files/{{ archive.id }}/full_report.pdf" height="1150px" width="100%">
+                        <p>Your browser does not support PDF display</p>
+                    </object>
+                </div>
+                <a download href="/media/archive_files/{{ archive.id }}/full_report.pdf" class="btn btn-success">
+                    <i class="icon-arrow-down icon-white"></i> Download Full Report
+                </a>
+            </div>
+        </div>
+    {% endif %}
+
     <script src="/static/js/moment.min.js"></script>
     <script src="/static/js/vue.min.js"></script>
     <script src="/static/js/report-editor.js"></script>
