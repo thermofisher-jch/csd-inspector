@@ -78,9 +78,12 @@ def execute(archive_path, output_path, archive_type):
             raise Exception("The noise value could not be found in the log.")
         noise = round(float(noise), 2)
 
+        # there is a known issue with 5.6 reporting the noise levels of 510 and 520 chips so we lost the noise information for these sets
+        invalid_noise = data.get('S5 Release_version', '') == '5.6' and data['ChipVersion'] in ['510', '520']
+
         noise_alert = noise > noise_thresholds[chip_type]
         noise_report = "Chip noise " + str(noise) + (" is too high." if noise_alert else " is low enough.")
-        if noise_alert:
+        if noise_alert and not invalid_noise:
             report_level = max(report_level, REPORT_LEVEL_ALERT)
 
         # detect issues with the gain
@@ -128,14 +131,20 @@ def execute(archive_path, output_path, archive_type):
                 isp_report = "Required stats files not included"
 
         # generate message
-        message = "Loading {} | Gain {} | Noise {}".format(
-            "{:.1%}".format(bead_loading) if bead_loading else "Unknown",
-            gain or "Unknown",
-            noise or "Unknown")
+        message = "Loading {} | Gain {}".format("{:.1%}".format(bead_loading) if bead_loading else "Unknown", gain or "Unknown")
+        if not invalid_noise:
+            message += " | Noise {}".format(noise or "Unknown")
+
         if electrode_gain:
             message += " | Reference Electrode {}".format(electrode_gain)
 
-        write_results_from_template({'noise_report': noise_report, 'gain_report': gain_report, 'electrode_report': electrode_report, 'isp_report': isp_report}, output_path)
+        write_results_from_template({
+            'noise_report': noise_report,
+            'gain_report': gain_report,
+            'electrode_report': electrode_report,
+            'isp_report': isp_report,
+            'invalid_noise': invalid_noise
+        }, output_path)
 
         # details genereration here
         if report_level == REPORT_LEVEL_ALERT:

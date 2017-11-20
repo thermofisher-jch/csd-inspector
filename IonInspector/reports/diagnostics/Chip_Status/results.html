@@ -6,7 +6,11 @@
     <body>
         <div class="container-fluid">
             <div class="row" style="text-align: center;">
-                Noise: {{ noise_report }}<br />
+                {% if invalid_noise %}
+                    Due to a bug in our noise reporting the noise level cannot be evaluated.<br />
+                {% else %}
+                    Noise: {{ noise_report }}<br />
+                {% endif %}
                 Gain: {{ gain_report }}<br />
                 {% if electrode_report %}
                 Electrode: {{ electrode_report }}<br />
