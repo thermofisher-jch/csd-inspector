@@ -79,7 +79,8 @@ def execute(archive_path, output_path, archive_type):
         noise = round(float(noise), 2)
 
         # there is a known issue with 5.6 reporting the noise levels of 510 and 520 chips so we lost the noise information for these sets
-        invalid_noise = data.get('S5 Release_version', '') == '5.6' and data['ChipVersion'] in ['510', '520']
+        release_version = data.get('S5 Release_version', '') or data.get('Proton Release_version', '') or data.get('PGM SW Release', '')
+        invalid_noise = release_version == '5.6' and data['ChipVersion'] in ['510', '520']
 
         noise_alert = noise > noise_thresholds[chip_type]
         noise_report = "Chip noise " + str(noise) + (" is too high." if noise_alert else " is low enough.")
