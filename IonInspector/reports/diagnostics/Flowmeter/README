@@ -1,0 +1,4 @@
+This will check the Flowmeter0 column of the onetouch log and check to see if there  are any non-zero values.
+
+INPUTS:
+onetouch.log

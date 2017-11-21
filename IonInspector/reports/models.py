@@ -33,68 +33,69 @@ ION_CHEF = "Ion_Chef"
 
 DIAGNOSTICS_SCRIPT_DIR = '/opt/inspector/IonInspector/reports/diagnostics'
 TEST_MANIFEST = {
-  PGM_RUN: [
-    "Filter_Metrics",
-    "Raw_Trace",
-    "Chip_Temperature",
-    "Chip_Status",
-    "Run_Chef_Details",
-    "Auto_pH",
-    "Run_Kit_Details",
-    "Chip_Type",
-    "Test_Fragments",
-    "Pressure_And_Temperature",
-    "Barcode_Report",
-    "Run_Sequence_Details",
-  ],
-  PROTON: [
-    "Filter_Metrics",
-    "Raw_Trace",
-    "Chip_Status",
-    "Run_Chef_Details",
-    "Auto_pH",
-    "Flow_Error",
-    "Run_Kit_Details",
-    "Chip_Type",
-    "Test_Fragments",
-    "Pressure_And_Temperature",
-    "Experiment_Errors",
-    "Barcode_Report",
-    "Run_Sequence_Details",
-  ],
-  RAPTOR_S5: [
-    "Filter_Metrics",
-    "Raw_Trace",
-    "Chip_Status",
-    "Run_Chef_Details",
-    "Flow_Error",
-    "S5_Reagents",
-    "Run_Kit_Details",
-    "Chip_Type",
-    "Test_Fragments",
-    "Pressure_And_Temperature",
-    "Experiment_Errors",
-    "Barcode_Report",
-    "Run_Sequence_Details",
-  ],
-  OT_LOG: [
-    "Plots",
-    "Sample_Pump",
-    "Oil_Pump",
-    "OT_Script"
-  ],
-  ION_CHEF: [
-    "Chef_Alarms",
-    "Chef_Notifications",
-    "Chef_Kit_Details",
-    "Chef_Timer",
-    "Chef_Version",
-    # "Flow", Now plotted by Chef_Run_Log
-    "Chef_Run_Details",
-    # "Fans", Now plotted by Chef_Run_Log
-    "Chef_Run_Log",
-    "Integrity_Check"
-  ]
+    PGM_RUN: [
+        "Filter_Metrics",
+        "Raw_Trace",
+        "Chip_Temperature",
+        "Chip_Status",
+        "Run_Chef_Details",
+        "Auto_pH",
+        "Run_Kit_Details",
+        "Chip_Type",
+        "Test_Fragments",
+        "Pressure_And_Temperature",
+        "Barcode_Report",
+        "Run_Sequence_Details",
+    ],
+    PROTON: [
+        "Filter_Metrics",
+        "Raw_Trace",
+        "Chip_Status",
+        "Run_Chef_Details",
+        "Auto_pH",
+        "Flow_Error",
+        "Run_Kit_Details",
+        "Chip_Type",
+        "Test_Fragments",
+        "Pressure_And_Temperature",
+        "Experiment_Errors",
+        "Barcode_Report",
+        "Run_Sequence_Details",
+    ],
+    RAPTOR_S5: [
+        "Filter_Metrics",
+        "Raw_Trace",
+        "Chip_Status",
+        "Run_Chef_Details",
+        "Flow_Error",
+        "S5_Reagents",
+        "Run_Kit_Details",
+        "Chip_Type",
+        "Test_Fragments",
+        "Pressure_And_Temperature",
+        "Experiment_Errors",
+        "Barcode_Report",
+        "Run_Sequence_Details",
+    ],
+    OT_LOG: [
+        "Plots",
+        "Sample_Pump",
+        "Oil_Pump",
+        "OT_Script",
+        "Flowmeter"
+    ],
+    ION_CHEF: [
+        "Chef_Alarms",
+        "Chef_Notifications",
+        "Chef_Kit_Details",
+        "Chef_Timer",
+        "Chef_Version",
+        # "Flow", Now plotted by Chef_Run_Log
+        "Chef_Run_Details",
+        # "Fans", Now plotted by Chef_Run_Log
+        "Chef_Run_Log",
+        "Integrity_Check"
+    ]
 }
 
 
