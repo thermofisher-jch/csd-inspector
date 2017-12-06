@@ -14,28 +14,44 @@
     <![endif]-->
 
     <!-- Le styles -->
-    <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
-    <link href="{% static 'css/sortingtable.css' %}" rel="stylesheet">
-    <link href="{% static 'css/ladda-themeless.css' %}" rel="stylesheet">
-    <link href="{% static 'css/font-awesome.css' %}" rel="stylesheet">
-    <link href="{% static 'css/inspector.trace.css' %}" rel="stylesheet">
-    <link href="{% static 'css/diagnostics.css' %}" rel="stylesheet">
-    <link href="{% static 'css/bootstrap-datepicker.min.css' %}" rel="stylesheet">
-    <link rel="icon" href="/static/img/inspector_background.png" type="image/png" />
-    <style type="text/css">
-      body {
-        padding-top: 60px;
-        background-color: #FEFEFE;
-      }
+      <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+      <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
+      <link href="{% static 'css/sortingtable.css' %}" rel="stylesheet">
+      <link href="{% static 'css/ladda-themeless.css' %}" rel="stylesheet">
+      <link href="{% static 'css/font-awesome.css' %}" rel="stylesheet">
+      <link href="{% static 'css/inspector.trace.css' %}" rel="stylesheet">
+      <link href="{% static 'css/diagnostics.css' %}" rel="stylesheet">
+      <link href="{% static 'css/bootstrap-datepicker.min.css' %}" rel="stylesheet">
+      <link rel="shortcut icon" href="/static/img/inspector-icon.png" type="image/x-icon">
+      <style type="text/css">
+          * {
+              font-family: 'Roboto', sans-serif;
+          }
 
-      [v-cloak] {
-          display: none;
-      }
+          body {
+              padding-top: 60px;
+              background-color: #FEFEFE;
+          }
 
-      #footer {
-          margin-top: 40px;
-      }
-    </style>
+          [v-cloak] {
+              display: none;
+          }
+
+          #footer {
+              margin-top: 40px;
+          }
+
+          #jump_form .input-append {
+              margin-bottom: 0px;
+              margin-top: 6px;
+          }
+
+          .brand.active {
+              color: white;
+          }
+      </style>
+      {% block extra_head_css %}
+      {% endblock extra_head_css %}
     <script src="{% static 'js/jquery-1.8.3.min.js' %}"></script>
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
     <script src="{% static 'js/dropdown.js' %}"></script>
@@ -52,17 +68,17 @@
   </head>
 
   <body>
-    <div class="navbar navbar-fixed-top">
+    <div class="navbar navbar-fixed-top navbar-inverse">
       <div class="navbar-inner">
         <div class="container-fluid">
-          <a class="brand" href="/index">Ion Inspector</a>
+          <a class="brand {% if active_nav == "INDEX" %}active{% endif %}" href="/index">Ion Inspector</a>
           <div class="nav-collapse">
             <ul class="nav">
-              <li><a href="/upload">Submit Archive</a></li>
-              <li><a href="/reports">List Reports</a></li>
-              <li><a href="/documentation">Documentation</a></li>
+                <li class="{% if active_nav == "SUBMIT" %}active{% endif %}"><a href="/upload">Submit Archive</a></li>
+                <li class="{% if active_nav == "REPORT" %}active{% endif %}"><a href="/reports">List Reports</a></li>
+                <li class="{% if active_nav == "DOCS" %}active{% endif %}"><a href="/documentation">Documentation</a></li>
             </ul>
-            <form id="jump_form" class="navbar-form pull-left">
+            <form id="jump_form" class="navbar-form pull-right">
               <div class="input-append">
                 <input type="text" id="id_jump" placeholder="ID" class="span1"/>
                 <button type="submit" id="jump_button" class="btn">Go</button>

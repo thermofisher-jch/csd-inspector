@@ -37,7 +37,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.request",
     "django.core.context_processors.tz",
     "django.contrib.messages.context_processors.messages",
-    "IonInspector.reports.context_processors.version_number"
+    "IonInspector.reports.context_processors.version_number",
+    "IonInspector.reports.context_processors.active_nav"
 )
 
 # Application definition
