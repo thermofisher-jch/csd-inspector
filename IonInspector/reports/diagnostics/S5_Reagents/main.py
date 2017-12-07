@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import sys
-from datetime import datetime
+from datetime import datetime, date
 
 from IonInspector.reports.diagnostics.common.inspector_utils import *
 
@@ -25,7 +25,10 @@ def parse_init_log(log_lines):
             # in block we want to parse
             key, value = line.split(":", 1)
             if key in date_formats:
-                product_dict[current_product][key] = datetime.strptime(value.strip(), date_formats[key]).date()
+                try:
+                    product_dict[current_product][key] = datetime.strptime(value.strip(), date_formats[key]).date()
+                except ValueError:
+                    product_dict[current_product][key] = value.strip()
             else:
                 product_dict[current_product][key] = value.strip()
     return product_dict
@@ -38,10 +41,10 @@ def parse_start_time(start_time_string):
 
 def reagents_expired(run_date, reagent_exp_dates):
     for exp_date in reagent_exp_dates:
-        if exp_date.replace(day=1) < run_date.replace(day=1):
+        if isinstance(exp_date, date) and exp_date.replace(day=1) < run_date.replace(day=1):
             return True
-    else:
-        return False
+
+    return False
 
 
 def execute(archive_path, output_path, archive_type):
@@ -107,19 +110,23 @@ def execute(archive_path, output_path, archive_type):
 
             # write out reagent details
             for title, reagent_dict in [("Cleaning", cleaning_dict), ("Reagents", sequencing_dict), ("Wash", wash_dict), ]:
-                days_until_expiration = None
-                if reagent_dict["expDate"] and run_date:
-                    days_until_expiration = (reagent_dict["expDate"] - run_date).days
-
                 html_handle.write("<h2 align='center'>%s</h2>" % title)
                 html_handle.write("<p style='text-align:center;'>")
                 html_handle.write("Lot: %s<br>" % reagent_dict["lotNumber"])
-                html_handle.write("Expiration Date: %s<br>" % reagent_dict["expDate"].strftime('%Y/%m/%d'))
 
-                if days_until_expiration < 0:
-                    html_handle.write("<span style='color:red'>Run %i days after expiration.</span><br>" % abs(days_until_expiration))
+                reagent_exp_date = reagent_dict.get("expDate", "Unknown")
+                if isinstance(reagent_exp_date, date):
+                    days_until_expiration = None
+                    if reagent_exp_date and run_date:
+                        days_until_expiration = (reagent_exp_date - run_date).days
+                    html_handle.write("Expiration Date: %s<br>" % reagent_exp_date.strftime('%Y/%m/%d'))
+
+                    if days_until_expiration < 0:
+                        html_handle.write("<span style='color:red'>Run %i days after expiration.</span><br>" % abs(days_until_expiration))
+                    else:
+                        html_handle.write("Run %i days before expiration.<br>" % abs(days_until_expiration))
                 else:
-                    html_handle.write("Run %i days before expiration.<br>" % abs(days_until_expiration))
+                    html_handle.write("Expiration Date: <b>%s</b><br>" % reagent_exp_date)
 
                 html_handle.write("</p>")
 
@@ -138,6 +145,6 @@ def execute(archive_path, output_path, archive_type):
     except Exception as exc:
         return handle_exception(exc, output_path)
 
+
 if __name__ == "__main__":
-    archive_path, output_path, archive_type = sys.argv[1:4]
-    execute(archive_path, output_path, archive_type)
+    execute(sys.argv[1], sys.argv[2], sys.argv[3])
