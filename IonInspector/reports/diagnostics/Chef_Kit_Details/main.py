@@ -24,9 +24,14 @@ def get_kit_from_element_tree(element_tree):
         "s521_1": "Ion 520/530 ExT Kit-Chef V1",
     }
 
-    name_tag = element_tree.find("RunInfo/kit")
-    if name_tag is None:
-        return None
+    kit_customer_facing_name_tag = element_tree.find("RunInfo/kit_customer_facing_name")
+    kit_name_tag = element_tree.find("RunInfo/kit")
+
+    name_tag = None
+    if kit_customer_facing_name_tag is not None:
+        name_tag = kit_customer_facing_name_tag
+    else:
+        name_tag = kit_name_tag
     kit_name = name_tag.text.strip()
     return kit_names.get(kit_name, kit_name)
 
