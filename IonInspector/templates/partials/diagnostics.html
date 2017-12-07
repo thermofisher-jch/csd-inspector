@@ -6,7 +6,6 @@
             <th style="width: 200px">Test</th>
             <th style="width: 100px">Status</th>
             <th style="">Details</th>
-            <th style="width: 160px">Run At</th>
             <th style="width: 80px">Results</th>
             <th style="width: 80px">Readme</th>
         </tr>
@@ -23,11 +22,6 @@
             <td class="transition-fade-wrapper">
                 <transition name="transition-fade">
                     <span :key='diagnostic.details' v-html="diagnostic.details"></span>
-                </transition>
-            </td>
-            <td class="transition-fade-wrapper">
-                <transition name="transition-fade">
-                    <span :key="diagnostic.display_start_execute" v-text="diagnostic.display_start_execute"></span>
                 </transition>
             </td>
             <td class="transition-fade-wrapper">
