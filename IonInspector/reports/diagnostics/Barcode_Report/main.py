@@ -22,7 +22,7 @@ def get_read_groups(datasets_basecaller_object):
     for key, value in datasets_basecaller_object["read_groups"].iteritems():
         groups.append({
             "filtered": value.get("filtered", False),
-            "name": value.get("barcode_name", "nomatch"),
+            "name": value.get("barcode_name", "No Barcode"),
             "read_count": value.get("read_count", 0),
             "index": value.get("index", -1),
             "group": key

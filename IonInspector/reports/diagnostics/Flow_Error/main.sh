@@ -26,7 +26,7 @@ if [ ! -s ${ERROR_SUMMARY} ]; then
         OUTPUT2=${OUTPUT}/${BARCODE}
 
         echo "<br><a href='./${BARCODE}/results.html'> ${BARCODE} </a>" >> ${HTML}
-        var=$(flowErr_lemon.pl -e ${ERROR_SUMMARY2} -o $OUTPUT2 2>&1)
+        var=$(./flowErr_lemon.pl -e ${ERROR_SUMMARY2} -o $OUTPUT2 2>&1)
 
         if [ "$?" != "0" ]; then
           echo N/A
@@ -42,7 +42,7 @@ if [ ! -s ${ERROR_SUMMARY} ]; then
     echo Plots of Flow Error.
 
 else
-    var=$(flowErr_lemon.pl -e ${ERROR_SUMMARY} -o $OUTPUT 2>&1)
+    var=$(./flowErr_lemon.pl -e ${ERROR_SUMMARY} -o $OUTPUT 2>&1)
 
     if [ "$?" = "0" ]; then
       echo Info
