@@ -39,6 +39,8 @@ def execute(archive_path, output_path, archive_type):
         # get the reagent and solution lots and experation dates
         run_date = parse(explog.get('Start Time', 'Unknown'))
         flows = explog.get('Flows', '')
+        serial_number = explog.get('Serial Number', 'Unknown')
+        system_type = 'PGM ' + explog.get('PGM HW', '') if 'PGM_Run' == archive_type else explog.get('SystemType', '')
 
         device_name = ion_params.get('exp_json', dict()).get('pgmName', "")
 
@@ -55,7 +57,9 @@ def execute(archive_path, output_path, archive_type):
             'device_name': device_name,
             'run_number': run_number,
             'run_date': run_date.strftime(datetime_output_format),
-            'flows': flows
+            'flows': flows,
+            'serial_number': serial_number,
+            'system_type': system_type,
         }
         write_results_from_template(template_context, output_path)
 
