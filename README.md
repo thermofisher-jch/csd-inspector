@@ -1,5 +1,10 @@
+## Host
+Ubuntu: 14.04+
+
 ## Dependencies
 Install fabric on your machine: http://www.fabfile.org/installing.html
+Docker: https://www.docker.com/
+Docker Compose: https://docs.docker.com/compose/
 
 ## Development
 
