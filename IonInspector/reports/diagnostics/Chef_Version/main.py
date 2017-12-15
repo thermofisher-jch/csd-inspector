@@ -33,10 +33,10 @@ def execute(archive_path, output_path, archive_type):
             "versions": [],
         }
 
-        matches = list()
+        gui_log_path_matches = list()
         for root, dirnames, filenames in os.walk(os.path.join(archive_path, 'var', 'log', 'IonChef', 'ICS')):
             for filename in fnmatch.filter(filenames, 'gui-*.log'):
-                matches.append(os.path.join(root, filename))
+                gui_log_path_matches.append(os.path.join(root, filename))
 
         root = get_xml_from_run_log(archive_path)
         name_tag = root.find("Versions/is")
@@ -45,8 +45,8 @@ def execute(archive_path, output_path, archive_type):
         scripts_name = name_tag.text
         context['versions'] = [(t.tag, t.text) for t in root.findall("Versions/*")]
         context['serial'] = root.find("Instrument/serial").text
-
-        summary = find_summary(matches)
+        release_version_node = root.find("Versions/release")
+        summary = release_version_node.text if release_version_node else find_summary(gui_log_path_matches)
         template = Template(open("results.html").read())
         result = template.render(Context(context))
         with open(os.path.join(output_path, "results.html"), 'w') as out:
@@ -56,6 +56,6 @@ def execute(archive_path, output_path, archive_type):
     except Exception as exc:
         return handle_exception(exc, output_path)
 
+
 if __name__ == "__main__":
-    archive_path, output_path, archive_type = sys.argv[1:4]
-    execute(archive_path, output_path, archive_type)
+    execute(sys.argv[1], sys.argv[2], sys.argv[3])
