@@ -63,6 +63,7 @@ TEST_MANIFEST = {
         "Run_Sequence_Details",
     ],
     RAPTOR_S5: [
+        "Chef_Flexible_Workflow",
         "Filter_Metrics",
         "Raw_Trace",
         "Chip_Status",
@@ -85,6 +86,7 @@ TEST_MANIFEST = {
         "Flowmeter"
     ],
     ION_CHEF: [
+        "Chef_Flexible_Workflow",
         "Chef_Alarms",
         "Chef_Notifications",
         "Chef_Kit_Details",
