@@ -22,6 +22,7 @@ gain_ranges = {
     "520": PROTON_S5_GAIN_RANGE,
     "530": PROTON_S5_GAIN_RANGE,
     "540": PROTON_S5_GAIN_RANGE,
+    "550": PROTON_S5_GAIN_RANGE,
     "PQ": (1.1, 1.4),
 }
 
@@ -34,6 +35,7 @@ noise_thresholds = {
     "520": 140,
     "530": 140,
     "540": 170,
+    "550": 185,
     "PQ": 280,
 }
 
@@ -160,5 +162,4 @@ def execute(archive_path, output_path, archive_type):
 
 
 if __name__ == "__main__":
-    archive_path, output_path, archive_type = sys.argv[1:4]
-    execute(archive_path, output_path, archive_type)
+    execute(sys.argv[1], sys.argv[2], sys.argv[3])
