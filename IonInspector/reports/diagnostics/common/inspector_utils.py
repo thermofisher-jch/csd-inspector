@@ -9,7 +9,7 @@ from xml.etree import ElementTree
 from bs4 import BeautifulSoup
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
-MAX_MESSAGE_LENGTH = 140
+MAX_MESSAGE_LENGTH = 1040
 EXPLOG_FINAL = "explog_final.txt"
 EXPLOG = "explog.txt"
 
