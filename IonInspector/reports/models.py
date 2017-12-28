@@ -63,7 +63,6 @@ TEST_MANIFEST = {
         "Run_Sequence_Details",
     ],
     RAPTOR_S5: [
-        "Chef_Flexible_Workflow",
         "Filter_Metrics",
         "Raw_Trace",
         "Chip_Status",
@@ -216,7 +215,13 @@ class Archive(models.Model):
             run_test.delete()
 
         # get all of the diagnostics to be run on this type of archive
-        diagnostic_list = TEST_MANIFEST[str(self.archive_type)]
+        archive_type = str(self.archive_type)
+        diagnostic_list = TEST_MANIFEST[archive_type]
+
+        # if this is a sequencer CSA/FSA with chef information it would make sense to optionally add all of the chef tests
+        if archive_type in [RAPTOR_S5, PGM_RUN, PROTON] and os.path.exists(os.path.join(archive_dir, 'var')):
+            diagnostic_list = list(set(TEST_MANIFEST[ION_CHEF] + diagnostic_list))
+
         for diagnostic_name in diagnostic_list:
             diagnostic = Diagnostic(name=diagnostic_name, archive=self)
             readme_file = os.path.join(settings.SITE_ROOT, 'IonInspector', 'reports', 'diagnostics', diagnostic_name, 'README')
