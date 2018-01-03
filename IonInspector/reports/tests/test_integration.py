@@ -3,7 +3,7 @@ from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils import timezone
 from reports.models import Archive
-from reports.models import PGM_RUN, PROTON, RAPTOR_S5, OT_LOG, ION_CHEF  # Constants
+from reports.models import PGM_RUN, PROTON, S5, OT_LOG, ION_CHEF  # Constants
 from reports.models import Diagnostic
 import os
 import shutil
@@ -117,7 +117,7 @@ class S5TestCase(TestCase):
             site="S5",
             time=timezone.now(),
             submitter_name="S5",
-            archive_type=RAPTOR_S5,
+            archive_type=S5,
             taser_ticket_number=None
         )
         self.archive.save()
@@ -192,7 +192,7 @@ class FieldSupportCase(TestCase):
             site="FieldSupport",
             time=timezone.now(),
             submitter_name="FieldSupport",
-            archive_type=RAPTOR_S5,
+            archive_type=S5,
             taser_ticket_number=None
         )
         self.archive.save()

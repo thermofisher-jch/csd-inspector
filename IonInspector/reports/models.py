@@ -27,7 +27,7 @@ if not settings.configured:
 # define constants
 PGM_RUN = "PGM_Run"
 PROTON = "Proton"
-RAPTOR_S5 = "Raptor_S5"
+S5 = "S5"
 OT_LOG = "OT_Log"
 ION_CHEF = "Ion_Chef"
 
@@ -62,7 +62,7 @@ TEST_MANIFEST = {
         "Barcode_Report",
         "Run_Sequence_Details",
     ],
-    RAPTOR_S5: [
+    S5: [
         "Filter_Metrics",
         "Raw_Trace",
         "Chip_Status",
@@ -133,7 +133,7 @@ class Archive(models.Model):
     ARCHIVE_TYPES = (
         (PGM_RUN, 'PGM'),
         (PROTON, 'PROTON'),
-        (RAPTOR_S5, 'RAPTOR'),
+        (S5, 'S5'),
         (OT_LOG, 'OT'),
         (ION_CHEF, 'CHEF')
     )
@@ -219,7 +219,7 @@ class Archive(models.Model):
         diagnostic_list = TEST_MANIFEST[archive_type]
 
         # if this is a sequencer CSA/FSA with chef information it would make sense to optionally add all of the chef tests
-        if archive_type in [RAPTOR_S5, PGM_RUN, PROTON] and os.path.exists(os.path.join(archive_dir, 'var')):
+        if archive_type in [S5, PGM_RUN, PROTON] and os.path.exists(os.path.join(archive_dir, 'var')):
             diagnostic_list = list(set(TEST_MANIFEST[ION_CHEF] + diagnostic_list))
 
         for diagnostic_name in diagnostic_list:
