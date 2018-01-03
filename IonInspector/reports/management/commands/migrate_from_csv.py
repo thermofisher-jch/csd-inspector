@@ -28,7 +28,7 @@ class Command(BaseCommand):
             id = int(row["id"])
             path = "/var/lib/inspector/media/archive_files/%i/" % id
             archive_type = row["archive_type"]
-            if archive_type in ["PGM_Run", "Proton", "Raptor_S5"]:
+            if archive_type in ["PGM_Run", "Proton", "S5"]:
                 path = os.path.join(path, "archive.zip")
             elif archive_type == "OT_Log":
                 path = os.path.join(path, "onetouch.log")

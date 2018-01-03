@@ -279,7 +279,7 @@ def execute(archive_path, output_path, archive_type):
                     raise KeyError("Unknown PGM Version:%s" % pgm_version)
             elif archive_type == "Proton":
                 flow_data, message_level, pressure_message, temperature_message = parse_flow_data_proton(exp_log_file)
-            elif archive_type == "Raptor_S5":
+            elif archive_type == "S5":
                 flow_data, message_level, pressure_message, temperature_message = parse_flow_data_s5(exp_log_file)
             else:
                 raise KeyError("Unknown device type:%s" % archive_type)
