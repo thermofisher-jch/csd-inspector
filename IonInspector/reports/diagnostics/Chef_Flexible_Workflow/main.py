@@ -18,13 +18,13 @@ def execute(archive_path, output_path, archive_type):
         hours_since_solution_first_use = root.find("RunInfo/hoursSinceSolutionFirstUse").text.strip()
         num_previous_uses_reagent = root.find("RunInfo/numPreviousUsesReagent").text.strip()
         num_previous_uses_solution = root.find("RunInfo/numPreviousUsesSolution").text.strip()
-        failed_reagents = 8 * 24 < int(hours_since_reagent_first_use)
-        failed_solution = 8 * 24 < int(hours_since_solution_first_use)
+        failed_reagents = 7 * 24 < int(hours_since_reagent_first_use)
+        failed_solution = 7 * 24 < int(hours_since_solution_first_use)
 
         # construct the context and result html
         context = {
-            'hours_since_reagent_first_use': hours_since_reagent_first_use,
-            'hours_since_solution_first_use': hours_since_solution_first_use,
+            'days_since_reagent_first_use': float(hours_since_reagent_first_use) / 24.0,
+            'days_since_solution_first_use': float(hours_since_solution_first_use) / 24.0,
             'num_previous_uses_reagent': num_previous_uses_reagent,
             'num_previous_uses_solution': num_previous_uses_solution,
             'failed_reagents': failed_reagents,
@@ -39,7 +39,7 @@ def execute(archive_path, output_path, archive_type):
             return print_failed("Reagents were to old: " + hours_since_reagent_first_use + " hours.")
         if failed_solution:
             return print_failed("Solutions were to old: " + hours_since_reagent_first_use + " hours.")
-        return print_ok("Reagents seem to be fine.")
+        return print_ok("Flexible workflow used before day eight.")
 
     except OSError as exc:
         return print_na("No chef logs to investigate.")
