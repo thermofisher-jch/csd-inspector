@@ -142,7 +142,7 @@ CELERY_RESULT_BACKEND = 'amqp'
 CELERY_RESULT_SERIALIZER = 'pickle'
 SITE_ROOT = os.path.dirname(os.path.dirname(__file__))
 
-VERSION = '1.2.0'
+VERSION = '1.2.1'
 
 try:
     from local_version import *
