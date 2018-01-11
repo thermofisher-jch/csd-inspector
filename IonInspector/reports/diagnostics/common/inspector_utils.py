@@ -1,3 +1,4 @@
+import copy
 import csv
 import os
 import semver
@@ -236,6 +237,20 @@ def get_xml_from_run_log(archive_path):
     :return: The root xml element
     """
 
+    def check_element_node(node):
+        """Helper method which it will detect incorrect encoded elements"""
+
+        # we are going to check if there is inner text and if that inner text starts wikth a less than sign
+        if node.text is not None and len(node.text) > 0 and node.text[0] == "<":
+            fake_root = ElementTree.fromstring("<fakeroot>" + node.text + "</fakeroot>")
+            for fake_node in fake_root.getchildren():
+                node.append(fake_node)
+            node.text = None
+
+        # recurse through all the elements
+        for child in node.getchildren():
+            check_element_node(child)
+
     # get path to all of the logs and xml data
     xml_path = get_chef_run_log_xml_path(archive_path)
 
@@ -251,11 +266,16 @@ def get_xml_from_run_log(archive_path):
                 xml_line = xml_line.replace("</ ", "</")
             xml_lines.append(xml_line)
 
-    # Use bs4/lxml parser first to repair invalid xm
+    # Use bs4/lxml parser first to repair invalid xml
     soup = BeautifulSoup("\n".join(xml_lines), "xml")
 
     # Then parse the repaired xml using xml.etree
-    return ElementTree.fromstring(str(soup))
+    root = ElementTree.fromstring(str(soup))
+
+    # we are going to do a check here to see the known error where some xml elements have been encoded as plain text
+    check_element_node(root)
+
+    return root
 
 
 def get_lines_from_chef_gui_logs(archive_path):
