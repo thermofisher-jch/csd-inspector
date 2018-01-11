@@ -16,7 +16,8 @@ def execute(archive_path, output_path, archive_type):
     try:
         EXTENSION_MIME_TYPES = {
             ".tar": "application/x-tar",
-            ".gz": "application/gzip"
+            ".gz": "application/gzip",
+            ".zip": "application/zip",
         }
 
         if archive_type == "Ion_Chef":
@@ -24,7 +25,7 @@ def execute(archive_path, output_path, archive_type):
             compressed_archive_path = None
             # We need to guess at the path to the uncompressed archives
             for filename in os.listdir(archive_path):
-                if filename.endswith(".tar") or filename.endswith(".tar.gz"):
+                if filename.endswith(".tar") or filename.endswith(".tar.gz") or filename.endswith(".zip"):
                     compressed_archive_path = os.path.join(archive_path, filename)
             if compressed_archive_path:
                 _, file_extension = os.path.splitext(compressed_archive_path)
