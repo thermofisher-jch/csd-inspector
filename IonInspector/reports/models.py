@@ -78,7 +78,8 @@ TEST_MANIFEST = {
         "Run_Sequence_Details",
     ],
     OT_LOG: [
-        "Plots",
+        "OT_Plots",
+        # "Plots",  Now plotted by OT_Plots
         "Sample_Pump",
         "Oil_Pump",
         "OT_Script",
