@@ -10,6 +10,10 @@ Docker Compose: https://docs.docker.com/compose/
 
 Run `fab dev` from this directory.
 
+## Tests
+
+Run all tests with `fab test` from this directory.
+Run one test with `fab test:IonInspector.reports.tests.test_Chef_Kit_Details.ChefChipTestCase` from this directory.
 
 ## Deployment
 
