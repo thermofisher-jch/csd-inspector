@@ -135,6 +135,31 @@ class S5TestCase(TestCase):
             )
 
 
+class S5WithChefTestCase(TestCase):
+    def setUp(self):
+        self.archive = Archive(
+            identifier="S5withChef",
+            site="S5",
+            time=timezone.now(),
+            submitter_name="S5",
+            archive_type=S5,
+            taser_ticket_number=None
+        )
+        self.archive.save()
+        delete_archive_root(self.archive)
+        self.archive.doc_file = get_test_archive("s5_with_chef.zip")
+        self.archive.save()
+
+    def test_diagnostics(self):
+        self.archive.execute_diagnostics(async=False)
+        for diagnostic in self.archive.diagnostics.all():
+            self.assertNotIn(
+                diagnostic.get_status_display(),
+                DIAGNOSTIC_FAILURE_STATUSES,
+                get_diagnostic_debug_info(diagnostic)
+            )
+
+
 class OneTouchTestCase(TestCase):
     def setUp(self):
         self.archive = Archive(

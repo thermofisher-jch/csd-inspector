@@ -34,11 +34,11 @@ def execute(archive_path, output_path, archive_type):
 
         # detect failures or success
         if failed_solution and failed_reagents:
-            return print_failed("Both the reagents and solutions were to old: " + hours_since_reagent_first_use + "/" + hours_since_solution_first_use + " hours.")
+            return print_alert("Both the reagents and solutions were to old: " + hours_since_reagent_first_use + "/" + hours_since_solution_first_use + " hours.")
         if failed_reagents:
-            return print_failed("Reagents were to old: " + hours_since_reagent_first_use + " hours.")
+            return print_alert("Reagents were to old: " + hours_since_reagent_first_use + " hours.")
         if failed_solution:
-            return print_failed("Solutions were to old: " + hours_since_reagent_first_use + " hours.")
+            return print_alert("Solutions were to old: " + hours_since_reagent_first_use + " hours.")
         return print_ok("Flexible workflow used before day eight.")
 
     except OSError as exc:

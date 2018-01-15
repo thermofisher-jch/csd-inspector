@@ -32,8 +32,12 @@ def get_kit_from_element_tree(element_tree):
         name_tag = kit_customer_facing_name_tag
     else:
         name_tag = kit_name_tag
-    kit_name = name_tag.text.strip()
-    return kit_names.get(kit_name, kit_name)
+
+    if name_tag is not None:
+        kit_name = name_tag.text.strip()
+        return kit_names.get(kit_name, kit_name)
+    else:
+        return None
 
 
 def get_chip_names_from_element_tree(element_tree):
