@@ -136,7 +136,21 @@ def execute(archive_path, output_path, archive_type):
             else:
                 message_level = 'info'
                 pressure_message = "Proton pressure {:.2f} is just right.".format(pressure)
+
+            # get the message for the temperature
             temperature_message = 'Temperature'
+            if "ProtonTemperature" in explog:
+                temperature = float(explog["ProtonTemperature"].split(" ")[1])
+                if temperature < 20:
+                    message_level = 'alert'
+                    temperature_message = u"Proton temperature {:.2f} C is too cold.".format(temperature)
+                elif temperature > 35:
+                    message_level = 'alert'
+                    temperature_message = u"Proton temperature {:.2f} C is too warm.".format(temperature)
+                else:
+                    if message_level != 'alert':
+                        message_level = 'info'
+                    temperature_message = u"Proton temperature {:.2f} C is just right.".format(temperature)
 
             # Flot friendly format
             data = {
@@ -206,7 +220,21 @@ def execute(archive_path, output_path, archive_type):
             else:
                 message_level = 'info'
                 pressure_message = "S5 pressure {:.2f} is just right.".format(pressure)
+
+            # get the message for the temperature
             temperature_message = 'Temperature'
+            if "ProtonTemperature" in explog:
+                temperature = float(explog["ProtonTemperature"].split(" ")[1])
+                if temperature < 20:
+                    message_level = 'alert'
+                    temperature_message = u"Proton temperature {:.2f} C is too cold.".format(temperature)
+                elif temperature > 35:
+                    message_level = 'alert'
+                    temperature_message = u"Proton temperature {:.2f} C is too warm.".format(temperature)
+                else:
+                    if message_level != 'alert':
+                        message_level = 'info'
+                    temperature_message = u"Proton temperature {:.2f} C is just right.".format(temperature)
 
             # Flot friendly format
             data = {
