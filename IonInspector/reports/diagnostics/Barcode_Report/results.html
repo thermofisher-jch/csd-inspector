@@ -12,10 +12,10 @@
         <div class="col-xs-12">
             <h2 class="lead">Statistical Review of Barcodes</h2> <br />
             <table class="table table-striped table-bordered">
-                <tr class="histogram-row"><td>Mean (reads)</td><td>{{ mean }}</td></tr>
-                <tr class="histogram-row"><td>Standard Deviation (reads)</td><td>{{ std }}</td></tr>
-                <tr class="histogram-row"><td>Coefficient of Variation (%)</td><td>{{ cv }}%</td></tr>
-                <tr class="histogram-row"><td>Min/Mean (%)</td><td>{{ min_percent }}%</td></tr>
+                <tr class="histogram-row"><td>Mean (reads)</td><td>{{ mean|floatformat:"0" }}</td></tr>
+                <tr class="histogram-row"><td>Standard Deviation (reads)</td><td>{{ std|floatformat:"0" }}</td></tr>
+                <tr class="histogram-row"><td>Coefficient of Variation (%)</td><td>{{ cv|floatformat:"0" }}%</td></tr>
+                <tr class="histogram-row"><td>Min/Mean (%)</td><td>{{ min_percent|floatformat:"0" }}%</td></tr>
             </table>
         </div>
     </div>

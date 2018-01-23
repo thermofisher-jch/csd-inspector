@@ -21,7 +21,7 @@ def get_read_groups(datasets_basecaller_object):
     groups = []
     for key, value in datasets_basecaller_object["read_groups"].iteritems():
         groups.append({
-            "filtered": value.get("filtered", False),
+            "filtered": value.get("filtered", False) or 'nomatch' in key,
             "name": value.get("barcode_name", "No Barcode"),
             "read_count": value.get("read_count", 0),
             "index": value.get("index", -1),
@@ -39,9 +39,9 @@ def execute(archive_path, output_path, archive_type):
         groups = get_read_groups(datasets_object)
 
         # get all of the filtered data sets
-        filtered_data = [float(x['read_count']) for x in groups if not x['filtered'] and "nomatch" not in x['name']]
+        filtered_data = [float(x['read_count']) for x in groups if not x['filtered']]
         mean = numpy.mean(filtered_data)
-        min = numpy.min(filtered_data)
+        min_read_cound = numpy.min(filtered_data)
         std = numpy.std(filtered_data)
 
         histograms = []
@@ -61,7 +61,7 @@ def execute(archive_path, output_path, archive_type):
             'mean': mean,
             'std': std,
             'cv': (std / mean) * 100.0,
-            'min_percent': (min / mean) * 100.0,
+            'min_percent': (min_read_cound / mean) * 100.0,
         }, output_path)
         return print_info("See results for details.")
     except Exception as exc:
@@ -69,5 +69,4 @@ def execute(archive_path, output_path, archive_type):
 
 
 if __name__ == "__main__":
-    archive_path, output_path, archive_type = sys.argv[1:4]
-    execute(archive_path=archive_path, output_path=output_path, archive_type=archive_type)
+    execute(archive_path=sys.argv[1], output_path=sys.argv[2], archive_type=sys.argv[3])
