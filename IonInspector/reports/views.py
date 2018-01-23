@@ -151,6 +151,8 @@ def report(request, pk):
     archive = Archive.objects.get(pk=pk)
     diagnostics = archive.diagnostics.order_by("name")
 
+    start_time = diagnostics.order_by("start_execute").first().start_execute
+
     thumbnail_pdf_present = False
     full_pdf_present = False
     try:
@@ -172,7 +174,8 @@ def report(request, pk):
         'thumbnail_pdf_present': thumbnail_pdf_present,
         'full_pdf_present': full_pdf_present,
         'api_resource': get_serialized_model(archive, ArchiveResource),
-        'coverage_analysis_path': settings.MEDIA_URL + relative_coverage_analysis_path if os.path.exists(os.path.join(settings.MEDIA_ROOT, relative_coverage_analysis_path)) else ''
+        'coverage_analysis_path': settings.MEDIA_URL + relative_coverage_analysis_path if os.path.exists(os.path.join(settings.MEDIA_ROOT, relative_coverage_analysis_path)) else '',
+        'start_time': start_time
     })
     return render_to_response("report.html", ctx)
 
