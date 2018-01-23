@@ -18,8 +18,8 @@ def execute(archive_path, output_path, archive_type):
         hours_since_solution_first_use = root.find("RunInfo/hoursSinceSolutionFirstUse").text.strip()
         num_previous_uses_reagent = root.find("RunInfo/numPreviousUsesReagent").text.strip()
         num_previous_uses_solution = root.find("RunInfo/numPreviousUsesSolution").text.strip()
-        failed_reagents = 7 * 24 < int(hours_since_reagent_first_use)
-        failed_solution = 7 * 24 < int(hours_since_solution_first_use)
+        failed_reagents = 8 * 24 < int(hours_since_reagent_first_use)
+        failed_solution = 8 * 24 < int(hours_since_solution_first_use)
 
         # construct the context and result html
         context = {
