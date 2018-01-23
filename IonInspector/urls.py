@@ -14,7 +14,7 @@ urlpatterns = patterns(
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', 'reports.views.index', name='index'),
     url(r'^', include("IonInspector.reports.urls")),
-    url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}),
+    url(r'^media/(?P<path>.*)$', 'IonInspector.custom_static_serve.custom_serve', {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}),
 
     # in order to support coverage analysis html output files we need to replicate the Torrent suite static file serving
     url(r'^site_media/resources/bootstrap/css/bootstrap.min.css$', RedirectView.as_view(url='/static/css/bootstrap.css', permanent=True)),
