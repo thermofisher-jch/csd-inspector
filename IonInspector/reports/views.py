@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 from django.template import RequestContext
 from django.shortcuts import render_to_response, HttpResponseRedirect, render
 from reports.forms import ArchiveForm
-from reports.models import Archive, TEST_MANIFEST
+from reports.models import Archive, TEST_MANIFEST, PGM_RUN
 from utils import get_serialized_model
 from api import ArchiveResource
 from datetime import datetime
@@ -159,10 +159,12 @@ def report(request, pk):
         thumbnail_pdf_present = os.path.exists(os.path.join(archive.archive_root, "report.pdf"))
     except ValueError:
         pass
-    try:
-        full_pdf_present = os.path.exists(os.path.join(archive.archive_root, "full_report.pdf"))
-    except ValueError:
-        pass
+
+    if archive.archive_type != PGM_RUN:
+        try:
+            full_pdf_present = os.path.exists(os.path.join(archive.archive_root, "full_report.pdf"))
+        except ValueError:
+            pass
 
     relative_coverage_analysis_path = 'archive_files/' + str(pk) + '/coverageAnalysis/coverageAnalysis.html'
     ctx = RequestContext(request, {
