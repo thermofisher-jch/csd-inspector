@@ -10,6 +10,10 @@ def execute(archive_path, output_path, archive_type):
         # test for existance of the chef log
         root = get_xml_from_run_log(archive_path)
 
+        kit_customer_facing_name_tag = root.find("RunInfo/kit_customer_facing_name").text.strip()
+        if kit_customer_facing_name_tag != "Ion 550 Kit-Chef":
+            return print_na("Only runs for Ion 550 Kits")
+
         # attempt get the xml nodes relative to the flexible workflow stuff
         flexible = root.find("RunInfo/flexible")
         if flexible is None:
@@ -18,6 +22,7 @@ def execute(archive_path, output_path, archive_type):
         hours_since_solution_first_use = root.find("RunInfo/hoursSinceSolutionFirstUse").text.strip()
         num_previous_uses_reagent = root.find("RunInfo/numPreviousUsesReagent").text.strip()
         num_previous_uses_solution = root.find("RunInfo/numPreviousUsesSolution").text.strip()
+
         failed_reagents = 8 * 24 < int(hours_since_reagent_first_use)
         failed_solution = 8 * 24 < int(hours_since_solution_first_use)
 
@@ -41,7 +46,7 @@ def execute(archive_path, output_path, archive_type):
             return print_alert("Solutions were to old: " + hours_since_reagent_first_use + " hours.")
         return print_ok("Flexible workflow used before day eight.")
 
-    except OSError as exc:
+    except OSError:
         return print_na("No chef logs to investigate.")
 
     except Exception as exc:
