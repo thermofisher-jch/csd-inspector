@@ -10,7 +10,8 @@ def execute(archive_path, output_path, archive_type):
         # test for existance of the chef log
         root = get_xml_from_run_log(archive_path)
 
-        kit_customer_facing_name_tag = root.find("RunInfo/kit_customer_facing_name").text.strip()
+        kit_customer_facing_name_element = root.find("RunInfo/kit_customer_facing_name")
+        kit_customer_facing_name_tag = kit_customer_facing_name_element.text if kit_customer_facing_name_element is not None else ''
         if kit_customer_facing_name_tag != "Ion 550 Kit-Chef":
             return print_na("Only runs for Ion 550 Kits")
 
