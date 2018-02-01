@@ -85,7 +85,6 @@ TEST_MANIFEST = {
     ],
     ION_CHEF: [
         "Chef_Flexible_Workflow",
-        "Chef_Alarms",
         "Chef_Notifications",
         "Chef_Kit_Details",
         "Chef_Timer",

@@ -1,0 +1,45 @@
+<html>
+<head>
+	<link rel="stylesheet" href="/static/css/bootstrap.css"/>
+	<style type="text/css">
+		#files {
+			font-family: monospace;
+		}
+	</style>
+</head>
+<body>
+	{% if notifications %}
+		<h3 class="alert alert-info">{{ notifications|length }} notifications</h3>
+		<table class="table table-striped table-hover">
+			<thead>
+				<tr>
+                    <th>Date/Time</th>
+					<th>User Id</th>
+                    <th>sys</th>
+                    <th>sys_name</th>
+                    <th>User Message</th>
+                    <th>resolution</th>
+                    <th>Message</th>
+				</tr>
+			</thead>
+			<tbody>
+			{% for notification in notifications %}
+				<tr>
+                    <td>{{ notification.time }}</td>
+					<td>{{ notification.usr }}</td>
+                    <td>{{ notification.sys }}</td>
+                    <td>{{ notification.sys_name }}</td>
+                    <td>{{ notification.usr_msg }}</td>
+                    <td>{{ notification.resolution }}</td>
+                    <td>{{ notification.msg }}</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+
+	{% else %}
+		<h3 class="alert alert-success">All is well, no notifications!</h3>
+	{% endif %}
+
+</body>
+</html>

@@ -1,6 +1,0 @@
-Alarms are messages from the Chef which are shown to the user.
-
-These represent noteworthy problems which are known on the Chef.
-
-INPUTS:
-/var/log/IonChef/RunLog/*.xml
