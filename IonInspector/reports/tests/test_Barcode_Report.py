@@ -64,7 +64,7 @@ class BarcodeReportTestCase(SimpleTestCase):
         groups = get_read_groups(self.datasets_basecaller_object)
         self.assertEqual(groups[0],
                          {"group": "3CFN9.nomatch", "name": "No Barcode", "read_count": 160472, "index": 0,
-                          "filtered": False})
+                          "filtered": True})
         self.assertEqual(groups[1],
                          {"group": "3CFN9.IonXpress_001", "name": "IonXpress_001", "read_count": 0, "index": 1,
                           "filtered": True})
