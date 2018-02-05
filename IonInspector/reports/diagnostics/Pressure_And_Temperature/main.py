@@ -162,7 +162,9 @@ def execute(archive_path, output_path, archive_type):
                 "temperature": {
                     "chipBayTemperature": {"data": [], "label": "Chip Bay Temperature"},
                     "ambientTemperature": {"data": [], "label": "Ambient Temperature"},
-                    "underChipTemperature": {"data": [], "label": "Under Chip Temperature"}
+                    "ambientWasteTemperature": {"data": [], "label": "Ambient Waste Temperature"},
+
+                    "chipTemperature": {"data": [], "label": "Chip Temperature"}
                 }
             }
             reached_target_section = False
@@ -183,7 +185,9 @@ def execute(archive_path, output_path, archive_type):
                     # 'Chip Bay','Ambient','Under Chip'
                     data["temperature"]["chipBayTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][0])])
                     data["temperature"]["ambientTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][1])])
-                    data["temperature"]["underChipTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][2])])
+                    data["temperature"]["ambientWasteTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][3])])
+                    # Chip temp
+                    data["temperature"]["chipTemperature"]["data"].append([flow_count, float(dat_meta["chipTemp"][0])])
                     # Track flow types
                     if dat_name:
                         flow_type, _ = dat_name.rsplit("_", 1)
@@ -227,14 +231,14 @@ def execute(archive_path, output_path, archive_type):
                 temperature = float(explog["ProtonTemperature"].split(" ")[1])
                 if temperature < 20:
                     message_level = 'alert'
-                    temperature_message = u"Proton temperature {:.2f} C is too cold.".format(temperature)
+                    temperature_message = u"S5 temperature {:.2f} C is too cold.".format(temperature)
                 elif temperature > 35:
                     message_level = 'alert'
-                    temperature_message = u"Proton temperature {:.2f} C is too warm.".format(temperature)
+                    temperature_message = u"S5 temperature {:.2f} C is too warm.".format(temperature)
                 else:
                     if message_level != 'alert':
                         message_level = 'info'
-                    temperature_message = u"Proton temperature {:.2f} C is just right.".format(temperature)
+                    temperature_message = u"S5 temperature {:.2f} C is just right.".format(temperature)
 
             # Flot friendly format
             data = {
@@ -244,13 +248,13 @@ def execute(archive_path, output_path, archive_type):
                     "regulatorPressure": {"data": [], "label": "Regulator Pressure"},
                 },
                 "temperature": {
-                    "manifoldTemperature": {"data": [], "label": "Manifold Temperature"},
                     "manifoldHeaterTemperature": {"data": [], "label": "Manifold Heater Temperature"},
                     "wasteTemperature": {"data": [], "label": "Waste Temperature"},
                     "tecTemperature": {"data": [], "label": "TEC Temperature"},
                     "ambientTemperature": {"data": [], "label": "Ambient Temperature"},
 
-                    "chipTemperature": {"data": [], "label": "Chip Temperature"}
+                    "chipTemperature": {"data": [], "label": "Chip Temperature"},
+                    "manifoldTemperature": {"data": [], "label": "Manifold Temperature"},
                 }
             }
             reached_target_section = False
@@ -267,16 +271,15 @@ def execute(archive_path, output_path, archive_type):
                     # Now we need to coerce some values
                     data["pressure"]["manifoldPressure"]["data"].append([flow_count, float(dat_meta["Pressure"][1])])
                     data["pressure"]["regulatorPressure"]["data"].append([flow_count, float(dat_meta["Pressure"][0])])
-                    # https://stash.amer.thermo.com/projects/TS/repos/rndplugins/browse/autoCal/autoCal.R
-                    # 'manifold heater','manifold','TEC','waste','ambient'
-                    # I think these values are labeled wrong by the autoCal plugin. But copied for consistency.
+
                     data["temperature"]["manifoldHeaterTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][0])])
-                    data["temperature"]["manifoldTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][1])])
-                    data["temperature"]["tecTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][2])])
+                    data["temperature"]["tecTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][1])])
+                    data["temperature"]["wasteTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][2])])
                     data["temperature"]["ambientTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][3])])
-                    data["temperature"]["wasteTemperature"]["data"].append([flow_count, float(dat_meta["ManTemp"][0])])
                     # Chip temp
                     data["temperature"]["chipTemperature"]["data"].append([flow_count, float(dat_meta["chipTemp"][0])])
+                    # Man temp
+                    data["temperature"]["manifoldTemperature"]["data"].append([flow_count, float(dat_meta["ManTemp"][0])])
                     # Track flow types
                     if dat_name:
                         flow_type, _ = dat_name.rsplit("_", 1)
