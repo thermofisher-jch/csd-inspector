@@ -15,7 +15,8 @@ def execute(archive_path, output_path, archive_type):
     try:
         exp_log_file_path = get_explog_path(archive_path)
         if os.path.basename(exp_log_file_path) != EXPLOG_FINAL:
-            return print_failed("When explog_final.txt is not found, the explog.txt is used and has limited run information so some tests will fail.")
+            return print_failed(
+                "When explog_final.txt is not found, the explog.txt is used and has limited run information so some tests will fail.")
 
         template_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "results.html")
         results_path = os.path.join(output_path, "results.html")
@@ -137,21 +138,6 @@ def execute(archive_path, output_path, archive_type):
                 message_level = 'info'
                 pressure_message = "Proton pressure {:.2f} is just right.".format(pressure)
 
-            # get the message for the temperature
-            temperature_message = 'Temperature'
-            if "ProtonTemperature" in explog:
-                temperature = float(explog["ProtonTemperature"].split(" ")[1])
-                if temperature < 20:
-                    message_level = 'alert'
-                    temperature_message = u"Proton temperature {:.2f} C is too cold.".format(temperature)
-                elif temperature > 35:
-                    message_level = 'alert'
-                    temperature_message = u"Proton temperature {:.2f} C is too warm.".format(temperature)
-                else:
-                    if message_level != 'alert':
-                        message_level = 'info'
-                    temperature_message = u"Proton temperature {:.2f} C is just right.".format(temperature)
-
             # Flot friendly format
             data = {
                 "flowTypes": {},
@@ -185,7 +171,8 @@ def execute(archive_path, output_path, archive_type):
                     # 'Chip Bay','Ambient','Under Chip'
                     data["temperature"]["chipBayTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][0])])
                     data["temperature"]["ambientTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][1])])
-                    data["temperature"]["ambientWasteTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][3])])
+                    data["temperature"]["ambientWasteTemperature"]["data"].append(
+                        [flow_count, float(dat_meta["Temp"][3])])
                     # Chip temp
                     data["temperature"]["chipTemperature"]["data"].append([flow_count, float(dat_meta["chipTemp"][0])])
                     # Track flow types
@@ -204,6 +191,29 @@ def execute(archive_path, output_path, archive_type):
                     flow_count += 1
             # Add an endpoint for the acq flows
             data["flowTypes"][last_flow_type]["end"] = flow_count
+
+            # get the message for the temperature
+            temperature_message = 'Temperature'
+
+            min_temp = min(
+                min([i for _, i in data["temperature"]["chipBayTemperature"]["data"]]),
+                min([i for _, i in data["temperature"]["ambientTemperature"]["data"]]),
+                min([i for _, i in data["temperature"]["ambientWasteTemperature"]["data"]])
+            )
+
+            max_temp = max(
+                max([i for _, i in data["temperature"]["chipBayTemperature"]["data"]]),
+                max([i for _, i in data["temperature"]["ambientTemperature"]["data"]]),
+                max([i for _, i in data["temperature"]["ambientWasteTemperature"]["data"]])
+            )
+
+            if min_temp < 20:
+                message_level = 'alert'
+                temperature_message = u"Proton temperature {:.2f} C is too cold.".format(min_temp)
+            elif max_temp > 35:
+                message_level = 'alert'
+                temperature_message = u"Proton temperature {:.2f} C is too warm.".format(max_temp)
+
             return data, message_level, pressure_message, temperature_message
 
         # S5 Parsing
@@ -224,21 +234,6 @@ def execute(archive_path, output_path, archive_type):
             else:
                 message_level = 'info'
                 pressure_message = "S5 pressure {:.2f} is just right.".format(pressure)
-
-            # get the message for the temperature
-            temperature_message = 'Temperature'
-            if "ProtonTemperature" in explog:
-                temperature = float(explog["ProtonTemperature"].split(" ")[1])
-                if temperature < 20:
-                    message_level = 'alert'
-                    temperature_message = u"S5 temperature {:.2f} C is too cold.".format(temperature)
-                elif temperature > 35:
-                    message_level = 'alert'
-                    temperature_message = u"S5 temperature {:.2f} C is too warm.".format(temperature)
-                else:
-                    if message_level != 'alert':
-                        message_level = 'info'
-                    temperature_message = u"S5 temperature {:.2f} C is just right.".format(temperature)
 
             # Flot friendly format
             data = {
@@ -272,14 +267,16 @@ def execute(archive_path, output_path, archive_type):
                     data["pressure"]["manifoldPressure"]["data"].append([flow_count, float(dat_meta["Pressure"][1])])
                     data["pressure"]["regulatorPressure"]["data"].append([flow_count, float(dat_meta["Pressure"][0])])
 
-                    data["temperature"]["manifoldHeaterTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][0])])
+                    data["temperature"]["manifoldHeaterTemperature"]["data"].append(
+                        [flow_count, float(dat_meta["Temp"][0])])
                     data["temperature"]["tecTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][1])])
                     data["temperature"]["wasteTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][2])])
                     data["temperature"]["ambientTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][3])])
                     # Chip temp
                     data["temperature"]["chipTemperature"]["data"].append([flow_count, float(dat_meta["chipTemp"][0])])
                     # Man temp
-                    data["temperature"]["manifoldTemperature"]["data"].append([flow_count, float(dat_meta["ManTemp"][0])])
+                    data["temperature"]["manifoldTemperature"]["data"].append(
+                        [flow_count, float(dat_meta["ManTemp"][0])])
                     # Track flow types
                     if dat_name:
                         flow_type, _ = dat_name.rsplit("_", 1)
@@ -296,6 +293,29 @@ def execute(archive_path, output_path, archive_type):
                     flow_count += 1
             # Add an endpoint for the acq flows
             data["flowTypes"][last_flow_type]["end"] = flow_count
+
+            # get the message for the temperature
+            temperature_message = 'Temperature'
+
+            min_temp = min(
+                min([i for _, i in data["temperature"]["ambientTemperature"]["data"]]),
+                min([i for _, i in data["temperature"]["wasteTemperature"]["data"]]),
+                min([i for _, i in data["temperature"]["manifoldTemperature"]["data"]])
+            )
+
+            max_temp = max(
+                max([i for _, i in data["temperature"]["ambientTemperature"]["data"]]),
+                max([i for _, i in data["temperature"]["wasteTemperature"]["data"]]),
+                max([i for _, i in data["temperature"]["manifoldTemperature"]["data"]])
+            )
+
+            if min_temp < 20:
+                message_level = 'alert'
+                temperature_message = u"S5 temperature {:.2f} C is too cold.".format(min_temp)
+            elif max_temp > 35:
+                message_level = 'alert'
+                temperature_message = u"S5 temperature {:.2f} C is too warm.".format(max_temp)
+
             return data, message_level, pressure_message, temperature_message
 
         with open(exp_log_file_path) as exp_log_file:
@@ -303,9 +323,11 @@ def execute(archive_path, output_path, archive_type):
             if archive_type == "PGM_Run":
                 pgm_version = explog.get("PGM HW", "").strip()
                 if pgm_version == "1.1":
-                    flow_data, message_level, pressure_message, temperature_message = parse_flow_data_pgm(exp_log_file, True)
+                    flow_data, message_level, pressure_message, temperature_message = parse_flow_data_pgm(exp_log_file,
+                                                                                                          True)
                 elif pgm_version == "1.0":
-                    flow_data, message_level, pressure_message, temperature_message = parse_flow_data_pgm(exp_log_file, False)
+                    flow_data, message_level, pressure_message, temperature_message = parse_flow_data_pgm(exp_log_file,
+                                                                                                          False)
                 else:
                     raise KeyError("Unknown PGM Version:%s" % pgm_version)
             elif archive_type == "Proton":

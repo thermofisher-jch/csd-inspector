@@ -2,9 +2,13 @@ S5
 ---
 The S5 pressure should be 7.2 <= p <= 8.8. Target pressure is 8.0.
 
+The S5 temperature (Ambient, Waste, Manifold) should be 20°C <= t <= 35°C.
+
 Proton
 ---
 The Proton pressure should be 10.2 <= p <= 10.8. Target pressure is 10.5.
+
+The Proton temperature (Chip Bay, Ambient, Ambient Waste) should be 20°C <= t <= 35°C.
 
 PGM
 ---
