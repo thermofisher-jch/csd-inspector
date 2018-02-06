@@ -35,7 +35,9 @@ def get_diagnostic_debug_info(diagnostic):
 
 
 def delete_archive_root(archive):
-    shutil.rmtree(os.path.join(settings.MEDIA_ROOT, 'archive_files', str(archive.pk)))
+    archive_root_path = os.path.join(settings.MEDIA_ROOT, 'archive_files', str(archive.pk))
+    if os.path.exists(archive_root_path):
+        shutil.rmtree(archive_root_path)
 
 
 class PGMTestCase(TestCase):
