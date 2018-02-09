@@ -60,8 +60,8 @@ def execute(archive_path, output_path, archive_type):
             'histograms': histograms,
             'mean': mean,
             'std': std,
-            'cv': (std / mean) * 100.0,
-            'min_percent': (min_read_cound / mean) * 100.0,
+            'cv': (std / mean) * 100.0 if mean != 0.0 else 0,
+            'min_percent': (min_read_cound / mean) * 100.0 if mean != 0.0 else 0,
         }, output_path)
         return print_info("See results for details.")
     except Exception as exc:
