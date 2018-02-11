@@ -15,3 +15,4 @@ python-dateutil==2.6.0
 python-magic==0.4.12
 pyliblzma==0.5.3
 semver==2.7.7
+django-nose==1.4.2

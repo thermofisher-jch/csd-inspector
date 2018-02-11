@@ -53,7 +53,8 @@ INSTALLED_APPS = (
     'IonInspector.reports',
     'south',
     'django_tables2',
-    'tastypie'
+    'tastypie',
+    'django_nose'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -141,6 +142,9 @@ CELERY_ACCEPT_CONTENT = ['pickle', 'json']
 CELERY_RESULT_BACKEND = 'amqp'
 CELERY_RESULT_SERIALIZER = 'pickle'
 SITE_ROOT = os.path.dirname(os.path.dirname(__file__))
+
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+NOSE_ARGS = ['--processes=-1', '--process-timeout=120']
 
 VERSION = '1.2.3'
 
