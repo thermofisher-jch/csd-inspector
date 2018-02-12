@@ -69,7 +69,10 @@ def execute(archive_path, output_path, archive_type):
         run_date = parse_start_time(explog.get('Start Time', None))
 
         # construct the html response message
-        cleaning_dict = products.get('Ion S5 Cleaning Solution', {})
+        cleaning_dict = {}
+        for key, value in products.iteritems():
+            if "cleaning" in key.lower():
+                cleaning_dict = value
 
         sequencing_dict = {}
         for key in ["Ion S5 Sequencing Reagents", "Ion S5 Sequencing Reagent",
