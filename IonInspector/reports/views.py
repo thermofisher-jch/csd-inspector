@@ -151,7 +151,8 @@ def report(request, pk):
     archive = Archive.objects.get(pk=pk)
     diagnostics = archive.diagnostics.order_by("name")
 
-    start_time = diagnostics.order_by("start_execute").first().start_execute
+    first_diagnostic = diagnostics.order_by("start_execute").first()
+    start_time = first_diagnostic.start_execute if first_diagnostic is not None else None
 
     thumbnail_pdf_present = False
     full_pdf_present = False
