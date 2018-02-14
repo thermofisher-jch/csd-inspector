@@ -15,7 +15,7 @@ DIAGNOSTIC_FAILURE_STATUSES = [
 ]
 
 
-def get_test_archive(name):
+def get_archive(name):
     path = os.path.join("/opt/inspector/.local/test_archives/", name)
     if not os.path.exists(path):
         raise ValueError("Could not find test archive '%s'! "
@@ -36,13 +36,16 @@ def get_diagnostic_debug_info(diagnostic):
 
 def delete_archive_root(archive):
     archive_root_path = os.path.join(settings.MEDIA_ROOT, 'archive_files', str(archive.pk))
-    if os.path.exists(archive_root_path):
+    try:
         shutil.rmtree(archive_root_path)
+    except OSError:
+        pass
 
 
 class PGMTestCase(TestCase):
     def setUp(self):
         self.archive_v1_0 = Archive(
+            pk=1,
             identifier="PGM",
             site="PGM",
             time=timezone.now(),
@@ -52,10 +55,11 @@ class PGMTestCase(TestCase):
         )
         self.archive_v1_0.save()
         delete_archive_root(self.archive_v1_0)
-        self.archive_v1_0.doc_file = get_test_archive("pgm_1.0.zip")
+        self.archive_v1_0.doc_file = get_archive("pgm_1.0.zip")
         self.archive_v1_0.save()
 
         self.archive_v1_1 = Archive(
+            pk=2,
             identifier="PGM",
             site="PGM",
             time=timezone.now(),
@@ -65,7 +69,7 @@ class PGMTestCase(TestCase):
         )
         self.archive_v1_1.save()
         delete_archive_root(self.archive_v1_1)
-        self.archive_v1_1.doc_file = get_test_archive("pgm_1.1.zip")
+        self.archive_v1_1.doc_file = get_archive("pgm_1.1.zip")
         self.archive_v1_1.save()
 
     def test_diagnostics_v1_0(self):
@@ -90,6 +94,7 @@ class PGMTestCase(TestCase):
 class ProtonTestCase(TestCase):
     def setUp(self):
         self.archive = Archive(
+            pk=3,
             identifier="PROTON",
             site="PROTON",
             time=timezone.now(),
@@ -99,7 +104,7 @@ class ProtonTestCase(TestCase):
         )
         self.archive.save()
         delete_archive_root(self.archive)
-        self.archive.doc_file = get_test_archive("proton.zip")
+        self.archive.doc_file = get_archive("proton.zip")
         self.archive.save()
 
     def test_diagnostics(self):
@@ -115,6 +120,7 @@ class ProtonTestCase(TestCase):
 class S5TestCase(TestCase):
     def setUp(self):
         self.archive = Archive(
+            pk=4,
             identifier="S5",
             site="S5",
             time=timezone.now(),
@@ -124,7 +130,7 @@ class S5TestCase(TestCase):
         )
         self.archive.save()
         delete_archive_root(self.archive)
-        self.archive.doc_file = get_test_archive("s5.zip")
+        self.archive.doc_file = get_archive("s5.zip")
         self.archive.save()
 
     def test_diagnostics(self):
@@ -140,6 +146,7 @@ class S5TestCase(TestCase):
 class S5WithChefTestCase(TestCase):
     def setUp(self):
         self.archive = Archive(
+            pk=5,
             identifier="S5withChef",
             site="S5",
             time=timezone.now(),
@@ -149,7 +156,7 @@ class S5WithChefTestCase(TestCase):
         )
         self.archive.save()
         delete_archive_root(self.archive)
-        self.archive.doc_file = get_test_archive("s5_with_chef.zip")
+        self.archive.doc_file = get_archive("s5_with_chef.zip")
         self.archive.save()
 
     def test_diagnostics(self):
@@ -165,6 +172,7 @@ class S5WithChefTestCase(TestCase):
 class OneTouchTestCase(TestCase):
     def setUp(self):
         self.archive = Archive(
+            pk=6,
             identifier="OT",
             site="OT",
             time=timezone.now(),
@@ -174,7 +182,7 @@ class OneTouchTestCase(TestCase):
         )
         self.archive.save()
         delete_archive_root(self.archive)
-        self.archive.doc_file = get_test_archive("ot.log")
+        self.archive.doc_file = get_archive("ot.log")
         self.archive.save()
 
     def test_diagnostics(self):
@@ -190,6 +198,7 @@ class OneTouchTestCase(TestCase):
 class ChefTestCase(TestCase):
     def setUp(self):
         self.archive = Archive(
+            pk=7,
             identifier="Chef",
             site="Chef",
             time=timezone.now(),
@@ -199,7 +208,7 @@ class ChefTestCase(TestCase):
         )
         self.archive.save()
         delete_archive_root(self.archive)
-        self.archive.doc_file = get_test_archive("chef.tar")
+        self.archive.doc_file = get_archive("chef.tar")
         self.archive.save()
 
     def test_diagnostics(self):
@@ -215,6 +224,7 @@ class ChefTestCase(TestCase):
 class FieldSupportCase(TestCase):
     def setUp(self):
         self.archive = Archive(
+            pk=8,
             identifier="FieldSupport",
             site="FieldSupport",
             time=timezone.now(),
@@ -224,7 +234,7 @@ class FieldSupportCase(TestCase):
         )
         self.archive.save()
         delete_archive_root(self.archive)
-        self.archive.doc_file = get_test_archive("s5.FieldSupport.tar.xz")
+        self.archive.doc_file = get_archive("s5.FieldSupport.tar.xz")
         self.archive.save()
 
     def test_diagnostics(self):
