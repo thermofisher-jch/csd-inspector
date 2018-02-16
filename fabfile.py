@@ -1,5 +1,5 @@
 from fabric.api import env, run, cd, sudo, local
-from fabric.contrib.files import upload_template
+from fabric.contrib.files import upload_template, put
 
 env.user = 'deploy'
 env.forward_agent = True
@@ -44,11 +44,18 @@ def provision():
     sudo("mkdir -p {dir}/postgres; chown deploy:deploy {dir}; chmod 777 {dir}/postgres".format(dir=HOST_DATA_DIR))
     sudo("mkdir -p {dir}/celery; chown deploy:deploy {dir}; chmod 777 {dir}/celery".format(dir=HOST_DATA_DIR))
     sudo("mkdir -p {dir}/media; chown deploy:deploy {dir}; chmod 777 {dir}/media".format(dir=HOST_DATA_DIR))
+    # Setup db backups
+    put("./conf/backup_inspector_database.sh", "/etc/cron.hourly/backup_inspector_database", use_sudo=True)
+    sudo("chmod 755 /etc/cron.hourly/backup_inspector_database")
+    put("./conf/backup_inspector_logs.sh", "/etc/cron.hourly/backup_inspector_logs", ussoiure_sudo=True)
+    sudo("chmod 755 /etc/cron.hourly/backup_inspector_logs")
+    put("./conf/prune_docker.sh", "/etc/cron.weekly/prune_docker", use_sudo=True)
+    sudo("chmod 755 /etc/cron.weekly/prune_docker")
     with cd(HOST_DATA_DIR):
         run("git clone -b master ssh://git@stash.amer.thermo.com:7999/io/inspector.git")
 
 
-def deploy(tag=None):
+def deploy(tag=None, force=None):
     if not tag:
         print "Deploy must be passed a specific git tag!"
         exit()
@@ -60,7 +67,8 @@ def deploy(tag=None):
         run("git checkout %s" % tag)
         run("git fetch")
         run("docker-compose -f docker-compose.yml -f docker-compose.prod.yml build")
-        run("docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d")
+        run("docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d" +
+            " --force-recreate" if force else "")
         upload_template("./conf/nginx.conf", "/etc/nginx/sites-enabled/inspector.conf", {
 
         }, use_sudo=True)
