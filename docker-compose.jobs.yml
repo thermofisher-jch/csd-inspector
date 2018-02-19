@@ -1,0 +1,3 @@
+# This file is used in dev only and is automatically merged when running docker-compose
+django:
+  log_driver: none

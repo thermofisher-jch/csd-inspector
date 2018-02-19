@@ -146,7 +146,7 @@ SITE_ROOT = os.path.dirname(os.path.dirname(__file__))
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 NOSE_ARGS = ['--processes=-1', '--process-timeout=120']
 
-VERSION = '1.2.5'
+VERSION = '1.2.6'
 
 try:
     from local_version import *
