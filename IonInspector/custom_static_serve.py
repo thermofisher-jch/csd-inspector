@@ -6,6 +6,6 @@ def custom_serve(request, path, document_root=None, show_indexes=False):
     Removing Content-Encoding on application/x-tar fixes the issue.
     See https://bugs.chromium.org/p/chromium/issues/detail?id=268085 """
     response = serve(request, path, document_root, show_indexes)
-    if response['Content-Type'] == "application/x-tar":
+    if response.get('Content-Type', '') == "application/x-tar":
         del response["Content-Encoding"]
     return response
