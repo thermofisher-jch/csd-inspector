@@ -1,2 +1,4 @@
+This test is only for display and will only show the kit name and the chip name(s).
+
 INPUTS:
 /var/log/IonChef/RunLog/*.xml

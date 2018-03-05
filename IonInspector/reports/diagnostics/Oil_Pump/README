@@ -1,2 +1,4 @@
+This will look through the onetouch log oil pump status column for error codes and present them if any are present.
+
 INPUTS:
 onetouch.log

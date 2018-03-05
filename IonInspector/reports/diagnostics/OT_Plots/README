@@ -1,0 +1,15 @@
+This is an informative only test which which show two graphs.
+
+Temperature
+* Ambient Temperature
+* Lid Temperature
+* Block Temperature
+* Internal Case Temperature
+
+Sensors
+* Pressure Sensor
+* Motor Power Oscillation
+* Flowmeter
+
+INPUTS:
+onetouch.log

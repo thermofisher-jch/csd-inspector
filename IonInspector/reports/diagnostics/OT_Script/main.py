@@ -15,7 +15,6 @@ scripts = {
     "OT2_Proton_200-v2.txt": u"Ion PI™ Template OT2 200 Kit v2",
     "custom_1_OT2_Proton_200-v2_XT.txt": u"Ion PI™ Template OT2 200 Kit v2 with XT",
     "script_Proton_OT2_200_Kit_v3.txt": u"Ion PI™ Template OT2 200 Kit v3",
-    "OT2_Proton.txt": u"Ion PI™ Template OT2 200 Kit",
     "charged_cleaning.txt": u"Clean Instrument",
     "initialize.txt": u"Initialize",
     "centrifuge_proton.txt": u"Centrifuge",

@@ -77,7 +77,6 @@ TEST_MANIFEST = {
     ],
     OT_LOG: [
         "OT_Plots",
-        # "Plots",  Now plotted by OT_Plots
         "Sample_Pump",
         "Oil_Pump",
         "OT_Script",
@@ -89,9 +88,7 @@ TEST_MANIFEST = {
         "Chef_Kit_Details",
         "Chef_Timer",
         "Chef_Version",
-        # "Flow", Now plotted by Chef_Run_Log
         "Chef_Run_Details",
-        # "Fans", Now plotted by Chef_Run_Log
         "Chef_Run_Log",
         "Integrity_Check"
     ]

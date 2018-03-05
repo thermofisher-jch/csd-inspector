@@ -1,2 +1,4 @@
+This is a purely informative plugin which will show the release version number for the chef.  Additionally it will create a results page which shows a number of other pieces of version-ish information.
+
 INPUTS:
 /var/log/IonChef/RunLog/gui-*.log

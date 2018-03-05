@@ -1,2 +1,4 @@
+This is a purely informative plugin where it will siplay the run type and the run date.
+
 INPUTS:
 /var/log/IonChef/RunLog/*.xml

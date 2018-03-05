@@ -58,7 +58,7 @@ def execute(archive_path, output_path, archive_type):
         else:
             return print_alert("<br/>\n".join("%s: %s" % (error_codes[e]) for e in sorted(errors)))
     except Exception as exc:
-        return  handle_exception(exc, output_path)
+        return handle_exception(exc, output_path)
 
 
 if __name__ == "__main__":

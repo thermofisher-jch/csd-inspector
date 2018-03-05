@@ -1,0 +1,4 @@
+This test will check to see if a chef flexible workflow was used and if it was it will then it will check the age of the reagents as a possible source of error as well as the number of previous usages for the kits.
+
+INPUTS:
+/var/log/IonChef/RunLog/*.xml
