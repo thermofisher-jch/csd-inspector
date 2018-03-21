@@ -177,6 +177,8 @@ class Archive(models.Model):
                 raise Exception("This is a Dx package which is not allowed to be submitted in inspector.")
             doc_archive = zipfile.ZipFile(self.doc_file.path)
             doc_archive.extractall(path=archive_dir)
+            doc_archive.close()
+
         # Watch out. Some chef archives are .tar but are really .tar.gz
         elif self.doc_file.path.endswith('.tar') or self.doc_file.path.endswith('.tar.gz'):
             tar = tarfile.open(self.doc_file.path, "r")
