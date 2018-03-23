@@ -68,7 +68,7 @@ def deploy(tag=None, force=None):
         run("git fetch")
         run("docker-compose -f docker-compose.yml -f docker-compose.prod.yml build")
         run("docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d" +
-            " --force-recreate" if force else "")
+            (" --force-recreate" if force else ""))
         upload_template("./conf/nginx.conf", "/etc/nginx/sites-enabled/inspector.conf", {
 
         }, use_sudo=True)
