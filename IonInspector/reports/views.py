@@ -41,7 +41,6 @@ def upload(request):
             site=form.data['site_name'],
             time=datetime.utcnow(),
             submitter_name=form.data['name'],
-            archive_type=form.data['archive_type'].replace(" ", "_"),
             taser_ticket_number=int(form.data['taser_ticket_number']) if form.data['taser_ticket_number'] else None
         )
         # perform a save here in order to assert that we have a pk for this entry, otherwise we can't get a directory
@@ -50,6 +49,9 @@ def upload(request):
 
         # save the file against since we will need an id in order to create the save path
         archive.doc_file = request.FILES['doc_file']
+        archive.save()
+
+        archive.archive_type = archive.detect_archive_type()
         archive.save()
 
         try:

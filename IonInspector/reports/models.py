@@ -146,7 +146,7 @@ class Archive(models.Model):
     submitter_name = models.CharField(max_length=255, db_index=True)
 
     # the type of archive which this is
-    archive_type = models.CharField(max_length=255, choices=ARCHIVE_TYPES)
+    archive_type = models.CharField(max_length=255, choices=ARCHIVE_TYPES, null=True)
 
     # any summary information
     summary = models.CharField(max_length=255, default=u"")
@@ -161,12 +161,37 @@ class Archive(models.Model):
     # diagnostics : Foreign Key from diagnostic class
     # tags : Foreign Key from tag class
 
-    def execute_diagnostics(self, async=True):
-        """this method will execute all of the diagnostics"""
+    def detect_archive_type(self):
+        """This will attempt to auto detect the archive type"""
 
-        def get_immediate_subdirectories(a_dir):
-            return
+        # if the base archive is a simple log or csv then this is a one touch
+        if self.doc_file.path.endswith('.log') or self.doc_file.path.endswith('.csv'):
+            return OT_LOG
 
+        # if the extracted files has a var directory then this is a ion chef
+        self.extract_archive()
+        archive_dir = os.path.dirname(self.doc_file.path)
+        if os.path.exists(os.path.join(archive_dir, 'var')):
+            return ION_CHEF
+
+        # if the explog has the PGM HW key, then this is a PGM
+        explog = read_explog(archive_dir)
+        if 'PGM HW' in explog:
+            return PGM_RUN
+
+        # by reading the explog entry "platform" we should be able to differentiate between proton and S5
+        platform = explog.get('Platform', '')
+        if platform == 'proton':
+            return PROTON
+
+        if platform == 'S5':
+            return S5
+
+        # if we have gotten to this point then we really have no idea what kind of archive this is and this should be considered an error condition
+        raise Exception('Cannot determine the archive type.')
+
+    def extract_archive(self):
+        """This will extract all of the data from the archive to the folder for evaluation"""
         # if the file is not there then there is nothing we can do
         if not os.path.exists(self.doc_file.path):
             raise Exception("The archive file is not present at: " + self.doc_file.path)
@@ -198,7 +223,13 @@ class Archive(models.Model):
             if not os.path.exists(target_path):
                 shutil.copy(self.doc_file.path, target_path)
 
+    def execute_diagnostics(self, async=True):
+        """this method will execute all of the diagnostics"""
+
+        self.extract_archive()
+
         # handle coverage analysis specific workarounds here
+        archive_dir = os.path.dirname(self.doc_file.path)
         coverage_analysis_path = os.path.join(archive_dir, 'coverageAnalysis')
         if os.path.exists(coverage_analysis_path):
             # we are assuming any subdirectories here will be barcoded subdirectories since the pattern when creating the CSA only specifies content which is indicative of a barcode
@@ -221,10 +252,6 @@ class Archive(models.Model):
 
         for diagnostic_name in diagnostic_list:
             diagnostic = Diagnostic(name=diagnostic_name, archive=self)
-            readme_file = os.path.join(settings.SITE_ROOT, 'IonInspector', 'reports', 'diagnostics', diagnostic_name, 'README')
-            if os.path.exists(readme_file):
-                diagnostic.readme = os.path.basename(readme_file)
-            diagnostic.save()
             if async:
                 diagnostic.execute.delay()
             else:
