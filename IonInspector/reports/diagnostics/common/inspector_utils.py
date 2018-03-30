@@ -56,24 +56,24 @@ def read_explog(archive_path):
 def read_explog_from_handle(explog_handle):
     # parse the log file for all of the values in a colon delimited parameter
     data = dict()
-    expError = False
-    expErrorLog = []
+    exp_error = False
+    exp_error_log = []
     for line in explog_handle:
         # Trying extra hard to accommodate formatting issues in explog
         datum = line.split(":", 1)
         if len(datum) == 2:
             key, value = datum
             if "ExperimentErrorLog" in line:
-                expError = True
+                exp_error = True
                 continue
             data[key.strip()] = value.strip()
-        if expError:
+        if exp_error:
             line = line.strip()
             if line != "" and "ExpLog_Done" not in line:
-                expErrorLog.append(line)
+                exp_error_log.append(line)
             if "ExpLog_Done" in line:
-                data["ExperimentErrorLog"] = expErrorLog
-                expError = False
+                data["ExperimentErrorLog"] = exp_error_log
+                exp_error = False
     return data
 
 
@@ -130,7 +130,7 @@ def print_alert(message):
     print("Alert")
     print(40)
     print(message[:MAX_MESSAGE_LENGTH])
-    return ("Alert", 40, message)
+    return "Alert", 40, message
 
 
 def print_warning(message):
@@ -145,7 +145,7 @@ def print_info(message):
     print("Info")
     print(20)
     print(message[:MAX_MESSAGE_LENGTH])
-    return ("Info", 20, message)
+    return "Info", 20, message
 
 
 def print_ok(message):
@@ -156,7 +156,7 @@ def print_ok(message):
     print("OK")
     print(10)
     print(message[:MAX_MESSAGE_LENGTH])
-    return ("OK", 10, message)
+    return "OK", 10, message
 
 
 def print_na(message):
@@ -167,7 +167,7 @@ def print_na(message):
     print("NA")
     print(0)
     print(message[:MAX_MESSAGE_LENGTH])
-    return ("NA", 0, message)
+    return "NA", 0, message
 
 
 def print_failed(message):
@@ -178,7 +178,7 @@ def print_failed(message):
     print("Failed")
     print(0)
     print(message[:MAX_MESSAGE_LENGTH])
-    return ("Failed", 0, message)
+    return "Failed", 0, message
 
 
 def get_csv_from_run_log(archive_path):
@@ -345,8 +345,12 @@ def run_used_chef(archive_path):
     return len(ion_params_object.get("exp_json", {}).get("chefInstrumentName", "")) > 0
 
 
-def write_results_from_template(data_dict, output_dir):
-    template = Template(open("results.html").read())
-    result = template.render(Context(data_dict))
-    with open(os.path.join(output_dir, "results.html"), 'w') as out:
-        out.write(result.encode("UTF-8"))
+def write_results_from_template(data_dict, output_dir, diagnostic_script_dir):
+    template_path = os.path.join(diagnostic_script_dir, "results.html")
+    try:
+        template = Template(open(template_path).read())
+        result = template.render(Context(data_dict))
+        with open(os.path.join(output_dir, "results.html"), 'w') as out:
+            out.write(result.encode("UTF-8"))
+    except IOError:
+        raise Exception('Could not find template file at: ' + template_path)

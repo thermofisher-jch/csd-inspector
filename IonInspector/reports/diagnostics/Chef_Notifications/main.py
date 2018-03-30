@@ -50,7 +50,7 @@ def execute(archive_path, output_path, archive_type):
                 notifications.append(notification)
 
         context = Context({"notifications": notifications})
-        write_results_from_template(context, output_path)
+        write_results_from_template(context, output_path, os.path.dirname(os.path.realpath(__file__)))
 
         if notifications:
             return print_warning("There were notifications, please see results page.")

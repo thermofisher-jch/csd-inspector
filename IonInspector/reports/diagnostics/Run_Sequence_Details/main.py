@@ -61,7 +61,7 @@ def execute(archive_path, output_path, archive_type):
             'serial_number': serial_number,
             'system_type': system_type,
         }
-        write_results_from_template(template_context, output_path)
+        write_results_from_template(template_context, output_path, os.path.dirname(os.path.realpath(__file__)))
 
         return print_info(" | ".join([
             "TS " + template_context["tss_version"],

@@ -15,11 +15,8 @@ def execute(archive_path, output_path, archive_type):
     try:
         exp_log_file_path = get_explog_path(archive_path)
         if os.path.basename(exp_log_file_path) != EXPLOG_FINAL:
-            return print_failed(
-                "When explog_final.txt is not found, the explog.txt is used and has limited run information so some tests will fail.")
+            return print_failed("When explog_final.txt is not found, the explog.txt is used and has limited run information so some tests will fail.")
 
-        template_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "results.html")
-        results_path = os.path.join(output_path, "results.html")
         explog = read_explog(archive_path)
         pressure_message = ''
         temperature_message = ''
@@ -341,15 +338,11 @@ def execute(archive_path, output_path, archive_type):
         flow_data["pressure"] = flow_data["pressure"].values()
         flow_data["temperature"] = flow_data["temperature"].values()
 
-        context = Context({
+        write_results_from_template({
             "pressure_message": pressure_message,
             "temperature_message": temperature_message,
             "raw_data": json.dumps(flow_data),
-        })
-        template = Template(open("results.html").read())
-        result = template.render(context)
-        with open(results_path, 'w') as out:
-            out.write(result.encode("UTF-8"))
+        }, output_path, os.path.dirname(os.path.realpath(__file__)))
 
         # Write out status
         if message_level == 'info':

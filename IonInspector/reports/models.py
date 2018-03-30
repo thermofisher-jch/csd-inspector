@@ -2,6 +2,7 @@
 This will hold all of the data models for the inspector.
 """
 import contextlib
+import importlib
 import lzma
 import shutil
 import tarfile
@@ -344,31 +345,12 @@ class Diagnostic(models.Model):
             self.start_execute = timezone.now()
             self.save()
 
-            # find the executable to use
-            script_folder = os.path.join(DIAGNOSTICS_SCRIPT_DIR, self.name)
-            script = os.path.join(script_folder, 'main.py')
-
             # execute the script
-            env = os.environ.copy()
-            env['PYTHONPATH'] = os.path.join('/', 'opt', 'inspector')
-            env['DJANGO_SETTINGS_MODULE'] = 'IonInspector.settings'
-            cmd = [script, self.archive.archive_root, self.diagnostic_root, self.archive.archive_type]
-            test_process = Popen(cmd, stdout=PIPE, stderr=PIPE, cwd=script_folder, env=env)
-            stdout, self.error = test_process.communicate()
+            diagnostic_module = importlib.import_module('IonInspector.reports.diagnostics.' + self.name.replace(' ', '_') + '.main')
+            if settings.DEBUG:
+                reload(diagnostic_module)
+            self.status, self.priority, self.details = diagnostic_module.execute(self.archive.archive_root, self.diagnostic_root, self.archive.archive_type)
 
-            # deal with the output
-            open(os.path.join(self.diagnostic_root, "standard_output.log"), 'wb').write(stdout)
-            open(os.path.join(self.diagnostic_root, "standard_error.log"), 'wb').write(self.error)
-            output = stdout.splitlines()
-            self.priority = 0
-            self.status = Diagnostic.FAILED
-            if stdout:
-                for short_name, long_name in Diagnostic.DIAGNOSTIC_STATUSES:
-                    if output[0] == long_name:
-                        self.status = long_name
-                self.priority = int(output[1])
-
-            self.details = self.error if self.error else "<br />".join(output[2:]).rstrip()
             html_path = os.path.join(self.diagnostic_root, "results.html")
             if os.path.exists(html_path):
                 self.html = os.path.basename(html_path)

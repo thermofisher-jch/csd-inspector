@@ -61,7 +61,7 @@ def execute(archive_path, output_path, archive_type):
             'chef_solutions_expiration': chef_solutions_expiration.strftime(
                 datetime_output_format) if chef_solutions_expiration else ''
         }
-        write_results_from_template(template_context, output_path)
+        write_results_from_template(template_context, output_path, os.path.dirname(os.path.realpath(__file__)))
 
         message = template_context["chef_name"] + " Sample " + \
                   template_context["sample_pos"] + " | " + \

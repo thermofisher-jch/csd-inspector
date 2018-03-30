@@ -47,7 +47,7 @@ def execute(archive_path, output_path, archive_type):
         context['serial'] = root.find("Instrument/serial").text
         release_version_node = root.find("Versions/release")
         summary = release_version_node.text if release_version_node is not None else find_summary(gui_log_path_matches)
-        write_results_from_template(context, output_path)
+        write_results_from_template(context, output_path, os.path.dirname(os.path.realpath(__file__)))
         return print_info(summary)
     except Exception as exc:
         return handle_exception(exc, output_path)

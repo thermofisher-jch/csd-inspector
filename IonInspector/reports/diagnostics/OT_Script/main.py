@@ -63,10 +63,7 @@ def execute(archive_path, output_path, archive_type):
             "rows": rows,
             "time": time,
         })
-        template = Template(open("results.html").read())
-        result = template.render(context)
-        with open(os.path.join(output_path, "results.html"), 'w') as out:
-            out.write(result.encode("UTF-8"))
+        write_results_from_template(context, output_path, os.path.dirname(os.path.realpath(__file__)))
 
         return print_info(summary.encode("UTF-8"))
     except Exception as exc:

@@ -147,7 +147,7 @@ def execute(archive_path, output_path, archive_type):
             'electrode_report': electrode_report,
             'isp_report': isp_report,
             'invalid_noise': invalid_noise
-        }, output_path)
+        }, output_path, os.path.dirname(os.path.realpath(__file__)))
 
         # details genereration here
         if report_level == REPORT_LEVEL_ALERT:

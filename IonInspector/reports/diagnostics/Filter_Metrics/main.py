@@ -135,8 +135,7 @@ def execute(archive_path, output_path, archive_type):
         }
         create_plot(data, os.path.join(output_path, 'library.png'))
 
-        template = Template(open("results.html").read())
-        result = template.render(Context({
+        write_results_from_template({
             'pwc_beads': beads, 'pwc_beads_perc': float(beads) / float(pwc_total) * 100.0,
             'pwc_empties': empties, 'pwc_empties_perc': float(empties) / float(pwc_total) * 100.0,
             'pwc_pinned': pinned, 'pwc_pinned_perc': float(pinned) / float(pwc_total) * 100.0,
@@ -155,9 +154,7 @@ def execute(archive_path, output_path, archive_type):
             'libarary_final_library_isps': final_library_isps, 'libarary_final_library_isps_perc': float(final_library_isps) / float(library) * 100.0,
             'quality_filter': quality_filter,
             'quality_filter_perc': float(quality_filter) / float(library) * 100.0,
-        }))
-        with open(os.path.join(output_path, "results.html"), 'w') as out:
-            out.write(result.encode("UTF-8"))
+        }, output_path, os.path.dirname(os.path.realpath(__file__)))
 
         return print_info("See results for details.")
     except Exception as exc:

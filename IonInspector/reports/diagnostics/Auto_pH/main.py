@@ -148,6 +148,7 @@ def execute(archive_path, output_path, archive_type):
     except Exception as exc:
         return handle_exception(exc, output_path)
 
+
 if __name__ == "__main__":
     archive_path, output_path, archive_type = sys.argv[1:4]
     execute(archive_path, output_path, archive_type)

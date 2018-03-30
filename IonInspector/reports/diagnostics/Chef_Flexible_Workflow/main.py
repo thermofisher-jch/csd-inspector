@@ -36,7 +36,7 @@ def execute(archive_path, output_path, archive_type):
             'failed_reagents': failed_reagents,
             'failed_solution': failed_solution,
         }
-        write_results_from_template(context, output_path)
+        write_results_from_template(context, output_path, os.path.dirname(os.path.realpath(__file__)))
 
         # detect failures or success
         if failed_solution and failed_reagents:
