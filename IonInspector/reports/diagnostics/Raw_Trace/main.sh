@@ -15,29 +15,15 @@ if [ -s $WHOLE_BLOCK_LIST ]; then
         echo "<br><a href='./${BLOCK}/results.html'> ${BLOCK} </a>" >> ${HTML}
         var=$(./rawTrace_lemon.pl -a $ARCHIVE -o $OUTPUT2 -b $BLOCK 2>&1)
 
-        if [ "$?" != "0" ]; then
-          echo N/A
-          echo 0
-          echo $var
-        fi
-
     done < $filename
     echo "</body></html>" >> ${HTML}
-
-    echo Info
-    echo 20
-    echo See results for details.
 
 else
     var=$(./rawTrace_lemon.pl -a $ARCHIVE -o $OUTPUT 2>&1)
 
     if [ "$?" = "0" ]; then
-      echo Info
-      echo 20
-      echo See results for details.
+      exit 0
     else
-      echo N/A
-      echo 0
-      echo $var
+      exit 2
     fi
 fi

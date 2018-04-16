@@ -28,8 +28,6 @@ def get_diagnostic_debug_info(diagnostic):
     return "\n".join([
         "'%s' failed with status: %s" % (diagnostic.display_name, diagnostic.get_status_display()),
         "- directory " + diagnostic.diagnostic_root,
-        "- stdout below\n" + open(os.path.join(diagnostic.diagnostic_root, "standard_output.log")).read(),
-        "- stderr below\n" + open(os.path.join(diagnostic.diagnostic_root, "standard_error.log")).read(),
         "- results.html below\n" + open(results_path).read() if os.path.exists(results_path) else "<No results.html>"
     ])
 

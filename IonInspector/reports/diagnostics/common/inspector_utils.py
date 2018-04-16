@@ -127,9 +127,6 @@ def print_alert(message):
     print an alert message
     :param message: The message to print
     """
-    print("Alert")
-    print(40)
-    print(message[:MAX_MESSAGE_LENGTH])
     return "Alert", 40, message
 
 
@@ -142,9 +139,6 @@ def print_info(message):
     prints the info message
     :param message: The message to print
     """
-    print("Info")
-    print(20)
-    print(message[:MAX_MESSAGE_LENGTH])
     return "Info", 20, message
 
 
@@ -153,9 +147,6 @@ def print_ok(message):
     prints the ok message
     :param message: The message to print
     """
-    print("OK")
-    print(10)
-    print(message[:MAX_MESSAGE_LENGTH])
     return "OK", 10, message
 
 
@@ -164,9 +155,6 @@ def print_na(message):
     prints the na message
     :param message:
     """
-    print("NA")
-    print(0)
-    print(message[:MAX_MESSAGE_LENGTH])
     return "NA", 0, message
 
 
@@ -175,9 +163,6 @@ def print_failed(message):
     prints the failed message
     :param message:
     """
-    print("Failed")
-    print(0)
-    print(message[:MAX_MESSAGE_LENGTH])
     return "Failed", 0, message
 
 
