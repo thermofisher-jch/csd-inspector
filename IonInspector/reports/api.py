@@ -98,7 +98,7 @@ class ArchiveResource(ModelResource):
         response = {
             "values": []
         }
-        if field and field in Archive._meta.get_all_field_names() and query:
+        if field and query:
             kwargs = {
                 "%s__istartswith" % field: query
             }
@@ -121,7 +121,10 @@ class ArchiveResource(ModelResource):
 
     def dehydrate_doc_file_url(self, bundle):
         # The api consumer probably wants the url instead of the file path
-        return bundle.obj.doc_file.url
+        if bundle.obj.doc_file:
+            return bundle.obj.doc_file.url
+        else:
+            return None
 
     class Meta:
         queryset = Archive.objects.all()

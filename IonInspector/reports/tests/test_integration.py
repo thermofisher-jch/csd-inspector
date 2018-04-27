@@ -6,6 +6,7 @@ from reports.models import Archive
 from reports.models import PGM_RUN, PROTON, S5, OT_LOG, ION_CHEF  # Constants
 from reports.models import Diagnostic
 import os
+import time
 import shutil
 
 DIAGNOSTIC_FAILURE_STATUSES = [

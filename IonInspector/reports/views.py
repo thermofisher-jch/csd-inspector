@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.template import RequestContext
-from django.shortcuts import render_to_response, HttpResponseRedirect, render
+from django.shortcuts import render, HttpResponseRedirect
 from reports.forms import ArchiveForm
 from reports.models import Archive, TEST_MANIFEST, PGM_RUN
 from utils import get_serialized_model
@@ -21,8 +20,8 @@ def index(request):
     :return:
     """
 
-    ctx = RequestContext(request, {})
-    return render_to_response("index.html", context_instance=ctx)
+    ctx = dict({})
+    return render(request, "index.html", context=ctx)
 
 
 def upload(request):
@@ -62,22 +61,22 @@ def upload(request):
             archive.delete()
 
             # render a error response
-            ctx = RequestContext(request, {'error_msg': exc.message})
-            return render_to_response("error.html", context_instance=ctx)
+            ctx = dict({'error_msg': exc.message})
+            return render(request, "error.html", context=ctx)
 
         # Redirect to the document list after POST if "Upload Archive" was selected
         if form.data['upload_another'] != "yes":
-            return HttpResponseRedirect(reverse('reports.views.report', args=[archive.pk]))
+            return HttpResponseRedirect(reverse('report', args=[archive.pk]))
         else:
             new_form = ArchiveForm(data=request.POST, files=request.FILES)
             new_form.data["upload_another"] = "no"
-            ctx = RequestContext(request, {'form': new_form})
-            return render_to_response("upload.html", context_instance=ctx)
+            ctx = dict({'form': new_form})
+            return render(request, "upload.html", context=ctx)
     else:
         form = ArchiveForm()
 
-    ctx = RequestContext(request, {'form': form})
-    return render_to_response("upload.html", context_instance=ctx)
+    ctx = dict({'form': form})
+    return render(request, "upload.html", context=ctx)
 
 
 def reports(request):
@@ -128,7 +127,7 @@ def reports(request):
     table = ArchiveTable(archives, order_by="-time")
     table.paginate(page=request.GET.get('page', 1), per_page=100)
     RequestConfig(request).configure(table)
-    ctx = RequestContext(request, {
+    ctx = dict({
         'archives': table,
         'archive_types': TEST_MANIFEST.keys(),
         'site_search': site_search,
@@ -139,7 +138,7 @@ def reports(request):
         'date_start_search': date_start_search,
         'date_end_search': date_end_search
     })
-    return render_to_response("reports.html", context_instance=ctx)
+    return render(request, "reports.html", context=ctx)
 
 
 def report(request, pk):
@@ -170,7 +169,7 @@ def report(request, pk):
             pass
 
     relative_coverage_analysis_path = 'archive_files/' + str(pk) + '/coverageAnalysis/coverageAnalysis.html'
-    ctx = RequestContext(request, {
+    ctx = dict({
         'archive_type_choices_json': json.dumps(
             [{"name": k, "value": v} for v, k in archive._meta.get_field('archive_type').choices]
         ),
@@ -182,7 +181,7 @@ def report(request, pk):
         'coverage_analysis_path': settings.MEDIA_URL + relative_coverage_analysis_path if os.path.exists(os.path.join(settings.MEDIA_ROOT, relative_coverage_analysis_path)) else '',
         'start_time': start_time
     })
-    return render_to_response("report.html", ctx)
+    return render(request, "report.html", ctx)
 
 
 def documentation(request):
@@ -192,8 +191,8 @@ def documentation(request):
     :return:
     """
 
-    ctx = RequestContext(request, {})
-    return render_to_response("documentation.html", ctx)
+    ctx = dict({})
+    return render(request, "documentation.html", ctx)
 
 
 def readme(request, diagnostic_name):
@@ -205,5 +204,5 @@ def readme(request, diagnostic_name):
     """
 
     contents = open(os.path.join(settings.SITE_ROOT, 'IonInspector', 'reports', 'diagnostics', diagnostic_name, 'README')).read()
-    ctx = RequestContext(request, {'readme': contents})
-    return render_to_response("readme.html", ctx)
+    ctx = dict({'readme': contents})
+    return render(request, "readme.html", ctx)

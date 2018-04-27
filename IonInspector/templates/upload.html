@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load url from future %}
 {% load static from staticfiles %}
 {% block extra_head_js %}
     <script type="text/javascript" src="{% static 'js/bootstrap-typeahead.js'%}"></script>
@@ -45,7 +44,7 @@
     <div class="row">
         <div class="span6">
             <!-- Upload form. Note enctype attribute! -->
-            <form id="new_archive" action="{% url 'upload' %}" method="post" enctype="multipart/form-data">
+            <form id="new_archive" action="{% url 'upload' %}" method="post" enctype="multipart/form-data" autocomplete="off">
                 {% csrf_token %}
                 {{ form.upload_another }}
                 <p>{{ form.non_field_errors }}</p>

@@ -23,23 +23,7 @@ SECRET_KEY = '@0gi@=8!#@w!g8d6vibm9+576!rhe949a#w)unk+3s5f4fe0x2'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-TEMPLATE_DEBUG = True
-
 ALLOWED_HOSTS = []
-
-
-TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.contrib.auth.context_processors.auth",
-    "django.core.context_processors.debug",
-    "django.core.context_processors.i18n",
-    "django.core.context_processors.media",
-    "django.core.context_processors.static",
-    "django.core.context_processors.request",
-    "django.core.context_processors.tz",
-    "django.contrib.messages.context_processors.messages",
-    "IonInspector.reports.context_processors.version_number",
-    "IonInspector.reports.context_processors.active_nav"
-)
 
 # Application definition
 INSTALLED_APPS = (
@@ -50,8 +34,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
-    'IonInspector.reports',
-    'south',
+    'reports',
     'django_tables2',
     'tastypie',
     'django_nose'
@@ -129,9 +112,25 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
 
-TEMPLATE_DIRS = (
-    os.path.join(BASE_DIR, 'templates'),
-)
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'APP_DIRS': True,
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+                "IonInspector.reports.context_processors.version_number",
+                "IonInspector.reports.context_processors.active_nav"
+            ],
+        },
+
+    },
+]
 
 MEDIA_ROOT = '/var/lib/inspector/media/'
 MEDIA_URL = '/media/'
@@ -143,8 +142,6 @@ CELERY_RESULT_BACKEND = 'amqp'
 CELERY_RESULT_SERIALIZER = 'pickle'
 SITE_ROOT = os.path.dirname(os.path.dirname(__file__))
 
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-NOSE_ARGS = ['--processes=-1', '--process-timeout=120']
 
 VERSION = '1.2.8'
 

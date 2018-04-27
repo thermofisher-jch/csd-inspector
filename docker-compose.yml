@@ -6,7 +6,7 @@ celery:
   user: inspector
   build: ./
   working_dir: /opt/inspector
-  command: celery -A IonInspector.celeryconfig worker -l info
+  command: python -m celery -A IonInspector.celeryconfig worker -l info
   links:
     - rabbitmq
     - postgres
@@ -15,7 +15,7 @@ django:
   user: inspector
   build: ./
   working_dir: /opt/inspector
-  command: bash -c "sleep 5 && ./manage.py syncdb --noinput && ./manage.py migrate --noinput && ./manage.py runserver 0.0.0.0:8080"
+  command: bash -c "sleep 5 && ./manage.py migrate --noinput && ./manage.py runserver 0.0.0.0:8080"
   links:
     - postgres
     - celery

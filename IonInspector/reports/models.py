@@ -3,15 +3,13 @@ This will hold all of the data models for the inspector.
 """
 import contextlib
 import importlib
-import lzma
 import shutil
 import tarfile
 import zipfile
-import os
 from subprocess import *
 
+import lzma
 from cached_property import cached_property
-from celery.contrib.methods import task
 from django.conf import settings
 from django.db import models
 from django.db.models.signals import pre_delete
@@ -20,6 +18,7 @@ from django.utils import timezone
 
 from IonInspector.reports.diagnostics.common.inspector_utils import *
 from reports.utils import check_for_dx_zip, check_for_dx_csv, force_symlink
+from celeryconfig import celery_app
 
 # check to see if the settings are configured
 if not settings.configured:
@@ -253,10 +252,11 @@ class Archive(models.Model):
 
         for diagnostic_name in diagnostic_list:
             diagnostic = Diagnostic(name=diagnostic_name, archive=self)
+            diagnostic.save()
             if async:
-                diagnostic.execute.delay()
+                celery_app.send_task('reports.tasks.execute_diagnostic', (diagnostic.id,))
             else:
-                diagnostic.execute.apply()
+                diagnostic.execute()
 
     @cached_property
     def archive_root(self):
@@ -335,7 +335,6 @@ class Diagnostic(models.Model):
     def readme(self):
         return os.path.exists(os.path.join(settings.SITE_ROOT, 'IonInspector', 'reports', 'diagnostics', self.name, 'README'))
 
-    @task()
     def execute(self):
         """This will execute the this diagnostic"""
 

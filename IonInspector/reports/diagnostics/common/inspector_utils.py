@@ -1,4 +1,3 @@
-import copy
 import csv
 import os
 import semver
@@ -305,7 +304,7 @@ def parse_ts_version(version_string):
         version_string += ".0"
     if ".RC" in version_string:
         version_string = version_string.replace(".RC", "-rc.")
-    semver.parse_version_info(version_string)  # Ensure that the string is not valid
+    semver.parse(version_string)  # Ensure that the string is not valid
     return version_string
 
 
