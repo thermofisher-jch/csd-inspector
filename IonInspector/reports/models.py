@@ -17,7 +17,7 @@ from django.dispatch import receiver
 from django.utils import timezone
 
 from IonInspector.reports.diagnostics.common.inspector_utils import *
-from reports.utils import check_for_dx_zip, check_for_dx_csv, force_symlink
+from reports.utils import force_symlink
 from celeryconfig import celery_app
 
 # check to see if the settings are configured
@@ -198,8 +198,6 @@ class Archive(models.Model):
 
         archive_dir = os.path.dirname(self.doc_file.path)
         if self.doc_file.path.endswith('.zip'):
-            if check_for_dx_zip(self.doc_file.path):
-                raise Exception("This is a Dx package which is not allowed to be submitted in inspector.")
             doc_archive = zipfile.ZipFile(self.doc_file.path)
             doc_archive.extractall(path=archive_dir)
             doc_archive.close()
@@ -217,8 +215,6 @@ class Archive(models.Model):
                 tar.close()
         # Watch out. Some ot logs are are .log and some are .csv
         elif self.doc_file.path.endswith('.log') or self.doc_file.path.endswith('.csv'):  # One Touch
-            if check_for_dx_csv(self.doc_file.path):
-                raise Exception("This is a Dx package which is not allowed to be submitted in inspector.")
             target_path = os.path.join(archive_dir, "onetouch.log")
             if not os.path.exists(target_path):
                 shutil.copy(self.doc_file.path, target_path)
