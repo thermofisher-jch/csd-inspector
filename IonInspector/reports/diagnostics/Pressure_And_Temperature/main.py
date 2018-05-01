@@ -266,8 +266,8 @@ def execute(archive_path, output_path, archive_type):
 
                     data["temperature"]["manifoldHeaterTemperature"]["data"].append(
                         [flow_count, float(dat_meta["Temp"][0])])
-                    data["temperature"]["tecTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][1])])
-                    data["temperature"]["wasteTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][2])])
+                    data["temperature"]["wasteTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][1])])
+                    data["temperature"]["tecTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][2])])
                     data["temperature"]["ambientTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][3])])
                     # Chip temp
                     data["temperature"]["chipTemperature"]["data"].append([flow_count, float(dat_meta["chipTemp"][0])])
