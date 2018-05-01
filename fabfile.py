@@ -22,13 +22,13 @@ def dev():
 
 def test(path=""):
     local("docker-compose run django "
-          "python manage.py test --noinput --parallel %s" % path)
+          "python manage.py test %s --noinput --parallel" % path)
 
 
-def test_case_profile(name="*"):
+def test_profile(name="*"):
     local("docker-compose run django "
           "python -m cProfile -o /var/log/inspector/test_%s.pstats "
-          "manage.py test --noinput --pattern='test_%s.py'" % (name, name))
+          "manage.py test --noinput %s" % (name, name))
 
 
 def provision():

@@ -6,13 +6,13 @@ import os
 import sys
 import time
 
-from dateutil.parser import parse
+from datetime import datetime
 
 from IonInspector.reports.diagnostics.common.inspector_utils import print_info, handle_exception
 
 
 def parse_timestamp(value):
-    return time.mktime(parse(value).timetuple())
+    return time.mktime(datetime.strptime(value, "%a %b  %d %I:%M:%S %Y").timetuple())
 
 
 # Plots  csv header , display header, formatter

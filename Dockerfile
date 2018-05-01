@@ -20,14 +20,14 @@ python-lxml \
 python-bs4 \
 python-lzma \
 python-django \
-python-django-nose \
 python-django-tastypie \
 python-django-tables2 \
 python-cached-property \
 python-dateutil \
 python-magic \
 python-lzma \
-python-semver
+python-semver \
+python-raven
 
 # install R deps
 RUN Rscript -e "source('http://bioconductor.org/biocLite.R')"

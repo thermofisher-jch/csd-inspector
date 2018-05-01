@@ -37,7 +37,7 @@ INSTALLED_APPS = (
     'reports',
     'django_tables2',
     'tastypie',
-    'django_nose'
+    'raven.contrib.django.raven_compat'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -144,6 +144,11 @@ SITE_ROOT = os.path.dirname(os.path.dirname(__file__))
 
 
 VERSION = '1.2.8'
+
+RAVEN_CONFIG = {
+    'dsn': 'http://d8a6a72730684575afc834c95ebbdc60:1e5b396140654efd9b3361401f530204@sentry.itw//11',
+    'release': VERSION
+}
 
 try:
     from local_version import *
