@@ -168,11 +168,9 @@ class Archive(models.Model):
         if self.doc_file.path.endswith('.log') or self.doc_file.path.endswith('.csv'):
             return OT_LOG
 
-        # if the extracted files has a var directory then this is a ion chef
-        self.extract_archive()
+        # everything else needs the archive to be extracted
         archive_dir = os.path.dirname(self.doc_file.path)
-        if os.path.exists(os.path.join(archive_dir, 'var')):
-            return ION_CHEF
+        self.extract_archive()
 
         # if the explog has the PGM HW key, then this is a PGM
         explog = read_explog(archive_dir)
@@ -187,7 +185,12 @@ class Archive(models.Model):
         if platform == 'S5':
             return S5
 
-        # if we have gotten to this point then we really have no idea what kind of archive this is and this should be considered an error condition
+        # if the extracted files has a var directory then this is a ion chef
+        if os.path.exists(os.path.join(archive_dir, 'var')):
+            return ION_CHEF
+
+        # if we have gotten to this point then we really have no idea what kind of archive this is and this
+        # should be considered an error condition
         raise Exception('Cannot determine the archive type.')
 
     def extract_archive(self):
