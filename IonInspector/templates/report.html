@@ -95,7 +95,7 @@
 
     <div class="row-fluid pdf-row">
         {% if thumbnail_pdf_present %}
-            <div id="run_report_thumbnail" class="span6">
+            <div id="run_report_thumbnail" class="span6 {% if not full_pdf_present %}offset3{% endif %}">
                 <div class="pdf">
                     <object style="height: 1200px; width: 100%; display: block" type="application/pdf" data="/media/archive_files/{{ archive.id }}/report.pdf">
                         <p>Your browser does not support PDF display</p>
@@ -107,7 +107,7 @@
             </div>
         {% endif %}
         {% if full_pdf_present %}
-            <div id="run_report" class="span6">
+            <div id="run_report" class="span6 {% if not thumbnail_pdf_present %}offset3{% endif %}">
                 <div id="pdf">
                     <object style="height: 1200px; width: 100%; display: block" type="application/pdf" data="/media/archive_files/{{ archive.id }}/full_report.pdf">
                         <p>Your browser does not support PDF display</p>
