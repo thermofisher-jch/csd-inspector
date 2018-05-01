@@ -44,7 +44,9 @@
     <div class="row">
         <div class="span6">
             <!-- Upload form. Note enctype attribute! -->
-            <form id="new_archive" action="{% url 'upload' %}" method="post" enctype="multipart/form-data" autocomplete="off">
+            <form id="new_archive" action="{% url 'upload' %}" method="post" enctype="multipart/form-data" autocomplete="false">
+                <!-- to stop chromes address fill -->
+                <input autocomplete="false" name="hidden" type="text" style="display:none;">
                 {% csrf_token %}
                 {{ form.upload_another }}
                 <p>{{ form.non_field_errors }}</p>
