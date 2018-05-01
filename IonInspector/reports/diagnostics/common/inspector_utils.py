@@ -130,7 +130,7 @@ def print_alert(message):
 
 
 def print_warning(message):
-    print_alert(message)
+    return print_alert(message)
 
 
 def print_info(message):

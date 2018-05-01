@@ -42,7 +42,7 @@ def provision():
     # Setup db backups
     put("./conf/backup_inspector_database.sh", "/etc/cron.hourly/backup_inspector_database", use_sudo=True)
     sudo("chmod 755 /etc/cron.hourly/backup_inspector_database")
-    put("./conf/backup_inspector_logs.sh", "/etc/cron.hourly/backup_inspector_logs", ussoiure_sudo=True)
+    put("./conf/backup_inspector_logs.sh", "/etc/cron.hourly/backup_inspector_logs", use_sudo=True)
     sudo("chmod 755 /etc/cron.hourly/backup_inspector_logs")
     put("./conf/prune_docker.sh", "/etc/cron.weekly/prune_docker", use_sudo=True)
     sudo("chmod 755 /etc/cron.weekly/prune_docker")

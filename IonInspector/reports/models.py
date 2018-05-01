@@ -173,17 +173,21 @@ class Archive(models.Model):
         self.extract_archive()
 
         # if the explog has the PGM HW key, then this is a PGM
-        explog = read_explog(archive_dir)
-        if 'PGM HW' in explog:
-            return PGM_RUN
+        try:
+            explog = read_explog(archive_dir)
+            if 'PGM HW' in explog:
+                return PGM_RUN
 
-        # by reading the explog entry "platform" we should be able to differentiate between proton and S5
-        platform = explog.get('Platform', '')
-        if platform == 'proton':
-            return PROTON
+            # by reading the explog entry "platform" we should be able to differentiate between proton and S5
+            platform = explog.get('Platform', '')
+            if platform == 'proton':
+                return PROTON
 
-        if platform == 'S5':
-            return S5
+            if platform == 'S5':
+                return S5
+
+        except Exception as e:
+            pass
 
         # if the extracted files has a var directory then this is a ion chef
         if os.path.exists(os.path.join(archive_dir, 'var')):
@@ -347,7 +351,9 @@ class Diagnostic(models.Model):
             diagnostic_module = importlib.import_module('IonInspector.reports.diagnostics.' + self.name.replace(' ', '_') + '.main')
             if settings.DEBUG:
                 reload(diagnostic_module)
-            self.status, self.priority, self.details = diagnostic_module.execute(self.archive.archive_root, self.diagnostic_root, self.archive.archive_type)
+            diagnostic_results = diagnostic_module.execute(self.archive.archive_root, self.diagnostic_root, self.archive.archive_type)
+            assert not isinstance(diagnostic_results, type(None)), "Diagnostic is broken (Returned None)"
+            self.status, self.priority, self.details = diagnostic_results
 
             html_path = os.path.join(self.diagnostic_root, "results.html")
             if os.path.exists(html_path):
