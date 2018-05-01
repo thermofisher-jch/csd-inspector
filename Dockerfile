@@ -27,7 +27,8 @@ python-dateutil \
 python-magic \
 python-lzma \
 python-semver \
-python-raven
+python-raven \
+python-tblib
 
 # install R deps
 RUN Rscript -e "source('http://bioconductor.org/biocLite.R')"

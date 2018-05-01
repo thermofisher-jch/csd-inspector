@@ -9,6 +9,7 @@ from datetime import datetime
 from reports.tables import ArchiveTable
 from django_tables2 import RequestConfig
 from dateutil.parser import parse as date_parse
+from django.utils import timezone
 import json
 import os
 
@@ -38,7 +39,7 @@ def upload(request):
         archive = Archive(
             identifier=form.data['archive_identifier'],
             site=form.data['site_name'],
-            time=datetime.utcnow(),
+            time=timezone.now(),
             submitter_name=form.data['name'],
             taser_ticket_number=int(form.data['taser_ticket_number']) if form.data['taser_ticket_number'] else None
         )
@@ -68,7 +69,7 @@ def upload(request):
         if form.data['upload_another'] != "yes":
             return HttpResponseRedirect(reverse('report', args=[archive.pk]))
         else:
-            new_form = ArchiveForm(data=request.POST, files=request.FILES)
+            new_form = ArchiveForm(data=request.POST.copy(), files=request.FILES)
             new_form.data["upload_another"] = "no"
             ctx = dict({'form': new_form})
             return render(request, "upload.html", context=ctx)
