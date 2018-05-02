@@ -57,8 +57,8 @@ Chip Type   | Threshold(>)
 316         | 8.0
 318         | 10.0
 P1          | 170.0
-510         | 90.0
-520         | 90.0
+510         | We do not evaluate noise levels for this chip type
+520         | We do not evaluate noise levels for this chip type
 530         | 90.0
 540         | 170.0
 550         | 185.0

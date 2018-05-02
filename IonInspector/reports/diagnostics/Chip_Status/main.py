@@ -82,7 +82,7 @@ def execute(archive_path, output_path, archive_type):
 
         # there is a known issue with 5.6 reporting the noise levels of 510 and 520 chips so we lost the noise information for these sets
         release_version = data.get('S5 Release_version', '') or data.get('Proton Release_version', '') or data.get('PGM SW Release', '')
-        invalid_noise = release_version == '5.6' and data['ChipVersion'] in ['510', '520']
+        invalid_noise = data['ChipVersion'] in ['510', '520']
 
         noise_alert = noise > noise_thresholds[chip_type]
         noise_report = "Chip noise " + str(noise) + (" is too high." if noise_alert else " is low enough.")
@@ -135,7 +135,9 @@ def execute(archive_path, output_path, archive_type):
 
         # generate message
         message = "Loading {} | Gain {}".format("{:.1%}".format(bead_loading) if bead_loading else "Unknown", gain or "Unknown")
-        if not invalid_noise:
+        if invalid_noise:
+            message += " | We do not evaluate noise levels for this chip type"
+        else:
             message += " | Noise {}".format(noise or "Unknown")
 
         if electrode_gain:
