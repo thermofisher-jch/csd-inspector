@@ -16,6 +16,14 @@ run_types = {
 }
 
 
+def get_deviation_from_element_tree(element_tree):
+    deviation_node = element_tree.find("RunInfo/deviation")
+    if deviation_node is not None:
+        return deviation_node.text.strip()
+    else:
+        return None
+
+
 def parse_run_date_from_xml_path(path):
     """
     Parse run date from file paths like: "/opt/example/242470284-000327_rl_2017-4-18_1759.xml"
@@ -33,6 +41,9 @@ def execute(archive_path, output_path, archive_type):
         if run_type_node is None:
             raise Exception("No run type")
 
+        # see if there was a deviation
+        deviation = get_deviation_from_element_tree(root)
+
         # get a groomed version of the output name and find it in the run type map
         output_name = run_type_node.text.strip().lower()
         summary = run_types.get(output_name) if output_name in run_types else 'Other'
@@ -42,7 +53,12 @@ def execute(archive_path, output_path, archive_type):
         run_date = parse_run_date_from_xml_path(run_log_path)
 
         # print the results
-        return print_info(summary + " | " + run_date.strftime("%-d %b %Y %H:%M") or "Unknown")
+        message = summary + " | " + run_date.strftime("%-d %b %Y %H:%M") or "Unknown"
+
+        if deviation:
+            message += " | Deviation: " + deviation
+
+        return print_info(message)
 
     except Exception as exc:
         return handle_exception(exc, output_path)

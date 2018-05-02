@@ -1,8 +1,9 @@
 from datetime import datetime
+from xml.etree import ElementTree
 
 from django.test import SimpleTestCase
 
-from reports.diagnostics.Chef_Run_Details.main import parse_run_date_from_xml_path
+from reports.diagnostics.Chef_Run_Details.main import parse_run_date_from_xml_path, get_deviation_from_element_tree
 
 
 class ChefRunDetailsTestCase(SimpleTestCase):
@@ -15,3 +16,22 @@ class ChefRunDetailsTestCase(SimpleTestCase):
 
         run_date = parse_run_date_from_xml_path(self.test_xml_path_2)
         self.assertEqual(run_date, datetime(2017, 4, 18, hour=17, minute=59))
+
+    def test_get_deviation_from_element_tree(self):
+        element_tree = ElementTree.fromstring("""
+        <RunLog>
+            <RunInfo>
+                <deviation>denature30_cycles45_20</deviation>
+            </RunInfo>
+        </RunLog>
+        """)
+        self.assertEquals(get_deviation_from_element_tree(element_tree), "denature30_cycles45_20")
+
+    def test_get_no_deviation_from_element_tree(self):
+        element_tree = ElementTree.fromstring("""
+        <RunLog>
+            <RunInfo>
+            </RunInfo>
+        </RunLog>
+        """)
+        self.assertEquals(get_deviation_from_element_tree(element_tree), None)
