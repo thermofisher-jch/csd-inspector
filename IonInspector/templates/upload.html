@@ -1,50 +1,65 @@
 {% extends "base.html" %}
 {% load static from staticfiles %}
 {% block extra_head_js %}
-    <script type="text/javascript" src="{% static 'js/bootstrap-typeahead.js'%}"></script>
-    <script type="text/javascript" src="{% static 'js/modernizr.custom.js'%}"></script>
+    <script type="text/javascript" src="{% static 'js/bootstrap-typeahead.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/modernizr.custom.js' %}"></script>
     <script>
-        if ( !Modernizr.xhr2 ) {
-          window.location.href = "${request.route_url('old_browser')}";
+        if (!Modernizr.xhr2) {
+            window.location.href = "${request.route_url('old_browser')}";
         }
-        $(function(){
+        $(function () {
             // Upload another button
             $("#upload-another").click(function () {
                 $("input[name='upload_another']").val("yes");
                 $('#new_archive').submit();
             });
 
-          var sourcerer = function (field) {
-            return function (query, process) {
-              $.getJSON(
-                "/api/v1/Archive/values/",
-                {field: field, q: query},
-                  function (response) {
-                      return process(response.values)
-                  }
-              );
+            // Auto fill
+            var sourcerer = function (field) {
+                return function (query, process) {
+                    $.getJSON(
+                        "/api/v1/Archive/values/",
+                        {field: field, q: query},
+                        function (response) {
+                            return process(response.values)
+                        }
+                    );
+                };
             };
-          };
-          $("#id_name").typeahead({source: sourcerer("submitter_name")});
-          $("#id_site_name").typeahead({source: sourcerer("site")});
+            var $submitterName = $("#id_name");
+            $submitterName.typeahead({source: sourcerer("submitter_name")});
+
+            var $siteName = $("#id_site_name");
+            $siteName.typeahead({source: sourcerer("site")});
+
+            // Remember name
+            if ($submitterName.val() === "") {
+                $submitterName.val(localStorage.getItem("submitter-name") || "");
+            }
+            $('#new_archive').submit(function () {
+                localStorage.setItem("submitter-name", $submitterName.val());
+            });
 
         });
     </script>
     <style type="text/css">
-    #progress_bar {
-      -webkit-transition: none;
-         -moz-transition: none;
-           -o-transition: none;
-              transition: none;
-    }
-  </style>
+        #progress_bar {
+            -webkit-transition: none;
+            -moz-transition: none;
+            -o-transition: none;
+            transition: none;
+        }
+    </style>
 {% endblock extra_head_js %}
 {% block content %}
-    <h1>Upload <small> a new archive for testing</small></h1>
+    <h1>Upload
+        <small> a new archive for testing</small>
+    </h1>
     <div class="row">
         <div class="span6">
             <!-- Upload form. Note enctype attribute! -->
-            <form id="new_archive" action="{% url 'upload' %}" method="post" enctype="multipart/form-data" autocomplete="false">
+            <form id="new_archive" action="{% url 'upload' %}" method="post" enctype="multipart/form-data"
+                  autocomplete="false">
                 <!-- to stop chromes address fill -->
                 <input autocomplete="false" name="hidden" type="text" style="display:none;">
                 {% csrf_token %}
@@ -62,8 +77,8 @@
                 </div>
                 <div class="row">
                     <div class="span3">
-                      <p>{{ form.archive_identifier.label_tag }}</p>
-                      {{ form.archive_identifier }}
+                        <p>{{ form.archive_identifier.label_tag }}</p>
+                        {{ form.archive_identifier }}
                     </div>
                     <div class="span3">
                         <p>{{ form.taser_ticket_number.label_tag }}</p>
@@ -93,11 +108,15 @@
                 <dt>Your Name</dt>
                 <dd></dd>
                 <dt>Site Name</dt>
-                <dd>Must remain consistent for search functionality. ex) geneticDX and genetic DX will not be grouped the same.</dd>
+                <dd>Must remain consistent for search functionality. ex) geneticDX and genetic DX will not be grouped
+                    the same.
+                </dd>
                 <dt>Archive Label</dt>
                 <dd>Description of the run ex) Low Loading, High LQ, CEPH Control, Good Run.</dd>
                 <dt>TASER Ticket Number</dt>
-                <dd>Links runs to a TASER ticket. Enter 4-digit value following FST-. This can be edited after upload if ticket is created at a later time.</dd>
+                <dd>Links runs to a TASER ticket. Enter 4-digit value following FST-. This can be edited after upload if
+                    ticket is created at a later time.
+                </dd>
                 <dt>Select File</dt>
                 <dd>Choose a zipped CSA, FSA or log.</dd>
                 <dt>Click Upload Archive</dt>
