@@ -11,7 +11,7 @@ def execute(archive_path, output_path, archive_type):
     try:
         script_dir = os.path.dirname(os.path.realpath(__file__))
         check_call(['./main.sh', archive_path, output_path], cwd=script_dir)
-        return print_ok('')
+        return print_info("See results for details.")
     except Exception as exc:
         return handle_exception(exc, output_path)
 
