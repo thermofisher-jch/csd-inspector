@@ -8,7 +8,6 @@ urlpatterns = [
     url(r'^reports', views.reports, name='reports'),
     url(r'^report/(?P<pk>\d+)/$', views.report, name='report'),
     url(r'^diagnostic/(\w+)$', views.readme, name='readme'),
-    url(r'^documentation', views.documentation, name='documentation'),
 
     # legacy redirect
     url(r'^check/(?P<pk>\d+)/$', RedirectView.as_view(pattern_name='report', permanent=False)),

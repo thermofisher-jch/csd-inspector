@@ -71,12 +71,12 @@
     <div class="navbar navbar-fixed-top navbar-inverse">
       <div class="navbar-inner">
         <div class="container-fluid">
-          <a class="brand {% if active_nav == "INDEX" %}active{% endif %}" href="/index">Ion Inspector</a>
+          <a class="brand {% if active_nav == "INDEX" %}active{% endif %}" href="{% url 'index' %}">Ion Inspector</a>
           <div class="nav-collapse">
             <ul class="nav">
-                <li class="{% if active_nav == "SUBMIT" %}active{% endif %}"><a href="/upload">Submit Archive</a></li>
-                <li class="{% if active_nav == "REPORT" %}active{% endif %}"><a href="/reports">List Reports</a></li>
-                <li class="{% if active_nav == "DOCS" %}active{% endif %}"><a href="/documentation">Documentation</a></li>
+                <li class="{% if active_nav == "SUBMIT" %}active{% endif %}"><a href="{% url "upload" %}">Submit Archive</a></li>
+                <li class="{% if active_nav == "REPORT" %}active{% endif %}"><a href="{% url "reports" %}">List Reports</a></li>
+                <li class="{% if active_nav == "DOCS" %}active{% endif %}"><a href="https://thermofisher.sharepoint.com/sites/collaboration/Ion-Torrent-Service-Support/Pages/Ion%20Inspector.aspx">Documentation</a></li>
             </ul>
             <form id="jump_form" class="navbar-form pull-right">
               <div class="input-append">

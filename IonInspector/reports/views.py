@@ -185,17 +185,6 @@ def report(request, pk):
     return render(request, "report.html", ctx)
 
 
-def documentation(request):
-    """
-    Render documentation page
-    :param request:
-    :return:
-    """
-
-    ctx = dict({})
-    return render(request, "documentation.html", ctx)
-
-
 def readme(request, diagnostic_name):
     """
     Get the diagnostic readme
