@@ -1,20 +1,22 @@
 # This file is used in dev only and is automatically merged when running docker-compose
-celery:
-  volumes:
-    - .:/opt/inspector
-    - ./.local/celery:/var/log/celery
-    - ./.local/media:/var/lib/inspector/media
-    - ./.local/logs:/var/log/inspector
+version: '3'
+services:
+  celery:
+    volumes:
+      - .:/opt/inspector
+      - ./.local/celery:/var/log/celery
+      - ./.local/media:/var/lib/inspector/media
+      - ./.local/logs:/var/log/inspector
 
-django:
-  volumes:
-    - .:/opt/inspector
-    - ./.local/media:/var/lib/inspector/media
-    - ./.local/logs:/var/log/inspector
-  ports:
-    - "8090:8080"
+  django:
+    volumes:
+      - .:/opt/inspector
+      - ./.local/media:/var/lib/inspector/media
+      - ./.local/logs:/var/log/inspector
+    ports:
+      - "8090:8080"
 
-postgres:
-  volumes:
-      - ./.local/postgresql_data:/var/lib/postgresql/data
-      - ./.local/postgresql_log:/var/log/postgresql
+  postgres:
+    volumes:
+        - ./.local/postgresql_data:/var/lib/postgresql/data
+        - ./.local/postgresql_log:/var/log/postgresql

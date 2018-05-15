@@ -141,6 +141,8 @@ def execute(archive_path, output_path, archive_type):
                 html_handle.write("<br />".join(raw_traces))
                 html_handle.write("</p>")
 
+            matplotlib.pyplot.close("all")
+
             if failure:
                 return print_failed(failure)
             else:

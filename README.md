@@ -23,36 +23,12 @@ Commit and push your changes to this repository.
 
 Run `fab deploy:<tag name> -H jarvis.itw` from this directory.
 
-### Old Production Deployment (for reference) 
+## Provisioning
 
+Had to add deploy to docker group
 
-    Production run time:
-    
-    Create a new screen session for production running
-    This is not the ideal production environment, writing an init script for this would be better
-    screen -S prod
-    
-    Elevate to root user
-    sudo su - 
-    
-    Change to the project's working directory
-    cd /opt/inspector/inspector/
-    
-    activate the Python virtual environment
-    source ../env/bin/activate
-    
-    Run the WSGI server with it's production config file
-    gunicorn --paste production.ini
-    
-    Create a new screen window
-    screen
-    
-    Elevate to root user and activate virtual env again
-    sudo su - 
-    cd /opt/inspector/inspector/
-    source ../env/bin/activate
-    
-    Run the celery workers
-    pceleryd production.ini
-    
-    At this point, you may safely detach from the screen session
+Had to modify the nginx conf to include from /sites-enabled
+
+Had to sudo chown 8247:8247 django.log
+
+Had to sudo chown 8247:8247 /mnt/raid/inspector

@@ -5,7 +5,6 @@ from reports.forms import ArchiveForm
 from reports.models import Archive, TEST_MANIFEST, PGM_RUN
 from utils import get_serialized_model
 from api import ArchiveResource
-from datetime import datetime
 from reports.tables import ArchiveTable
 from django_tables2 import RequestConfig
 from dateutil.parser import parse as date_parse

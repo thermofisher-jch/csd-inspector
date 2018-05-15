@@ -155,7 +155,7 @@ def execute(archive_path, output_path, archive_type):
             'quality_filter': quality_filter,
             'quality_filter_perc': float(quality_filter) / float(library) * 100.0,
         }, output_path, os.path.dirname(os.path.realpath(__file__)))
-
+        matplotlib.pyplot.close("all")
         return print_info("See results for details.")
     except Exception as exc:
         return handle_exception(exc, output_path)

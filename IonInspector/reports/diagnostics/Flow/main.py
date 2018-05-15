@@ -42,6 +42,8 @@ def execute(archive_path, output_path, archive_type):
         with open(os.path.join(output_path, "results.html"), 'w') as out:
             out.write(result.encode("UTF-8"))
 
+        matplotlib.pyplot.close("all")
+
         return print_info("Liquid cooling flowmeter.")
     except Exception as exc:
         return print_na(str(exc))

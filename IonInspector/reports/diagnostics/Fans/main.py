@@ -77,6 +77,8 @@ def execute(archive_path, output_path, archive_type):
     else:
         error_summary = "No run log CSV"
 
+    matplotlib.pyplot.close("all")
+
     if error_summary:
         return print_alert(error_summary)
     else:

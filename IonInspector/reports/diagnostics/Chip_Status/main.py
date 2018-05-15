@@ -82,7 +82,7 @@ def execute(archive_path, output_path, archive_type):
 
         # there is a known issue with 5.6 reporting the noise levels of 510 and 520 chips so we lost the noise information for these sets
         release_version = data.get('S5 Release_version', '') or data.get('Proton Release_version', '') or data.get('PGM SW Release', '')
-        invalid_noise = data['ChipVersion'] in ['510', '520']
+        invalid_noise = data.get('ChipVersion') in ['510', '520']
 
         noise_alert = noise > noise_thresholds[chip_type]
         noise_report = "Chip noise " + str(noise) + (" is too high." if noise_alert else " is low enough.")

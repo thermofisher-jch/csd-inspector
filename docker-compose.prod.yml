@@ -1,24 +1,26 @@
-# This file is used in prod only and has to be mauanlly merged when running docker-compose
-rabbitmq:
-  restart: always
+# This file is used in prod only and has to be manually merged when running docker-compose
+version: '3'
+services:
+  rabbitmq:
+    restart: always
 
-celery:
-  restart: always
-  volumes:
-    - /var/lib/inspector/celery:/var/log/celery
-    - /mnt/raid/inspector/media:/var/lib/inspector/media
-    - /var/log/inspector:/var/log/inspector
+  celery:
+    restart: always
+    volumes:
+      - /var/lib/inspector/celery:/var/log/celery
+      - /mnt/raid/inspector/media:/var/lib/inspector/media
+      - /var/log/inspector:/var/log/inspector
 
-django:
-  restart: always
-  volumes:
-    - /mnt/raid/inspector/media:/var/lib/inspector/media
-    - /var/log/inspector:/var/log/inspector
-  ports:
-    - "8657:8080"
+  django:
+    restart: always
+    volumes:
+      - /mnt/raid/inspector/media:/var/lib/inspector/media
+      - /var/log/inspector:/var/log/inspector
+    ports:
+      - "8657:8080"
 
-postgres:
-  restart: always
-  volumes:
-    - /var/lib/inspector/postgres/postgresql_data:/var/lib/postgresql/data
-    - /var/lib/inspector/postgres/postgresql_log:/var/log/postgresql
+  postgres:
+    restart: always
+    volumes:
+      - /var/lib/inspector/postgres/postgresql_data:/var/lib/postgresql/data
+      - /var/lib/inspector/postgres/postgresql_log:/var/log/postgresql
