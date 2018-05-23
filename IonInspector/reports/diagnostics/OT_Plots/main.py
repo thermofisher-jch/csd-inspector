@@ -12,7 +12,7 @@ from IonInspector.reports.diagnostics.common.inspector_utils import print_info, 
 
 
 def parse_timestamp(value):
-    return time.mktime(datetime.strptime(value, "%a %b  %d %I:%M:%S %Y").timetuple())
+    return time.mktime(datetime.strptime(value.replace("  ", " "), "%a %b %d %H:%M:%S %Y").timetuple())
 
 
 # Plots  csv header , display header, formatter
@@ -44,28 +44,24 @@ def get_ot_log_data(path, fields):
         "rows": []
     }
 
-    try:
-        with open(path, "rb") as ot_log_csv_file:
-            # This csv has a bogus header line
-            _ = ot_log_csv_file.readline()
+    with open(path, "rb") as ot_log_csv_file:
+        # This csv has a bogus header line
+        _ = ot_log_csv_file.readline()
 
-            csv_file = csv.DictReader(ot_log_csv_file, delimiter=',', quotechar='"')
-            # Get rows
-            for row in csv_file:
-                # Add data
-                new_row = []
-                for field, display_name, formatter in fields:
-                    if row.get(field) is None:
-                        new_row.append(None)
-                    else:
-                        new_row.append(formatter(row.get(field)))
-                ot_log_data["rows"].append(new_row)
+        csv_file = csv.DictReader(ot_log_csv_file, delimiter=',', quotechar='"')
+        # Get rows
+        for row in csv_file:
+            # Add data
+            new_row = []
+            for field, display_name, formatter in fields:
+                if row.get(field) is None:
+                    new_row.append(None)
+                else:
+                    new_row.append(formatter(row.get(field)))
+            ot_log_data["rows"].append(new_row)
 
-            # Make labels
-            ot_log_data["labels"] = [display_name for field, display_name, formatter in fields]
-    except Exception as e:
-        handle_exception(e, output_path)
-        return {}
+        # Make labels
+        ot_log_data["labels"] = [display_name for field, display_name, formatter in fields]
 
     return ot_log_data
 

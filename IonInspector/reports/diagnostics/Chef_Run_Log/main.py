@@ -6,7 +6,7 @@ import json
 import glob
 import csv
 
-from IonInspector.reports.diagnostics.common.inspector_utils import print_alert, print_info, handle_exception
+from IonInspector.reports.diagnostics.common.inspector_utils import print_alert, print_info, print_warning
 
 # Plots  csv header , display header, formatter
 TARGET_TEMP_FIELDS = [
@@ -39,7 +39,7 @@ TARGET_FAN_FIELDS = [
 ]
 
 
-def get_run_log_data(path, fields):
+def get_run_log_data(lines, fields):
     # Read csv
     run_log_data = {
         "stages": [],
@@ -47,44 +47,41 @@ def get_run_log_data(path, fields):
         "rows": []
     }
 
-    try:
-        with open(path, "rb") as run_log_csv_file:
-            csv_file = csv.DictReader(run_log_csv_file, delimiter=',', quotechar='"')
-            current_stage = "START"
-            current_stage_start_time = 0
-            # Get rows
-            for row in csv_file:
-                # Add data
-                new_row = []
-                for field, display_name, formatter in fields:
-                    if row.get(field) is None:
-                        new_row.append(None)
-                    else:
-                        new_row.append(formatter(row.get(field)))
-                run_log_data["rows"].append(new_row)
-                # Track the stage intervals
-                new_time = float(row['timestamp'])
-                new_stage = row["stage0"].upper()
-                if current_stage != new_stage:
-                    run_log_data["stages"].append({
-                        "name": current_stage,
-                        "start": current_stage_start_time,
-                        "end": new_time
-                    })
-                    current_stage = new_stage
-                    current_stage_start_time = new_time
-            # Add final stage
+    csv_file = csv.DictReader(lines, delimiter=',', quotechar='"')
+    current_stage = "START"
+    current_stage_start_time = 0
+    new_time = None
+    # Get rows
+    for row in csv_file:
+        # Add data
+        new_row = []
+        for field, display_name, formatter in fields:
+            if row.get(field) is None:
+                new_row.append(None)
+            else:
+                new_row.append(formatter(row.get(field)))
+        run_log_data["rows"].append(new_row)
+        # Track the stage intervals
+        new_time = float(row['timestamp'])
+        new_stage = row["stage0"].upper()
+        if current_stage != new_stage:
             run_log_data["stages"].append({
                 "name": current_stage,
                 "start": current_stage_start_time,
                 "end": new_time
             })
+            current_stage = new_stage
+            current_stage_start_time = new_time
+    # Add final stage
+    if new_time is not None:
+        run_log_data["stages"].append({
+            "name": current_stage,
+            "start": current_stage_start_time,
+            "end": new_time
+        })
 
-            # Make labels
-            run_log_data["labels"] = [display_name for field, display_name, formatter in fields]
-    except Exception as e:
-        handle_exception(e, output_path)
-        return {}
+    # Make labels
+    run_log_data["labels"] = [display_name for field, display_name, formatter in fields]
 
     return run_log_data
 
@@ -103,20 +100,26 @@ def execute(archive_path, output_path, archive_type):
     if not run_log_csv_path:
         return print_alert("Could not find RunLog csv!")
 
+    with open(run_log_csv_path) as fp:
+        run_log_temp_data = get_run_log_data(fp, TARGET_TEMP_FIELDS)
 
-    run_log_temp_data = get_run_log_data(run_log_csv_path, TARGET_TEMP_FIELDS)
-    run_log_fan_data = get_run_log_data(run_log_csv_path, TARGET_FAN_FIELDS)
+    with open(run_log_csv_path) as fp:
+        run_log_fan_data = get_run_log_data(fp, TARGET_FAN_FIELDS)
 
-    # Write out results html
-    with open(template_path, "r") as template_file:
-        with open(results_path, "w") as results_file:
-            results_file.write(template_file.read()
-                               .replace("\"%raw_temp_data%\"", json.dumps(run_log_temp_data))
-                               .replace("\"%raw_fan_data%\"", json.dumps(run_log_fan_data))
-                               )
+    if run_log_temp_data["stages"] or run_log_fan_data["stages"]:
+        # Write out results html
+        with open(template_path, "r") as template_file:
+            with open(results_path, "w") as results_file:
+                results_file.write(template_file.read()
+                                   .replace("\"%raw_temp_data%\"", json.dumps(run_log_temp_data))
+                                   .replace("\"%raw_fan_data%\"", json.dumps(run_log_fan_data))
+                                   )
 
-    # Write out status
-    return print_info("See results for flow, fan, and temperature plots.")
+        # Write out status
+        return print_info("See results for flow, fan, and temperature plots.")
+
+    else:
+        return print_warning("Run log has no rows.")
 
 
 if __name__ == "__main__":

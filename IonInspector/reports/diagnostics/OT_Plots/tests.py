@@ -1,5 +1,4 @@
 from django.test import SimpleTestCase
-from datetime import datetime
 
 from reports.diagnostics.OT_Plots.main import parse_timestamp
 
@@ -23,3 +22,4 @@ class OTPlotsTestCase(SimpleTestCase):
     def test_parse_timestamp(self):
         self.assertEqual(parse_timestamp("Thu Jan  1 03:10:34 1970"), 11434.0)
         self.assertEqual(parse_timestamp("Thu Jan  1 03:11:08 1970"), 11468.0)
+        self.assertEqual(parse_timestamp("Thu Apr 26 19:12:50 2018"), 1524769970.0)
