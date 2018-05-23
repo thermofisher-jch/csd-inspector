@@ -18,7 +18,7 @@ services:
       - /mnt/raid/inspector/media:/var/lib/inspector/media
       - /var/log/inspector:/var/log/inspector
     ports:
-      - "8657:8080"
+      - "8657:8000"
 
   postgres:
     restart: always
