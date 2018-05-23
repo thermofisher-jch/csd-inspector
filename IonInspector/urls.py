@@ -1,11 +1,12 @@
-import os
 from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.views.generic.base import RedirectView
-from reports.api import ArchiveResource
 from tastypie.api import Api
+
 from IonInspector.custom_static_serve import custom_serve
+from reports.api import ArchiveResource
 from reports.views import index
 
 admin.autodiscover()
@@ -29,6 +30,8 @@ urlpatterns = [
     url(r'^site_media/resources/jquery/jquery-1.8.2.min.js$', RedirectView.as_view(url='/static/js/jquery-1.8.3.min.js', permanent=True)),
     url(r'^site_media/resources/scripts/kendo.custom.min.js$', RedirectView.as_view(url='/static/js/kendo.custom.min.js', permanent=True)),
 ]
+
+urlpatterns += staticfiles_urlpatterns()
 
 # Configure site api by importing apis from apps
 
