@@ -12,6 +12,7 @@ services:
       - /var/log/inspector:/var/log/inspector
 
   django:
+    command: bash -c "./manage.py migrate --noinput && gunicorn -w 16 IonInspector.wsgi"
     restart: always
     volumes:
       - /mnt/raid/inspector/media:/var/lib/inspector/media

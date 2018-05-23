@@ -7,6 +7,7 @@ RUN groupadd -r inspector --gid=8247 && useradd -r -g inspector --uid=8247 inspe
 
 # install all of the software
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+gunicorn \
 python-numpy \
 python-pip \
 python-celery \
