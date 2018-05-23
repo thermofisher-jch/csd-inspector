@@ -1,5 +1,7 @@
-from fabric.api import env, run, cd, sudo, local
+from fabric.api import env, run, cd, sudo, local, get
 from fabric.contrib.files import upload_template, put
+
+import collections
 
 env.user = 'deploy'
 env.forward_agent = True
@@ -68,3 +70,23 @@ def deploy(tag=None, force=None):
 
         }, use_sudo=True)
         sudo("service nginx reload")
+
+
+def stats():
+    diagnostics_count = collections.defaultdict(int)
+
+    #get("/var/log/nginx/access.log.1", "./access.log")
+    with open("./access.log") as fp:
+        for line in fp:
+            url = line.split("\"")[1]
+            if "/test_results/" in url:
+                if "results.html" in url:
+                    diagnostics_count[url.split("/test_results/")[1].split("/")[0]] += 1
+                else:
+                    print url
+
+
+    total = float(sum([v for k, v in diagnostics_count.items()]))
+
+    for k, v in sorted(diagnostics_count.items(), key=lambda x: x[1]):
+        print k, (v/total) * 100
