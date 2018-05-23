@@ -28,7 +28,8 @@ python-magic \
 python-lzma \
 python-semver \
 python-raven \
-python-tblib
+python-tblib \
+python-coverage
 
 # install R deps
 RUN Rscript -e "source('http://bioconductor.org/biocLite.R')"
