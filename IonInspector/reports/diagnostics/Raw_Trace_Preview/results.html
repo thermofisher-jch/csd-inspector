@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Raw Trace</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dygraph/2.1.0/dygraph.css"/>
+    <style>
+        .chart-container {
+            width: 33%;
+            float: left;
+            position: relative;
+        }
+
+        .chart {
+            height: 500px;
+            padding: 15px;
+        }
+
+        .labels {
+            font-size: 14px;
+            position: absolute;
+            bottom: 50px;
+            right: 0;
+            width: 160px;
+            height: 100px;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            z-index: 999999999;
+        }
+
+        .labels-top {
+            bottom: auto;
+            top: 50px;
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="chart-container">
+            <div id="nuc-step-labels-0" class="labels"></div>
+            <div id="nuc-step-0" class="chart"></div>
+        </div>
+        <div class="chart-container">
+            <div id="nuc-step-labels-1" class="labels"></div>
+            <div id="nuc-step-1" class="chart"></div>
+        </div>
+        <div class="chart-container">
+            <div id="nuc-step-labels-2" class="labels"></div>
+            <div id="nuc-step-2" class="chart"></div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="chart-container">
+            <div id="key-signal-labels-0" class="labels labels-top"></div>
+            <div id="key-signal-0" class="chart"></div>
+        </div>
+        <div class="chart-container">
+            <div id="key-signal-labels-1" class="labels labels-top"></div>
+            <div id="key-signal-1" class="chart"></div>
+        </div>
+        <div class="chart-container">
+            <div id="key-signal-labels-2" class="labels labels-top"></div>
+            <div id="key-signal-2" class="chart"></div>
+        </div>
+    </div>
+</div>
+<script language="javascript" type="text/javascript"
+        src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/dygraph/2.1.0/dygraph.js"></script>
+<script type="text/javascript"
+        src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.2/moment.min.js"></script>
+<script type="text/javascript"
+        src="/static/js/synchronizer.js"></script>
+<script type="text/javascript">
+    function legendFormatter(data) {
+        if (data.x == null) {
+            // This happens when there's no selection and {legend: 'always'} is set.
+            return '<br>' + data.series.map(function (series) {
+                return series.dashHTML + ' ' + series.labelHTML
+            }).join('<br>');
+        }
+
+        var html = this.getLabels()[0] + ': ' + data.xHTML;
+        data.series.forEach(function (series) {
+            if (!series.isVisible) return;
+            var labeledData = series.labelHTML + ': ' + (series.y || "-");
+            if (series.isHighlighted) {
+                labeledData = '<b>' + labeledData + '</b>';
+            }
+            html += '<br>' + series.dashHTML + ' ' + labeledData;
+        });
+        return html;
+    }
+
+    var nuc_step_data = {{ nuc_step | safe }};
+
+    $(document).ready(function () {
+            var dygraphs_nuc_step_titles = nuc_step_data["dygraphs_nuc_step_titles"];
+            var data = nuc_step_data["dygraphs_nuc_step_data"];
+            var gs = [];
+            for (var i = 0; i <= 2; i++) {
+                gs.push(
+                    new Dygraph(
+                        document.getElementById("nuc-step-" + i),
+                        data[i],
+                        {
+                            includeZero: true,
+                            labels: nuc_step_data["dygraphs_nuc_step_labels"],
+                            labelsDiv: document.getElementById("nuc-step-labels-" + i),
+                            legend: "always",
+                            valueRange: [0, nuc_step_data["dygraphs_nuc_step_max"]],
+                            legendFormatter: legendFormatter,
+                            title: "Nuc Step Size (max-min) " + dygraphs_nuc_step_titles[i],
+                            xlabel: "Flow (#)",
+                            ylabel: "Nuc Step Size",
+                            series: {
+                                "A": {
+                                    color: "green",
+                                    strokeWidth: 1,
+                                    drawPoints: true,
+                                    connectSeparatedPoints: true
+                                },
+                                "T": {
+                                    color: "red",
+                                    strokeWidth: 1,
+                                    drawPoints: true,
+                                    connectSeparatedPoints: true
+                                },
+                                "C": {
+                                    color: "blue",
+                                    strokeWidth: 1,
+                                    drawPoints: true,
+                                    connectSeparatedPoints: true
+                                },
+                                "G": {
+                                    color: "black",
+                                    strokeWidth: 1,
+                                    drawPoints: true,
+                                    connectSeparatedPoints: true
+                                }
+                            }
+                        }
+                    )
+                );
+            }
+            Dygraph.synchronize(gs);
+        }
+    );
+
+    var key_trace_data = {{ key_trace | safe }};
+
+    $(document).ready(function () {
+            var dygraphs_key_trace_titles = key_trace_data["dygraphs_key_trace_titles"];
+            var data = key_trace_data["dygraphs_key_trace_data"];
+            var gs = [];
+            for (var i = 0; i <= 2; i++) {
+                gs.push(
+                    new Dygraph(
+                        document.getElementById("key-signal-" + i),
+                        data[i],
+                        {
+                            includeZero: true,
+                            labels: key_trace_data["dygraphs_key_trace_labels"],
+                            labelsDiv: document.getElementById("key-signal-labels-" + i),
+                            legend: "always",
+                            valueRange: [-5, key_trace_data["dygraphs_key_trace_max"]],
+                            legendFormatter: legendFormatter,
+                            title: "Background Subtracted Key Traces " + dygraphs_key_trace_titles[i],
+                            xlabel: "Time (s)",
+                            ylabel: "Background Subtracted Signal",
+                            series: {
+                                "T": {
+                                    color: "red",
+                                    strokeWidth: 1,
+                                    drawPoints: true,
+                                    connectSeparatedPoints: true
+                                },
+                                "C": {
+                                    color: "blue",
+                                    strokeWidth: 1,
+                                    drawPoints: true,
+                                    connectSeparatedPoints: true
+                                },
+                                "A": {
+                                    color: "green",
+                                    strokeWidth: 1,
+                                    drawPoints: true,
+                                    connectSeparatedPoints: true
+                                },
+                                "G": {
+                                    color: "black",
+                                    strokeWidth: 1,
+                                    drawPoints: true,
+                                    connectSeparatedPoints: true
+                                }
+                            }
+                        }
+                    )
+                );
+            }
+            Dygraph.synchronize(gs);
+        }
+    );
+</script>
+</body>
+</html>
