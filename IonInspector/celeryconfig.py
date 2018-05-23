@@ -8,6 +8,6 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'IonInspector.settings')
 
 from django.conf import settings
 
-celery_app = Celery('IonInspector', backends='amqp', broker='amqp://guest:guest@rabbitmq:5672//')
+celery_app = Celery('IonInspector', backend='rpc://', broker='amqp://guest:guest@rabbitmq:5672//')
 celery_app.config_from_object(settings)
 celery_app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
