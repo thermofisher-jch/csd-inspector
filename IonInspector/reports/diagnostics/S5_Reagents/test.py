@@ -17,17 +17,23 @@ class S5ReagentsTestCase(SimpleTestCase):
         "partNumber: 100031090",
         "lotNumber: 013080",
         "expDate: 2015/02/14",
-        "remainingUses: 1"
+        "remainingUses: 1",
+        "productDesc: Precision ID Cleaning Solution",
+        "partNumber: 100049484",
+        "lotNumber: 1943228",
+        "expDate: 2018/11/30",
+        "remainingUses: 4"
     ]
     test_start_time = "02/28/2017 12:48:49"
 
     def test_parse_init_log_keys(self):
         results = parse_init_log(self.test_log)
-        self.assertEqual(results.keys(), ["Ion S5 Cleaning Solution", "Ion S5 Wash Solution"])
+        self.assertItemsEqual(results.keys(), ["Ion S5 Cleaning Solution", "Ion S5 Wash Solution", "Precision ID Cleaning Solution"])
 
     def test_parse_init_log_strings(self):
         results = parse_init_log(self.test_log)
         self.assertEqual(results["Ion S5 Cleaning Solution"]["lotNumber"], "013080")
+        self.assertEqual(results["Ion S5 Cleaning Solution"]["productDesc"], "Ion S5 Cleaning Solution")
         self.assertEqual(results["Ion S5 Cleaning Solution"]["remainingUses"], "3")
 
     def test_parse_init_log_dates(self):

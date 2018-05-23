@@ -16,7 +16,7 @@ def parse_init_log(log_lines):
         if line.startswith("productDesc: "):
             # start of block we want to parse
             current_product = line.split(":", 1)[1].strip()
-            product_dict[current_product] = {}
+            product_dict[current_product] = {"productDesc": current_product}
         elif line.startswith("remainingUses: "):
             # end of block we want to parse
             product_dict[current_product]["remainingUses"] = line.split(":", 1)[1].strip()
@@ -75,22 +75,19 @@ def execute(archive_path, output_path, archive_type):
                 cleaning_dict = value
 
         sequencing_dict = {}
-        for key in ["Ion S5 Sequencing Reagents", "Ion S5 Sequencing Reagent",
-                    "Ion S5 ExT Sequencing Reagent", "Ion S5 ExT Sequencing Reagents"]:
-            if key in products:
-                sequencing_dict = products[key]
-                break
+        for key, value in products.iteritems():
+            if "sequencing" in key.lower():
+                sequencing_dict = value
 
         wash_dict = {}
-        for key in ["Ion S5 Wash Solution", "Ion S5 ExT Wash Solution"]:
-            if key in products:
-                wash_dict = products[key]
-                break
+        for key, value in products.iteritems():
+            if "wash" in key.lower():
+                wash_dict = value
 
         message = " | ".join([
-            "Cleaning Lot %s" % cleaning_dict["lotNumber"],
-            "Reagents Lot %s" % sequencing_dict["lotNumber"],
-            "Wash Lot %s" % wash_dict["lotNumber"],
+            "Cleaning Lot %s" % cleaning_dict.get("lotNumber", "Unknown"),
+            "Reagents Lot %s" % sequencing_dict.get("lotNumber", "Unknown"),
+            "Wash Lot %s" % wash_dict.get("lotNumber", "Unknown"),
         ])
 
         # write out results.html
@@ -115,6 +112,7 @@ def execute(archive_path, output_path, archive_type):
             for title, reagent_dict in [("Cleaning", cleaning_dict), ("Reagents", sequencing_dict), ("Wash", wash_dict), ]:
                 html_handle.write("<h2 align='center'>%s</h2>" % title)
                 html_handle.write("<p style='text-align:center;'>")
+                html_handle.write("%s<br>" % reagent_dict["productDesc"])
                 html_handle.write("Lot: %s<br>" % reagent_dict["lotNumber"])
 
                 reagent_exp_date = reagent_dict.get("expDate", "Unknown")
