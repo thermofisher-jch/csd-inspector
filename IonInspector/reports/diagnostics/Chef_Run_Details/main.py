@@ -5,7 +5,7 @@ from datetime import datetime
 
 from IonInspector.reports.diagnostics.common.inspector_utils import *
 
-run_types = {
+RUN_TYPES = {
     "rc": "Chef Templating Run",
     "rl": "Chef Library Prep Run",
     "rd": "Chef gDNA to Chip Run",
@@ -15,11 +15,23 @@ run_types = {
     "fullloadcheck": "Full Load Check"
 }
 
+RUN_DEVIATIONS = {
+    "default": "Standard",
+    "denature30_cycles45_20": "Myeloid",
+    "denature30_45_20": "Myeloid",
+    "no10xab": "Whole Transcriptome",
+    "hid_snp_510_200bp": "HID"
+}
+
 
 def get_deviation_from_element_tree(element_tree):
     deviation_node = element_tree.find("RunInfo/deviation")
     if deviation_node is not None:
-        return deviation_node.text.strip()
+        key = deviation_node.text.strip().lower()
+        if key in RUN_DEVIATIONS:
+            return RUN_DEVIATIONS[key]
+        else:
+            return "Unknown({})".format(key)
     else:
         return None
 
@@ -46,7 +58,7 @@ def execute(archive_path, output_path, archive_type):
 
         # get a groomed version of the output name and find it in the run type map
         output_name = run_type_node.text.strip().lower()
-        summary = run_types.get(output_name) if output_name in run_types else 'Other'
+        summary = RUN_TYPES.get(output_name) if output_name in RUN_TYPES else 'Other'
 
         # add date from xml filename
         run_log_path = get_chef_run_log_xml_path(archive_path)

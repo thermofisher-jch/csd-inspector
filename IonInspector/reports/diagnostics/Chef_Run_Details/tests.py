@@ -25,7 +25,17 @@ class ChefRunDetailsTestCase(SimpleTestCase):
             </RunInfo>
         </RunLog>
         """)
-        self.assertEquals(get_deviation_from_element_tree(element_tree), "denature30_cycles45_20")
+        self.assertEquals(get_deviation_from_element_tree(element_tree), "Myeloid")
+
+    def test_get_unknown_deviation_from_element_tree(self):
+        element_tree = ElementTree.fromstring("""
+        <RunLog>
+            <RunInfo>
+                <deviation>some_new_thing</deviation>
+            </RunInfo>
+        </RunLog>
+        """)
+        self.assertEquals(get_deviation_from_element_tree(element_tree), "Unknown(some_new_thing)")
 
     def test_get_no_deviation_from_element_tree(self):
         element_tree = ElementTree.fromstring("""
