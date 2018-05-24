@@ -2,7 +2,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, HttpResponseRedirect
 from reports.forms import ArchiveForm
-from reports.models import Archive, TEST_MANIFEST, PGM_RUN
+from reports.models import Archive, Diagnostic, TEST_MANIFEST, PGM_RUN
 from utils import get_serialized_model
 from api import ArchiveResource
 from reports.tables import ArchiveTable
@@ -173,6 +173,7 @@ def report(request, pk):
         'archive_type_choices_json': json.dumps(
             [{"name": k, "value": v} for v, k in archive._meta.get_field('archive_type').choices]
         ),
+        'diagnostic_category_choices_json': json.dumps(Diagnostic.CATEGORY_CHOICES),
         'archive': archive,
         'diagnostics': diagnostics,
         'thumbnail_pdf_present': thumbnail_pdf_present,

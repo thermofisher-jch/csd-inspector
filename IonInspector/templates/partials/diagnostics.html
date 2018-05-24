@@ -11,7 +11,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="diagnostic in resource.diagnostics">
+        <tr v-for="diagnostic in diagnostics" :key="diagnostic.id">
             <td v-text="diagnostic.display_name"></td>
             <td class="transition-fade-wrapper">
                 <transition name="transition-fade">
@@ -27,7 +27,7 @@
             <td class="transition-fade-wrapper">
                 <transition name="transition-fade">
                     <a v-if="diagnostic.html"
-                       :href="'/media/archive_files/' + resource.id + '/test_results/' + diagnostic.name + '/' + diagnostic.html">Results</a>
+                       :href="'/media/archive_files/' + archiveId + '/test_results/' + diagnostic.name + '/' + diagnostic.html">Results</a>
                 </transition>
             </td>
             <td class="transition-fade-wrapper">

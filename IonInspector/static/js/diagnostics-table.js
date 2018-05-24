@@ -12,6 +12,11 @@ var diagnosticsTableApp = {
         "NA": "",
         "Failed": "label-inverse"
     },
+    filterDiagnostics: function (diagnostics) {
+        return diagnostics.filter(function (diagnostic) {
+            return diagnostic.category === this.selectedCategoryChoice;
+        }.bind(this));
+    },
     computeDisplayValues: function (diagnostics) {
         for (var i = 0; i < diagnostics.length; i++) {
             //Add spaces to name
@@ -29,9 +34,24 @@ var diagnosticsTableApp = {
             }
         }
     },
+    updateDiagnostics: function () {
+        var diagnostics = this.resource.diagnostics.slice();
+        diagnostics = this.filterDiagnostics(diagnostics);
+        this.computeDisplayValues(diagnostics);
+        Vue.set(this.vue, "diagnostics", diagnostics);
+
+        //enable or disable the category chooser
+        for (var i = 0; i < this.resource.diagnostics.length; i++) {
+            if (this.resource.diagnostics[i].category !== "SEQ") {
+                $("#category-chooser").show();
+                break;
+            }
+        }
+
+    },
     testsStillRunning: function (diagnostics) {
         for (var i = 0; i < diagnostics.length; i++) {
-            if (diagnostics[i].status == "Executing" || diagnostics[i].status == "Unexecuted") {
+            if (diagnostics[i].status === "Executing" || diagnostics[i].status === "Unexecuted") {
                 return true
             }
         }
@@ -60,8 +80,8 @@ var diagnosticsTableApp = {
             url: "/api/v1/Archive/" + this.resource.id + "/",
             dataType: "json",
             success: function (response) {
-                this.computeDisplayValues(response.diagnostics);
                 this.resource.diagnostics = response.diagnostics;
+                this.updateDiagnostics();
                 if (this.testsStillRunning(response.diagnostics)) {
                     this.activeTimeout = setTimeout(this.update.bind(this), 1000);
                 }
@@ -71,15 +91,24 @@ var diagnosticsTableApp = {
             }.bind(this)
         })
     },
-    init: function (selector, initialResource) {
+    init: function (selector, initialResource, categoryChoices) {
         this.resource = initialResource;
-        this.computeDisplayValues(this.resource.diagnostics);
-        new Vue({
+        this.selectedCategoryChoice = "SEQ";
+
+        //events
+        $("#category-chooser > button").click(function (event) {
+            this.selectedCategoryChoice = $(event.target).attr("data-category");
+            this.updateDiagnostics();
+        }.bind(this));
+
+        this.vue = new Vue({
             el: selector,
             data: {
-                resource: this.resource
+                archiveId: this.resource.id,
+                diagnostics: []
             }
         });
+        this.updateDiagnostics();
         this.update();
     }
 };

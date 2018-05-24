@@ -31,67 +31,70 @@ S5 = "S5"
 OT_LOG = "OT_Log"
 ION_CHEF = "Ion_Chef"
 
+CATEGORY_SEQUENCING = "SEQ"
+CATEGORY_SAMPLE_PREP = "PRE"
+
 DIAGNOSTICS_SCRIPT_DIR = '/opt/inspector/IonInspector/reports/diagnostics'
 TEST_MANIFEST = {
     PGM_RUN: [
-        "Filter_Metrics",
-        "Raw_Trace",
-        "Chip_Temperature",
-        "Chip_Status",
-        "Run_Chef_Details",
-        "Auto_pH",
-        "Run_Kit_Details",
-        "Chip_Type",
-        "Test_Fragments",
-        "Pressure_And_Temperature",
-        "Barcode_Report",
-        "Run_Sequence_Details",
+        ("Filter_Metrics", CATEGORY_SEQUENCING),
+        ("Raw_Trace", CATEGORY_SEQUENCING),
+        ("Chip_Temperature", CATEGORY_SEQUENCING),
+        ("Chip_Status", CATEGORY_SEQUENCING),
+        ("Run_Chef_Details", CATEGORY_SEQUENCING),
+        ("Auto_pH", CATEGORY_SEQUENCING),
+        ("Run_Kit_Details", CATEGORY_SEQUENCING),
+        ("Chip_Type", CATEGORY_SEQUENCING),
+        ("Test_Fragments", CATEGORY_SEQUENCING),
+        ("Pressure_And_Temperature", CATEGORY_SEQUENCING),
+        ("Barcode_Report", CATEGORY_SEQUENCING),
+        ("Run_Sequence_Details", CATEGORY_SEQUENCING)
     ],
     PROTON: [
-        "Filter_Metrics",
-        "Raw_Trace",
-        "Chip_Status",
-        "Run_Chef_Details",
-        "Auto_pH",
-        "Run_Kit_Details",
-        "Chip_Type",
-        "Test_Fragments",
-        "Pressure_And_Temperature",
-        "Experiment_Errors",
-        "Barcode_Report",
-        "Run_Sequence_Details",
+        ("Filter_Metrics", CATEGORY_SEQUENCING),
+        ("Raw_Trace", CATEGORY_SEQUENCING),
+        ("Chip_Status", CATEGORY_SEQUENCING),
+        ("Run_Chef_Details", CATEGORY_SEQUENCING),
+        ("Auto_pH", CATEGORY_SEQUENCING),
+        ("Run_Kit_Details", CATEGORY_SEQUENCING),
+        ("Chip_Type", CATEGORY_SEQUENCING),
+        ("Test_Fragments", CATEGORY_SEQUENCING),
+        ("Pressure_And_Temperature", CATEGORY_SEQUENCING),
+        ("Experiment_Errors", CATEGORY_SEQUENCING),
+        ("Barcode_Report", CATEGORY_SEQUENCING),
+        ("Run_Sequence_Details", CATEGORY_SEQUENCING)
     ],
     S5: [
-        "Filter_Metrics",
-        "Raw_Trace",
-        "Raw_Trace_Preview",
-        "Chip_Status",
-        "Run_Chef_Details",
-        "S5_Reagents",
-        "Run_Kit_Details",
-        "Chip_Type",
-        "Test_Fragments",
-        "Pressure_And_Temperature",
-        "Experiment_Errors",
-        "Barcode_Report",
-        "Run_Sequence_Details",
+        ("Filter_Metrics", CATEGORY_SEQUENCING),
+        ("Raw_Trace", CATEGORY_SEQUENCING),
+        ("Raw_Trace_Preview", CATEGORY_SEQUENCING),
+        ("Chip_Status", CATEGORY_SEQUENCING),
+        ("Run_Chef_Details", CATEGORY_SEQUENCING),
+        ("S5_Reagents", CATEGORY_SEQUENCING),
+        ("Run_Kit_Details", CATEGORY_SEQUENCING),
+        ("Chip_Type", CATEGORY_SEQUENCING),
+        ("Test_Fragments", CATEGORY_SEQUENCING),
+        ("Pressure_And_Temperature", CATEGORY_SEQUENCING),
+        ("Experiment_Errors", CATEGORY_SEQUENCING),
+        ("Barcode_Report", CATEGORY_SEQUENCING),
+        ("Run_Sequence_Details", CATEGORY_SEQUENCING)
     ],
     OT_LOG: [
-        "OT_Plots",
-        "Sample_Pump",
-        "Oil_Pump",
-        "OT_Script",
-        "Flowmeter"
+        ("OT_Plots", CATEGORY_SAMPLE_PREP),
+        ("Sample_Pump", CATEGORY_SAMPLE_PREP),
+        ("Oil_Pump", CATEGORY_SAMPLE_PREP),
+        ("OT_Script", CATEGORY_SAMPLE_PREP),
+        ("Flowmeter", CATEGORY_SAMPLE_PREP)
     ],
     ION_CHEF: [
-        "Chef_Flexible_Workflow",
-        "Chef_Notifications",
-        "Chef_Kit_Details",
-        "Chef_Timer",
-        "Chef_Version",
-        "Chef_Run_Details",
-        "Chef_Run_Log",
-        "Integrity_Check"
+        ("Chef_Flexible_Workflow", CATEGORY_SAMPLE_PREP),
+        ("Chef_Notifications", CATEGORY_SAMPLE_PREP),
+        ("Chef_Kit_Details", CATEGORY_SAMPLE_PREP),
+        ("Chef_Timer", CATEGORY_SAMPLE_PREP),
+        ("Chef_Version", CATEGORY_SAMPLE_PREP),
+        ("Chef_Run_Details", CATEGORY_SAMPLE_PREP),
+        ("Chef_Run_Log", CATEGORY_SAMPLE_PREP),
+        ("Integrity_Check", CATEGORY_SAMPLE_PREP)
     ]
 }
 
@@ -237,9 +240,12 @@ class Archive(models.Model):
         coverage_analysis_path = os.path.join(archive_dir, 'coverageAnalysis')
         if os.path.exists(coverage_analysis_path):
             # we are assuming any subdirectories here will be barcoded subdirectories since the pattern when creating the CSA only specifies content which is indicative of a barcode
-            for subdir in [name for name in os.listdir(coverage_analysis_path) if os.path.isdir(os.path.join(coverage_analysis_path, name))]:
-                force_symlink(os.path.join(settings.STATICFILES_DIRS[0], 'coverageAnalysis', 'flot'), os.path.join(coverage_analysis_path, subdir, 'flot'))
-                force_symlink(os.path.join(settings.STATICFILES_DIRS[0], 'coverageAnalysis', 'lifechart'), os.path.join(coverage_analysis_path, subdir, 'lifechart'))
+            for subdir in [name for name in os.listdir(coverage_analysis_path) if
+                           os.path.isdir(os.path.join(coverage_analysis_path, name))]:
+                force_symlink(os.path.join(settings.STATICFILES_DIRS[0], 'coverageAnalysis', 'flot'),
+                              os.path.join(coverage_analysis_path, subdir, 'flot'))
+                force_symlink(os.path.join(settings.STATICFILES_DIRS[0], 'coverageAnalysis', 'lifechart'),
+                              os.path.join(coverage_analysis_path, subdir, 'lifechart'))
 
         # delete all other diagnostics first
         tests = Diagnostic.objects.filter(archive=self)
@@ -248,14 +254,14 @@ class Archive(models.Model):
 
         # get all of the diagnostics to be run on this type of archive
         archive_type = str(self.archive_type)
-        diagnostic_list = TEST_MANIFEST[archive_type]
+        diagnostic_list = TEST_MANIFEST[archive_type][:]
 
         # if this is a sequencer CSA/FSA with chef information it would make sense to optionally add all of the chef tests
         if archive_type in [S5, PGM_RUN, PROTON] and os.path.exists(os.path.join(archive_dir, 'var')):
-            diagnostic_list = list(set(["Chef_Flexible_Workflow"] + diagnostic_list))
+            diagnostic_list += TEST_MANIFEST[ION_CHEF]
 
-        for diagnostic_name in diagnostic_list:
-            diagnostic = Diagnostic(name=diagnostic_name, archive=self)
+        for diagnostic_name, diagnostic_category in diagnostic_list:
+            diagnostic = Diagnostic(name=diagnostic_name, archive=self, category=diagnostic_category)
             diagnostic.save()
             if async:
                 celery_app.send_task('reports.tasks.execute_diagnostic', (diagnostic.id,))
@@ -314,6 +320,13 @@ class Diagnostic(models.Model):
     priority = models.IntegerField(default=0)
     start_execute = models.DateTimeField(null=True)
 
+    CATEGORY_CHOICES = (
+        (CATEGORY_SEQUENCING, "SEQUENCING"),
+        (CATEGORY_SAMPLE_PREP, "SAMPLE_PREP")
+    )
+
+    category = models.CharField(max_length=3, default=CATEGORY_SEQUENCING, choices=CATEGORY_CHOICES)
+
     # model relationships
     archive = models.ForeignKey(Archive, related_name="diagnostics", on_delete=models.CASCADE)
 
@@ -337,7 +350,8 @@ class Diagnostic(models.Model):
 
     @cached_property
     def readme(self):
-        return os.path.exists(os.path.join(settings.SITE_ROOT, 'IonInspector', 'reports', 'diagnostics', self.name, 'README'))
+        return os.path.exists(
+            os.path.join(settings.SITE_ROOT, 'IonInspector', 'reports', 'diagnostics', self.name, 'README'))
 
     def execute(self):
         """This will execute the this diagnostic"""
@@ -349,10 +363,12 @@ class Diagnostic(models.Model):
             self.save()
 
             # execute the script
-            diagnostic_module = importlib.import_module('IonInspector.reports.diagnostics.' + self.name.replace(' ', '_') + '.main')
+            diagnostic_module = importlib.import_module(
+                'IonInspector.reports.diagnostics.' + self.name.replace(' ', '_') + '.main')
             if settings.DEBUG:
                 reload(diagnostic_module)
-            diagnostic_results = diagnostic_module.execute(self.archive.archive_root, self.diagnostic_root, self.archive.archive_type)
+            diagnostic_results = diagnostic_module.execute(self.archive.archive_root, self.diagnostic_root,
+                                                           self.archive.archive_type)
             assert not isinstance(diagnostic_results, type(None)), "Diagnostic is broken (Returned None)"
             self.status, self.priority, self.details = diagnostic_results
 
