@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 
 import ConfigParser
+import semver
+import os
 
-from IonInspector.reports.diagnostics.common.inspector_utils import *
+from IonInspector.reports.diagnostics.common.inspector_utils import read_explog, check_supported, \
+    get_chip_type_from_exp_log, write_results_from_template, print_warning, print_alert, print_ok
 
 REPORT_LEVEL_INFO = 0
 REPORT_LEVEL_WARN = 1
@@ -78,9 +81,11 @@ def get_chip_status(archive_path):
 
     # there is a known issue with 5.6 reporting the noise levels of 510 and 520 chips so we lost the noise information for these sets
     invalid_noise = False
-    release_version = data.get('S5 Release_version', '') or data.get('Proton Release_version', '') or data.get(
-        'PGM SW Release', '')
-    if release_version and float(release_version) >= 5.6:
+    release_version = data.get('S5 Release_version') or data.get('Proton Release_version') or data.get('PGM SW Release')
+    if release_version:
+        if release_version.count('.') < 2:
+            release_version = release_version + ".0"
+        if semver.match(release_version, ">=5.6.0"):
             invalid_noise = data.get('ChipVersion') in ['510', '520']
 
     noise_alert = noise > noise_thresholds[chip_type]
