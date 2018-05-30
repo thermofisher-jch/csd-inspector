@@ -1,12 +1,15 @@
 import csv
-import os
-import semver
 import json
+import os
+import shutil
+import tempfile
 import traceback
 import warnings
-from django.template import Context, Template
 from xml.etree import ElementTree
+
+import semver
 from bs4 import BeautifulSoup
+from django.template import Context, Template
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 MAX_MESSAGE_LENGTH = 1040
@@ -248,6 +251,11 @@ def get_xml_from_run_log(archive_path):
             # Remove space after </
             while "</ " in xml_line:
                 xml_line = xml_line.replace("</ ", "</")
+            # Fix &lt; and &gt;
+            while "&lt;" in xml_line:
+                xml_line = xml_line.replace("&lt;", "<")
+            while "&gt;" in xml_line:
+                xml_line = xml_line.replace("&gt;", ">")
             xml_lines.append(xml_line)
 
     # Use bs4/lxml parser first to repair invalid xml
@@ -338,3 +346,22 @@ def write_results_from_template(data_dict, output_dir, diagnostic_script_dir):
             out.write(result.encode("UTF-8"))
     except IOError:
         raise Exception('Could not find template file at: ' + template_path)
+
+class TemporaryDirectory(object):
+    """Context manager for tempfile.mkdtemp() so it's usable with "with" statement."""
+
+    def __init__(self, file_mappings):
+        self.file_mappings = file_mappings
+
+    def __enter__(self):
+        self.name = tempfile.mkdtemp()
+        for path, contents in self.file_mappings.iteritems():
+            full_path = os.path.join(self.name, path.lstrip("/"))
+            if not os.path.exists(os.path.dirname(full_path)):
+                os.makedirs(os.path.dirname(full_path))
+            with open(full_path, "w") as fp:
+                fp.write(contents)
+        return self.name
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        shutil.rmtree(self.name)

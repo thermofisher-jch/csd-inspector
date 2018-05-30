@@ -6,6 +6,41 @@ from datetime import datetime
 from IonInspector.reports.diagnostics.common.inspector_utils import *
 
 
+def get_chef_notifications(xml_root, run_start):
+    notification_elements = xml_root.findall("Warnings_Run/warning")
+
+    notifications = list()
+    for notification_element in notification_elements:
+        # sometimes we get warning elements without children
+        if len(notification_element.getchildren()) == 0:
+            continue
+
+        notification = {
+            'time': '',
+            'usr': '',
+            'sys': '',
+            'sys_name': '',
+            'usr_msg': '',
+            'resolution': '',
+            'msg': '',
+        }
+
+        for node in notification_element.getiterator():
+            notification[node.tag] = node.text
+
+        # to compensate for an error in the chef software sometimes warnings are added which are prior to the run
+        # so we are going to have to parse the time and compare the start time from the xml file name
+        try:
+            notification['time'] = datetime.strptime(notification['time'], '%Y%m%d_%H%M%S')
+        except ValueError:
+            pass
+
+        if isinstance(notification['time'], datetime) and notification['time'] > run_start:
+            notifications.append(notification)
+
+    return notifications
+
+
 def execute(archive_path, output_path, archive_type):
     """Executes the test"""
     try:
@@ -18,36 +53,7 @@ def execute(archive_path, output_path, archive_type):
 
         # now get the xml root node to get the notifications
         root = get_xml_from_run_log(archive_path)
-        notification_elements = root.findall("Warnings_Run/warning")
-
-        notifications = list()
-        for notification_element in notification_elements:
-            # sometimes we get warning elements without children
-            if len(notification_element.getchildren()) == 0:
-                continue
-
-            notification = {
-                'time': '',
-                'usr': '',
-                'sys': '',
-                'sys_name': '',
-                'usr_msg': '',
-                'resolution': '',
-                'msg': '',
-            }
-
-            for node in notification_element.getiterator():
-                notification[node.tag] = node.text
-
-            # to compensate for an error in the chef software sometimes warnings are added which are prior to the run
-            # so we are going to have to parse the time and compare the start time from the xml file name
-            try:
-                notification['time'] = datetime.strptime(notification['time'], '%Y%m%d_%H%M%S')
-            except ValueError:
-                pass
-
-            if isinstance(notification['time'], datetime) and notification['time'] > run_start:
-                notifications.append(notification)
+        notifications = get_chef_notifications(root, run_start)
 
         context = Context({"notifications": notifications})
         write_results_from_template(context, output_path, os.path.dirname(os.path.realpath(__file__)))
