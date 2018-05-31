@@ -2,6 +2,7 @@
 This will hold all of the data models for the inspector.
 """
 import contextlib
+import errno
 import importlib
 import lzma
 import tarfile
@@ -258,6 +259,12 @@ class Archive(models.Model):
         if archive_type in [S5, PGM_RUN, PROTON] and os.path.exists(os.path.join(archive_dir, 'var')):
             diagnostic_list += TEST_MANIFEST[ION_CHEF]
 
+        # make tests folder
+        test_folder = os.path.join(self.archive_root, 'test_results')
+        if not os.path.exists(test_folder):
+            os.mkdir(test_folder)
+            os.chmod(test_folder, 0777)
+
         for diagnostic_name, diagnostic_category in diagnostic_list:
             diagnostic = Diagnostic(name=diagnostic_name, archive=self, category=diagnostic_category)
             diagnostic.save()
@@ -339,14 +346,15 @@ class Diagnostic(models.Model):
     def diagnostic_root(self):
         """returns the root of the files used in the diagnostic"""
         test_folder = os.path.join(self.archive.archive_root, 'test_results')
-        if not os.path.exists(test_folder):
-            os.mkdir(test_folder)
-
-        os.chmod(test_folder, 0777)
-
         results_folder = os.path.join(test_folder, self.name)
         if not os.path.exists(results_folder):
-            os.mkdir(results_folder)
+            # other workers may have already made the folder
+            try:
+                os.mkdir(results_folder)
+            except OSError as e:
+                if e.errno != errno.EEXIST:
+                    raise
+
         return results_folder
 
     @cached_property
