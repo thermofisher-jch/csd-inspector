@@ -17,7 +17,7 @@ services:
     user: inspector
     build: ./
     working_dir: /opt/inspector
-    command: bash -c "./manage.py migrate --noinput && ./manage.py runserver 0.0.0.0:8080"
+    command: bash -c "wait-for-it postgres:5432 -- ./manage.py migrate --noinput && ./manage.py runserver 0.0.0.0:8080"
     links:
       - postgres
       - celery
