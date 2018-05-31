@@ -138,7 +138,7 @@ MEDIA_URL = '/media/'
 CELERY_IGNORE_RESULT = False
 CELERY_TASK_SERIALIZER = 'pickle'
 CELERY_ACCEPT_CONTENT = ['pickle', 'json']
-CELERY_RESULT_BACKEND = 'amqp'
+CELERY_RESULT_BACKEND = 'rpc'
 CELERY_RESULT_SERIALIZER = 'pickle'
 SITE_ROOT = os.path.dirname(os.path.dirname(__file__))
 
