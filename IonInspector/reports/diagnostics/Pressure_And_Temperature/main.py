@@ -300,13 +300,19 @@ def execute(archive_path, output_path, archive_type):
         "raw_data": json.dumps(flow_data),
     }, output_path, os.path.dirname(os.path.realpath(__file__)))
 
+    message = ["See results for details."]
+    if temperature_message:
+        message = [temperature_message] + message
+    if pressure_message:
+        message = [pressure_message] + message
+
     # Write out status
     if message_level == INFO:
-        return print_info("See results for details.")
+        return print_info(" | ".join(message))
     elif message_level == WARN:
-        return print_warning("See results for details.")
+        return print_warning(" | ".join(message))
     else:
-        return print_alert("See results for details.")
+        return print_alert(" | ".join(message))
 
 
 if __name__ == "__main__":

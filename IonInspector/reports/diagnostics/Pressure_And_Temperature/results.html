@@ -69,10 +69,10 @@
 </head>
 <body>
 <div class="container">
-    <div class="h3 lead">{{ pressure_message }}</div>
+    <div class="h3 lead">{{ pressure_message|default_if_none:"Pressure" }}</div>
     <div id="pressure-placeholder"></div>
     <div class="flow-legend"></div>
-    <div class="h3 lead">{{ temperature_message }}</div>
+    <div class="h3 lead">{{ temperature_message|default_if_none:"Temperature" }}</div>
     <div id="temperature-placeholder"></div>
     <div class="flow-legend"></div>
     <div class="text-center text-muted">Plots are zoomable and lines can be hovered over for specific values.</div>
