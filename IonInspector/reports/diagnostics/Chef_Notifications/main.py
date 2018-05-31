@@ -2,11 +2,14 @@
 
 import sys
 import os.path
-from datetime import datetime
+from datetime import datetime, timedelta
 from IonInspector.reports.diagnostics.common.inspector_utils import *
 
 
 def get_chef_notifications(xml_root, run_start):
+    # some warnings happen just before run start so -60 minutes see IO-317
+    alarms_after = run_start - timedelta(minutes=60)
+
     notification_elements = xml_root.findall("Warnings_Run/warning")
 
     notifications = list()
@@ -35,7 +38,7 @@ def get_chef_notifications(xml_root, run_start):
         except ValueError:
             pass
 
-        if isinstance(notification['time'], datetime) and notification['time'] > run_start:
+        if isinstance(notification['time'], datetime) and notification['time'] > alarms_after:
             notifications.append(notification)
 
     return notifications
