@@ -41,8 +41,12 @@ var diagnosticsTableApp = {
         Vue.set(this.vue, "diagnostics", diagnostics);
 
         //enable or disable the category chooser
+        var previousCategory = null;
         for (var i = 0; i < this.resource.diagnostics.length; i++) {
-            if (this.resource.diagnostics[i].category !== "SEQ") {
+            if (!previousCategory) {
+                previousCategory = this.resource.diagnostics[i].category;
+            }
+            else if (previousCategory && this.resource.diagnostics[i].category !== previousCategory) {
                 $("#category-chooser").show();
                 break;
             }
@@ -91,9 +95,9 @@ var diagnosticsTableApp = {
             }.bind(this)
         })
     },
-    init: function (selector, initialResource, categoryChoices) {
+    init: function (selector, initialResource, categoryChoices, isSequencer) {
         this.resource = initialResource;
-        this.selectedCategoryChoice = "SEQ";
+        this.selectedCategoryChoice = isSequencer ? "SEQ" : "PRE";
 
         //events
         $("#category-chooser > button").click(function (event) {

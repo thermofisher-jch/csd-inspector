@@ -135,7 +135,8 @@
         diagnosticsTableApp.init(
             '#diagnostics-table-template',
             JSON.parse({{ api_resource|safe }}),
-            JSON.parse({{ diagnostic_category_choices_json|safe }})
+            JSON.parse({{ diagnostic_category_choices_json|safe }}),
+            JSON.parse({{ is_sequencer|safe }})
         );
         //Setup rerun test button
         $("#run-tests").click(function () {

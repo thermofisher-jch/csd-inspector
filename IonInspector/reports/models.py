@@ -3,12 +3,11 @@ This will hold all of the data models for the inspector.
 """
 import contextlib
 import importlib
-import shutil
+import lzma
 import tarfile
 import zipfile
 from subprocess import *
 
-import lzma
 from cached_property import cached_property
 from django.conf import settings
 from django.db import models
@@ -17,8 +16,8 @@ from django.dispatch import receiver
 from django.utils import timezone
 
 from IonInspector.reports.diagnostics.common.inspector_utils import *
-from reports.utils import force_symlink
 from celeryconfig import celery_app
+from reports.utils import force_symlink
 
 # check to see if the settings are configured
 if not settings.configured:
@@ -271,6 +270,9 @@ class Archive(models.Model):
     def archive_root(self):
         """The archive root path"""
         return os.path.dirname(self.doc_file.path)
+
+    def is_sequencer(self):
+        return self.archive_type in [S5, PROTON, PGM_RUN]
 
 
 @receiver(pre_delete, sender=Archive, dispatch_uid="delete_archive")

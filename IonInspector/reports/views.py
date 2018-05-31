@@ -183,7 +183,8 @@ def report(request, pk):
         'api_resource': json.dumps(get_serialized_model(archive, ArchiveResource)),
         'coverage_analysis_path': settings.MEDIA_URL + relative_coverage_analysis_path if os.path.exists(
             os.path.join(settings.MEDIA_ROOT, relative_coverage_analysis_path)) else '',
-        'start_time': start_time
+        'start_time': start_time,
+        'is_sequencer': json.dumps(archive.is_sequencer())
     })
     return render(request, "report.html", ctx)
 
