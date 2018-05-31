@@ -173,13 +173,16 @@ def report(request, pk):
         'archive_type_choices_json': json.dumps(
             [{"name": k, "value": v} for v, k in archive._meta.get_field('archive_type').choices]
         ),
-        'diagnostic_category_choices_json': json.dumps(Diagnostic.CATEGORY_CHOICES),
+        # dump twice to make it a js string containing json
+        'diagnostic_category_choices_json': json.dumps(json.dumps(Diagnostic.CATEGORY_CHOICES)),
         'archive': archive,
         'diagnostics': diagnostics,
         'thumbnail_pdf_present': thumbnail_pdf_present,
         'full_pdf_present': full_pdf_present,
-        'api_resource': get_serialized_model(archive, ArchiveResource),
-        'coverage_analysis_path': settings.MEDIA_URL + relative_coverage_analysis_path if os.path.exists(os.path.join(settings.MEDIA_ROOT, relative_coverage_analysis_path)) else '',
+        # dump twice to make it a js string containing json
+        'api_resource': json.dumps(get_serialized_model(archive, ArchiveResource)),
+        'coverage_analysis_path': settings.MEDIA_URL + relative_coverage_analysis_path if os.path.exists(
+            os.path.join(settings.MEDIA_ROOT, relative_coverage_analysis_path)) else '',
         'start_time': start_time
     })
     return render(request, "report.html", ctx)
@@ -193,6 +196,7 @@ def readme(request, diagnostic_name):
     :return:
     """
 
-    contents = open(os.path.join(settings.SITE_ROOT, 'IonInspector', 'reports', 'diagnostics', diagnostic_name, 'README')).read()
+    contents = open(
+        os.path.join(settings.SITE_ROOT, 'IonInspector', 'reports', 'diagnostics', diagnostic_name, 'README')).read()
     ctx = dict({'readme': contents})
     return render(request, "readme.html", ctx)
