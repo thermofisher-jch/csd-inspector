@@ -39,7 +39,6 @@ TEST_MANIFEST = {
     PGM_RUN: [
         ("Filter_Metrics", CATEGORY_SEQUENCING),
         ("Raw_Trace", CATEGORY_SEQUENCING),
-        ("Chip_Temperature", CATEGORY_SEQUENCING),
         ("Chip_Status", CATEGORY_SEQUENCING),
         ("Run_Chef_Details", CATEGORY_SEQUENCING),
         ("Auto_pH", CATEGORY_SEQUENCING),
