@@ -1,0 +1,35 @@
+[
+  {
+    "model": "reports.archive",
+    "pk": 1,
+    "fields": {
+      "identifier": "Troubled Soul",
+      "site": "Alabama",
+      "time": "2013-03-16T17:41:28+00:00",
+      "submitter_name": "Billy Bob",
+      "archive_type": "S5"
+    }
+  },
+  {
+    "model": "reports.archive",
+    "pk": 2,
+    "fields": {
+      "identifier": "Lost Soul",
+      "site": "Alabama",
+      "time": "2013-03-16T17:41:28+00:00",
+      "submitter_name": "Billy Bob",
+      "archive_type": "S5"
+    }
+  },
+  {
+    "model": "reports.archive",
+    "pk": 3,
+    "fields": {
+      "identifier": "Rerun Test",
+      "site": "Florida",
+      "time": "2013-03-16T17:41:28+00:00",
+      "submitter_name": "Alex",
+      "archive_type": "OT_Log"
+    }
+  }
+]
