@@ -16,7 +16,7 @@ RUN_TYPES = {
 }
 
 RUN_DEVIATIONS = {
-    "default": "Standard",
+    "default": None,
     "denature30_cycles45_20": "Myeloid",
     "denature30_45_20": "Myeloid",
     "no10xab": "Whole Transcriptome",

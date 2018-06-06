@@ -45,3 +45,14 @@ class ChefRunDetailsTestCase(SimpleTestCase):
         </RunLog>
         """)
         self.assertEquals(get_deviation_from_element_tree(element_tree), None)
+
+
+    def test_get_default_deviation_from_element_tree(self):
+        element_tree = ElementTree.fromstring("""
+        <RunLog>
+            <RunInfo>
+                <deviation>default</deviation>
+            </RunInfo>
+        </RunLog>
+        """)
+        self.assertEquals(get_deviation_from_element_tree(element_tree), None)
