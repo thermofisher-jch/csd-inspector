@@ -61,7 +61,7 @@ class PressureAndTemperatureOkayTestCase(SimpleTestCase):
             "explog_final.txt":
                 "PGMPressure:0.309028 7.883653\n"
                 "ExperimentInfoLog:\n"
-                "beadfind_pre_0000.dat: Pressure=7.88 7.96 Temp=32.93 25.74 30.03 22.84 dac_start_sig=1555 avg=9568 time=08:21:55 fpgaTemp=114.80 107.60 chipTemp=31.54 39.77 49.39 36.52 40.46 a1a2=ffffff 0 0 0 0 cpuTemp=51.00 0.00 heater=0.22 cooler=0.16 gpuTemp=29 diskPerFree=11 FACC_Offset=0.00, FACC=1.27 Pinch=2.26 3.69 ManTemp=27\n"
+                "beadfind_pre_0000.dat: Pressure=7.88 7.96 Temp=32.93 25.74 30.03 22.84 dac_start_sig=1555 avg=9568 time=08:21:55 fpgaTemp=114.80 107.60 chipTemp=31.54 39.77 49.39 36.52 40.46 a1a2=ffffff 0 0 0 0 cpuTemp=51.00 0.00 heater=0.22 cooler=0.16 gpuTemp=29 diskPerFree=11 FACC_Offset=0.00, FACC=1.27 Pinch=2.26 3.69 ManTemp=109\n"
                 "beadfind_pre_0001.dat: Pressure=2.04 2.19 Temp=32.96 26.03 30.02 22.84 dac_start_sig=1496 avg=4776 time=08:22:18 fpgaTemp=114.80 107.60 chipTemp=30.91 39.36 48.88 35.95 39.45 a1a2=ffffff 0 0 0 0 cpuTemp=51.00 0.00 heater=0.21 cooler=0.17 gpuTemp=29 diskPerFree=11 FACC_Offset=0.00, FACC=1.27 Pinch=2.26 3.69 ManTemp=27\n"
                 "prerun_0000.dat: Pressure=1.98 2.11 Temp=32.86 26.34 30.01 22.89 dac_start_sig=1572 avg=3718 time=08:23:58 fpgaTemp=114.80 107.60 chipTemp=30.64 32.34 48.54 35.41 39.26 a1a2=ffffff 0 0 0 0 cpuTemp=50.00 0.00 heater=0.24 cooler=0.16 gpuTemp=29 diskPerFree=11 FACC_Offset=0.00, FACC=1.27 Pinch=2.26 3.69 ManTemp=28\n"
                 "prerun_0001.dat: Pressure=1.15 1.30 Temp=32.94 26.26 30.00 22.87 dac_start_sig=1514 avg=4793 time=08:24:17 fpgaTemp=114.80 109.40 chipTemp=30.76 32.38 48.56 35.82 39.26 a1a2=ffffff 0 0 0 0 cpuTemp=48.00 0.00 heater=0.21 cooler=0.17 gpuTemp=29 diskPerFree=11 FACC_Offset=0.00, FACC=1.27 Pinch=2.19 3.69 ManTemp=28\n"
@@ -73,6 +73,8 @@ class PressureAndTemperatureOkayTestCase(SimpleTestCase):
         with TemporaryDirectory(files) as archive_path:
             pressure_message, temperature_message, level, flow_data = get_pressure_and_temp(archive_path, "S5")
 
+            # ignore temp and pressure before acq flows
+            # manTemp is way to high in flow 0 but this still should be INFO
             self.assertEquals(level, INFO)
 
             # pressure

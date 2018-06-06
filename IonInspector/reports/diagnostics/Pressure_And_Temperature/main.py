@@ -43,7 +43,7 @@ TEMP_LIMITS = {
             (20, 34, "Temperature is cold", "Temperature is hot", ALARM),
         ]},
     "S5": {
-        "keys": ["wasteTemperature", "ambientTemperature", "manifoldHeaterTemperature"],
+        "keys": ["wasteTemperature", "ambientTemperature", "manifoldTemperature"],
         "ranges": [
             (20, 35, "Temperature is cold", "Temperature is hot", ALARM),
         ]},
@@ -279,7 +279,7 @@ def get_pressure_and_temp(archive_path, archive_type):
 
     temperature_message = None
     try:
-        validate_data_within_limits(flow_data["temperature"], TEMP_LIMITS[archive_type])
+        validate_data_within_limits(flow_data["temperature"], TEMP_LIMITS[archive_type], start_at_flow)
     except OutOfRangeError as e:
         temperature_message = e.message
         level = e.level if e.level > level else level
