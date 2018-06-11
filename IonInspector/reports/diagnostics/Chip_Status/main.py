@@ -140,9 +140,7 @@ def get_chip_status(archive_path):
     # generate message
     message = "Loading {} | Gain {}".format("{:.1%}".format(bead_loading) if bead_loading else "Unknown",
                                             gain or "Unknown")
-    if invalid_noise:
-        message += " | We do not evaluate noise levels for this chip type"
-    else:
+    if not invalid_noise:
         message += " | Noise {}".format(noise or "Unknown")
 
     if electrode_gain:

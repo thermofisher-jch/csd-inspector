@@ -7,7 +7,7 @@
         <div class="container-fluid">
             <div class="row" style="text-align: center;">
                 {% if invalid_noise %}
-                    Due to a bug in our noise reporting the noise level cannot be evaluated for this chip type.<br />
+                    We do not evaluate noise levels for this chip type.<br />
                 {% else %}
                     Noise: {{ noise_report }}<br />
                 {% endif %}

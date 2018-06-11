@@ -41,4 +41,4 @@ class ChipStatusTestCase(SimpleTestCase):
         }
         with TemporaryDirectory(files) as archive_path:
             message, report_level, context = get_chip_status(archive_path)
-            self.assertEquals(message, "Loading 69.9% | Gain 1.09 | We do not evaluate noise levels for this chip type")
+            self.assertEquals(message, "Loading 69.9% | Gain 1.09")
