@@ -71,9 +71,9 @@ def execute(archive_path, output_path, archive_type):
         if not chef_reagents_expiration or not chef_solutions_expiration:
             return print_alert(message + " | Could not parse expiration dates.")
         elif chef_reagents_expiration and chef_reagents_expiration < run_date:
-            return print_alert(message + " | Expired Reagents")
+            return print_alert(message + " | EXPIRED")
         elif chef_solutions_expiration and chef_solutions_expiration < run_date:
-            return print_alert(message + " | Expired Reagents")
+            return print_alert(message + " | EXPIRED")
         else:
             return print_ok(message)
     except Exception as exc:
