@@ -25,13 +25,28 @@ RUN_DEVIATIONS = {
 
 
 def get_deviation_from_element_tree(element_tree):
+    deviation = None
     deviation_node = element_tree.find("RunInfo/deviation")
     if deviation_node is not None:
         key = deviation_node.text.strip().lower()
         if key in RUN_DEVIATIONS:
-            return RUN_DEVIATIONS[key]
+            deviation = RUN_DEVIATIONS[key]
         else:
-            return "Unknown({})".format(key)
+            deviation = "Unknown({})".format(key)
+
+    lib = None
+    lib_node = element_tree.find("RunInfo/lib")
+    if lib_node is not None:
+        lib = lib_node.text.strip()
+        if lib.isdigit():
+            lib += "bp"
+
+    if deviation and lib:
+        return "{} ({})".format(deviation, lib)
+    elif deviation:
+        return deviation
+    elif lib:
+        return lib
     else:
         return None
 
@@ -68,7 +83,7 @@ def execute(archive_path, output_path, archive_type):
         message = summary + " | " + run_date.strftime("%-d %b %Y %H:%M") or "Unknown"
 
         if deviation:
-            message += " | Deviation: " + deviation
+            message += " | Protocol: " + deviation
 
         return print_info(message)
 

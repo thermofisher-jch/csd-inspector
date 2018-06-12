@@ -27,6 +27,29 @@ class ChefRunDetailsTestCase(SimpleTestCase):
         """)
         self.assertEquals(get_deviation_from_element_tree(element_tree), "Myeloid")
 
+    def test_get_deviation_with_lib_from_element_tree(self):
+        element_tree = ElementTree.fromstring("""
+        <RunLog>
+            <RunInfo>
+                <lib>200</lib>
+                <deviation>denature30_cycles45_20</deviation>
+            </RunInfo>
+        </RunLog>
+        """)
+        self.assertEquals(get_deviation_from_element_tree(element_tree), "Myeloid (200bp)")
+
+    def test_get_deviation_with_lib_not_int_from_element_tree(self):
+        """ Not a case I have seen but just covering my bases """
+        element_tree = ElementTree.fromstring("""
+        <RunLog>
+            <RunInfo>
+                <lib>ERROR</lib>
+                <deviation>denature30_cycles45_20</deviation>
+            </RunInfo>
+        </RunLog>
+        """)
+        self.assertEquals(get_deviation_from_element_tree(element_tree), "Myeloid (ERROR)")
+
     def test_get_unknown_deviation_from_element_tree(self):
         element_tree = ElementTree.fromstring("""
         <RunLog>
@@ -46,7 +69,6 @@ class ChefRunDetailsTestCase(SimpleTestCase):
         """)
         self.assertEquals(get_deviation_from_element_tree(element_tree), None)
 
-
     def test_get_default_deviation_from_element_tree(self):
         element_tree = ElementTree.fromstring("""
         <RunLog>
@@ -56,3 +78,14 @@ class ChefRunDetailsTestCase(SimpleTestCase):
         </RunLog>
         """)
         self.assertEquals(get_deviation_from_element_tree(element_tree), None)
+
+    def test_get_default_deviation_with_lib_from_element_tree(self):
+        element_tree = ElementTree.fromstring("""
+        <RunLog>
+            <RunInfo>
+                <lib>400</lib>
+                <deviation>default</deviation>
+            </RunInfo>
+        </RunLog>
+        """)
+        self.assertEquals(get_deviation_from_element_tree(element_tree), "400bp")
