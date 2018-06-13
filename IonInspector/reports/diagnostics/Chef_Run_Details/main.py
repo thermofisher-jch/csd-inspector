@@ -15,12 +15,18 @@ RUN_TYPES = {
     "fullloadcheck": "Full Load Check"
 }
 
+# See https://stash.amer.thermo.com/projects/CHEF/repos/chef/browse/GUI/gui/OverrideWorkflowWindow.cpp
+# for a list of possible RUN_DEVIATIONS
+
 RUN_DEVIATIONS = {
     "default": None,
     "denature30_cycles45_20": "Myeloid",
     "denature30_45_20": "Myeloid",
     "no10xab": "Whole Transcriptome",
-    "hid_snp_510_200bp": "HID"
+    "hid_snp_510_200bp": "HID",
+    "pcr400bp": "400bp",
+    "pcr200bp": "200bp",
+    "anneal62no10xab": "HID"
 }
 
 

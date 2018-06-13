@@ -89,3 +89,13 @@ class ChefRunDetailsTestCase(SimpleTestCase):
         </RunLog>
         """)
         self.assertEquals(get_deviation_from_element_tree(element_tree), "400bp")
+
+    def test_get_pcr200bp_deviation_from_element_tree(self):
+        element_tree = ElementTree.fromstring("""
+        <RunLog>
+            <RunInfo>
+                <deviation>pcr200bp</deviation>
+            </RunInfo>
+        </RunLog>
+        """)
+        self.assertEquals(get_deviation_from_element_tree(element_tree), "200bp")
