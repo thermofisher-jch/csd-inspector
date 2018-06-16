@@ -66,7 +66,7 @@ TEST_MANIFEST = {
     S5: [
         ("Filter_Metrics", CATEGORY_SEQUENCING),
         ("Raw_Trace", CATEGORY_SEQUENCING),
-        ("Raw_Trace_Preview", CATEGORY_SEQUENCING),
+        #("Raw_Trace_Preview", CATEGORY_SEQUENCING),
         ("Chip_Status", CATEGORY_SEQUENCING),
         ("Run_Chef_Details", CATEGORY_SEQUENCING),
         ("S5_Reagents", CATEGORY_SEQUENCING),

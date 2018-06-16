@@ -60,9 +60,10 @@ def deploy(tag=None, force=None):
         if raw_input("This looks like a deploy to production! Enter PRODUCTION to continue: ") != "PRODUCTION":
             exit()
     with cd(HOST_DATA_DIR + "/inspector"):
-        run("git fetch --all")
+        run("git fetch --all --tags --prune")
         run("git checkout %s --force" % tag)
-        run("git pull")
+        if tag == "master":
+            run("git pull")
         run("docker-compose -f docker-compose.yml -f docker-compose.prod.yml build")
         run("docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d" +
             (" --force-recreate" if force else ""))
