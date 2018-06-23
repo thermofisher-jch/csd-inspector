@@ -129,34 +129,35 @@
     <script src="/static/js/report-editor.js"></script>
     <script src="/static/js/diagnostics-table.js"></script>
     <script>
-        //Setup archive details editor
-        reportEditorApp.init('{{ archive.pk }}', JSON.parse('{{ archive_type_choices_json|safe }}'));
-        //Setup diagnostic table
-        diagnosticsTableApp.init(
-            '#diagnostics-table-template',
-            JSON.parse({{ api_resource|safe }}),
-            JSON.parse({{ diagnostic_category_choices_json|safe }}),
-            JSON.parse({{ is_sequencer|safe }})
-        );
-        //Setup rerun test button
-        $("#run-tests").click(function () {
-            diagnosticsTableApp.setUnexecuted();
-            $.ajax({
-                type: "POST",
-                url: "{% url 'api_dispatch_rerun_archive' resource_name='Archive' api_name='v1' pk=archive.pk %}",
-                success: function () {
-                    diagnosticsTableApp.update();
-                }
-            })
-        });
-        //Setup delete button
-        $("#ask_delete").click(function(){
-            $("#delete_prompt").slideDown();
-        });
-        $("#no_delete").click(function(){
-            $("#delete_prompt").slideUp();
-        });
+        Raven.context(function () {
+            //Setup archive details editor
+            reportEditorApp.init('{{ archive.pk }}', JSON.parse('{{ archive_type_choices_json|safe }}'));
+            //Setup diagnostic table
+            diagnosticsTableApp.init(
+                '#diagnostics-table-template',
+                JSON.parse({{ api_resource|safe }}),
+                JSON.parse({{ diagnostic_category_choices_json|safe }}),
+                JSON.parse({{ is_sequencer|safe }})
+            );
+            //Setup rerun test button
+            $("#run-tests").click(function () {
+                diagnosticsTableApp.setUnexecuted();
+                $.ajax({
+                    type: "POST",
+                    url: "{% url 'api_dispatch_rerun_archive' resource_name='Archive' api_name='v1' pk=archive.pk %}",
+                    success: function () {
+                        diagnosticsTableApp.update();
+                    }
+                })
+            });
+            //Setup delete button
+            $("#ask_delete").click(function () {
+                $("#delete_prompt").slideDown();
+            });
+            $("#no_delete").click(function () {
+                $("#delete_prompt").slideUp();
+            });
 
-
+        });
     </script>
 {% endblock content %}

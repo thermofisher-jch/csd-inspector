@@ -52,7 +52,14 @@
       </style>
       {% block extra_head_css %}
       {% endblock extra_head_css %}
+
     <script src="{% static 'js/jquery-1.8.3.min.js' %}"></script>
+    <script src="{% static 'js/raven.min.js' %}"></script>
+    <!-- setup raven as soon as possible -->
+      <script>Raven.config('http://51cb8fb27c3b495aaa4f6a40c0575967@sentry.itw//12', {
+          release: "{{ version }}"
+      }).install()</script>
+
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
     <script src="{% static 'js/dropdown.js' %}"></script>
     <script src="{% static 'js/modal.js' %}"></script>
