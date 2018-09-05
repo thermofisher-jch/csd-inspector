@@ -1,16 +1,21 @@
+import json
+import logging
+import os
+
+from dateutil.parser import parse as date_parse
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, HttpResponseRedirect
+from django.utils import timezone
+from django_tables2 import RequestConfig
+
+from api import ArchiveResource
 from reports.forms import ArchiveForm
 from reports.models import Archive, Diagnostic, TEST_MANIFEST, PGM_RUN
-from utils import get_serialized_model
-from api import ArchiveResource
 from reports.tables import ArchiveTable
-from django_tables2 import RequestConfig
-from dateutil.parser import parse as date_parse
-from django.utils import timezone
-import json
-import os
+from utils import get_serialized_model
+
+logger = logging.getLogger(__name__)
 
 
 def index(request):
@@ -57,6 +62,7 @@ def upload(request):
             # fire off the diagnostics in the background automatically
             archive.execute_diagnostics()
         except Exception as exc:
+            logger.exception("Error starting execute_diagnostics")
             # if we get an exception we need to remove the database entry and folder since it was invalid
             archive.delete()
 

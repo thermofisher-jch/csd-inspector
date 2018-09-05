@@ -1,11 +1,8 @@
 """
 This will hold all of the data models for the inspector.
 """
-import contextlib
 import errno
 import importlib
-import lzma
-import tarfile
 import zipfile
 from subprocess import *
 
@@ -212,17 +209,13 @@ class Archive(models.Model):
             doc_archive.extractall(path=archive_dir)
             doc_archive.close()
 
-        # Watch out. Some chef archives are .tar but are really .tar.gz
-        elif self.doc_file.path.endswith('.tar') or self.doc_file.path.endswith('.tar.gz'):
-            tar = tarfile.open(self.doc_file.path, "r")
-            tar.extractall(path=archive_dir)
-            tar.close()
-        # Python 2.7 requires the use of lzma for tar.xz
-        elif self.doc_file.path.endswith('.tar.xz'):
-            with contextlib.closing(lzma.LZMAFile(self.doc_file.path)) as xz:
-                tar = tarfile.open(fileobj=xz)
-                tar.extractall(path=archive_dir)
-                tar.close()
+        # Some chef archives contains files with no read permission. This seems to kill the python tar library. So
+        # instead we are using a subprocess to extract then chmod
+        elif self.doc_file.path.endswith('.tar') or self.doc_file.path.endswith(
+                '.tar.gz') or self.doc_file.path.endswith('.tar.xz'):
+            check_call(["tar", "-xf", self.doc_file.path, "--directory", archive_dir])
+            check_call(["chmod", "755", "-R", archive_dir])
+
         # Watch out. Some ot logs are are .log and some are .csv
         elif self.doc_file.path.endswith('.log') or self.doc_file.path.endswith('.csv'):  # One Touch
             target_path = os.path.join(archive_dir, "onetouch.log")
