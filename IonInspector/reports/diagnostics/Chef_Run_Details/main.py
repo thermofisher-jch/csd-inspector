@@ -65,6 +65,24 @@ def parse_run_date_from_xml_path(path):
     return datetime.strptime(date_str + "_" + time_str, "%Y-%m-%d_%H%M.xml")
 
 
+def get_cycles_and_extend(element_tree):
+    type_node = element_tree.find("RunInfo/RunType")
+    if type_node.text.strip() != "rl":
+        return None, None
+
+    cycles = None
+    cycles_node = element_tree.find("RunInfo/cycles")
+    if cycles_node is not None:
+        cycles = cycles_node.text.strip()
+
+    extend = None
+    extend_node = element_tree.find("RunInfo/extend")
+    if extend_node is not None:
+        extend = extend_node.text.strip()
+
+    return cycles, extend
+
+
 def execute(archive_path, output_path, archive_type):
     """Executes the test"""
     try:
@@ -73,6 +91,9 @@ def execute(archive_path, output_path, archive_type):
         run_type_node = root.find("RunInfo/RunType")
         if run_type_node is None:
             raise Exception("No run type")
+
+        # get cycles and extend
+        cycles, extend = get_cycles_and_extend(root)
 
         # see if there was a deviation
         deviation = get_deviation_from_element_tree(root)
@@ -90,6 +111,12 @@ def execute(archive_path, output_path, archive_type):
 
         if deviation:
             message += " | Protocol: " + deviation
+
+        if cycles:
+            message += " | Cycles: " + cycles
+
+        if extend:
+            message += " | Anneal/Extend (min): " + extend
 
         return print_info(message)
 
