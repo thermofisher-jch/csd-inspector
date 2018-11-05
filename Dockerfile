@@ -31,7 +31,13 @@ python-semver \
 python-raven \
 python-tblib \
 python-coverage \
-wait-for-it
+wait-for-it \
+openssh-server
+
+# setup ssh user for dev
+RUN mkdir /var/run/sshd
+RUN echo 'root:ionadmin' | chpasswd
+RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 
 # install R deps
 RUN Rscript -e "source('http://bioconductor.org/biocLite.R')"
@@ -42,6 +48,9 @@ ENV PROJECT_DIR /opt/inspector
 ENV PYTHONPATH  /opt/inspector/IonInspector:$PYTHONPATH
 RUN mkdir -p $PROJECT_DIR
 WORKDIR ${PROJECT_DIR}
+
+# create ssh keys
+RUN /usr/bin/ssh-keygen -A
 
 # add the src code
 COPY ./ /opt/inspector

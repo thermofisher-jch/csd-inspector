@@ -15,6 +15,7 @@ services:
       - ./.local/logs:/var/log/inspector
     ports:
       - "8090:8080"
+      - "8099:22"
 
   postgres:
     volumes:
