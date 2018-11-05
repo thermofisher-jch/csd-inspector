@@ -9,6 +9,7 @@ services:
       - ./.local/logs:/var/log/inspector
 
   django:
+    user: root
     volumes:
       - .:/opt/inspector
       - ./.local/media:/var/lib/inspector/media
