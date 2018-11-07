@@ -41,7 +41,7 @@ def execute(archive_path, output_path, archive_type):
         # get all of the filtered data sets
         filtered_data = [float(x['read_count']) for x in groups if not x['filtered']]
         mean = numpy.mean(filtered_data)
-        min_read_cound = numpy.min(filtered_data)
+        min_read_cound = numpy.min(filtered_data) if filtered_data else 0
         std = numpy.std(filtered_data)
 
         histograms = []
