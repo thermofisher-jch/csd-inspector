@@ -89,9 +89,16 @@ def read_base_caller_json(archive_path):
     path = os.path.join(archive_path, "basecaller_results", "BaseCaller.json")
     if not os.path.exists(path):
         raise Exception("BaseCaller.json missing")
-    with open(path) as base_caller_fh:
-        base_caller_json = json.load(base_caller_fh)
-    return base_caller_json
+    with open(path) as fp:
+        return json.load(fp)
+
+
+def read_ionstats_basecaller_json(archive_path):
+    path = os.path.join(archive_path, "basecaller_results", "ionstats_basecaller.json")
+    if not os.path.exists(path):
+        raise Exception("ionstats_basecaller.json missing")
+    with open(path) as fp:
+        return json.load(fp)
 
 
 def handle_exception(exc, output_path):

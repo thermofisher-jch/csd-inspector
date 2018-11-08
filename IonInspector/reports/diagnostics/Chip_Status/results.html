@@ -1,3 +1,4 @@
+{% load humanize %}
 <!DOCTYPE html>
 <html>
     <head>
@@ -15,7 +16,8 @@
                 {% if electrode_report %}
                 Electrode: {{ electrode_report }}<br />
                 {% endif %}
-                ISP Loading: {{ isp_report }}
+                ISP Loading: {{ isp_report }}<br />
+                Projected full chip reads: {{ full_chip_reads|intcomma }} / Full chip spec: {{ full_chip_reads_spec|intcomma }}
             </div>
         </div>
     </body>

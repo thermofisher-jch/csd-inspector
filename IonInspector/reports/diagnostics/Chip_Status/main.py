@@ -5,7 +5,8 @@ import semver
 import os
 
 from IonInspector.reports.diagnostics.common.inspector_utils import read_explog, check_supported, \
-    get_chip_type_from_exp_log, write_results_from_template, print_warning, print_alert, print_ok
+    get_chip_type_from_exp_log, write_results_from_template, print_warning, print_alert, print_ok, \
+    read_ionstats_basecaller_json
 
 REPORT_LEVEL_INFO = 0
 REPORT_LEVEL_WARN = 1
@@ -47,6 +48,35 @@ electrode_ranges = {
     "P1": (170.0, 170.0),
 }
 
+total_read_specs = {
+    # name: multiplier, expected read count
+    "314": (1, 400000),
+    "316": (1, 2000000),
+    "318": (1, 4000000),
+    "PIV3": (166, 60000000),
+    "510": (6.6, 2000000),
+    "520": (13.4, 3000000),
+    "530": (41, 15000000),
+    "540": (166, 60000000),
+    "550": (281, 100000000)
+}
+
+
+def get_total_reads_message(chip_type, archive_path):
+    ionstats = read_ionstats_basecaller_json(archive_path)
+    total_reads = ionstats["full"]["num_reads"]
+    try:
+        reads_multiplier, min_reads = total_read_specs[chip_type]
+    except KeyError:
+        return None, total_reads
+    full_chip_reads = total_reads * reads_multiplier
+    if full_chip_reads >= min_reads:
+        return "Total Reads: Above Spec", full_chip_reads, min_reads
+    elif full_chip_reads >= (min_reads * 0.9):
+        return "Total Reads: Near Spec", full_chip_reads, min_reads
+    else:
+        return "Total Reads: Below Spec", full_chip_reads, min_reads
+
 
 def load_ini(file_path, namespace="global"):
     parse = ConfigParser.ConfigParser()
@@ -79,7 +109,8 @@ def get_chip_status(archive_path):
         raise Exception("The noise value could not be found in the log.")
     noise = round(float(noise), 2)
 
-    # there is a known issue with 5.6 reporting the noise levels of 510 and 520 chips so we lost the noise information for these sets
+    # there is a known issue with 5.6 reporting the noise levels of 510 and 520 chips
+    # so we lost the noise information for these sets
     invalid_noise = False
     release_version = data.get('S5 Release_version') or data.get('Proton Release_version') or data.get('PGM SW Release')
     if release_version:
@@ -104,7 +135,6 @@ def get_chip_status(archive_path):
         gain_report = "Chip gain {} is within range.".format(gain)
 
     # detect reference electrode record indicating pgm and look for issues
-    electode_alert = False
     electrode_report = ''
     electrode_gain = None
     if "Ref Electrode" in data and chip_type in electrode_ranges:
@@ -112,10 +142,8 @@ def get_chip_status(archive_path):
         electrode_gain = round(float(data["Ref Electrode"].split(' ')[0]), 2)
         if electrode_gain > electrode_high:
             electrode_report = "Reference Electrode {} is high.".format(electrode_gain)
-            electode_alert = True
         elif electrode_gain < electrode_low:
             electrode_report = "Reference Electrode {} is low.".format(electrode_gain)
-            electode_alert = True
         else:
             electrode_report = "Reference Electrode {} is within range.".format(electrode_gain)
 
@@ -137,6 +165,9 @@ def get_chip_status(archive_path):
         else:
             isp_report = "Required stats files not included"
 
+    # total reads
+    total_reads_message, full_chip_reads, full_chip_reads_spec = get_total_reads_message(chip_type, archive_path)
+
     # generate message
     message = "Loading {} | Gain {}".format("{:.1%}".format(bead_loading) if bead_loading else "Unknown",
                                             gain or "Unknown")
@@ -146,12 +177,17 @@ def get_chip_status(archive_path):
     if electrode_gain:
         message += " | Reference Electrode {}".format(electrode_gain)
 
+    if total_reads_message:
+        message += (" | " + total_reads_message)
+
     context = {
         'noise_report': noise_report,
         'gain_report': gain_report,
         'electrode_report': electrode_report,
         'isp_report': isp_report,
-        'invalid_noise': invalid_noise
+        'invalid_noise': invalid_noise,
+        'full_chip_reads': full_chip_reads,
+        'full_chip_reads_spec': full_chip_reads_spec
     }
 
     return message, report_level, context
