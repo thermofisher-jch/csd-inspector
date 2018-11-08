@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 import sys
-from datetime import datetime
 
 from IonInspector.reports.diagnostics.common.inspector_utils import *
+from reports.diagnostics.common.inspector_utils import parse_run_date_from_xml_path
 
 RUN_TYPES = {
     "rc": "Chef Templating Run",
@@ -55,14 +55,6 @@ def get_deviation_from_element_tree(element_tree):
         return lib
     else:
         return None
-
-
-def parse_run_date_from_xml_path(path):
-    """
-    Parse run date from file paths like: "/opt/example/242470284-000327_rl_2017-4-18_1759.xml"
-    """
-    _, date_str, time_str = path.rsplit("_", 2)
-    return datetime.strptime(date_str + "_" + time_str, "%Y-%m-%d_%H%M.xml")
 
 
 def get_cycles_and_extend(element_tree):

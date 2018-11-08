@@ -5,6 +5,7 @@ import shutil
 import tempfile
 import traceback
 import warnings
+from datetime import datetime
 from xml.etree import ElementTree
 
 import semver
@@ -365,3 +366,11 @@ class TemporaryDirectory(object):
 
     def __exit__(self, exc_type, exc_value, traceback):
         shutil.rmtree(self.name)
+
+
+def parse_run_date_from_xml_path(path):
+    """
+    Parse run date from file paths like: "/opt/example/242470284-000327_rl_2017-4-18_1759.xml"
+    """
+    _, date_str, time_str = path.rsplit("_", 2)
+    return datetime.strptime(date_str + "_" + time_str, "%Y-%m-%d_%H%M.xml")

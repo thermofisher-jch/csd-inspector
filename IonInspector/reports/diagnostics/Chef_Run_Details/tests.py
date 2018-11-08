@@ -3,8 +3,9 @@ from xml.etree import ElementTree
 
 from django.test import SimpleTestCase
 
-from reports.diagnostics.Chef_Run_Details.main import parse_run_date_from_xml_path, get_deviation_from_element_tree, \
+from reports.diagnostics.Chef_Run_Details.main import get_deviation_from_element_tree, \
     get_cycles_and_extend
+from reports.diagnostics.common.inspector_utils import parse_run_date_from_xml_path
 
 
 class ChefRunDetailsTestCase(SimpleTestCase):

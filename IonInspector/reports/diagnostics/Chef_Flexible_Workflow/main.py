@@ -1,7 +1,72 @@
 #!/usr/bin/env python
-
+import os
 import sys
-from IonInspector.reports.diagnostics.common.inspector_utils import *
+from datetime import datetime
+
+from IonInspector.reports.diagnostics.common.inspector_utils import get_xml_from_run_log, print_na, print_alert, \
+    write_results_from_template, print_ok, handle_exception, get_lines_from_chef_gui_logs, parse_run_date_from_xml_path, \
+    get_chef_run_log_xml_path
+
+
+def parse_gui_log_lines(raw_log_lines):
+    # [BC]-[INFO]:2018-08-08 15:53:22,400: parseLoadCheckdata: (chefSolutionsSerial) = (12346150)
+    parsed = []
+    for line in raw_log_lines:
+        if line.startswith("["):
+            line_level, remaining = line.split(":", 1)
+            line_date, remaining = datetime.strptime(remaining[:19], "%Y-%m-%d %H:%M:%S"), remaining[23:]
+            line_message = remaining[1:]
+            parsed.append((line_level, line_date, line_message))
+    return parsed
+
+
+def get_gui_log_lines_for_run(raw_log_lines, run_start_date):
+    pre_start_lines = []
+    post_start_lines = []
+
+    parsed_lines = parse_gui_log_lines(raw_log_lines)
+
+    # Get the line index where our run started
+    for i, line in enumerate(parsed_lines):
+        line_level, line_date, line_message = line
+        if "Starting RUN" in line_message:
+            # We only have min resolution on the start date atm
+            # and I want to allow some wiggle from when the start is logged in the gui to when its logged in the
+            # xml, so I have to use something over 60 seconds here!
+            if abs((line_date - run_start_date).total_seconds()) < 65:
+                break
+    else:
+        raise ValueError("Could not find run start in gui logs with start date: {}".format(run_start_date))
+
+    # Now get all the lines before and after until any other run
+    for line_level, line_date, line_message in parsed_lines[i - 1:0:-1]:
+        if "Starting RUN" in line_message:
+            break
+        else:
+            pre_start_lines.insert(0, (line_level, line_date, line_message))
+    for line_level, line_date, line_message in parsed_lines[i + 1:]:
+        if "Starting RUN" in line_message:
+            break
+        else:
+            post_start_lines.append((line_level, line_date, line_message))
+
+    return pre_start_lines, post_start_lines
+
+
+def get_solutions_and_reagents_serials(parsed_log_lines):
+    solutions = None
+    reagents = None
+    for _, _, line_message in parsed_log_lines:
+        if "parseLoadCheckdata" in line_message:
+            if "chefSolutionsSerial" in line_message:
+                _, i = line_message.split("=")
+                solutions = i.strip().strip("()")
+            elif "chefReagentsSerial" in line_message:
+                _, i = line_message.split("=")
+                reagents = i.strip().strip("()")
+            if solutions and reagents:
+                return solutions, reagents
+    raise ValueError("Could not find solutions and reagents!")
 
 
 def execute(archive_path, output_path, archive_type):
@@ -27,6 +92,13 @@ def execute(archive_path, output_path, archive_type):
         failed_reagents = 8 * 24 < int(hours_since_reagent_first_use)
         failed_solution = 8 * 24 < int(hours_since_solution_first_use)
 
+        # solutions_serial, reagents_serial from gui log
+        run_log_path = get_chef_run_log_xml_path(archive_path)
+        run_date = parse_run_date_from_xml_path(run_log_path)
+        gui_log_lines = get_lines_from_chef_gui_logs(archive_path)
+        pre_run_lines, post_run_lines = get_gui_log_lines_for_run(gui_log_lines, run_date)
+        solutions_serial, reagents_serial = get_solutions_and_reagents_serials(pre_run_lines)
+
         # construct the context and result html
         context = {
             'days_since_reagent_first_use': float(hours_since_reagent_first_use) / 24.0,
@@ -35,12 +107,15 @@ def execute(archive_path, output_path, archive_type):
             'num_previous_uses_solution': num_previous_uses_solution,
             'failed_reagents': failed_reagents,
             'failed_solution': failed_solution,
+            'solutions_serial': solutions_serial,
+            'reagents_serial': reagents_serial
         }
         write_results_from_template(context, output_path, os.path.dirname(os.path.realpath(__file__)))
 
         # detect failures or success
         if failed_solution and failed_reagents:
-            return print_alert("Both the reagents and solutions were to old: " + hours_since_reagent_first_use + "/" + hours_since_solution_first_use + " hours.")
+            return print_alert(
+                "Both the reagents and solutions were to old: " + hours_since_reagent_first_use + "/" + hours_since_solution_first_use + " hours.")
         if failed_reagents:
             return print_alert("Reagents were to old: " + hours_since_reagent_first_use + " hours.")
         if failed_solution:
