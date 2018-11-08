@@ -68,8 +68,9 @@ DATABASES = {
     }
 }
 
-if 'test' in sys.argv or 'test_coverage' in sys.argv:  # Covers regular testing and django-coverage
-    DATABASES['default']['ENGINE'] = 'django.db.backends.sqlite3'
+# Cannot use sqlite with array field
+# if 'test' in sys.argv or 'test_coverage' in sys.argv:  # Covers regular testing and django-coverage
+#    DATABASES['default']['ENGINE'] = 'django.db.backends.sqlite3'
 
 # Logging
 LOGGING = {

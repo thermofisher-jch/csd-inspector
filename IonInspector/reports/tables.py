@@ -19,6 +19,7 @@ class ArchiveTable(tables.Table):
     submitter_name = tables.Column(verbose_name='Submitter', attrs={'th': {'style': 'width: 20%'}}, empty_values=())
     archive_type = tables.Column(verbose_name='Type', attrs={'th': {'style': 'width: 100px'}}, empty_values=())
     taser_ticket_number = tables.Column(verbose_name="TASER", attrs={'th': {'style': 'width: 80px'}}, empty_values=())
+    search_tags = tables.Column(verbose_name="Tags", attrs={'th': {'style': 'width: 150px'}}, empty_values=())
 
     def render_id(self, value, record):
         return mark_safe(
@@ -26,7 +27,7 @@ class ArchiveTable(tables.Table):
 
     def render_time(self, value, record):
         return mark_safe("<a href='%s' class='no-underline' target='_blank'>%s</a>" % (
-        reverse('report', args=[record.id]), naturaltime(value)))
+            reverse('report', args=[record.id]), naturaltime(value)))
 
     def render_identifier(self, value, record):
         return mark_safe(
@@ -48,7 +49,13 @@ class ArchiveTable(tables.Table):
         if value:
             return mark_safe(
                 "<a href='https://jira.amer.thermo.com/browse/FST-%i' target='_blank'>TASER: %i</a>" % (value, value))
-        return mark_safe("<a href='%s' class='no-underline' target='_blank'>&nbsp;</a>" % reverse('report', args=[record.id]))
+        return mark_safe(
+            "<a href='%s' class='no-underline' target='_blank'>&nbsp;</a>" % reverse('report', args=[record.id]))
+
+    def render_search_tags(self, value, record):
+        tags = "".join(["<span class='label'>{}</span>".format(x) for x in value])
+        return mark_safe(
+            "<a href='%s' class='no-underline' target='_blank'>%s</a>" % (reverse('report', args=[record.id]), tags))
 
     class Meta:
         model = Archive
@@ -59,7 +66,8 @@ class ArchiveTable(tables.Table):
         }
 
         # setup the column sequence
-        sequence = ('id', 'identifier', 'taser_ticket_number', 'submitter_name', 'time', 'archive_type', 'site')
+        sequence = (
+            'id', 'identifier', 'taser_ticket_number', 'submitter_name', 'time', 'archive_type', 'site', 'search_tags')
 
         # exclude the summary column data
-        exclude = ('doc_file', 'summary', )
+        exclude = ('doc_file', 'summary',)

@@ -98,6 +98,7 @@ def reports(request):
     taser_ticket_number_search = ''
     date_start_search = ''
     date_end_search = ''
+    tags_search = ''
 
     archives = Archive.objects.order_by("time")
     if request.GET.get('site', ''):
@@ -115,6 +116,9 @@ def reports(request):
     if request.GET.get('taser_ticket_number_name', ''):
         taser_ticket_number_search = request.GET['taser_ticket_number_name']
         archives = archives.filter(taser_ticket_number=int(taser_ticket_number_search))
+    if request.GET.get('tags', ''):
+        tags_search = request.GET['tags']
+        archives = archives.filter(search_tags__contains=tags_search.split(","))
     if request.GET.get('date_start', ''):
         date_start_search = request.GET['date_start']
     if request.GET.get('date_end', ''):
@@ -142,7 +146,8 @@ def reports(request):
         'identifier_search': identifier_search,
         'taser_ticket_number_search': taser_ticket_number_search,
         'date_start_search': date_start_search,
-        'date_end_search': date_end_search
+        'date_end_search': date_end_search,
+        'tags_search': tags_search
     })
     return render(request, "reports.html", context=ctx)
 

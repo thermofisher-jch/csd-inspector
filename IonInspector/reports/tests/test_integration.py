@@ -79,6 +79,7 @@ class PGMTestCase(TestCase):
                 DIAGNOSTIC_FAILURE_STATUSES,
                 get_diagnostic_debug_info(diagnostic)
             )
+        self.assertEquals(self.archive_v1_0.search_tags, ["314 Chip"])
 
     def test_diagnostics_v1_1(self):
         self.archive_v1_1.execute_diagnostics(async=False)
@@ -114,6 +115,7 @@ class ProtonTestCase(TestCase):
                 DIAGNOSTIC_FAILURE_STATUSES,
                 get_diagnostic_debug_info(diagnostic)
             )
+        self.assertEquals(self.archive.search_tags, ["P1 Chip"])
 
 
 class S5TestCase(TestCase):
@@ -140,6 +142,7 @@ class S5TestCase(TestCase):
                 DIAGNOSTIC_FAILURE_STATUSES,
                 get_diagnostic_debug_info(diagnostic)
             )
+        self.assertEquals(self.archive.search_tags, ["530 Chip"])
 
 
 class S5WithChefTestCase(TestCase):
@@ -218,6 +221,7 @@ class ChefTestCase(TestCase):
                 DIAGNOSTIC_FAILURE_STATUSES,
                 get_diagnostic_debug_info(diagnostic)
             )
+        self.assertEquals(self.archive.search_tags, ["P1v3 Chip"])
 
 
 class FieldSupportCase(TestCase):

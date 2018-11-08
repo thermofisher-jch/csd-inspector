@@ -5,7 +5,7 @@ from django.shortcuts import HttpResponseRedirect, HttpResponse
 from reports.models import Archive, Diagnostic
 from tastypie.authorization import Authorization
 from tastypie.resources import ModelResource
-from tastypie.fields import CharField, ToManyField
+from tastypie.fields import CharField, ToManyField, ListField
 import json
 import logging
 
@@ -29,6 +29,7 @@ class ArchiveResource(ModelResource):
     Resource for archive
     """
     diagnostics = ToManyField(DiagnosticResource, 'diagnostics', full=True, use_in="detail")
+    search_fields = ListField("search_tags")
 
     def prepend_urls(self):
         """

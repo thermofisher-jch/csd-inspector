@@ -68,7 +68,7 @@ def get_total_reads_message(chip_type, archive_path):
     try:
         reads_multiplier, min_reads = total_read_specs[chip_type]
     except KeyError:
-        return None, total_reads
+        return None, total_reads, None
     full_chip_reads = total_reads * reads_multiplier
     if full_chip_reads >= min_reads:
         return "Total Reads: Above Spec", full_chip_reads, min_reads

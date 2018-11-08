@@ -3,64 +3,7 @@
 import sys
 
 from IonInspector.reports.diagnostics.common.inspector_utils import *
-
-
-def get_kit_from_element_tree(element_tree):
-    kit_names = {
-        "pgm_ic_v2": "Ion PGM Hi-Q Chef Kit",
-        "pgm_ic_v1": "Ion PGM IC 200 Kit",
-        "pi_ic_v1": "Ion PI IC 200 Kit",
-        "pi_ic_v2": "Ion PI Hi-Q Chef Kit",
-        "s530_1": "Ion 520/530 Kit-Chef",
-        "s540_1": "Ion 540 Kit-Chef",
-        "as_1": "Ion AmpliSeq Kit for Chef DL8",
-        "pgm_ionchef_200_kit": "Ion PGM IC 200 Kit",
-        "pi_ic200": "Ion PI IC 200 Kit",
-        "pgm_3": "Ion PGM Hi-Q View Chef Kit",
-        "hid_s530_1": "Ion Chef HID S530 V1",
-        "hid_s530_2": "Ion Chef HID S530 V2",
-        "hid_as_1": "Ion Chef HID Library V1",
-        "hid_as_2": "Ion Chef HID Library V2",
-        "s521_1": "Ion 520/530 ExT Kit-Chef V1",
-    }
-
-    kit_customer_facing_name_tag = element_tree.find("RunInfo/kit_customer_facing_name")
-    kit_name_tag = element_tree.find("RunInfo/kit")
-
-    name_tag = None
-    if kit_customer_facing_name_tag is not None:
-        name_tag = kit_customer_facing_name_tag
-    else:
-        name_tag = kit_name_tag
-
-    if name_tag is not None:
-        kit_name = name_tag.text.strip()
-        return kit_names.get(kit_name, kit_name)
-    else:
-        return None
-
-
-def get_chip_names_from_element_tree(element_tree):
-    """
-    Extract chip name from a chef run log element tree. Two items of note:
-    * There may be two chips <chip> and <chip2>
-    * For proton chips, the <chip> element only contains the major version number. <chipVersion>
-      contains the minor version. So P1v3 would be <chip>1</chip> <chipVersion>3</chipVersion>
-    * Chip 500 is the chef balance chip
-    """
-    names = [None, None]
-    for i, suffix in enumerate(["", "2"]):
-        chip_element = element_tree.find("./RunInfo/chip" + suffix)
-        chip_version_element = element_tree.find("./RunInfo/chipVersion" + suffix)
-        if chip_element is not None:
-            if chip_element.text == "500":
-                names[i] = "Balance"
-            elif chip_element.text.isdigit() and int(chip_element.text) < 10:
-                if chip_version_element is not None:
-                    names[i] = "P" + chip_element.text + "v" + chip_version_element.text
-            else:
-                names[i] = chip_element.text
-    return names
+from reports.diagnostics.common.inspector_utils import get_chip_names_from_element_tree, get_kit_from_element_tree
 
 
 def execute(archive_path, output_path, archive_type):

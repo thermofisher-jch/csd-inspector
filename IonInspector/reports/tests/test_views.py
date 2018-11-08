@@ -17,11 +17,12 @@ class SingleUploadTestCase(TestCase):
                 "doc_file": fp
             })
         self.assertEquals(response.status_code, 302)
-        self.assertEquals(response["Location"], "/report/1/")
-        self.assertEquals(Archive.objects.get(id=1).submitter_name, "Alex")
+        archive = Archive.objects.latest("id")
+        self.assertEquals(response["Location"], "/report/{}/".format(archive.id))
+        self.assertEquals(archive.submitter_name, "Alex")
 
         # check the report page loads
-        response = c.get("/report/1/")
+        response = c.get("/report/{}/".format(archive.id))
         self.assertEquals(response.status_code, 200)
 
 
@@ -38,7 +39,8 @@ class MultipleUploadTestCase(TestCase):
                 "doc_file": fp
             })
         self.assertEquals(response.status_code, 200)
-        self.assertEquals(Archive.objects.get(id=1).submitter_name, "Alex")
+        archive1 = Archive.objects.latest("id")
+        self.assertEquals(archive1.submitter_name, "Alex")
 
         with open("/opt/inspector/.local/test_archives/ot.log") as fp:
             response = c.post("/upload/", {
@@ -50,15 +52,17 @@ class MultipleUploadTestCase(TestCase):
                 "doc_file": fp
             })
         self.assertEquals(response.status_code, 302)
-        self.assertEquals(response["Location"], "/report/2/")
-        self.assertEquals(Archive.objects.get(id=2).submitter_name, "Brad")
+        archive2 = Archive.objects.latest("id")
+        self.assertEquals(archive2.submitter_name, "Brad")
+        self.assertEquals(response["Location"], "/report/{}/".format(archive2.id))
 
         # check the report page loads
-        response = c.get("/report/1/")
+        response = c.get("/report/{}/".format(archive1.id))
         self.assertEquals(response.status_code, 200)
 
-        response = c.get("/report/2/")
+        response = c.get("/report/{}/".format(archive2.id))
         self.assertEquals(response.status_code, 200)
+
 
 class SearchTestCase(TestCase):
     fixtures = ["search"]
@@ -83,3 +87,17 @@ class SearchTestCase(TestCase):
         self.assertEquals(response.status_code, 200)
         self.assertIn("Troubled Soul", response.content)
         self.assertIn("Lost Soul", response.content)
+
+    def test_find_archives_by_tag(self):
+        c = Client()
+        response = c.get("/reports/?tags=550")
+        self.assertEquals(response.status_code, 200)
+        self.assertIn("Rerun Test", response.content)
+        self.assertNotIn("Lost Soul", response.content)
+
+    def test_find_archives_by_multiple_tags(self):
+        c = Client()
+        response = c.get("/reports/?tags=550,Test")
+        self.assertEquals(response.status_code, 200)
+        self.assertIn("Rerun Test", response.content)
+        self.assertNotIn("Lost Soul", response.content)

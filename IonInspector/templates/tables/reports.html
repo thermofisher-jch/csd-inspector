@@ -22,19 +22,24 @@
                 <tr class="filter-row">
                     <th><!-- place holder for id column --></th>
                     <th>
-                        <input title="Search by Identifier" class="search_text" type="text" name="identifier" value="{{ identifier_search }}">
+                        <input title="Search by Identifier" class="search_text" type="text" name="identifier"
+                               value="{{ identifier_search }}">
                     </th>
                     <th>
-                        <input title="Search TASER Number" class="search_number" type="number" name="taser_ticket_number_name" value="{{ taser_ticket_number_search }}">
+                        <input title="Search TASER Number" class="search_number" type="number"
+                               name="taser_ticket_number_name" value="{{ taser_ticket_number_search }}">
                     </th>
                     <th>
-                        <input title="Search by Submitter Name" class="search_text" type="text" name="submitter_name" value="{{ submitter_name_search }}">
+                        <input title="Search by Submitter Name" class="search_text" type="text" name="submitter_name"
+                               value="{{ submitter_name_search }}">
                     </th>
                     <th>
                         <div class="input-daterange input-group" id="datepicker">
-                            <input type="text" class="input-sm form-control" name="date_start" value="{{ date_start_search }}" style="width: 50px"/>
+                            <input type="text" class="input-sm form-control" name="date_start"
+                                   value="{{ date_start_search }}" style="width: 50px"/>
                             <span style="display: inline-block; margin-top: 6px; vertical-align: top">to</span>
-                            <input type="text" class="input-sm form-control" name="date_end" value="{{ date_end_search }}" style="width: 50px"/>
+                            <input type="text" class="input-sm form-control" name="date_end"
+                                   value="{{ date_end_search }}" style="width: 50px"/>
                         </div>
                     </th>
                     <th>
@@ -49,7 +54,12 @@
                         </select>
                     </th>
                     <th>
-                        <input title="Search by Site" class="search_text" type="text" name="site" value="{{ site_search }}">
+                        <input title="Search by Site" class="search_text" type="text" name="site"
+                               value="{{ site_search }}">
+                    </th>
+                    <th>
+                        <input title="Search tags" class="search_tags" type="text" name="tags"
+                               value="{{ tags_search }}">
                     </th>
                 </tr>
                 </thead>

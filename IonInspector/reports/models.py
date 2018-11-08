@@ -12,10 +12,16 @@ from django.db import models
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from django.utils import timezone
+from django.contrib.postgres.fields import ArrayField
 
 from IonInspector.reports.diagnostics.common.inspector_utils import *
 from celeryconfig import celery_app
 from reports.utils import force_symlink
+
+from reports.tags.chef import get_chef_tags
+from reports.tags.pgm import get_pgm_tags
+from reports.tags.proton import get_proton_tags
+from reports.tags.s5 import get_s5_tags
 
 # check to see if the settings are configured
 if not settings.configured:
@@ -63,7 +69,7 @@ TEST_MANIFEST = {
     S5: [
         ("Filter_Metrics", CATEGORY_SEQUENCING),
         ("Raw_Trace", CATEGORY_SEQUENCING),
-        #("Raw_Trace_Preview", CATEGORY_SEQUENCING),
+        # ("Raw_Trace_Preview", CATEGORY_SEQUENCING),
         ("Chip_Status", CATEGORY_SEQUENCING),
         ("Run_Chef_Details", CATEGORY_SEQUENCING),
         ("S5_Reagents", CATEGORY_SEQUENCING),
@@ -157,9 +163,11 @@ class Archive(models.Model):
     # use the get_file_path method to direct the file field on where to store the zip file
     doc_file = models.FileField(upload_to=get_file_path, blank=True, null=True, max_length=1000)
 
+    # used to search the runs for tags
+    search_tags = ArrayField(models.CharField(max_length=255), default=list, db_index=True)
+
     # model relationships
     # diagnostics : Foreign Key from diagnostic class
-    # tags : Foreign Key from tag class
 
     def detect_archive_type(self):
         """This will attempt to auto detect the archive type"""
@@ -226,6 +234,7 @@ class Archive(models.Model):
         """this method will execute all of the diagnostics"""
 
         self.extract_archive()
+        self.generate_tags()
 
         # handle coverage analysis specific workarounds here
         archive_dir = os.path.dirname(self.doc_file.path)
@@ -248,7 +257,8 @@ class Archive(models.Model):
         archive_type = str(self.archive_type)
         diagnostic_list = TEST_MANIFEST[archive_type][:]
 
-        # if this is a sequencer CSA/FSA with chef information it would make sense to optionally add all of the chef tests
+        # if this is a sequencer CSA/FSA with chef information it would
+        # make sense to optionally add all of the chef tests
         if archive_type in [S5, PGM_RUN, PROTON] and os.path.exists(os.path.join(archive_dir, 'var')):
             diagnostic_list += TEST_MANIFEST[ION_CHEF]
 
@@ -265,6 +275,17 @@ class Archive(models.Model):
                 celery_app.send_task('reports.tasks.execute_diagnostic', (diagnostic.id,))
             else:
                 diagnostic.execute()
+
+    def generate_tags(self):
+        if self.archive_type == ION_CHEF:
+            self.search_tags = list(set(get_chef_tags(self.archive_root)))
+        elif self.archive_type == PGM_RUN:
+            self.search_tags = list(set(get_pgm_tags(self.archive_root)))
+        elif self.archive_type == PROTON:
+            self.search_tags = list(set(get_proton_tags(self.archive_root)))
+        elif self.archive_type == S5:
+            self.search_tags = list(set(get_s5_tags(self.archive_root)))
+        self.save()
 
     @cached_property
     def archive_root(self):
@@ -394,13 +415,3 @@ def on_diagnostic_delete(sender, instance, **kwargs):
     """Triggered when the diagnostic are deleted"""
     if os.path.exists(instance.diagnostic_root):
         shutil.rmtree(instance.diagnostic_root)
-
-
-class Tag(models.Model):
-    """A tag for an archive"""
-
-    # model attributes
-    name = models.CharField(max_length=255)
-
-    # model relationships
-    archive = models.ForeignKey(Archive, related_name="tags")

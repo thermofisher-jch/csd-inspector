@@ -25,6 +25,7 @@
     "model": "reports.archive",
     "pk": 3,
     "fields": {
+      "search_tags": ["550", "Test"],
       "identifier": "Rerun Test",
       "site": "Florida",
       "time": "2013-03-16T17:41:28+00:00",

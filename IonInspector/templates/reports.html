@@ -2,60 +2,80 @@
 {% load render_table from django_tables2 %}
 {% block extra_head_js %}
     <style>
-        .table-container{
+        .table-container {
             width: 100%;
         }
+
         #archive_table {
             width: 100%;
         }
-        #archive_table > thead * th{
+
+        #archive_table > thead * th {
             vertical-align: middle;
             horiz-align: center;
         }
-        #archive_type > thead * a{
+
+        #archive_type > thead * a {
             vertical-align: middle;
             horiz-align: center;
         }
+
         #archive_table > thead * {
 
         }
+
         #archive_table > tbody * {
             font-size: 14px;
         }
+
         #archive_table thead tr th {
             border-top: 0 none;
         }
+
         #archive_table thead tr.filter-row th {
             background-image: none;
         }
-        #archive_table thead tr th a{
+
+        #archive_table thead tr th a {
             color: #333333;
         }
+
         #archive_table td {
             padding: 0px;
             cursor: pointer;
         }
+
         #archive_table {
             table-layout: fixed;
         }
+
         #archive_table th {
             padding-right: 20px;
         }
-        #archive_table th input, #archive_table th select{
+
+        #archive_table th input, #archive_table th select {
             width: 100%;
         }
+
         #archive_table tr td a {
             padding: 8px 8px;
             display: block;
             width: 100%;
             min-height: 20px;
         }
+
         #archive_table tr td a:focus {
             outline: none;
         }
+
         #archive_table tr td a.no-underline {
             text-decoration: none;
             color: #333333;
+        }
+
+        #archive_table .label {
+            font-size: 10px;
+            margin-right: 4px;
         }
 
     </style>
