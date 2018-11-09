@@ -54,15 +54,16 @@ class ChefChipTestCase(SimpleTestCase):
         self.assertEqual(chip_a, "530")
         self.assertEqual(chip_b, "Balance")
 
-    def test_get_chip_names_from_element_tree_lots_of_spaces_no_version(self):
+    def test_get_chip_names_from_element_tree_lots_of_spaces(self):
         chip_a, chip_b = get_chip_names_from_element_tree(ElementTree.fromstring("".join([
             "<RunLog> ",
             "	<RunInfo>",
-            "      <chip>                 1</chip>",
+            "       <chip>                 1</chip>",
+            "       <chipVersion>                        3</chipVersion>",
             "	</RunInfo>",
             "</RunLog>"
         ])))
-        self.assertEqual(chip_a, "P1")
+        self.assertEqual(chip_a, "P1v3")
         self.assertEqual(chip_b, None)
 
     def test_get_kit_from_element_tree_hiq(self):

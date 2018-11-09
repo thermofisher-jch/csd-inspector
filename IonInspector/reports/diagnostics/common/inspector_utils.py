@@ -401,7 +401,7 @@ def get_chip_names_from_element_tree(element_tree):
                 names[i] = "Balance"
             elif chip_element_text.isdigit() and int(chip_element_text) < 10:
                 if chip_version_element is not None:
-                    names[i] = "P" + chip_element_text + "v" + chip_version_element.text
+                    names[i] = "P" + chip_element_text + "v" + chip_version_element.text.strip()
                 else:
                     names[i] = "P" + chip_element_text
             else:
