@@ -15,7 +15,7 @@ def get_chef_tags(archive_path):
         tags.append("{} Chip".format(chip_b))
 
     kit = get_kit_from_element_tree(chef_run_log)
-    if "ampli" in kit.lower():
+    if kit and "ampli" in kit.lower():
         tags.append("AmpliSeq on Chef")
 
     return tags
