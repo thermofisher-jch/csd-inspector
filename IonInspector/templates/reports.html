@@ -74,7 +74,7 @@
         }
 
         #archive_table .label {
-            font-size: 10px;
+            font-size: 11.844px;
             margin-right: 4px;
         }
 
@@ -102,6 +102,12 @@
             todayHighlight: true
         }).on("changeDate", function () {
             searchForm.submit()
+        });
+    </script>
+    <script>
+        var s = $('#search_tags').selectize({
+            plugins: ['remove_button'],
+            closeAfterSelect: true,
         });
     </script>
 {% endblock content %}

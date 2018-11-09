@@ -8,6 +8,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render, HttpResponseRedirect
 from django.utils import timezone
 from django_tables2 import RequestConfig
+from django.db.models import Func
 
 from api import ArchiveResource
 from reports.forms import ArchiveForm
@@ -85,6 +86,10 @@ def upload(request):
     return render(request, "upload.html", context=ctx)
 
 
+class Unnest(Func):
+    function = "UNNEST"
+
+
 def reports(request):
     """
     List all of the reports
@@ -117,8 +122,8 @@ def reports(request):
         taser_ticket_number_search = request.GET['taser_ticket_number_name']
         archives = archives.filter(taser_ticket_number=int(taser_ticket_number_search))
     if request.GET.get('tags', ''):
-        tags_search = request.GET['tags']
-        archives = archives.filter(search_tags__contains=tags_search.split(","))
+        tags_search = request.GET.getlist('tags')
+        archives = archives.filter(search_tags__contains=tags_search)
     if request.GET.get('date_start', ''):
         date_start_search = request.GET['date_start']
     if request.GET.get('date_end', ''):
@@ -137,6 +142,13 @@ def reports(request):
     table = ArchiveTable(archives, order_by="-time")
     table.paginate(page=request.GET.get('page', 1), per_page=100)
     RequestConfig(request).configure(table)
+
+    available_tags = sorted(
+        Archive.objects.annotate(unnested_tags=Unnest("search_tags"))
+            .values_list("unnested_tags", flat=True)
+            .distinct()
+    )
+
     ctx = dict({
         'archives': table,
         'archive_types': TEST_MANIFEST.keys(),
@@ -147,7 +159,8 @@ def reports(request):
         'taser_ticket_number_search': taser_ticket_number_search,
         'date_start_search': date_start_search,
         'date_end_search': date_end_search,
-        'tags_search': tags_search
+        'tags_search': tags_search,
+        'available_tags': available_tags
     })
     return render(request, "reports.html", context=ctx)
 

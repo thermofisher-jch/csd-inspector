@@ -16,10 +16,10 @@ class ArchiveTable(tables.Table):
     identifier = tables.Column(verbose_name='Label', orderable=True, empty_values=(), accessor='identifier',
                                attrs={'th': {'style': 'width: 30%'}})
     site = tables.Column(verbose_name='Site', attrs={'th': {'style': 'width: 20%'}}, empty_values=())
-    submitter_name = tables.Column(verbose_name='Submitter', attrs={'th': {'style': 'width: 20%'}}, empty_values=())
+    submitter_name = tables.Column(verbose_name='Submitter', attrs={'th': {'style': 'width: 15%'}}, empty_values=())
     archive_type = tables.Column(verbose_name='Type', attrs={'th': {'style': 'width: 100px'}}, empty_values=())
     taser_ticket_number = tables.Column(verbose_name="TASER", attrs={'th': {'style': 'width: 80px'}}, empty_values=())
-    search_tags = tables.Column(verbose_name="Tags", attrs={'th': {'style': 'width: 150px'}}, empty_values=())
+    search_tags = tables.Column(verbose_name="Tags", attrs={'th': {'style': 'width: 200px'}}, empty_values=())
 
     def render_id(self, value, record):
         return mark_safe(
@@ -55,7 +55,7 @@ class ArchiveTable(tables.Table):
     def render_search_tags(self, value, record):
         tags = "".join(["<span class='label'>{}</span>".format(x) for x in value])
         return mark_safe(
-            "<a href='%s' class='no-underline' target='_blank'>%s</a>" % (reverse('report', args=[record.id]), tags))
+            "<a href='%s' class='no-underline' target='_blank' style='padding:7px'>%s</a>" % (reverse('report', args=[record.id]), tags))
 
     class Meta:
         model = Archive

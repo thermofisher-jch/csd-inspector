@@ -58,8 +58,12 @@
                                value="{{ site_search }}">
                     </th>
                     <th>
-                        <input title="Search tags" class="search_tags" type="text" name="tags"
-                               value="{{ tags_search }}">
+                        <select title="Search tags" id="search_tags" class="search_tags" name="tags"
+                                multiple="multiple" style="display: none;">
+                            {% for tag in available_tags %}
+                                <option {% if tag in tags_search %} selected="selected"{% endif %}>{{ tag }}</option>
+                            {% endfor %}
+                        </select>
                     </th>
                 </tr>
                 </thead>
