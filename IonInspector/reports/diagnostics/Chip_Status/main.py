@@ -3,10 +3,9 @@
 import ConfigParser
 import semver
 import os
-
 from IonInspector.reports.diagnostics.common.inspector_utils import read_explog, check_supported, \
     get_chip_type_from_exp_log, write_results_from_template, print_warning, print_alert, print_ok, \
-    read_ionstats_basecaller_json
+    read_ionstats_basecaller_json, format_reads
 
 REPORT_LEVEL_INFO = 0
 REPORT_LEVEL_WARN = 1
@@ -62,6 +61,21 @@ total_read_specs = {
 }
 
 
+# def get_total_reads_message(chip_type, archive_path):
+#     ionstats = read_ionstats_basecaller_json(archive_path)
+#     total_reads = ionstats["full"]["num_reads"]
+#     try:
+#         reads_multiplier, min_reads = total_read_specs[chip_type]
+#     except KeyError:
+#         return None, total_reads, None
+#     full_chip_reads = total_reads * reads_multiplier
+#     if full_chip_reads >= min_reads:
+#         return "Total Reads: Above Spec", full_chip_reads, min_reads
+#     elif full_chip_reads >= (min_reads * 0.9):
+#         return "Total Reads: Near Spec", full_chip_reads, min_reads
+#     else:
+#         return "Total Reads: Below Spec", full_chip_reads, min_reads
+
 def get_total_reads_message(chip_type, archive_path):
     ionstats = read_ionstats_basecaller_json(archive_path)
     total_reads = ionstats["full"]["num_reads"]
@@ -70,12 +84,10 @@ def get_total_reads_message(chip_type, archive_path):
     except KeyError:
         return None, total_reads, None
     full_chip_reads = total_reads * reads_multiplier
-    if full_chip_reads >= min_reads:
-        return "Total Reads: Above Spec", full_chip_reads, min_reads
-    elif full_chip_reads >= (min_reads * 0.9):
-        return "Total Reads: Near Spec", full_chip_reads, min_reads
+    if reads_multiplier == 1:
+        return "Total Reads {}".format(format_reads(full_chip_reads)), full_chip_reads, min_reads
     else:
-        return "Total Reads: Below Spec", full_chip_reads, min_reads
+        return "Projected Reads {}".format(format_reads(full_chip_reads)), full_chip_reads, min_reads
 
 
 def load_ini(file_path, namespace="global"):
@@ -186,8 +198,7 @@ def get_chip_status(archive_path):
         'electrode_report': electrode_report,
         'isp_report': isp_report,
         'invalid_noise': invalid_noise,
-        'full_chip_reads': full_chip_reads,
-        'full_chip_reads_spec': full_chip_reads_spec
+        'total_reads_message': total_reads_message,
     }
 
     return message, report_level, context

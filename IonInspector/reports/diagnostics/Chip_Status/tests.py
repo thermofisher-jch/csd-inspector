@@ -23,7 +23,7 @@ class ChipStatusTestCase(SimpleTestCase):
         }
         with TemporaryDirectory(files) as archive_path:
             message, report_level, context = get_chip_status(archive_path)
-            self.assertEquals(message, "Loading 69.9% | Gain 1.09 | Noise 53.59 | Total Reads: Below Spec")
+            self.assertEquals(message, "Loading 69.9% | Gain 1.09 | Noise 53.59 | Projected Reads 29,908")
 
     def test_get_chip_status_520_on_5_6(self):
         # https://jira.amer.thermo.com/browse/IO-290
@@ -45,7 +45,7 @@ class ChipStatusTestCase(SimpleTestCase):
         }
         with TemporaryDirectory(files) as archive_path:
             message, report_level, context = get_chip_status(archive_path)
-            self.assertEquals(message, "Loading 69.9% | Gain 1.09 | Total Reads: Below Spec")
+            self.assertEquals(message, "Loading 69.9% | Gain 1.09 | Projected Reads 29,908")
 
     def test_get_total_reads_message_below(self):
         files = {
@@ -54,7 +54,7 @@ class ChipStatusTestCase(SimpleTestCase):
         }
         with TemporaryDirectory(files) as archive_path:
             message, reads, spec = get_total_reads_message("314", archive_path)
-            self.assertEquals(message, "Total Reads: Below Spec")
+            self.assertEquals(message, "Total Reads 2,232")
             self.assertEquals(reads, 2232)
             self.assertEquals(spec, 400000)
 
@@ -65,6 +65,6 @@ class ChipStatusTestCase(SimpleTestCase):
         }
         with TemporaryDirectory(files) as archive_path:
             message, reads, spec = get_total_reads_message("PI", archive_path)
-            self.assertEquals(message, "Total Reads: Near Spec")
+            self.assertEquals(message, "Projected Reads 60.0 million")
             self.assertEquals(reads, 59989910)
             self.assertEquals(spec, 60000000)

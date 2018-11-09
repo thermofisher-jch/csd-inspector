@@ -355,6 +355,7 @@ def write_results_from_template(data_dict, output_dir, diagnostic_script_dir):
     except IOError:
         raise Exception('Could not find template file at: ' + template_path)
 
+
 class TemporaryDirectory(object):
     """Context manager for tempfile.mkdtemp() so it's usable with "with" statement."""
 
@@ -442,3 +443,10 @@ def get_kit_from_element_tree(element_tree):
         return kit_names.get(kit_name, kit_name)
     else:
         return None
+
+
+def format_reads(count):
+    if count >= 1000000:
+        return "{:,} million".format(round((count / 1000000.0), 1))
+    else:
+        return "{:,}".format(int(count))

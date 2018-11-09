@@ -17,7 +17,7 @@
                 Electrode: {{ electrode_report }}<br />
                 {% endif %}
                 ISP Loading: {{ isp_report }}<br />
-                Projected full chip reads: {{ full_chip_reads|intcomma }} / Full chip spec: {{ full_chip_reads_spec|intcomma }}
+                {{ total_reads_message }}
             </div>
         </div>
     </body>
