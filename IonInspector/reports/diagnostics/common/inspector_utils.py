@@ -396,13 +396,16 @@ def get_chip_names_from_element_tree(element_tree):
         chip_element = element_tree.find("./RunInfo/chip" + suffix)
         chip_version_element = element_tree.find("./RunInfo/chipVersion" + suffix)
         if chip_element is not None:
-            if chip_element.text == "500":
+            chip_element_text = chip_element.text.strip()
+            if chip_element_text == "500":
                 names[i] = "Balance"
-            elif chip_element.text.isdigit() and int(chip_element.text) < 10:
+            elif chip_element_text.isdigit() and int(chip_element_text) < 10:
                 if chip_version_element is not None:
-                    names[i] = "P" + chip_element.text + "v" + chip_version_element.text
+                    names[i] = "P" + chip_element_text + "v" + chip_version_element.text
+                else:
+                    names[i] = "P" + chip_element_text
             else:
-                names[i] = chip_element.text
+                names[i] = chip_element_text
     return names
 
 

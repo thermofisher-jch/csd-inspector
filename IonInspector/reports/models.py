@@ -278,13 +278,16 @@ class Archive(models.Model):
 
     def generate_tags(self):
         if self.archive_type == ION_CHEF:
-            self.search_tags = list(set(get_chef_tags(self.archive_root)))
+            search_tags = get_chef_tags(self.archive_root)
         elif self.archive_type == PGM_RUN:
-            self.search_tags = list(set(get_pgm_tags(self.archive_root)))
+            search_tags = get_pgm_tags(self.archive_root)
         elif self.archive_type == PROTON:
-            self.search_tags = list(set(get_proton_tags(self.archive_root)))
+            search_tags = get_proton_tags(self.archive_root)
         elif self.archive_type == S5:
-            self.search_tags = list(set(get_s5_tags(self.archive_root)))
+            search_tags = get_s5_tags(self.archive_root)
+        else:
+            search_tags = []
+        self.search_tags = list(set([tag.strip() for tag in search_tags]))
         self.save()
 
     @cached_property

@@ -97,7 +97,7 @@ class SearchTestCase(TestCase):
 
     def test_find_archives_by_multiple_tags(self):
         c = Client()
-        response = c.get("/reports/?tags=550,Test")
+        response = c.get("/reports/?tags=550&tags=Test")
         self.assertEquals(response.status_code, 200)
         self.assertIn("Rerun Test", response.content)
         self.assertNotIn("Lost Soul", response.content)
