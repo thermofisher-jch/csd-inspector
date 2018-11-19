@@ -3,6 +3,7 @@ import json
 import os
 import shutil
 import tempfile
+import tarfile
 import traceback
 import warnings
 from datetime import datetime
@@ -278,20 +279,38 @@ def get_xml_from_run_log(archive_path):
     return root
 
 
+def parse_log_lines(raw_log_lines):
+    # [BC]-[INFO]:2018-08-08 15:53:22,400: parseLoadCheckdata: (chefSolutionsSerial) = (12346150)
+    parsed = []
+    for line in raw_log_lines:
+        if line.startswith("["):
+            line_level, remaining = line.split(":", 1)
+            line_date, remaining = datetime.strptime(remaining[:19], "%Y-%m-%d %H:%M:%S"), remaining[23:]
+            line_message = remaining[1:]
+            parsed.append([line_level.strip(), line_date, line_message.strip()])
+    return parsed
+
+
 def get_lines_from_chef_gui_logs(archive_path):
     """
     This method will concatenate all of lines from all of the gui log files for a chef data set
     :param archive_path: The root path of the archive
-    :return: A list of strings for each line
+    :return: A list of parsed lines
     """
 
-    gui_lines = list()
-    gui_log_directory = os.path.join(archive_path, 'var', 'log', 'IonChef', 'ICS')
-    for gui_log in os.listdir(gui_log_directory):
-        if gui_log.startswith('gui') and gui_log.endswith('.log'):
-            with open(os.path.join(gui_log_directory, gui_log)) as gui_log_file:
-                gui_lines += gui_log_file.readlines()
-    return gui_lines
+    lines = list()
+    log_directory = os.path.join(archive_path, 'var', 'log', 'IonChef', 'ICS')
+    for log in os.listdir(log_directory):
+        if log.startswith('gui'):
+            if log.endswith('.log'):
+                with open(os.path.join(log_directory, log)) as log_file:
+                    lines += [line.strip() for line in log_file.readlines() if line.strip()]
+            elif log.endswith('.tar'):
+                with tarfile.open(os.path.join(log_directory, log)) as log_tar:
+                    for log_name in log_tar.getmembers():
+                        log_file = log_tar.extractfile(log_name)
+                        lines += [line.strip() for line in log_file.readlines() if line.strip()]
+    return sorted(parse_log_lines(lines), key=lambda x: x[1])  # sort by date
 
 
 def get_chip_type_from_exp_log(exp_log):

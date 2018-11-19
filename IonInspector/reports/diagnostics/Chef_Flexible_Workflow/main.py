@@ -1,30 +1,15 @@
 #!/usr/bin/env python
 import os
 import sys
-from datetime import datetime
 
 from IonInspector.reports.diagnostics.common.inspector_utils import get_xml_from_run_log, print_na, print_alert, \
     write_results_from_template, print_ok, handle_exception, get_lines_from_chef_gui_logs, parse_run_date_from_xml_path, \
     get_chef_run_log_xml_path
 
 
-def parse_gui_log_lines(raw_log_lines):
-    # [BC]-[INFO]:2018-08-08 15:53:22,400: parseLoadCheckdata: (chefSolutionsSerial) = (12346150)
-    parsed = []
-    for line in raw_log_lines:
-        if line.startswith("["):
-            line_level, remaining = line.split(":", 1)
-            line_date, remaining = datetime.strptime(remaining[:19], "%Y-%m-%d %H:%M:%S"), remaining[23:]
-            line_message = remaining[1:]
-            parsed.append((line_level, line_date, line_message))
-    return parsed
-
-
-def get_gui_log_lines_for_run(raw_log_lines, run_start_date):
+def get_gui_log_lines_for_run(parsed_lines, run_start_date):
     pre_start_lines = []
     post_start_lines = []
-
-    parsed_lines = parse_gui_log_lines(raw_log_lines)
 
     # Get the line index where our run started
     for i, line in enumerate(parsed_lines):
