@@ -1,5 +1,5 @@
 from reports.diagnostics.common.inspector_utils import get_xml_from_run_log, get_chip_names_from_element_tree, \
-    get_kit_from_element_tree
+    get_kit_from_element_tree, format_kit_tag
 
 
 def get_chef_tags(archive_path):
@@ -15,7 +15,6 @@ def get_chef_tags(archive_path):
         tags.append("{} Chip".format(chip_b))
 
     kit = get_kit_from_element_tree(chef_run_log)
-    if kit and "ampli" in kit.lower():
-        tags.append("AmpliSeq on Chef")
+    tags.append(format_kit_tag(kit))
 
     return tags

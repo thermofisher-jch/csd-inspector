@@ -516,3 +516,41 @@ def get_run_log_data(lines, fields=[]):
     run_log_data["labels"] = [display_name for field, display_name, formatter in fields]
 
     return run_log_data
+
+
+def get_sequencer_kits(archive_path):
+    params_path = os.path.join(archive_path, 'ion_params_00.json')
+    # read the ion params file
+    params = dict()
+    if os.path.exists(params_path):
+        with open(params_path) as params_file:
+            params = json.load(params_file)
+
+    if params.get("exp_json", {}).get("chefKitType"):
+        template_kit_name = params.get("exp_json", {}).get("chefKitType")
+    elif 'plan' in params and 'templatingKitName' in params['plan']:
+        template_kit_name = params['plan']['templatingKitName']
+    else:
+        template_kit_name = "Unknown Templating Kit"
+
+    # get the sequencing kit description from the exp log
+    exp_log = read_explog(archive_path)
+    inspector_seq_kit = exp_log.get("SeqKitDesc", None) or exp_log.get("SeqKitPlanDesc",
+                                                                       None) or "Unknown Sequencing Kit"
+
+    # get the system type
+    system_type = "Unknown System Type"
+    if "SystemType" in exp_log:
+        system_type = exp_log.get("SystemType")
+    elif "PGM HW" in exp_log:
+        system_type = "PGM" + exp_log.get("PGM HW")
+
+    return template_kit_name, inspector_seq_kit, system_type
+
+
+def format_kit_tag(tag):
+    tag = tag.replace("Ion", "")
+    tag = tag.replace("Reagents", "")
+    tag = tag.replace("AmpliSeq Kit for", "")
+    tag = tag.replace("  ", " ")
+    return tag.strip()

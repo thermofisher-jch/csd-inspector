@@ -79,7 +79,8 @@ class PGMTestCase(TestCase):
                 DIAGNOSTIC_FAILURE_STATUSES,
                 get_diagnostic_debug_info(diagnostic)
             )
-        self.assertEquals(self.archive_v1_0.search_tags, ["314 Chip"])
+        self.assertEquals(self.archive_v1_0.search_tags,
+                          ['314 Chip', 'PGM Template OT2 200 Kit', 'PGM Sequencing 200 Kit v2'])
 
     def test_diagnostics_v1_1(self):
         self.archive_v1_1.execute_diagnostics(async=False)
@@ -115,7 +116,7 @@ class ProtonTestCase(TestCase):
                 DIAGNOSTIC_FAILURE_STATUSES,
                 get_diagnostic_debug_info(diagnostic)
             )
-        self.assertEquals(self.archive.search_tags, ["P1 Chip"])
+        self.assertEquals(self.archive.search_tags, ['PI Hi-Q Chef Kit', 'PI Hi-Q Sequencing 200 Kit', 'P1 Chip'])
 
 
 class S5TestCase(TestCase):
@@ -142,7 +143,7 @@ class S5TestCase(TestCase):
                 DIAGNOSTIC_FAILURE_STATUSES,
                 get_diagnostic_debug_info(diagnostic)
             )
-        self.assertEquals(self.archive.search_tags, ["530 Chip"])
+        self.assertEquals(self.archive.search_tags, ['530 Chip', '520/530 Kit-OT2', 'S5 Sequencing Kit'])
 
 
 class S5WithChefTestCase(TestCase):
@@ -221,7 +222,7 @@ class ChefTestCase(TestCase):
                 DIAGNOSTIC_FAILURE_STATUSES,
                 get_diagnostic_debug_info(diagnostic)
             )
-        self.assertEquals(self.archive.search_tags, ["P1v3 Chip"])
+        self.assertEquals(self.archive.search_tags, ["PI Hi-Q Chef Kit", "P1v3 Chip"])
 
 
 class FieldSupportCase(TestCase):
