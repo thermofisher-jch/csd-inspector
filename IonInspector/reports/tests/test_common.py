@@ -6,6 +6,7 @@ from IonInspector.reports.diagnostics.common.inspector_utils import (
     parse_ts_version,
     get_xml_from_run_log,
     get_lines_from_chef_gui_logs,
+    get_run_log_data
 )
 
 from reports.diagnostics.common.inspector_utils import TemporaryDirectory
@@ -62,3 +63,27 @@ class InspectorUtilsTestCase(SimpleTestCase):
                                             "In post_chef_status::handle()"])
             self.assertListEqual(lines[5], ["[TSLINK]-[INFO]", datetime.datetime(2018, 11, 2, 1, 19, 47),
                                             "PostChefStatusService: HTTP: http://storm.ite/rundb/api/v1/experiment/2091/"])
+
+
+class GetRunLogDataTestCase(SimpleTestCase):
+    run_log_lines = [
+        "timestamp,n_stage,stage0,stage1,stage2,last_code,tach_chassis",
+        "2.783859968,10553,load,NOT_SPECIFIED,NOT_SPECIFIED,NONE,89",
+        "20.67976213,10555,load,NOT_SPECIFIED,NOT_SPECIFIED,NONE,100",
+        "23.25025606,10555,load,NOT_SPECIFIED,NOT_SPECIFIED,NONE,100",
+        "28.7172451,10557,prep,NOT_SPECIFIED,NOT_SPECIFIED,NONE,80",
+        "34.27806306,10558,prep,NOT_SPECIFIED,NOT_SPECIFIED,NONE,128"
+    ]
+    run_log_fields = [
+        ["tach_chassis", "Speed", int]
+    ]
+
+    def test_get_run_log_data_valid(self):
+        data = get_run_log_data(self.run_log_lines, self.run_log_fields)
+        self.assertDictEqual(data["stages"][0], {"name": "START", "start": 0, "end": 2.783859968})
+        self.assertDictEqual(data["stages"][1], {"name": "LOAD", "start": 2.783859968, "end": 28.7172451})
+        self.assertDictEqual(data["stages"][2], {"name": "PREP", "start": 28.7172451, "end": 34.27806306})
+
+    def test_get_run_log_data_missing(self):
+        data = get_run_log_data(self.run_log_lines[0:1], self.run_log_fields)
+        self.assertEquals(len(data["stages"]), 0)

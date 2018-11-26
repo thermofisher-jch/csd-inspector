@@ -93,6 +93,7 @@ TEST_MANIFEST = {
         ("Chef_Notifications", CATEGORY_SAMPLE_PREP),
         ("Chef_Kit_Details", CATEGORY_SAMPLE_PREP),
         ("Chef_Timer", CATEGORY_SAMPLE_PREP),
+        ("New_Chef_Timer", CATEGORY_SAMPLE_PREP),
         ("Chef_Version", CATEGORY_SAMPLE_PREP),
         ("Chef_Run_Details", CATEGORY_SAMPLE_PREP),
         ("Chef_Run_Log", CATEGORY_SAMPLE_PREP),

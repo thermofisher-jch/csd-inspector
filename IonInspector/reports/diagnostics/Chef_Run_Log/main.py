@@ -4,11 +4,12 @@ import sys
 import os
 import json
 import glob
-import csv
 
 from IonInspector.reports.diagnostics.common.inspector_utils import print_alert, print_info, print_warning
 
 # Plots  csv header , display header, formatter
+from reports.diagnostics.common.inspector_utils import get_run_log_data
+
 TARGET_TEMP_FIELDS = [
     # Time
     ["timestamp", "Time (s)", float],
@@ -37,53 +38,6 @@ TARGET_FAN_FIELDS = [
     ["tach_zone2", "Above Deck Fan 2 (rev/s)", float],
     ["tach_cfg", "Recovery Centrifuge Motor Fan (10x rev/s)", lambda x: float(x) / 10.0],  # Scaled down so it fits
 ]
-
-
-def get_run_log_data(lines, fields):
-    # Read csv
-    run_log_data = {
-        "stages": [],
-        "labels": [],
-        "rows": []
-    }
-
-    csv_file = csv.DictReader(lines, delimiter=',', quotechar='"')
-    current_stage = "START"
-    current_stage_start_time = 0
-    new_time = None
-    # Get rows
-    for row in csv_file:
-        # Add data
-        new_row = []
-        for field, display_name, formatter in fields:
-            if row.get(field) is None:
-                new_row.append(None)
-            else:
-                new_row.append(formatter(row.get(field)))
-        run_log_data["rows"].append(new_row)
-        # Track the stage intervals
-        new_time = float(row['timestamp'])
-        new_stage = row["stage0"].upper()
-        if current_stage != new_stage:
-            run_log_data["stages"].append({
-                "name": current_stage,
-                "start": current_stage_start_time,
-                "end": new_time
-            })
-            current_stage = new_stage
-            current_stage_start_time = new_time
-    # Add final stage
-    if new_time is not None:
-        run_log_data["stages"].append({
-            "name": current_stage,
-            "start": current_stage_start_time,
-            "end": new_time
-        })
-
-    # Make labels
-    run_log_data["labels"] = [display_name for field, display_name, formatter in fields]
-
-    return run_log_data
 
 
 def execute(archive_path, output_path, archive_type):

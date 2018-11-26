@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
-from datetime import datetime, timedelta
+from datetime import datetime
 import gzip
 import sys
 import os
-from IonInspector.reports.diagnostics.common.inspector_utils import *
+from IonInspector.reports.diagnostics.common.inspector_utils import print_info, handle_exception
 
 
 def seconds_to_hours_minutes(total_seconds):
@@ -57,7 +57,6 @@ def execute(archive_path, output_path, archive_type):
         total_time_date_time = None
 
         # get a dictionary key'ed off of the log names and get all of the information
-        run_log_csv = get_csv_from_run_log(archive_path)
         for file_name, is_log in get_instrument_server_logs(archive_path).iteritems():
             date_string = file_name.split('-', 1)[1].split('.')[0].rsplit('-', 2)[0]
             for is_line in is_log:
