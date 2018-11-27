@@ -22,6 +22,7 @@ from reports.tags.chef import get_chef_tags
 from reports.tags.pgm import get_pgm_tags
 from reports.tags.proton import get_proton_tags
 from reports.tags.s5 import get_s5_tags
+from reports.tags.ot import get_ot_tags
 
 # check to see if the settings are configured
 if not settings.configured:
@@ -278,7 +279,9 @@ class Archive(models.Model):
                 diagnostic.execute()
 
     def generate_tags(self):
-        if self.archive_type == ION_CHEF:
+        if self.archive_type == OT_LOG:
+            search_tags = get_ot_tags(self.archive_root)
+        elif self.archive_type == ION_CHEF:
             search_tags = get_chef_tags(self.archive_root)
         elif self.archive_type == PGM_RUN:
             search_tags = get_pgm_tags(self.archive_root)
