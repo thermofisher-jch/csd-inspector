@@ -52,7 +52,7 @@ total_read_specs = {
     "314": (1, 400000),
     "316": (1, 2000000),
     "318": (1, 4000000),
-    "PI": (166, 60000000),
+    "P1": (166, 60000000),
     "510": (6.6, 2000000),
     "520": (13.4, 3000000),
     "530": (41, 15000000),
@@ -60,21 +60,6 @@ total_read_specs = {
     "550": (281, 100000000)
 }
 
-
-# def get_total_reads_message(chip_type, archive_path):
-#     ionstats = read_ionstats_basecaller_json(archive_path)
-#     total_reads = ionstats["full"]["num_reads"]
-#     try:
-#         reads_multiplier, min_reads = total_read_specs[chip_type]
-#     except KeyError:
-#         return None, total_reads, None
-#     full_chip_reads = total_reads * reads_multiplier
-#     if full_chip_reads >= min_reads:
-#         return "Total Reads: Above Spec", full_chip_reads, min_reads
-#     elif full_chip_reads >= (min_reads * 0.9):
-#         return "Total Reads: Near Spec", full_chip_reads, min_reads
-#     else:
-#         return "Total Reads: Below Spec", full_chip_reads, min_reads
 
 def get_total_reads_message(chip_type, archive_path):
     ionstats = read_ionstats_basecaller_json(archive_path)

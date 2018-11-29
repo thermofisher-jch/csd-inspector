@@ -4,6 +4,27 @@ from main import get_chip_status, get_total_reads_message
 
 
 class ChipStatusTestCase(SimpleTestCase):
+    def test_get_chip_status_proton(self):
+        files = {
+            "explog.txt":
+                """Proton Release_version: 5.0.3
+                ChipType:900
+                ChipVersion: P1.1.17
+                ChipGain:1.032731
+                ChipNoise:151.684599
+                """,
+            "sigproc_results/analysis.bfmask.stats":
+                "[global]\n"
+                "Total Wells = 960000\n"
+                "Bead Wells = 764833\n"
+                "Excluded Wells = 0",
+            "basecaller_results/ionstats_basecaller.json":
+                """{"full":{"num_reads":201105}}""",
+        }
+        with TemporaryDirectory(files) as archive_path:
+            message, report_level, context = get_chip_status(archive_path)
+            self.assertEquals(message, "Loading 79.7% | Gain 1.03 | Noise 151.68 | Projected Reads 33.4 million")
+
     def test_get_chip_status_520_on_5_4(self):
         files = {
             "explog.txt":
