@@ -85,7 +85,7 @@ class ChipStatusTestCase(SimpleTestCase):
                 """{"full":{"num_reads":361385}}""",
         }
         with TemporaryDirectory(files) as archive_path:
-            message, reads, spec = get_total_reads_message("PI", archive_path)
+            message, reads, spec = get_total_reads_message("P1", archive_path)
             self.assertEquals(message, "Projected Reads 60.0 million")
             self.assertEquals(reads, 59989910)
             self.assertEquals(spec, 60000000)
