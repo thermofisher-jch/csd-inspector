@@ -1,110 +1,66 @@
 #!/usr/bin/env python
 
-from datetime import datetime
-import gzip
 import sys
+import glob
 import os
-from IonInspector.reports.diagnostics.common.inspector_utils import print_info, handle_exception
+from IonInspector.reports.diagnostics.common.inspector_utils import print_info, get_run_log_data, print_alert
 
 
 def seconds_to_hours_minutes(total_seconds):
     m, s = divmod(total_seconds, 60)
     h, m = divmod(m, 60)
-    return h, m
+    return int(h), int(m)
 
 
-def get_instrument_server_logs(archive_path):
-    """
-    This method will concat all of the log files in the IS directory for chef
-    :param archive_path: The path to the archive
-    :return: A list of the lines of the log
-    """
+def get_chef_pause_info(log_lines):
+    run_log_stages = get_run_log_data(log_lines).get("stages", [])
 
-    lines = dict()
-    instrument_server_directory = os.path.join(archive_path, 'var', 'log', 'IonChef', 'IS')
-    # get all of the uncompressed log files
-    for log_file in [s for s in os.listdir(instrument_server_directory) if s.endswith('.log')]:
-        with open(os.path.join(instrument_server_directory, log_file), 'r') as log_handle:
-            lines[log_file] = log_handle.readlines()
+    total_time_seconds = None
+    if run_log_stages:
+        total_time_seconds = run_log_stages[-1]["end"]
 
-    # get all of the compressed log files
-    for compressed_log_file in [s for s in os.listdir(instrument_server_directory) if s.endswith('.log.gz')]:
-        with gzip.open(os.path.join(instrument_server_directory, compressed_log_file), 'r') as log_handle:
-            lines[compressed_log_file] = log_handle.readlines()
+    mr_coffee_time_seconds = None
+    for stage in run_log_stages:
+        if stage["name"] == "MRCOFFEE":
+            mr_coffee_time_seconds = stage["end"] - stage["start"]
+            break
 
-    return lines
+    pause_time_seconds = None
+    for stage in run_log_stages:
+        if stage["name"] == "PAUSE":
+            pause_time_seconds = stage["end"] - stage["start"]
+            break
+
+    message = ""
+    if total_time_seconds:
+        h, m = seconds_to_hours_minutes(total_time_seconds)
+        message += "Total Time: {}h {}m".format(h, m)
+
+    if mr_coffee_time_seconds:
+        h, m = seconds_to_hours_minutes(mr_coffee_time_seconds)
+        message += " | Mr Coffee: {}h {}m".format(h, m)
+
+    if pause_time_seconds:
+        h, m = seconds_to_hours_minutes(pause_time_seconds)
+        message += " | User Pause: {}h {}m".format(h, m)
+
+    return message
 
 
 def execute(archive_path, output_path, archive_type):
-    """Executes the test"""
-    try:
-        # the amount of time mr coffee was requested to pause for
-        mrcoffee_pause_time_seconds = 0
-        mrcoffee_line_date_time = None
+    run_log_csv_path = None
 
-        # the boolean flag for a manual pause time request
-        user_pause_request = False
-        user_pause_request_date_time = None
+    # Find the csv path
+    for file_name in glob.glob(os.path.join(archive_path, 'var', 'log', 'IonChef', 'RunLog', "*.csv")):
+        run_log_csv_path = file_name
+        break
+    if not run_log_csv_path:
+        return print_alert("Could not find RunLog csv!")
 
-        # the start date time for the manual pause
-        user_pause_start = None
+    with open(run_log_csv_path) as fp:
+        message = get_chef_pause_info(fp.readlines())
 
-        # the end date time for the manual pause
-        user_pause_end = None
-
-        # total time that the chef process ran (don't bother parsing, just keep it as a string)
-        total_time = ''
-        total_time_date_time = None
-
-        # get a dictionary key'ed off of the log names and get all of the information
-        for file_name, is_log in get_instrument_server_logs(archive_path).iteritems():
-            date_string = file_name.split('-', 1)[1].split('.')[0].rsplit('-', 2)[0]
-            for is_line in is_log:
-                try:
-                    time_string = is_line.split(' ', 1)[0].strip()
-                    line_date_time = datetime.strptime(date_string + " " + time_string, '%Y-%m-%d %H:%M:%S.%f')
-                except:
-                    continue
-
-                if 'process: PAUSE' in is_line:
-                    if not user_pause_start or line_date_time > user_pause_start:
-                        user_pause_start = line_date_time
-
-                if 'process: UNPAUSE' in is_line:
-                    if not user_pause_end or line_date_time > user_pause_end:
-                        user_pause_end = line_date_time
-
-                if 'timing: Run Scheduler mrcoffee' in is_line:
-                    if not mrcoffee_line_date_time or line_date_time > mrcoffee_line_date_time:
-                        mrcoffee_pause_time_seconds = int(is_line.replace(" seconds.", "").split(" ")[-1])
-
-                if 'process: user_pause' in is_line:
-                    if not user_pause_request_date_time or line_date_time > user_pause_request_date_time:
-                        user_pause_request_date_time = line_date_time
-                        user_pause_request = is_line.split(':')[-1].strip().lower() in ['true', 't', '1']
-
-                if 'timing: ' in is_line:
-                    if not total_time_date_time or line_date_time > total_time_date_time:
-                        total_time_date_time = line_date_time
-                        total_time = is_line.split(':', 4)[-1].strip()
-
-        # Change formatting on total_time
-        h_string, m_string, s_string = total_time.split(":")
-        total_time_string = h_string + " " + m_string
-
-        manual_pause = "No Manual Pause"
-        if user_pause_start and user_pause_end:
-            manual_pause = "User Pause Option: %ih %im" % seconds_to_hours_minutes(
-                (user_pause_end - user_pause_start).seconds
-            )
-
-        mrcoffee_pause_time_sting = "Mr Coffee Pause: %ih %im" % seconds_to_hours_minutes(mrcoffee_pause_time_seconds)
-
-        summary = "Total Time: " + total_time_string + " - "
-        summary += manual_pause if user_pause_request else mrcoffee_pause_time_sting
-        return print_info(summary)
-    except Exception as exc:
-        return handle_exception(exc, output_path)
+    return print_info(message)
 
 
 if __name__ == "__main__":
