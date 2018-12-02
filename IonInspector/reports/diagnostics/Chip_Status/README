@@ -75,6 +75,8 @@ Alert indicates that loading is < 40% and may be indicative of some other proble
 Loading is defined as the number of wells with ISPs detected divided by the number of total usable wells.
 It should be the loading number in the report as seen by the user.
 
+Projected reads based on thumbnail output. Full chip reads may vary +/- 15%.
+
 ==============================================================================
 
 INPUTS:
