@@ -34,6 +34,7 @@ PROTON = "Proton"
 S5 = "S5"
 OT_LOG = "OT_Log"
 ION_CHEF = "Ion_Chef"
+VALK = "Valkyrie"
 
 CATEGORY_SEQUENCING = "SEQ"
 CATEGORY_SAMPLE_PREP = "PRE"
@@ -68,6 +69,21 @@ TEST_MANIFEST = {
         ("Run_Sequence_Details", CATEGORY_SEQUENCING)
     ],
     S5: [
+        ("Filter_Metrics", CATEGORY_SEQUENCING),
+        ("Raw_Trace", CATEGORY_SEQUENCING),
+        # ("Raw_Trace_Preview", CATEGORY_SEQUENCING),
+        ("Chip_Status", CATEGORY_SEQUENCING),
+        ("Run_Chef_Details", CATEGORY_SEQUENCING),
+        ("S5_Reagents", CATEGORY_SEQUENCING),
+        ("Run_Kit_Details", CATEGORY_SEQUENCING),
+        ("Chip_Type", CATEGORY_SEQUENCING),
+        ("Test_Fragments", CATEGORY_SEQUENCING),
+        ("Pressure_And_Temperature", CATEGORY_SEQUENCING),
+        ("Experiment_Errors", CATEGORY_SEQUENCING),
+        ("Barcode_Report", CATEGORY_SEQUENCING),
+        ("Run_Sequence_Details", CATEGORY_SEQUENCING)
+    ],
+    VALK: [
         ("Filter_Metrics", CATEGORY_SEQUENCING),
         ("Raw_Trace", CATEGORY_SEQUENCING),
         # ("Raw_Trace_Preview", CATEGORY_SEQUENCING),
@@ -136,6 +152,7 @@ class Archive(models.Model):
         (PGM_RUN, 'PGM'),
         (PROTON, 'PROTON'),
         (S5, 'S5'),
+        (VALK, 'VALK'),
         (OT_LOG, 'OT'),
         (ION_CHEF, 'CHEF')
     )
@@ -194,6 +211,9 @@ class Archive(models.Model):
 
             if platform == 'S5':
                 return S5
+
+            if platform == 'Valkyrie':
+                return VALK
 
         except Exception as e:
             pass
@@ -299,7 +319,7 @@ class Archive(models.Model):
         return os.path.dirname(self.doc_file.path)
 
     def is_sequencer(self):
-        return self.archive_type in [S5, PROTON, PGM_RUN]
+        return self.archive_type in [S5, PROTON, PGM_RUN, VALK]
 
 
 @receiver(pre_delete, sender=Archive, dispatch_uid="delete_archive")
