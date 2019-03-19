@@ -61,7 +61,7 @@ def execute(archive_path, output_path, archive_type):
         products = parse_init_log(lines)
 
         # read in carry forward
-        base_caller = read_base_caller_json(archive_path)
+        base_caller = read_base_caller_json(archive_path, archive_type)
         cf = float(base_caller["Phasing"]["CF"]) * 100
 
         # read in run date

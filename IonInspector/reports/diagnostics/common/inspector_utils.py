@@ -81,21 +81,27 @@ def read_explog_from_handle(explog_handle):
     return data
 
 
-def read_base_caller_json(archive_path):
+def read_base_caller_json(archive_path, archive_type):
     """
     This method will read and output a nested dict from parsing basecaller_results/BaseCaller.json
     :param archive_path: the root directory of the archive
     :return:
     """
-    path = os.path.join(archive_path, "basecaller_results", "BaseCaller.json")
+    if archive_type == "Valkyrie":
+        path = os.path.join(archive_path, "outputs", "BaseCallingActor-00", "BaseCaller.json")
+    else:
+        path = os.path.join(archive_path, "basecaller_results", "BaseCaller.json")
     if not os.path.exists(path):
         raise Exception("BaseCaller.json missing")
     with open(path) as fp:
         return json.load(fp)
 
 
-def read_ionstats_basecaller_json(archive_path):
-    path = os.path.join(archive_path, "basecaller_results", "ionstats_basecaller.json")
+def read_ionstats_basecaller_json(archive_path, archive_type):
+    if archive_type == "Valkyrie":
+        path = os.path.join(archive_path, "outputs", "BaseCallingActor-00", "ionstats_basecaller.json")
+    else:
+        path = os.path.join(archive_path, "basecaller_results", "ionstats_basecaller.json")
     if not os.path.exists(path):
         raise Exception("ionstats_basecaller.json missing")
     with open(path) as fp:

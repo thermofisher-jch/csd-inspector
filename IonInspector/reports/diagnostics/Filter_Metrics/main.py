@@ -68,8 +68,7 @@ def execute(archive_path, output_path, archive_type):
         explog = read_explog(archive_path)
         check_supported(explog)
 
-        with open(os.path.join(archive_path, 'basecaller_results', 'BaseCaller.json')) as base_caller_handle:
-            base_caller = json.load(base_caller_handle)
+        base_caller = read_base_caller_json(archive_path, archive_type)
 
         quality_filter = base_caller.get('Filtering', dict()).get('ReadDetails', dict()).get('lib', dict()).get('quality_filter', 0)
 

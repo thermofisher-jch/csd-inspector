@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 
+import json
 import os
-import numpy
 import shutil
 import sys
-import json
 
-from IonInspector.reports.diagnostics.common.inspector_utils import *
+import numpy
+
+from IonInspector.reports.diagnostics.common.inspector_utils import write_results_from_template, print_info, \
+    handle_exception
 
 
 def get_read_group_file_prefixes(datasets_basecaller_object):
@@ -32,7 +34,12 @@ def get_read_groups(datasets_basecaller_object):
 
 def execute(archive_path, output_path, archive_type):
     try:
-        with open(os.path.join(archive_path, "basecaller_results/datasets_basecaller.json")) as datasets_file:
+        if archive_type == "Valkyrie":
+            datasets_path = "outputs/BaseCallingActor-00/datasets_basecaller.json"
+        else:
+            datasets_path = "basecaller_results/datasets_basecaller.json"
+
+        with open(os.path.join(archive_path, datasets_path)) as datasets_file:
             datasets_object = json.load(datasets_file)
 
         prefixes = get_read_group_file_prefixes(datasets_object)

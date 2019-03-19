@@ -54,7 +54,7 @@ def provision():
 
 def deploy(tag=None, force=None):
     if not tag:
-        print "Deploy must be passed a specific git tag!"
+        print("Deploy must be passed a specific git tag!")
         exit()
     if any([host in env.host for host in PRODUCTION_HOSTS]):
         if raw_input("This looks like a deploy to production! Enter PRODUCTION to continue: ") != "PRODUCTION":
@@ -84,10 +84,10 @@ def stats():
                 if "results.html" in url:
                     diagnostics_count[url.split("/test_results/")[1].split("/")[0]] += 1
                 else:
-                    print url
+                    print (url)
 
 
     total = float(sum([v for k, v in diagnostics_count.items()]))
 
     for k, v in sorted(diagnostics_count.items(), key=lambda x: x[1]):
-        print k, (v/total) * 100
+        print (k, (v/total) * 100)

@@ -61,8 +61,8 @@ total_read_specs = {
 }
 
 
-def get_total_reads_message(chip_type, archive_path):
-    ionstats = read_ionstats_basecaller_json(archive_path)
+def get_total_reads_message(chip_type, archive_path, archive_type):
+    ionstats = read_ionstats_basecaller_json(archive_path, archive_type)
     total_reads = ionstats["full"]["num_reads"]
     try:
         reads_multiplier, min_reads = total_read_specs[chip_type]
@@ -83,7 +83,7 @@ def load_ini(file_path, namespace="global"):
     return dict(parse.items(namespace))
 
 
-def get_chip_status(archive_path):
+def get_chip_status(archive_path, archive_type):
     # get the path to the log file
     data = read_explog(archive_path)
     check_supported(data)
@@ -163,7 +163,7 @@ def get_chip_status(archive_path):
             isp_report = "Required stats files not included"
 
     # total reads
-    total_reads_message, full_chip_reads, full_chip_reads_spec = get_total_reads_message(chip_type, archive_path)
+    total_reads_message, full_chip_reads, full_chip_reads_spec = get_total_reads_message(chip_type, archive_path, archive_type)
 
     # generate message
     message = "Loading {} | Gain {}".format("{:.1%}".format(bead_loading) if bead_loading else "Unknown",
@@ -190,7 +190,7 @@ def get_chip_status(archive_path):
 
 
 def execute(archive_path, output_path, archive_type):
-    message, report_level, context = get_chip_status(archive_path)
+    message, report_level, context = get_chip_status(archive_path, archive_type)
 
     write_results_from_template(context, output_path, os.path.dirname(os.path.realpath(__file__)))
 
