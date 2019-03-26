@@ -35,7 +35,7 @@ def get_read_groups(datasets_basecaller_object):
 def execute(archive_path, output_path, archive_type):
     try:
         if archive_type == "Valkyrie":
-            datasets_path = "outputs/BaseCallingActor-00/datasets_basecaller.json"
+            datasets_path = "CSA/outputs/BaseCallingActor-00/datasets_basecaller.json"
         else:
             datasets_path = "basecaller_results/datasets_basecaller.json"
 

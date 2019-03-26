@@ -92,11 +92,11 @@ TEST_MANIFEST = {
         ("S5_Reagents", CATEGORY_SEQUENCING),
         #("Run_Kit_Details", CATEGORY_SEQUENCING),
         ("Chip_Type", CATEGORY_SEQUENCING),
-        #("Test_Fragments", CATEGORY_SEQUENCING),
-        #("Pressure_And_Temperature", CATEGORY_SEQUENCING),
+        ("Test_Fragments", CATEGORY_SEQUENCING),
+        ("Pressure_And_Temperature", CATEGORY_SEQUENCING),
         ("Experiment_Errors", CATEGORY_SEQUENCING),
         ("Barcode_Report", CATEGORY_SEQUENCING),
-        #("Run_Sequence_Details", CATEGORY_SEQUENCING)
+        ("Run_Sequence_Details", CATEGORY_SEQUENCING)
     ],
     OT_LOG: [
         ("OT_Plots", CATEGORY_SAMPLE_PREP),

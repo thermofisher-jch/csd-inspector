@@ -27,12 +27,18 @@ def execute(archive_path, output_path, archive_type):
         explog = read_explog(archive_path)
         check_supported(explog)
 
-        ion_params_path = os.path.join(archive_path, 'ion_params_00.json')
-        if not os.path.exists(ion_params_path):
-            return print_info("Missing ion_params_00.json file. Added in TS 5.0.3.")
+        ion_params_paths = [
+            os.path.join(archive_path, "CSA", 'ion_params_00.json'),
+            os.path.join(archive_path, 'ion_params_00.json')
+        ]
+        for ion_params_path in ion_params_paths:
+            if os.path.exists(ion_params_path):
+                break
         else:
-            with open(ion_params_path) as ion_params_handle:
-                ion_params = json.load(ion_params_handle)
+            return print_info("Missing ion_params_00.json file. Added in TS 5.0.3.")
+
+        with open(ion_params_path) as ion_params_handle:
+            ion_params = json.load(ion_params_handle)
 
         version = get_ts_version(archive_path)
 
@@ -42,12 +48,17 @@ def execute(archive_path, output_path, archive_type):
         serial_number = explog.get('Serial Number', 'Unknown')
         system_type = 'PGM ' + explog.get('PGM HW', '') if 'PGM_Run' == archive_type else explog.get('SystemType', '')
 
-        device_name = ion_params.get('exp_json', dict()).get('pgmName', "")
+        exp_json = ion_params.get('exp_json', dict())
+        # Fix a valk bug where "exp_json" is sometime a json string instead of the object
+        if isinstance(exp_json, basestring):
+            exp_json = json.loads(exp_json)
 
-        run_number = str(ion_params.get('exp_json', dict()).get('log', dict()).get('run_number', ""))
+        device_name = exp_json.get('pgmName', "")
+
+        run_number = str(exp_json.get('log', dict()).get('run_number', ""))
         if not run_number:
             run_number = parse_run_number_from_run_name(
-                run_name=ion_params.get('exp_json', dict()).get('log', dict()).get('runname', ""),
+                run_name=exp_json.get('log', dict()).get('runname', ""),
                 device_name=device_name
             )
 

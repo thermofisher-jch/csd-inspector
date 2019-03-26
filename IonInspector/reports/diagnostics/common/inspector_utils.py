@@ -35,13 +35,16 @@ def get_explog_path(archive_path):
     This method will find either the explog_final.txt or explog.txt
     :return:
     """
-    path = os.path.join(archive_path, EXPLOG_FINAL)
-    if os.path.exists(path):
-        return path
+    paths = [
+        os.path.join(archive_path, "CSA", EXPLOG_FINAL),
+        os.path.join(archive_path, "CSA", EXPLOG),
+        os.path.join(archive_path, EXPLOG_FINAL),
+        os.path.join(archive_path, EXPLOG)
+    ]
 
-    path = os.path.join(archive_path, EXPLOG)
-    if os.path.exists(path):
-        return path
+    for path in paths:
+        if os.path.exists(path):
+            return path
 
     raise Exception("explog_final.txt and explog.txt are missing.")
 
@@ -50,9 +53,9 @@ def read_explog(archive_path):
     """
     This method will read and output a array of colon delimited key/value pairs from the explog_final.txt
     :param archive_path: the root directory of the archive
+    :param archive_type:
     :return:
     """
-
     with open(get_explog_path(archive_path)) as explog_handle:
         return read_explog_from_handle(explog_handle)
 
@@ -88,7 +91,7 @@ def read_base_caller_json(archive_path, archive_type):
     :return:
     """
     if archive_type == "Valkyrie":
-        path = os.path.join(archive_path, "outputs", "BaseCallingActor-00", "BaseCaller.json")
+        path = os.path.join(archive_path, "CSA", "outputs", "BaseCallingActor-00", "BaseCaller.json")
     else:
         path = os.path.join(archive_path, "basecaller_results", "BaseCaller.json")
     if not os.path.exists(path):
@@ -350,12 +353,19 @@ def parse_ts_version(version_string):
 
 
 def get_ts_version(archive_path):
-    version_path = os.path.join(archive_path, "version.txt")
-    if not os.path.exists(version_path):
-        raise Exception("Missing file: " + version_path)
+    paths = [
+        os.path.join(archive_path, "CSA", "version.txt"),
+        os.path.join(archive_path, "version.txt")
+    ]
+
+    for path in paths:
+        if os.path.exists(path):
+            break
+    else:
+        raise Exception("Could not find version.txt!")
 
     # get the version number
-    line = open(version_path).readline()
+    line = open(path).readline()
     version = line.split('=')[-1].strip()
     version = version.split()[0]
     return parse_ts_version(version.strip())

@@ -86,6 +86,41 @@ class PressureAndTemperatureOkayTestCase(SimpleTestCase):
             self.assertEquals(temperature_message, None)
             self.assertEquals(flow_data["temperature"][0]["data"][0], [0, 25.74])
 
+    def test_get_pressure_and_temp_valk(self):
+        files = {
+            "explog_final.txt":
+                "ExperimentInfoLog:\n"
+                "acq_0000.dat: Pressure=9.86 9.93 Temp=49.96 29.98 24.46 24.03 dac_start_sig=3520 avg=8295 time=01:35:38 fpgaTemp=111.20 118.40 chipTemp=23.21 37.78 10.70 12.88 31.47 a1a2=ffffff 0 0 0 0 cpuTemp=50.00 36.00 heater=0.16 cooler=0.02 gpuTemp=32 diskPerFree=0 FACC_Offset=0.00, FACC=1.69 Pinch=1.28 1.27 1.25 1.22 2.09 2.08 2.14 2.10  ManTemp=-13 FR=78.90, FTemp=21.00 Vref=1.69\n"
+                "R4_000.dat: Pressure=9.79 9.92 Temp=49.99 30.01 24.42 23.98 dac_start_sig=3520 avg=8295 time=01:37:02 fpgaTemp=111.20 118.40 chipTemp=23.12 37.87 10.91 12.88 30.82 a1a2=ffffff 0 0 0 0 cpuTemp=50.00 36.00 heater=0.17 cooler=0.04 gpuTemp=32 diskPerFree=0 FACC_Offset=0.00, FACC=1.69 Pinch=1.27 1.26 1.24 1.22 4.07 4.01 4.08 4.03  ManTemp=-13 FR=150.17, FTemp=20.60 Vref=1.69\n"
+                "R3_000.dat: Pressure=9.80 9.93 Temp=49.96 30.01 24.41 23.90 dac_start_sig=3520 avg=8295 time=01:37:30 fpgaTemp=111.20 118.40 chipTemp=23.23 38.11 10.88 12.88 31.06 a1a2=ffffff 0 0 0 0 cpuTemp=50.00 36.00 heater=0.18 cooler=0.04 gpuTemp=32 diskPerFree=0 FACC_Offset=0.00, FACC=1.69 Pinch=1.27 1.26 1.24 1.22 4.07 4.01 4.08 4.03  ManTemp=-13 FR=187.23, FTemp=20.70 Vref=1.69\n"
+                "R2_000.dat: Pressure=9.80 9.93 Temp=49.96 30.03 24.40 23.97 dac_start_sig=3520 avg=8295 time=01:37:59 fpgaTemp=111.20 118.40 chipTemp=23.36 38.63 10.92 12.88 31.01 a1a2=ffffff 0 0 0 0 cpuTemp=36.00 44.00 heater=0.19 cooler=0.07 gpuTemp=32 diskPerFree=0 FACC_Offset=0.00, FACC=1.69 Pinch=1.27 1.26 1.24 1.22 4.07 4.01 4.08 4.03  ManTemp=-13 FR=108.47, FTemp=20.70 Vref=1.69\n"
+                "R1_000.dat: Pressure=9.80 9.92 Temp=49.94 30.02 24.35 23.97 dac_start_sig=3520 avg=8295 time=01:38:27 fpgaTemp=111.20 118.40 chipTemp=23.20 38.35 10.76 12.88 30.80 a1a2=ffffff 0 0 0 0 cpuTemp=49.00 34.00 heater=0.20 cooler=0.07 gpuTemp=32 diskPerFree=1 FACC_Offset=0.00, FACC=1.69 Pinch=1.27 1.26 1.24 1.22 4.07 4.01 4.08 4.03  ManTemp=-13 FR=81.37, FTemp=20.70 Vref=1.69\n"
+                "W1_000.dat: Pressure=9.79 9.92 Temp=49.94 30.02 24.34 23.94 dac_start_sig=3520 avg=8295 time=01:38:55 fpgaTemp=111.20 118.40 chipTemp=23.26 38.58 10.51 12.88 31.10 a1a2=ffffff 0 0 0 0 cpuTemp=48.00 34.00 heater=0.21 cooler=0.07 gpuTemp=32 diskPerFree=1 FACC_Offset=0.00, FACC=1.69 Pinch=1.27 1.26 1.24 1.22 4.07 4.01 4.08 4.03  ManTemp=-13 FR=83.53, FTemp=20.70 Vref=1.69\n"
+                "beadfind_pre_0000.dat: Pressure=9.87 9.91 Temp=50.09 30.01 24.87 23.48 dac_start_sig=3495 avg=8614 time=07:04:28 fpgaTemp=109.40 114.80 chipTemp=23.00 37.44 10.68 12.84 31.05 a1a2=ffffff 0 0 0 0 cpuTemp=47.00 33.00 heater=0.24 cooler=0.15 gpuTemp=32 diskPerFree=1 FACC_Offset=0.00, FACC=1.66 Pinch=1.24 1.24 1.23 1.20 3.99 3.92 4.00 3.95  ManTemp=-13 FR=219.53, FTemp=20.10 Vref=1.66\n"
+                "beadfind_pre_0001.dat: Pressure=9.88 9.91 Temp=50.01 30.01 25.02 23.69 dac_start_sig=3126 avg=2283 time=07:04:51 fpgaTemp=109.40 114.80 chipTemp=23.04 37.77 10.86 12.88 30.67 a1a2=ffffff 0 0 0 0 cpuTemp=46.00 33.00 heater=0.27 cooler=0.14 gpuTemp=32 diskPerFree=1 FACC_Offset=0.00, FACC=1.66 Pinch=1.24 1.24 1.23 1.20 3.99 3.92 4.00 3.95  ManTemp=-13 FR=185.70, FTemp=20.20 Vref=1.66\n"
+                "prerun_0000.dat: Pressure=9.83 9.93 Temp=50.22 30.01 24.60 23.68 dac_start_sig=3212 avg=6594 time=07:06:37 fpgaTemp=109.40 116.60 chipTemp=23.14 38.09 10.80 12.82 30.86 a1a2=ffffff 0 0 0 0 cpuTemp=48.00 33.00 heater=0.18 cooler=0.12 gpuTemp=32 diskPerFree=1 FACC_Offset=0.00, FACC=1.66 Pinch=1.26 1.26 1.24 1.21 2.04 2.05 2.11 2.07  ManTemp=-13 FR=206.73, FTemp=20.70 Vref=1.66\n"
+                "prerun_0007.dat: Pressure=9.83 9.92 Temp=49.96 30.01 24.19 23.87 dac_start_sig=3118 avg=8166 time=07:08:28 fpgaTemp=111.20 118.40 chipTemp=23.36 38.30 10.89 12.88 31.36 a1a2=ffffff 0 0 0 0 cpuTemp=47.00 35.00 heater=0.28 cooler=0.11 gpuTemp=32 diskPerFree=1 FACC_Offset=0.00, FACC=1.66 Pinch=1.27 1.27 1.25 1.22 2.07 2.07 2.14 2.09  ManTemp=-13 FR=187.90, FTemp=20.30 Vref=1.66\n"
+                "acq_0000.dat: Pressure=9.83 9.93 Temp=50.12 30.01 24.16 23.85 dac_start_sig=3432 avg=8166 time=07:08:48 fpgaTemp=111.20 118.40 chipTemp=23.38 38.36 10.78 12.88 31.50 a1a2=ffffff 0 0 0 0 cpuTemp=47.00 34.00 heater=0.20 cooler=0.12 gpuTemp=32 diskPerFree=1 FACC_Offset=0.00, FACC=1.66 Pinch=1.27 1.27 1.25 1.22 2.07 2.07 2.14 2.09  ManTemp=-13 FR=192.10, FTemp=20.40 Vref=1.66\n"
+                "acq_0000.dat: Pressure=9.84 9.94 Temp=50.09 30.01 24.10 24.04 dac_start_sig=3482 avg=8994 time=07:09:03 fpgaTemp=111.20 118.40 chipTemp=23.41 38.73 10.65 12.88 31.37 a1a2=ffffff 0 0 0 0 cpuTemp=50.00 35.00 heater=0.21 cooler=0.12 gpuTemp=32 diskPerFree=1 FACC_Offset=0.00, FACC=1.66 Pinch=1.27 1.27 1.25 1.22 2.08 2.08 2.14 2.09  ManTemp=-13 FR=76.73, FTemp=20.50 Vref=1.66\n"
+                "acq_0001.dat: Pressure=9.83 9.94 Temp=50.01 30.01 24.03 23.89 dac_start_sig=3489 avg=8304 time=07:09:16 fpgaTemp=111.20 118.40 chipTemp=23.47 38.85 10.77 12.88 31.39 a1a2=ffffff 0 0 0 0 cpuTemp=52.00 35.00 heater=0.24 cooler=0.12 gpuTemp=32 diskPerFree=1 FACC_Offset=0.00, FACC=1.66 Pinch=1.27 1.27 1.25 1.22 2.08 2.08 2.14 2.09  ManTemp=-13 FR=76.77, FTemp=20.50 Vref=1.66\n"
+                "ExperimentErrorLog:\n"
+        }
+        with TemporaryDirectory(files) as archive_path:
+            pressure_message, temperature_message, level, flow_data = get_pressure_and_temp(archive_path, "Valkyrie")
+
+            # ignore temp and pressure before acq flows
+            # manTemp is way to high in flow 0 but this still should be INFO
+            self.assertEquals(level, INFO)
+
+            # pressure
+            self.assertEquals(pressure_message, None)
+            self.assertEquals(flow_data["pressure"][0]["data"][0], [0, 7.88])
+            self.assertEquals(flow_data["pressure"][0]["data"][1], [1, 2.04])
+
+            # temp
+            self.assertEquals(temperature_message, None)
+            self.assertEquals(flow_data["temperature"][0]["data"][0], [0, 25.74])
+
 
 class PressureAndTemperatureWarnCase(SimpleTestCase):
     def test_get_pressure_and_temp_proton_warn(self):

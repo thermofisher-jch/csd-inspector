@@ -21,8 +21,14 @@ def execute(archive_path, output_path, archive_type):
             if semver.match(sw_version, "<=5.0.5"):
                 return print_na("TF's not reported for reproseq in TS 5.0.5 or earlier.")
 
-        tf_stats_path = os.path.join(archive_path, 'basecaller_results', 'TFStats.json')
-        if not os.path.exists(tf_stats_path):
+        tf_stats_paths = [
+            os.path.join(archive_path, "CSA", "outputs", "BaseCallingActor-00", 'TFStats.json'),
+            os.path.join(archive_path, 'basecaller_results', 'TFStats.json')
+        ]
+        for tf_stats_path in tf_stats_paths:
+            if os.path.exists(tf_stats_path):
+                break
+        else:
             raise Exception("TFStats.json file is missing so this test cannot be evaluated.")
 
         # read the tf stats

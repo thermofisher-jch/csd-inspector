@@ -28,6 +28,12 @@ PRESSURE_LIMITS = {
         "ranges": [
             (7.2, 8.8, "Pressure is low", "Pressure is high", ALARM)
         ]
+    },
+    "Valkyrie": {
+        "keys": ["manifoldPressure", "regulatorPressure"],
+        "ranges": [
+            (0, 100, "Pressure is low", "Pressure is high", ALARM)
+        ]
     }
 }
 
@@ -46,6 +52,11 @@ TEMP_LIMITS = {
         "keys": ["wasteTemperature", "ambientTemperature", "manifoldTemperature"],
         "ranges": [
             (20, 35, "Temperature is cold", "Temperature is hot", ALARM),
+        ]},
+    "Valkyrie": {
+        "keys": ["wasteTemperature", "ambientTemperature"],
+        "ranges": [
+            (0, 100, "Temperature is cold", "Temperature is hot", ALARM),
         ]},
 }
 
@@ -247,6 +258,74 @@ def get_pressure_and_temp(archive_path, archive_type):
         data["flowTypes"][last_flow_type]["end"] = flow_count
         return data
 
+    # typedef enum {
+    # 	VAL_THERMISTOR_MANIFOLD = 0,				// for Valkyrie
+    # 	VAL_THERMISTOR_HEATER,			// reported as t[0]
+    # 	VAL_THERMISTOR_RESTRICTOR,		// reported as t[1]
+    # 	VAL_THERMISTOR_TEC,				// reported as t[2]
+    # 	VAL_THERMISTOR_AMBIENT,			// reported as t[3]
+    # 	VAL_THERMISTOR_MAX_VAL
+    # } THERMISTOR_VALUES_VALKYRIE;
+
+    # Valk Parsing
+    def parse_flow_data_valk(fp):
+        # Flot friendly format
+        data = {
+            "flowTypes": {},
+            "pressure": {
+                "manifoldPressure": {"data": [], "label": "Manifold Pressure"},
+                "regulatorPressure": {"data": [], "label": "Regulator Pressure"},
+            },
+            "temperature": {
+                "manifoldHeaterTemperature": {"data": [], "label": "Manifold Heater Temperature"},
+                "wasteTemperature": {"data": [], "label": "Waste Temperature"},
+                "tecTemperature": {"data": [], "label": "TEC Temperature"},
+                "ambientTemperature": {"data": [], "label": "Ambient Temperature"},
+
+                "chipTemperature": {"data": [], "label": "Chip Temperature"},
+            }
+        }
+        reached_target_section = False
+        flow_count = 0
+        last_flow_type = None
+        for line in fp:
+            if line.startswith("ExperimentInfoLog:"):
+                reached_target_section = True
+            elif line.startswith("ExperimentErrorLog:"):
+                break
+            elif reached_target_section and len(line) > 1:
+                # Now we have a line we want
+                dat_name, dat_meta = parse_experiment_info_log_line(line)
+                # Now we need to coerce some values
+                data["pressure"]["manifoldPressure"]["data"].append([flow_count, float(dat_meta["Pressure"][0])])
+                data["pressure"]["regulatorPressure"]["data"].append([flow_count, float(dat_meta["Pressure"][1])])
+
+                data["temperature"]["manifoldHeaterTemperature"]["data"].append(
+                    [flow_count, float(dat_meta["Temp"][0])])
+                data["temperature"]["wasteTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][1])])
+                data["temperature"]["tecTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][2])])
+                data["temperature"]["ambientTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][3])])
+                # Chip temp
+                data["temperature"]["chipTemperature"]["data"].append([flow_count, float(dat_meta["chipTemp"][0])])
+
+                # Track flow types
+                if dat_name:
+                    flow_type, _ = dat_name.rsplit("_", 1)
+                    if flow_type != last_flow_type:
+                        # Flow type has switched. Record the end of this flow type
+                        if last_flow_type in data["flowTypes"]:
+                            data["flowTypes"][last_flow_type]["end"] = flow_count - 1
+                        # Create a new record for this flow type
+                        data["flowTypes"][flow_type] = {
+                            "start": flow_count,
+                            "end": None
+                        }
+                        last_flow_type = flow_type
+                flow_count += 1
+        # Add an endpoint for the acq flows
+        data["flowTypes"][last_flow_type]["end"] = flow_count
+        return data
+
     with open(exp_log_file_path) as exp_log_file:
         flow_data = {}
         if archive_type == "PGM_Run":
@@ -261,6 +340,8 @@ def get_pressure_and_temp(archive_path, archive_type):
             flow_data = parse_flow_data_proton(exp_log_file)
         elif archive_type == "S5":
             flow_data = parse_flow_data_s5(exp_log_file)
+        elif archive_type == "Valkyrie":
+            flow_data = parse_flow_data_valk(exp_log_file)
         else:
             raise KeyError("Unknown device type:%s" % archive_type)
 

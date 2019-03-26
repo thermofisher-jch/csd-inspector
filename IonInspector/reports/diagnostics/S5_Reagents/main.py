@@ -54,7 +54,11 @@ def execute(archive_path, output_path, archive_type):
         check_supported(data)
 
         # read all the lines into an array
-        with open(os.path.join(archive_path, "InitLog.txt")) as f:
+        if archive_type == "Valkyrie":
+            path = os.path.join(archive_path, "CSA", "InitLog.txt")
+        else:
+            path = os.path.join(archive_path, "InitLog.txt")
+        with open(path) as f:
             lines = f.readlines()
 
         # parse products from lines
@@ -112,8 +116,8 @@ def execute(archive_path, output_path, archive_type):
             for title, reagent_dict in [("Cleaning", cleaning_dict), ("Reagents", sequencing_dict), ("Wash", wash_dict), ]:
                 html_handle.write("<h2 align='center'>%s</h2>" % title)
                 html_handle.write("<p style='text-align:center;'>")
-                html_handle.write("%s<br>" % reagent_dict["productDesc"])
-                html_handle.write("Lot: %s<br>" % reagent_dict["lotNumber"])
+                html_handle.write("%s<br>" % reagent_dict.get("productDesc"))
+                html_handle.write("Lot: %s<br>" % reagent_dict.get("lotNumber"))
 
                 reagent_exp_date = reagent_dict.get("expDate", "Unknown")
                 if isinstance(reagent_exp_date, date):
