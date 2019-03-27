@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Filter Metrics</title>
+<link rel="stylesheet" type="text/css"
+      href="https://unpkg.com/@observablehq/notebook-inspector@1/dist/notebook-inspector-style.css">
+<body>
+<div id="plot"></div>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="/static/js/icicle-plot.js"></script>
+<script>
+    iciclePlot("#plot", {{data|safe}});
+</script>
+</body>

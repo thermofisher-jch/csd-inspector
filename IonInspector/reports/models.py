@@ -84,13 +84,13 @@ TEST_MANIFEST = {
         ("Run_Sequence_Details", CATEGORY_SEQUENCING)
     ],
     VALK: [
-        #("Filter_Metrics", CATEGORY_SEQUENCING),
+        ("Valk_Filter_Metrics", CATEGORY_SEQUENCING),
         #("Raw_Trace", CATEGORY_SEQUENCING),
         # ("Raw_Trace_Preview", CATEGORY_SEQUENCING),
         ("Chip_Status", CATEGORY_SEQUENCING),
         #("Run_Chef_Details", CATEGORY_SEQUENCING),
         ("S5_Reagents", CATEGORY_SEQUENCING),
-        #("Run_Kit_Details", CATEGORY_SEQUENCING),
+        ("Run_Kit_Details", CATEGORY_SEQUENCING),
         ("Chip_Type", CATEGORY_SEQUENCING),
         ("Test_Fragments", CATEGORY_SEQUENCING),
         ("Pressure_And_Temperature", CATEGORY_SEQUENCING),
