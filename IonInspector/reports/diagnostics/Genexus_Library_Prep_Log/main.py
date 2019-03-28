@@ -19,13 +19,13 @@ TARGET_TEMP_FIELDS = [
     # Time
     ["time", "Time (s)", convert_time],
     # Temps
-    ["PCRTemp1", "PCRTemp1", lambda x: float(x)],
-    ["PCRTemp2", "PCRTemp2", lambda x: float(x)],
-    ["PCRTemp3", "PCRTemp3", lambda x: float(x)],
-    ["ChipHeatTemp", "ChipHeatTemp", lambda x: float(x)],
-    ["MagSepTemp", "MagSepTemp", lambda x: float(x)],
-    ["ReagentBayTemp1", "Zone 1+3 Temp", lambda x: float(x)],
-    ["ReagentBayTemp2", "Zone 2+4 Temp", lambda x: float(x)],
+    ["PCRTemp1", "PCRTemp1 (c)", lambda x: float(x)],
+    ["PCRTemp2", "PCRTemp2 (c)", lambda x: float(x)],
+    ["PCRTemp3", "PCRTemp3 (c)", lambda x: float(x)],
+    ["ChipHeatTemp", "ChipHeatTemp (c)", lambda x: float(x)],
+    ["MagSepTemp", "MagSepTemp (c)", lambda x: float(x)],
+    ["ReagentBayTemp1", "Zone 1+3 Temp (c)", lambda x: float(x)],
+    ["ReagentBayTemp2", "Zone 2+4 Temp (c)", lambda x: float(x)],
 ]
 
 TARGET_FAN_FIELDS = [
