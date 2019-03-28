@@ -45,10 +45,10 @@
                     <th>
                         <select title="Search by Device Type" name="archive_type">
                             <option value="">-----</option>
-                            {% for archive_type in archive_types %}
-                                <option value="{{ archive_type }}"
-                                        {% if archive_type == archive_type_search %}selected{% endif %}>
-                                    {{ archive_type }}
+                            {% for value, display in archive_types %}
+                                <option value="{{ value }}"
+                                        {% if value == archive_type_search %}selected{% endif %}>
+                                    {{ display }}
                                 </option>
                             {% endfor %}
                         </select>

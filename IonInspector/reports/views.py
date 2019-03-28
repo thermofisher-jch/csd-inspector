@@ -12,7 +12,7 @@ from django.db.models import Func
 
 from api import ArchiveResource
 from reports.forms import ArchiveForm
-from reports.models import Archive, Diagnostic, TEST_MANIFEST, PGM_RUN
+from reports.models import Archive, Diagnostic, PGM_RUN
 from reports.tables import ArchiveTable
 from utils import get_serialized_model
 
@@ -151,7 +151,7 @@ def reports(request):
 
     ctx = dict({
         'archives': table,
-        'archive_types': TEST_MANIFEST.keys(),
+        'archive_types': Archive.ARCHIVE_TYPES,
         'site_search': site_search,
         'submitter_name_search': submitter_name_search,
         'archive_type_search': archive_type_search,

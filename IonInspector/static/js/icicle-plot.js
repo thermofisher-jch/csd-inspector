@@ -16,7 +16,7 @@ function iciclePlot(selector, data) {
     const root = partition(data, width, height);
     let focus = root;
 
-    const svg = d3.select("body").append("svg")
+    const svg = d3.select("#plot").append("svg")
         .attr("width", width)
         .attr("height", height)
         .style("width", "100%")

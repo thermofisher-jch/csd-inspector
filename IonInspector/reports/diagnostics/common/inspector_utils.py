@@ -534,6 +534,31 @@ def get_run_log_data(lines, fields=[]):
     return run_log_data
 
 
+def get_valk_lib_prep_data(lines, fields=[]):
+    # Read csv
+    run_log_data = {
+        "labels": [],
+        "rows": []
+    }
+
+    csv_file = csv.DictReader(lines, delimiter=',', quotechar='"')
+    # Get rows
+    for row in csv_file:
+        # Add data
+        new_row = []
+        for field, display_name, formatter in fields:
+            if row.get(field) is None:
+                new_row.append(None)
+            else:
+                new_row.append(formatter(row.get(field)))
+        run_log_data["rows"].append(new_row)
+
+    # Make labels
+    run_log_data["labels"] = [display_name for field, display_name, formatter in fields]
+
+    return run_log_data
+
+
 def get_sequencer_kits(archive_path):
     params_path = os.path.join(archive_path, 'ion_params_00.json')
     # read the ion params file
