@@ -590,6 +590,8 @@ def get_sequencer_kits(archive_path):
 
 
 def format_kit_tag(tag):
+    if not tag:
+        return "Unknown Chef Kit"
     tag = tag.replace("Ion", "")
     tag = tag.replace("Reagents", "")
     tag = tag.replace("AmpliSeq Kit for", "")
