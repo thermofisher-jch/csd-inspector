@@ -2,6 +2,31 @@
 
 import sys
 from IonInspector.reports.diagnostics.common.inspector_utils import *
+from dateutil.parser import parse
+from datetime import date
+
+ASSEMBLY = {"D": "Tong Hsing"}
+
+PRODUCT = {"A": "RUO", "X": "Dx"}
+
+
+def parse_efuse(value):
+    values = {}
+
+    # raw values
+    for chunk in value.split(","):
+        if ":" in chunk:
+            k, v = chunk.split(":", 1)
+            values[k] = v
+
+    # extra values
+    values["Assembly"] = ASSEMBLY[values["BC"][2]]
+    values["Product"] = PRODUCT[values["BC"][3]]
+
+    values["ExpirationYear"] = ord(values["BC"][4]) - ord("A") + 2015
+    values["ExpirationMonth"] = ord(values["BC"][5]) - ord("A") + 1
+
+    return values
 
 
 def execute(archive_path, output_path, archive_type):
@@ -9,23 +34,24 @@ def execute(archive_path, output_path, archive_type):
 
     try:
         # get the path to the log file
-        data = read_explog(archive_path)
-        chip_type = get_chip_type_from_exp_log(data)
+        explog = read_explog(archive_path)
 
-        # parse efuse line
-        efuse_dict = {}
-        for pair in data.get('Chip Efuse', '').split(','):
-            if ":" in pair:
-                key, value = pair.split(":")
-                efuse_dict[key.strip()] = value.strip()
+        efuse = parse_efuse(explog["Chip Efuse"])
 
-        if "L" in efuse_dict:
-            chip_type += " | Lot " + efuse_dict["L"]
+        run_date = parse(explog.get('Start Time', 'Unknown')).replace(day=1).date()
+        exp_date = date(efuse["ExpirationYear"], efuse["ExpirationMonth"], 1)
 
-        if "W" in efuse_dict:
-            chip_type += " | W " + efuse_dict["W"]
+        message = "{} | L {} | W {} | Assembled {} | Expiration {}".format(
+            efuse["CT"],
+            efuse["L"],
+            efuse["W"],
+            efuse["Assembly"],
+            exp_date.strftime("%b %Y"))
 
-        return print_info(chip_type)
+        if run_date > exp_date:
+            return print_alert(message + " EXPIRED!")
+        else:
+            return print_info(message)
 
     except Exception as exc:
         return handle_exception(exc, output_path)
