@@ -52,7 +52,8 @@ TEST_MANIFEST = {
         ("Test_Fragments", CATEGORY_SEQUENCING),
         ("Pressure_And_Temperature", CATEGORY_SEQUENCING),
         ("Barcode_Report", CATEGORY_SEQUENCING),
-        ("Run_Sequence_Details", CATEGORY_SEQUENCING)
+        ("Run_Sequence_Details", CATEGORY_SEQUENCING),
+        ("Run_Type", CATEGORY_SEQUENCING)
     ],
     PROTON: [
         ("Filter_Metrics", CATEGORY_SEQUENCING),
@@ -66,7 +67,8 @@ TEST_MANIFEST = {
         ("Pressure_And_Temperature", CATEGORY_SEQUENCING),
         ("Experiment_Errors", CATEGORY_SEQUENCING),
         ("Barcode_Report", CATEGORY_SEQUENCING),
-        ("Run_Sequence_Details", CATEGORY_SEQUENCING)
+        ("Run_Sequence_Details", CATEGORY_SEQUENCING),
+        ("Run_Type", CATEGORY_SEQUENCING)
     ],
     S5: [
         ("Filter_Metrics", CATEGORY_SEQUENCING),
@@ -81,7 +83,8 @@ TEST_MANIFEST = {
         ("Pressure_And_Temperature", CATEGORY_SEQUENCING),
         ("Experiment_Errors", CATEGORY_SEQUENCING),
         ("Barcode_Report", CATEGORY_SEQUENCING),
-        ("Run_Sequence_Details", CATEGORY_SEQUENCING)
+        ("Run_Sequence_Details", CATEGORY_SEQUENCING),
+        ("Run_Type", CATEGORY_SEQUENCING)
     ],
     VALK: [
         ("Genexus_Library_Prep_Log", CATEGORY_SAMPLE_PREP),
@@ -93,7 +96,8 @@ TEST_MANIFEST = {
         ("Pressure_And_Temperature", CATEGORY_SEQUENCING),
         ("Experiment_Errors", CATEGORY_SEQUENCING),
         ("Barcode_Report", CATEGORY_SEQUENCING),
-        ("Run_Sequence_Details", CATEGORY_SEQUENCING)
+        ("Run_Sequence_Details", CATEGORY_SEQUENCING),
+        ("Run_Type", CATEGORY_SEQUENCING)
     ],
     OT_LOG: [
         ("OT_Plots", CATEGORY_SAMPLE_PREP),
