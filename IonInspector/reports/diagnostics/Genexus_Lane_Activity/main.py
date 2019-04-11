@@ -28,6 +28,6 @@ def execute(archive_path, output_path, archive_type):
     )
 
     message = " | ".join(
-        ["L{} {}".format(k, v[1] if v[0] else "Inactive") for k, v in lanes.items()]
+        ["L{} {}".format(k, v[1]) for k, v in lanes.items() if v[0]]
     )
     return print_info(message)
