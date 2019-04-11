@@ -41,11 +41,10 @@ def execute(archive_path, output_path, archive_type):
         run_date = parse(explog.get('Start Time', 'Unknown')).replace(day=1).date()
         exp_date = date(efuse["ExpirationYear"], efuse["ExpirationMonth"], 1)
 
-        message = "{} | L {} | W {} | Assembled {} | Expiration {}".format(
+        message = "{} | L {} | W {} | Expiration {}".format(
             efuse["CT"],
             efuse["L"],
             efuse["W"],
-            efuse["Assembly"],
             exp_date.strftime("%b %Y"))
 
         if run_date > exp_date:
