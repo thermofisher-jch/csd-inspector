@@ -138,6 +138,9 @@
     <script src="/static/js/diagnostics-table.js"></script>
     <script>
         Raven.context(function () {
+            //Track shift status
+            var shiftPressed = false;
+            $(document).on('keyup keydown', function(e){shiftPressed = e.shiftKey} );
             //Setup archive details editor
             reportEditorApp.init('{{ archive.pk }}', JSON.parse('{{ archive_type_choices_json|safe }}'));
             //Setup diagnostic table
@@ -152,7 +155,8 @@
                 diagnosticsTableApp.setUnexecuted();
                 $.ajax({
                     type: "POST",
-                    url: "{% url 'api_dispatch_rerun_archive' resource_name='Archive' api_name='v1' pk=archive.pk %}",
+                    url: "{% url 'api_dispatch_rerun_archive' resource_name='Archive' api_name='v1' pk=archive.pk %}" +
+                        (shiftPressed ? "?skip_extraction=true" : ""),
                     success: function () {
                         diagnosticsTableApp.update();
                     }

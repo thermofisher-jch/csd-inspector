@@ -83,7 +83,7 @@ class ArchiveResource(ModelResource):
             bundle = self.build_bundle(request=request)
             obj = self.cached_obj_get(bundle, **self.remove_api_resource_names(kwargs))
             archive = Archive.objects.get(pk=obj.id)
-            archive.execute_diagnostics()
+            archive.execute_diagnostics(skip_extraction=bool(request.GET.get("skip_extraction", False)))
             my_url = reverse('report', kwargs={'pk': obj.id})
             return HttpResponseRedirect(my_url)
         except Exception as exc:

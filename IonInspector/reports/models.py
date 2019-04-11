@@ -254,10 +254,12 @@ class Archive(models.Model):
             if not os.path.exists(target_path):
                 shutil.copy(self.doc_file.path, target_path)
 
-    def execute_diagnostics(self, async=True):
+    def execute_diagnostics(self, async=True, skip_extraction=False):
         """this method will execute all of the diagnostics"""
 
-        self.extract_archive()
+        if not skip_extraction:
+            self.extract_archive()
+
         self.generate_tags()
 
         # handle coverage analysis specific workarounds here
