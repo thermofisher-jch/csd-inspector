@@ -48,7 +48,7 @@ def execute(archive_path, output_path, archive_type):
     sigproc_stats = parse_sigproc_stats(archive_path)
     base_caller_stats = parse_base_caller_stats(archive_path)
     data = {
-        "name": "Wells",
+        "name": "Active Lane Wells",
         "color": "#d3e2ff",
         "children": [
             {
@@ -110,23 +110,27 @@ def execute(archive_path, output_path, archive_type):
                     },
                 ],
             },
-            {"name": "Excluded", "value": sigproc_stats["excluded wells"]},
             {"name": "Ignored", "value": sigproc_stats["ignored wells"]},
             {"name": "Empties", "value": sigproc_stats["empty wells"]},
             {"name": "Pinned", "value": sigproc_stats["pinned wells"]},
         ],
     }
-    write_results_from_template(
-        {"data": data}, output_path, os.path.dirname(os.path.realpath(__file__))
-    )
 
     total_wells = check_total_wells(data)
-    if total_wells != sigproc_stats["total wells"]:
-        return print_warning(
-            "Well totals inconsistent! {:,.0f} vs {:,.0f} This requires a fix on the TS software.".format(
-                total_wells, sigproc_stats["total wells"]
-            )
+    active_wells = sigproc_stats["total wells"] - sigproc_stats["excluded wells"]
+
+    warning = None
+    if total_wells != active_wells:
+        warning = "Well totals inconsistent! {:,.0f} vs {:,.0f} This requires a fix on the TS software." \
+                  "The totals below do not include any wells categorized as 'Barcode Trim'!".format(
+            total_wells, active_wells
         )
+
+    write_results_from_template(
+        {"data": data, "warning": warning},
+        output_path,
+        os.path.dirname(os.path.realpath(__file__)),
+    )
 
     return print_info("See results for details.")
 

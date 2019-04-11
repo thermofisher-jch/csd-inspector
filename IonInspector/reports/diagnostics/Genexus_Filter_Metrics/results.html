@@ -4,7 +4,10 @@
 <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 <body>
 <div class="container-fluid">
-    <h3 class="lead">Genexus Filter Metrics</h3>
+    <h4 class="lead">Genexus Filter Metrics</h4>
+    {% if warning %}
+        <h5 class="text-warning">{{ warning }}</h5>
+    {% endif %}
     <div class="row">
         <div class="col-sm-12">
             <div id="plot"></div>
