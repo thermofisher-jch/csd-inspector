@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Genexus_Test_Fragments</title>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <style>
+        .plot-placeholder {
+            width: 100%;
+            height: 300px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>CF-1</h2>
+</div>
+<script language="javascript" type="text/javascript"
+        src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script language="javascript" type="text/javascript"
+        src="http://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.min.js"></script>
+<script language="javascript" type="text/javascript"
+        src="http://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.min.js"></script>
+<script type="text/javascript">
+    {% autoescape off %}
+        var histograms = {{ histograms }};
+    {% endautoescape %}
+    $.each(histograms, function (i, dataset) {
+        $(".container").append($("<h3>", {
+            text: dataset.label
+        })).append($("<div>", {
+            id: "plot-" + i,
+            class: "plot-placeholder"
+        }));
+        $.plot("#plot-" + i, [dataset.data], {
+            colors: ["#0022FF"],
+            series: {
+                bars: {
+                    show: true
+                }
+            },
+            bars: {
+                align: "center",
+                barWidth: 0.5
+            },
+        });
+    });
+</script>
+</body>
+</html>
