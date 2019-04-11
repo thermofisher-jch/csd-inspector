@@ -257,7 +257,7 @@ class Archive(models.Model):
     def execute_diagnostics(self, async=True):
         """this method will execute all of the diagnostics"""
 
-        #self.extract_archive()
+        self.extract_archive()
         self.generate_tags()
 
         # handle coverage analysis specific workarounds here
