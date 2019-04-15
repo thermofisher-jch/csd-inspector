@@ -13,16 +13,6 @@ from IonInspector.reports.diagnostics.common.inspector_utils import (
 
 
 def execute(archive_path, output_path, archive_type):
-    try:
-        shutil.copy(
-            os.path.join(
-                archive_path, "CSA/outputs/SigProcActor-00/Bead_density_1000.png"
-            ),
-            os.path.join(output_path, "Bead_density_1000.png"),
-        )
-    except IOError:
-        return print_failed("Could not find bead density image!")
-
     data = read_explog(archive_path)
     lanes = OrderedDict()
     lanes["1"] = (
@@ -42,6 +32,34 @@ def execute(archive_path, output_path, archive_type):
         data.get("LanesAssay4", "Unknown"),
     )
 
+    # copy bead density
+    try:
+        shutil.copy(
+            os.path.join(
+                archive_path, "CSA/outputs/SigProcActor-00/Bead_density_1000.png"
+            ),
+            os.path.join(output_path, "Bead_density_1000.png"),
+        )
+    except IOError:
+        return print_failed("Could not find bead density image!")
+
+    # copy images from lane diagnostics
+    for lane_number, lane_info in lanes.items():
+        enabled, assay_name = lane_info
+        if enabled:
+            for filename in {
+                "multilane_plot_lane_{}_aligned_rl_histogram.png".format(lane_number),
+                "multilane_plot_lane_{}_q20_rl_histogram.png".format(lane_number),
+            }:
+                try:
+                    shutil.copy(
+                        os.path.join(archive_path, "Lane_Diagnostics/" + filename),
+                        os.path.join(output_path, filename),
+                    )
+                except IOError:
+                    return print_failed("Could not find lane diagnostics image '{}'!".format(filename))
+
+    # write template
     write_results_from_template(
         {"lanes": lanes}, output_path, os.path.dirname(os.path.realpath(__file__))
     )
