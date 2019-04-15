@@ -1,0 +1,34 @@
+<html>
+<head>
+    <title>Genexus Lane Activity</title>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <style>
+
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-8 col-sm-offset-2">
+            <h3 class="lead">
+                Bead Density
+            </h3>
+            <img src="Bead_density_1000.png" style="width: 100%">
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-2"></div>
+        {% for i, lane in lanes.items %}
+            <div class="col-sm-2 text-center">Lane {{ i }}<br>
+                {% if lane.0 %}
+                    {{ lane.1 }}
+                {% else %}
+                    N/A
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+</body>
+</html>
