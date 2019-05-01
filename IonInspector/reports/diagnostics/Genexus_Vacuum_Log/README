@@ -1,0 +1,7 @@
+INPUTS:
+/var/log/IonChef/RunLog/*.csv
+
+Sample Temperature refers to a temperature sensor that sits close to the tube.
+Block Temperature refers to a temperature sensor that sits internally in the block.
+Sink Temperature refers to a temperature sensor in the heat sink that is in contact with the block and liquid cooling.
+PCR Lid Temperature refers to the lid.

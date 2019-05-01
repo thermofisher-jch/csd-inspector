@@ -87,6 +87,7 @@ TEST_MANIFEST = {
         ("Run_Type", CATEGORY_SEQUENCING)
     ],
     VALK: [
+        ("Genexus_Vacuum_Log", CATEGORY_SAMPLE_PREP),
         ("Genexus_Library_Prep_Log", CATEGORY_SAMPLE_PREP),
         ("Genexus_Raw_Trace", CATEGORY_SEQUENCING),
         ("Genexus_Filter_Metrics", CATEGORY_SEQUENCING),

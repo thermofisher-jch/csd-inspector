@@ -1,0 +1,93 @@
+<html>
+<head>
+    <title>Genexus Vacuum Log</title>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <style>
+        table {
+            font-size: 12px;
+            width: 100%;
+        }
+
+        td.miss-target {
+            font-weight: bold;
+        }
+
+        td.stage-magload {
+            background-color: #cce4f6;
+        }
+
+        td.stage-template {
+            background-color: #c6f6d0;
+        }
+
+        td.stage-postrun {
+            background-color: #f6f4e1;
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <h3 class="lead">Genexus Vacuum Log</h3>
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="btn-group lane-chooser" data-toggle="buttons">
+                <label class="btn btn-primary active">
+                    <input type="radio" name="options" data-lane="all" autocomplete="off" checked> All
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="options" data-lane="1" autocomplete="off"> Lane 1
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="options" data-lane="2" autocomplete="off"> Lane 2
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="options" data-lane="3" autocomplete="off"> Lane 3
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="options" data-lane="4" autocomplete="off"> Lane 4
+                </label>
+            </div>
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Time (s)</th>
+                    <th>Lane</th>
+                    <th>Pump Duty Cycle (%)</th>
+                    <th>Time To Target (s)</th>
+                    <th>Mean Pressure (psi)</th>
+                    <th>Event</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for row in log %}
+                    <tr class="lane-{{ row.lane }}">
+                        <td>{{ row.time }}</td>
+                        <td>Lane {{ row.lane }}</td>
+                        <td>{{ row.pump_duty_cycle }}</td>
+                        <td class="{% if row.time_to_target <= 0 %}miss-target{% endif %}">{{ row.time_to_target }}</td>
+                        <td>{{ row.mean_pressure }}</td>
+                        <td class="stage-{{ row.stage }}">{{ row.comment }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script>
+    $(document).on('change', ".lane-chooser input", function () {
+        var lane = $(this).attr("data-lane");
+        var rows = $("tbody > tr");
+
+        rows.hide();
+        if (lane === "all") {
+            rows.show();
+        } else {
+            $("tbody > tr.lane-" + lane).show();
+        }
+    })
+</script>
+</body>
+</html>

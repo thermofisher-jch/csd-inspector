@@ -1,23 +1,48 @@
 #!/usr/bin/env python
 
-import sys
-import os
-import json
+import csv
 import datetime
+import json
+import os
+import sys
 
-from IonInspector.reports.diagnostics.common.inspector_utils import print_alert, print_info, print_warning
+from IonInspector.reports.diagnostics.common.inspector_utils import (
+    print_alert,
+    print_info,
+)
 
-# Plots  csv header , display header, formatter
-from reports.diagnostics.common.inspector_utils import get_valk_lib_prep_data
+
+def get_valk_lib_prep_data(lines, fields=[]):
+    # Read csv
+    run_log_data = {"labels": [], "rows": []}
+
+    csv_file = csv.DictReader(lines, delimiter=",")
+    # Get rows
+    for row in csv_file:
+        if row["time"] == "time":
+            break
+        # Add data
+        new_row = []
+        for field, display_name, formatter in fields:
+            if row.get(field) is None:
+                new_row.append(None)
+            else:
+                new_row.append(formatter(row.get(field)))
+        run_log_data["rows"].append(new_row)
+
+    # Make labels
+    run_log_data["labels"] = [display_name for field, display_name, formatter in fields]
+
+    return run_log_data
 
 
-def convert_time(value):
-    return float(datetime.datetime.strptime(value, '%Y-%m-%d %H:%M:%S').strftime('%s'))
+def convert_time_lib_prep(value):
+    return float(datetime.datetime.strptime(value, "%Y-%m-%d %H:%M:%S").strftime("%s"))
 
 
 TARGET_TEMP_FIELDS = [
     # Time
-    ["time", "Time (s)", convert_time],
+    ["time", "Time (s)", convert_time_lib_prep],
     # Temps
     ["PCRTemp1", "PCRTemp1 (c)", lambda x: float(x)],
     ["PCRTemp2", "PCRTemp2 (c)", lambda x: float(x)],
@@ -30,7 +55,7 @@ TARGET_TEMP_FIELDS = [
 
 TARGET_FAN_FIELDS = [
     # Time
-    ["time", "Time (s)", convert_time],
+    ["time", "Time (s)", convert_time_lib_prep],
     # Fans
     ["ChipFanSpeed", "ChipFanSpeed", float],
 ]
@@ -39,7 +64,9 @@ TARGET_FAN_FIELDS = [
 def execute(archive_path, output_path, archive_type):
     """Executes the test"""
 
-    template_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "results.html")
+    template_path = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), "results.html"
+    )
     results_path = os.path.join(output_path, "results.html")
     run_log_csv_path = os.path.join(archive_path, "CSA", "libPrep_log.csv")
 
@@ -47,17 +74,22 @@ def execute(archive_path, output_path, archive_type):
         return print_alert("Could not find libPrep_log.csv!")
 
     with open(run_log_csv_path) as fp:
-        run_log_temp_data = get_valk_lib_prep_data(fp, TARGET_TEMP_FIELDS)
+        run_log_temp_data = get_valk_lib_prep_data(
+            fp.readlines()[:100], TARGET_TEMP_FIELDS
+        )
 
     with open(run_log_csv_path) as fp:
-        run_log_fan_data = get_valk_lib_prep_data(fp, TARGET_FAN_FIELDS)
+        run_log_fan_data = get_valk_lib_prep_data(
+            fp.readlines()[:100], TARGET_FAN_FIELDS
+        )
 
     with open(template_path, "r") as template_file:
         with open(results_path, "w") as results_file:
-            results_file.write(template_file.read()
-                               .replace("\"%raw_temp_data%\"", json.dumps(run_log_temp_data))
-                               .replace("\"%raw_fan_data%\"", json.dumps(run_log_fan_data))
-                               )
+            results_file.write(
+                template_file.read()
+                .replace('"%raw_temp_data%"', json.dumps(run_log_temp_data))
+                .replace('"%raw_fan_data%"', json.dumps(run_log_fan_data))
+            )
 
     # Write out status
     return print_info("See results for flow, fan, and temperature plots.")
