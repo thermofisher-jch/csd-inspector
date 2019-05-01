@@ -64,5 +64,5 @@ def execute(archive_path, output_path, archive_type):
         {"lanes": lanes}, output_path, os.path.dirname(os.path.realpath(__file__))
     )
 
-    message = " | ".join(["L{} {}".format(k, v[1]) for k, v in lanes.items() if v[0]])
+    message = " | ".join(["<strong>L{}</strong> {}".format(k, v[1]) for k, v in lanes.items() if v[0]])
     return print_info(message)
