@@ -102,7 +102,7 @@ def read_base_caller_json(archive_path, archive_type):
 
 def read_ionstats_basecaller_json(archive_path, archive_type):
     if archive_type == "Valkyrie":
-        path = os.path.join(archive_path, "outputs", "BaseCallingActor-00", "ionstats_basecaller.json")
+        path = os.path.join(archive_path, "CSA", "outputs", "BaseCallingActor-00", "ionstats_basecaller.json")
     else:
         path = os.path.join(archive_path, "basecaller_results", "ionstats_basecaller.json")
     if not os.path.exists(path):
@@ -527,31 +527,6 @@ def get_run_log_data(lines, fields=[]):
             "start": current_stage_start_time,
             "end": new_time
         })
-
-    # Make labels
-    run_log_data["labels"] = [display_name for field, display_name, formatter in fields]
-
-    return run_log_data
-
-
-def get_valk_lib_prep_data(lines, fields=[]):
-    # Read csv
-    run_log_data = {
-        "labels": [],
-        "rows": []
-    }
-
-    csv_file = csv.DictReader(lines, delimiter=',', quotechar='"')
-    # Get rows
-    for row in csv_file:
-        # Add data
-        new_row = []
-        for field, display_name, formatter in fields:
-            if row.get(field) is None:
-                new_row.append(None)
-            else:
-                new_row.append(formatter(row.get(field)))
-        run_log_data["rows"].append(new_row)
 
     # Make labels
     run_log_data["labels"] = [display_name for field, display_name, formatter in fields]

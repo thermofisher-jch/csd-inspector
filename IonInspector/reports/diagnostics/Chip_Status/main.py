@@ -3,9 +3,17 @@
 import ConfigParser
 import semver
 import os
-from IonInspector.reports.diagnostics.common.inspector_utils import read_explog, check_supported, \
-    get_chip_type_from_exp_log, write_results_from_template, print_warning, print_alert, print_ok, \
-    read_ionstats_basecaller_json, format_reads
+from IonInspector.reports.diagnostics.common.inspector_utils import (
+    read_explog,
+    check_supported,
+    get_chip_type_from_exp_log,
+    write_results_from_template,
+    print_warning,
+    print_alert,
+    print_ok,
+    read_ionstats_basecaller_json,
+    format_reads,
+)
 
 REPORT_LEVEL_INFO = 0
 REPORT_LEVEL_WARN = 1
@@ -14,6 +22,8 @@ REPORT_LEVEL_ALERT = 2
 # the ranges based on chip type for which the gain value is valid
 PGM_GAIN_RANGE = (0.67, 0.71)
 PROTON_S5_GAIN_RANGE = (0.9, 1.2)
+VALKYRIE_GAIN_RANGE = (0.75, 1.06)
+
 gain_ranges = {
     "314": PGM_GAIN_RANGE,
     "316": PGM_GAIN_RANGE,
@@ -25,6 +35,7 @@ gain_ranges = {
     "540": PROTON_S5_GAIN_RANGE,
     "550": PROTON_S5_GAIN_RANGE,
     "PQ": (1.1, 1.4),
+    "GX5": VALKYRIE_GAIN_RANGE,
 }
 
 noise_thresholds = {
@@ -38,6 +49,7 @@ noise_thresholds = {
     "540": 170,
     "550": 185,
     "PQ": 280,
+    "GX5": 335,
 }
 
 electrode_ranges = {
@@ -57,7 +69,7 @@ total_read_specs = {
     "520": (13.4, 3000000),
     "530": (41, 15000000),
     "540": (166, 60000000),
-    "550": (281, 100000000)
+    "550": (281, 100000000),
 }
 
 
@@ -70,9 +82,17 @@ def get_total_reads_message(chip_type, archive_path, archive_type):
         return None, total_reads, None
     full_chip_reads = total_reads * reads_multiplier
     if reads_multiplier == 1:
-        return "Total Reads {}".format(format_reads(full_chip_reads)), full_chip_reads, min_reads
+        return (
+            "Total Reads {}".format(format_reads(full_chip_reads)),
+            full_chip_reads,
+            min_reads,
+        )
     else:
-        return "Projected Reads {}".format(format_reads(full_chip_reads)), full_chip_reads, min_reads
+        return (
+            "Projected Reads {}".format(format_reads(full_chip_reads)),
+            full_chip_reads,
+            min_reads,
+        )
 
 
 def load_ini(file_path, namespace="global"):
@@ -101,7 +121,7 @@ def get_chip_status(archive_path, archive_type):
         raise Exception("No chip gain recorded.")
 
     # find the correct key for the noise value
-    noise = data.get('ChipNoise', None) or data.get('Noise', None)
+    noise = data.get("ChipNoise", None) or data.get("Noise", None)
     if not noise:
         raise Exception("The noise value could not be found in the log.")
     noise = round(float(noise), 2)
@@ -109,15 +129,23 @@ def get_chip_status(archive_path, archive_type):
     # there is a known issue with 5.6 reporting the noise levels of 510 and 520 chips
     # so we lost the noise information for these sets
     invalid_noise = False
-    release_version = data.get('S5 Release_version') or data.get('Proton Release_version') or data.get('PGM SW Release')
+    release_version = (
+        data.get("S5 Release_version")
+        or data.get("Proton Release_version")
+        or data.get("PGM SW Release")
+    )
     if release_version:
-        if release_version.count('.') < 2:
+        if release_version.count(".") < 2:
             release_version = release_version + ".0"
         if semver.match(release_version, ">=5.6.0"):
-            invalid_noise = data.get('ChipVersion') in ['510', '520']
+            invalid_noise = data.get("ChipVersion") in ["510", "520"]
 
     noise_alert = noise > noise_thresholds[chip_type]
-    noise_report = "Chip noise " + str(noise) + (" is too high." if noise_alert else " is low enough.")
+    noise_report = (
+        "Chip noise "
+        + str(noise)
+        + (" is too high." if noise_alert else " is low enough.")
+    )
     if noise_alert and not invalid_noise:
         report_level = max(report_level, REPORT_LEVEL_ALERT)
 
@@ -132,24 +160,30 @@ def get_chip_status(archive_path, archive_type):
         gain_report = "Chip gain {} is within range.".format(gain)
 
     # detect reference electrode record indicating pgm and look for issues
-    electrode_report = ''
+    electrode_report = ""
     electrode_gain = None
     if "Ref Electrode" in data and chip_type in electrode_ranges:
         electrode_low, electrode_high = electrode_ranges[chip_type]
-        electrode_gain = round(float(data["Ref Electrode"].split(' ')[0]), 2)
+        electrode_gain = round(float(data["Ref Electrode"].split(" ")[0]), 2)
         if electrode_gain > electrode_high:
             electrode_report = "Reference Electrode {} is high.".format(electrode_gain)
         elif electrode_gain < electrode_low:
             electrode_report = "Reference Electrode {} is low.".format(electrode_gain)
         else:
-            electrode_report = "Reference Electrode {} is within range.".format(electrode_gain)
+            electrode_report = "Reference Electrode {} is within range.".format(
+                electrode_gain
+            )
 
     # get the isp loading
     bead_loading = None
     isp_report = None
-    if chip_type != '314':
+    if chip_type != "314":
         stats_path = None
-        for file_name in ['sigproc_results/analysis.bfmask.stats', 'sigproc_results/bfmask.stats']:
+        for file_name in [
+            "sigproc_results/analysis.bfmask.stats",
+            "sigproc_results/bfmask.stats",
+            "CSA/outputs/SigProcActor-00/analysis.bfmask.stats",
+        ]:
             path = os.path.join(archive_path, file_name)
             if os.path.exists(path):
                 stats_path = path
@@ -157,17 +191,22 @@ def get_chip_status(archive_path, archive_type):
 
         if stats_path:
             data = load_ini(stats_path)
-            bead_loading = float(data["Bead Wells"]) / (float(data["Total Wells"]) - float(data["Excluded Wells"]))
+            bead_loading = float(data["Bead Wells"]) / (
+                float(data["Total Wells"]) - float(data["Excluded Wells"])
+            )
             isp_report = "{:.1%} of wells found ISPs".format(bead_loading)
         else:
             isp_report = "Required stats files not included"
 
     # total reads
-    total_reads_message, full_chip_reads, full_chip_reads_spec = get_total_reads_message(chip_type, archive_path, archive_type)
+    total_reads_message, full_chip_reads, full_chip_reads_spec = get_total_reads_message(
+        chip_type, archive_path, archive_type
+    )
 
     # generate message
-    message = "Loading {} | Gain {}".format("{:.1%}".format(bead_loading) if bead_loading else "Unknown",
-                                            gain or "Unknown")
+    message = "Loading {} | Gain {}".format(
+        "{:.1%}".format(bead_loading) if bead_loading else "Unknown", gain or "Unknown"
+    )
     if not invalid_noise:
         message += " | Noise {}".format(noise or "Unknown")
 
@@ -175,15 +214,15 @@ def get_chip_status(archive_path, archive_type):
         message += " | Reference Electrode {}".format(electrode_gain)
 
     if total_reads_message:
-        message += (" | " + total_reads_message)
+        message += " | " + total_reads_message
 
     context = {
-        'noise_report': noise_report,
-        'gain_report': gain_report,
-        'electrode_report': electrode_report,
-        'isp_report': isp_report,
-        'invalid_noise': invalid_noise,
-        'total_reads_message': total_reads_message,
+        "noise_report": noise_report,
+        "gain_report": gain_report,
+        "electrode_report": electrode_report,
+        "isp_report": isp_report,
+        "invalid_noise": invalid_noise,
+        "total_reads_message": total_reads_message,
     }
 
     return message, report_level, context
@@ -192,7 +231,9 @@ def get_chip_status(archive_path, archive_type):
 def execute(archive_path, output_path, archive_type):
     message, report_level, context = get_chip_status(archive_path, archive_type)
 
-    write_results_from_template(context, output_path, os.path.dirname(os.path.realpath(__file__)))
+    write_results_from_template(
+        context, output_path, os.path.dirname(os.path.realpath(__file__))
+    )
 
     # details generation here
     if report_level == REPORT_LEVEL_ALERT:
