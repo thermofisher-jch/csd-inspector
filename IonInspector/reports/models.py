@@ -438,8 +438,8 @@ class Diagnostic(models.Model):
             write_error_html(self.diagnostic_root)
             self.status = Diagnostic.FAILED
 
-        # constrain the length of the details to 255
-        self.details = self.details[:255]
+        # constrain the length of the details to 512
+        self.details = self.details[:512]
         self.save()
 
 
