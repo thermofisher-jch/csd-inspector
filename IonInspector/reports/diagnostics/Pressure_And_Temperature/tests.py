@@ -121,6 +121,20 @@ class PressureAndTemperatureOkayTestCase(SimpleTestCase):
             self.assertEquals(temperature_message, None)
             self.assertEquals(flow_data["temperature"][0]["data"][0], [0, 25.74])
 
+    def test_get_pressure_and_temp_valk_v2(self):
+        files = {
+            "explog_final.txt":
+                "ExperimentInfoLog:\n"
+                "   rse 0: name[OpenClamp]  cycles[1]\n"
+                "	acq_0227.dat: Pressure=10.01 9.97 Temp=45.01 30.00 27.18 25.29 dac_start_sig=2282 avg=8185 time=10:04:42 fpgaTemp=118.40 131.00 chipTemp=32.47 12.27 45.45 38.63 33.52 a1a2=ffffff 0 0 0 0 cpuTemp=52.00 55.00 heater=0.08 cooler=0.08 gpuTemp=60 diskPerFree=42 FACC_Offset=0.00, FACC=1.31 Pinch=1.02 0.00 0.00 0.00 1.75 0.00 0.00 0.00  FR=47.27, FTemp=24.10 Vref=1.31\n"
+                "ExperimentErrorLog:\n"
+        }
+        with TemporaryDirectory(files) as archive_path:
+            pressure_message, temperature_message, level, flow_data = get_pressure_and_temp(archive_path, "Valkyrie")
+
+            # pressure
+            self.assertEquals(flow_data["pressure"][0]["data"][0], [0, 9.97])
+
 
 class PressureAndTemperatureWarnCase(SimpleTestCase):
     def test_get_pressure_and_temp_proton_warn(self):

@@ -293,7 +293,7 @@ def get_pressure_and_temp(archive_path, archive_type):
                 reached_target_section = True
             elif line.startswith("ExperimentErrorLog:"):
                 break
-            elif reached_target_section and len(line) > 1:
+            elif reached_target_section and len(line) > 1 and not line.strip().startswith("rse"):
                 # Now we have a line we want
                 dat_name, dat_meta = parse_experiment_info_log_line(line)
                 # Now we need to coerce some values
