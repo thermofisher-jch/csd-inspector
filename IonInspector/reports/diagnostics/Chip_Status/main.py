@@ -3,6 +3,8 @@
 import ConfigParser
 import semver
 import os
+import shutil
+import glob
 from IonInspector.reports.diagnostics.common.inspector_utils import (
     read_explog,
     check_supported,
@@ -73,6 +75,17 @@ total_read_specs = {
 }
 
 
+def copy_chip_images(archive_path, output_path):
+    chip_images_html_path = os.path.join(archive_path, "ValkyrieWorkflow/chipImages.html")
+    if os.path.exists(chip_images_html_path):
+        shutil.copy(chip_images_html_path, os.path.join(output_path, "chip_images.html"))
+        for image in glob.glob(archive_path + "/ValkyrieWorkflow/*.jpg"):
+            shutil.copy(image, output_path)
+        return True
+    else:
+        return False
+
+
 def get_total_reads_message(chip_type, archive_path, archive_type):
     ionstats = read_ionstats_basecaller_json(archive_path, archive_type)
     total_reads = ionstats["full"]["num_reads"]
@@ -103,7 +116,7 @@ def load_ini(file_path, namespace="global"):
     return dict(parse.items(namespace))
 
 
-def get_chip_status(archive_path, archive_type):
+def get_chip_status(archive_path, output_path, archive_type):
     # get the path to the log file
     data = read_explog(archive_path)
     check_supported(data)
@@ -130,9 +143,9 @@ def get_chip_status(archive_path, archive_type):
     # so we lost the noise information for these sets
     invalid_noise = False
     release_version = (
-        data.get("S5 Release_version")
-        or data.get("Proton Release_version")
-        or data.get("PGM SW Release")
+            data.get("S5 Release_version")
+            or data.get("Proton Release_version")
+            or data.get("PGM SW Release")
     )
     if release_version:
         if release_version.count(".") < 2:
@@ -142,9 +155,9 @@ def get_chip_status(archive_path, archive_type):
 
     noise_alert = noise > noise_thresholds[chip_type]
     noise_report = (
-        "Chip noise "
-        + str(noise)
-        + (" is too high." if noise_alert else " is low enough.")
+            "Chip noise "
+            + str(noise)
+            + (" is too high." if noise_alert else " is low enough.")
     )
     if noise_alert and not invalid_noise:
         report_level = max(report_level, REPORT_LEVEL_ALERT)
@@ -192,7 +205,7 @@ def get_chip_status(archive_path, archive_type):
         if stats_path:
             data = load_ini(stats_path)
             bead_loading = float(data["Bead Wells"]) / (
-                float(data["Total Wells"]) - float(data["Excluded Wells"])
+                    float(data["Total Wells"]) - float(data["Excluded Wells"])
             )
             isp_report = "{:.1%} of wells found ISPs".format(bead_loading)
         else:
@@ -217,6 +230,7 @@ def get_chip_status(archive_path, archive_type):
         message += " | " + total_reads_message
 
     context = {
+        "chip_images": copy_chip_images(archive_path, output_path),
         "noise_report": noise_report,
         "gain_report": gain_report,
         "electrode_report": electrode_report,
@@ -229,7 +243,7 @@ def get_chip_status(archive_path, archive_type):
 
 
 def execute(archive_path, output_path, archive_type):
-    message, report_level, context = get_chip_status(archive_path, archive_type)
+    message, report_level, context = get_chip_status(archive_path, output_path, archive_type)
 
     write_results_from_template(
         context, output_path, os.path.dirname(os.path.realpath(__file__))
