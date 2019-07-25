@@ -24,7 +24,7 @@ services:
       - rabbitmq
 
   postgres:
-    image: postgres:9.3
+    image: postgres:11.4-alpine
     environment:
       - POSTGRES_USER=docker
       - POSTGRES_PASSWORD=docker

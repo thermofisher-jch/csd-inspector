@@ -32,3 +32,11 @@ Had to modify the nginx conf to include from /sites-enabled
 Had to sudo chown 8247:8247 django.log
 
 Had to sudo chown 8247:8247 /mnt/raid/inspector
+
+### Upgrading postgres
+
+docker-compose exec -e PGPASSWORD=docker django bash -c 'pg_dumpall --username docker --host postgres > /var/log/inspector/backup.sql'
+
+Delete the data dir and upgrade pg
+
+docker-compose exec -e PGPASSWORD=docker django bash -c 'psql --username docker --host postgres -d IonInspector -f /var/log/inspector/backup.sql'
