@@ -31,6 +31,7 @@ python-semver \
 python-raven \
 python-tblib \
 python-coverage \
+postgresql-client \
 wait-for-it \
 openssh-server
 
