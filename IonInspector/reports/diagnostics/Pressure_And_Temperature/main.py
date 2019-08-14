@@ -85,6 +85,8 @@ def parse_experiment_info_log_line(line):
     """ ExperimentInfoLog: is in a very odd format with line like
         acq_0272.dat: Pressure=7.91 7.95 Temp=39.99 31.19 30.01 26.64 dac_start_sig=1724
         """
+    if ":" not in line:
+        raise ValueError("Could not parse explog line: {}".format(line))
     dat_meta = collections.OrderedDict()
     dat_name, dat_meta_string = line.strip().split(":", 1)
     for token in dat_meta_string.strip().split(" "):
@@ -293,7 +295,13 @@ def get_pressure_and_temp(archive_path, archive_type):
                 reached_target_section = True
             elif line.startswith("ExperimentErrorLog:"):
                 break
-            elif reached_target_section and len(line) > 1 and not line.strip().startswith("rse"):
+            elif reached_target_section:
+                if len(line) <= 1:
+                    continue
+                if line.strip().startswith("rse"):
+                    continue
+                if line.strip().startswith("flow"):
+                    continue
                 # Now we have a line we want
                 dat_name, dat_meta = parse_experiment_info_log_line(line)
                 # Now we need to coerce some values
