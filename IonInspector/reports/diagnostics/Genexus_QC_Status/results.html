@@ -1,0 +1,65 @@
+<html>
+<head>
+    <title>Genexus Library Prep Log</title>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <style>
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <h3 class="lead">Genexus QC Status</h3>
+    <div class="row">
+        <div class="col-md-12">
+            <div>
+
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs" role="tablist">
+                    {% for sample_name, rows in info_per_sample %}
+                        <li role="presentation" class="{% if forloop.first %}active{% endif %}"><a href="#{{ sample_name }}" role="tab"
+                                                            data-toggle="tab">{{ sample_name }}</a></li>
+                    {% endfor %}
+                </ul>
+
+                <!-- Tab panes -->
+                <div class="tab-content">
+                    {% for sample_name, rows in info_per_sample %}
+                        <div role="tabpanel" class="tab-pane {% if forloop.first %}active{% endif %}" id="{{ sample_name }}">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                {% for row in rows %}
+                                    <tr>
+                                        {% for col in row %}
+                                            <td>{{ col }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                    {% endfor %}
+                </div>
+
+            </div>
+
+
+        </div>
+    </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+<script>
+    $('#myTabs a').click(function (e) {
+        e.preventDefault();
+        $(this).tab('show')
+    })
+</script>
+</body>
+</html>
