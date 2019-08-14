@@ -29,6 +29,7 @@ def get_read_groups(datasets_basecaller_object):
             {
                 "filtered": value.get("filtered", False) or "nomatch" in key,
                 "name": value.get("barcode_name", "No Barcode"),
+                "end_barcode": value.get("end_barcode", {}).get("barcode_name", ""),
                 "read_count": value.get("read_count", 0),
                 "index": value.get("index", -1),
                 "group": key,
@@ -67,6 +68,7 @@ def execute(archive_path, output_path, archive_type):
     groups = get_read_groups(datasets_object)
 
     # get all of the filtered data sets
+    total_reads = sum([float(x["read_count"]) for x in groups])
     filtered_data = [float(x["read_count"]) for x in groups if not x["filtered"]]
     mean = numpy.mean(filtered_data)
     min_read_cound = numpy.min(filtered_data) if filtered_data else 0
@@ -101,6 +103,7 @@ def execute(archive_path, output_path, archive_type):
     write_results_from_template(
         {
             "histograms": histograms,
+            "total_reads": total_reads,
             "mean": mean,
             "std": std,
             "cv": (std / mean) * 100.0 if mean != 0.0 else 0,
