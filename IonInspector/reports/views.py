@@ -200,6 +200,7 @@ def report(request, pk):
         # dump twice to make it a js string containing json
         'diagnostic_category_choices_json': json.dumps(json.dumps(Diagnostic.CATEGORY_CHOICES)),
         'archive': archive,
+        'archive_type': archive.archive_type,
         'diagnostics': diagnostics,
         'thumbnail_pdf_present': thumbnail_pdf_present,
         'full_pdf_present': full_pdf_present,

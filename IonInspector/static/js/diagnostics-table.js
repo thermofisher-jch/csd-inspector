@@ -86,6 +86,9 @@ var diagnosticsTableApp = {
             success: function (response) {
                 this.resource.diagnostics = response.diagnostics;
                 this.updateDiagnostics();
+
+                Vue.set(this.vue, "results", response.results);
+
                 if (this.testsStillRunning(response.diagnostics)) {
                     this.activeTimeout = setTimeout(this.update.bind(this), 1000);
                 }
@@ -109,7 +112,8 @@ var diagnosticsTableApp = {
             el: selector,
             data: {
                 archiveId: this.resource.id,
-                diagnostics: []
+                diagnostics: [],
+                results: {}
             }
         });
         this.updateDiagnostics();

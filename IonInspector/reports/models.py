@@ -12,7 +12,7 @@ from django.db import models
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from django.utils import timezone
-from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import ArrayField, JSONField
 
 from IonInspector.reports.diagnostics.common.inspector_utils import *
 from celeryconfig import celery_app
@@ -375,6 +375,7 @@ class Diagnostic(models.Model):
     html = models.CharField(max_length=255, default="")
     priority = models.IntegerField(default=0)
     start_execute = models.DateTimeField(null=True)
+    results = JSONField(null=True, default={})
 
     CATEGORY_CHOICES = (
         (CATEGORY_SEQUENCING, "SEQUENCING"),
@@ -432,6 +433,11 @@ class Diagnostic(models.Model):
             html_path = os.path.join(self.diagnostic_root, "results.html")
             if os.path.exists(html_path):
                 self.html = os.path.basename(html_path)
+
+            json_path = os.path.join(self.diagnostic_root, "results.json")
+            if os.path.exists(json_path):
+                with open(json_path) as fp:
+                    self.results = json.load(fp)
 
         except Exception as exc:
             self.details = str(exc)

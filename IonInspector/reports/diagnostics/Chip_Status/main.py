@@ -86,9 +86,13 @@ def copy_chip_images(archive_path, output_path):
         return False
 
 
-def get_total_reads_message(chip_type, archive_path, archive_type):
+def get_total_reads(archive_path, archive_type):
     ionstats = read_ionstats_basecaller_json(archive_path, archive_type)
     total_reads = ionstats["full"]["num_reads"]
+    return total_reads
+
+
+def get_total_reads_message(chip_type, total_reads):
     try:
         reads_multiplier, min_reads = total_read_specs[chip_type]
     except KeyError:
@@ -212,8 +216,9 @@ def get_chip_status(archive_path, output_path, archive_type):
             isp_report = "Required stats files not included"
 
     # total reads
+    total_reads = get_total_reads(archive_path, archive_type)
     total_reads_message, full_chip_reads, full_chip_reads_spec = get_total_reads_message(
-        chip_type, archive_path, archive_type
+        chip_type, total_reads
     )
 
     # generate message
@@ -230,6 +235,8 @@ def get_chip_status(archive_path, output_path, archive_type):
         message += " | " + total_reads_message
 
     context = {
+        "bead_loading": bead_loading,
+        "total_reads": total_reads,
         "chip_images": copy_chip_images(archive_path, output_path),
         "noise_report": noise_report,
         "gain_report": gain_report,

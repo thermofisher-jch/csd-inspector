@@ -3,6 +3,7 @@
 import os
 import shutil
 from collections import OrderedDict
+from django.conf import settings
 
 from IonInspector.reports.diagnostics.common.inspector_utils import (
     read_explog,
@@ -33,14 +34,17 @@ def execute(archive_path, output_path, archive_type):
     )
 
     # copy bead density
+    bead_image_path = os.path.join(output_path, "Bead_density_1000.png")
+    bead_image_url = "/media/" + os.path.relpath(bead_image_path, settings.MEDIA_ROOT)
     try:
         shutil.copy(
             os.path.join(
                 archive_path, "CSA/outputs/SigProcActor-00/Bead_density_1000.png"
             ),
-            os.path.join(output_path, "Bead_density_1000.png"),
+            bead_image_path,
         )
     except IOError:
+        bead_image_url = None
         return print_failed("Could not find bead density image!")
 
     # copy images from lane diagnostics
@@ -61,7 +65,7 @@ def execute(archive_path, output_path, archive_type):
 
     # write template
     write_results_from_template(
-        {"lanes": lanes}, output_path, os.path.dirname(os.path.realpath(__file__))
+        {"lanes": lanes, "bead_image_url": bead_image_url}, output_path, os.path.dirname(os.path.realpath(__file__))
     )
 
     message = " <br> ".join(["<strong>L{}</strong> {}".format(k, v[1]) for k, v in lanes.items() if v[0]])

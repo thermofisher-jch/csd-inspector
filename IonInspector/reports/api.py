@@ -5,7 +5,7 @@ from django.shortcuts import HttpResponseRedirect, HttpResponse
 from reports.models import Archive, Diagnostic
 from tastypie.authorization import Authorization
 from tastypie.resources import ModelResource
-from tastypie.fields import CharField, ToManyField, ListField
+from tastypie.fields import CharField, ToManyField, ListField, DictField
 import json
 import logging
 
@@ -22,14 +22,22 @@ class DiagnosticResource(ModelResource):
         queryset = Diagnostic.objects.all()
         resource_name = 'Diagnostic'
         authorization = Authorization()
+        excludes = ["results",]
 
 
 class ArchiveResource(ModelResource):
     """
     Resource for archive
     """
+    results = DictField(attribute="results", default={})
     diagnostics = ToManyField(DiagnosticResource, 'diagnostics', full=True, use_in="detail")
     search_fields = ListField("search_tags")
+
+    def dehydrate_results(self, bundle):
+        results = {}
+        for diagnostic in bundle.obj.diagnostics.all():
+            results[diagnostic.name] = diagnostic.results
+        return results
 
     def prepend_urls(self):
         """

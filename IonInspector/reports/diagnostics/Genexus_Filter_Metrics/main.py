@@ -32,7 +32,7 @@ def parse_base_caller_stats(archive_path):
         )
     ) as fp:
         stats = json.load(fp)
-    return stats["Filtering"]["ReadDetails"]["lib"]
+    return stats["Filtering"]["ReadDetails"]["lib"], stats["Filtering"]["BaseDetails"]
 
 
 def check_total_wells(data):
@@ -46,7 +46,22 @@ def check_total_wells(data):
 
 def execute(archive_path, output_path, archive_type):
     sigproc_stats = parse_sigproc_stats(archive_path)
-    base_caller_stats = parse_base_caller_stats(archive_path)
+    base_caller_read_stats, base_caller_base_stats = parse_base_caller_stats(archive_path)
+    summary = {
+        "loading_per": 100 * (sigproc_stats["bead wells"] / (sigproc_stats["total wells"] - sigproc_stats["excluded wells"])),
+        "loading": sigproc_stats["bead wells"],
+
+        "enrichment_per": 100 * (sigproc_stats["live beads"] / sigproc_stats["bead wells"]),
+        "enrichment": sigproc_stats["live beads"],
+
+        "library_per": 100 * (sigproc_stats["library beads"] / sigproc_stats["live beads"]),
+        "library": sigproc_stats["library beads"],
+
+        "final_reads_per": 100 * (base_caller_read_stats["valid"] / sigproc_stats["library beads"]),
+        "final_reads": base_caller_read_stats["valid"],
+
+        "total_bases": base_caller_base_stats["final"],
+    }
     data = {
         "name": "Active Lane Wells",
         "color": "#d3e2ff",
@@ -67,44 +82,44 @@ def execute(archive_path, output_path, archive_type):
                             {
                                 "name": "Final Library Wells",
                                 "color": "#7aa6ff",
-                                "value": base_caller_stats["valid"],
+                                "value": base_caller_read_stats["valid"],
                             },
                             {
                                 "name": "Polyclonal",
-                                "value": base_caller_stats["bkgmodel_polyclonal"],
+                                "value": base_caller_read_stats["bkgmodel_polyclonal"],
                             },
                             {
                                 "name": "Primer Dimer",
-                                "value": base_caller_stats["adapter_trim"],
+                                "value": base_caller_read_stats["adapter_trim"],
                             },
                             {
                                 "name": "Quality Filter",
-                                "value": base_caller_stats["quality_filter"],
+                                "value": base_caller_read_stats["quality_filter"],
                             },
                             {
                                 "name": "Low Quality: High PPF",
                                 "color": "#a5a5a5",
-                                "value": base_caller_stats["bkgmodel_high_ppf"],
+                                "value": base_caller_read_stats["bkgmodel_high_ppf"],
                             },
                             {
                                 "name": "Low Quality: Bad Key",
                                 "color": "#a5a5a5",
-                                "value": base_caller_stats["bkgmodel_keypass"],
+                                "value": base_caller_read_stats["bkgmodel_keypass"],
                             },
                             {
                                 "name": "Low Quality: Short Read",
                                 "color": "#a5a5a5",
-                                "value": base_caller_stats["short"],
+                                "value": base_caller_read_stats["short"],
                             },
                             {
                                 "name": "Low Quality: Failed Keypass",
                                 "color": "#a5a5a5",
-                                "value": base_caller_stats["failed_keypass"],
+                                "value": base_caller_read_stats["failed_keypass"],
                             },
                             {
                                 "name": "Low Quality: Quality Trim",
                                 "color": "#a5a5a5",
-                                "value": base_caller_stats["quality_trim"],
+                                "value": base_caller_read_stats["quality_trim"],
                             },
                         ],
                     },
@@ -127,7 +142,7 @@ def execute(archive_path, output_path, archive_type):
         )
 
     write_results_from_template(
-        {"data": data, "warning": warning},
+        {"data": data, "warning": warning, "summary": summary},
         output_path,
         os.path.dirname(os.path.realpath(__file__)),
     )
