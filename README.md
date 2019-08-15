@@ -35,8 +35,7 @@ Had to sudo chown 8247:8247 /mnt/raid/inspector
 
 ### Upgrading postgres
 
-docker-compose exec -e PGPASSWORD=docker django bash -c 'pg_dumpall --username docker --host postgres > /var/log/inspector/backup.sql'
-
+docker-compose exec -e PGPASSWORD=docker postgres bash -c 'pg_dumpall --username docker --host postgres > /var/log/postgresql/backup.sql'
 Delete the data dir and upgrade pg
 
-docker-compose exec -e PGPASSWORD=docker django bash -c 'psql --username docker --host postgres -d IonInspector -f /var/log/inspector/backup.sql'
+docker-compose exec -e PGPASSWORD=docker postgres bash -c 'psql --username docker --host postgres -d IonInspector -f /var/log/postgresql/backup.sql'
