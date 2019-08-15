@@ -1,3 +1,4 @@
+{% load humanize %}
 <html>
 <head>
     <title>Genexus Lane Activity</title>
@@ -31,13 +32,20 @@
             </div>
         {% endfor %}
     </div>
+    <div class="row">
+        <div class="col-sm-8 col-sm-offset-2">
+            <br>
+            {{ total_reads|intcomma }} total reads / {{ active_lanes }} active lanes = {{ average_reads_per_lane|intcomma }} mean reads per lane
+        </div>
+    </div>
+</div>
 </div>
 <div class="container-fluid">
     {% for n, lane in lanes.items %}
         {% if lane.0 %}
             <div class="row" style="padding-top: 30px">
                 <div class="col-sm-10 col-sm-offset-1">
-                    <h3 class="lead" style="padding-top: 0">Lane {{n}}
+                    <h3 class="lead" style="padding-top: 0">Lane {{ n }}
                         <small>{{ lane.1 }}</small>
                     </h3>
                 </div>
