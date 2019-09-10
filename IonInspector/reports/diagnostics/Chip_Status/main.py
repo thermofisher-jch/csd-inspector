@@ -5,6 +5,7 @@ import semver
 import os
 import shutil
 import glob
+import json
 from IonInspector.reports.diagnostics.common.inspector_utils import (
     read_explog,
     check_supported,
@@ -73,6 +74,16 @@ total_read_specs = {
     "540": (166, 60000000),
     "GX5": (1, 100000000),
 }
+
+
+def parse_base_caller_stats(archive_path):
+    with open(
+            os.path.join(
+                archive_path, "CSA", "outputs", "BaseCallingActor-00", "BaseCaller.json"
+            )
+    ) as fp:
+        stats = json.load(fp)
+    return stats["Filtering"]["ReadDetails"]["lib"], stats["Filtering"]["BaseDetails"]
 
 
 def copy_chip_images(archive_path, output_path):
@@ -221,6 +232,13 @@ def get_chip_status(archive_path, output_path, archive_type):
         chip_type, total_reads
     )
 
+    # final reads
+    final_reads_message = None
+    if archive_type == "Valkyrie":
+        base_caller_read_stats, base_caller_base_stats = parse_base_caller_stats(archive_path)
+        final_reads = base_caller_read_stats["valid"]
+        final_reads_message = "Final Reads {}".format(format_reads(final_reads))
+
     # generate message
     message = "Loading {} | Gain {}".format(
         "{:.1%}".format(bead_loading) if bead_loading else "Unknown", gain or "Unknown"
@@ -231,7 +249,9 @@ def get_chip_status(archive_path, output_path, archive_type):
     if electrode_gain:
         message += " | Reference Electrode {}".format(electrode_gain)
 
-    if total_reads_message:
+    if final_reads_message:
+        message += " | " + final_reads_message
+    elif total_reads_message:
         message += " | " + total_reads_message
 
     context = {
