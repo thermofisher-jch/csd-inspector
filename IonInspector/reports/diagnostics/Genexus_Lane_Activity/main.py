@@ -71,9 +71,10 @@ def execute(archive_path, output_path, archive_type):
                         os.path.join(output_path, filename),
                     )
                 except IOError:
-                    return print_failed(
-                        "Could not find lane diagnostics image '{}'!".format(filename)
-                    )
+                    pass
+                    # return print_failed(
+                    #     "Could not find lane diagnostics image '{}'!".format(filename)
+                    # )
 
     # write template
     write_results_from_template(
