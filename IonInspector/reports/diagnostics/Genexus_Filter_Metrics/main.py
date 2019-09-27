@@ -121,6 +121,11 @@ def execute(archive_path, output_path, archive_type):
                                 "color": "#a5a5a5",
                                 "value": base_caller_read_stats["quality_trim"],
                             },
+                            {
+                                "name": "Low Quality: Barcode Trim",
+                                "color": "#a5a5a5",
+                                "value": base_caller_read_stats["barcode_trim"],
+                            },
                         ],
                     },
                 ],
