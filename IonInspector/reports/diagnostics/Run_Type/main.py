@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 
-from IonInspector.reports.diagnostics.common.inspector_utils import *
+from IonInspector.reports.diagnostics.common.inspector_utils import (
+    read_explog,
+    shutil,
+    os,
+)
 
 
 def execute(archive_path, output_path, archive_type):
@@ -9,20 +13,19 @@ def execute(archive_path, output_path, archive_type):
 
     valkyrie_workflow_path = os.path.join(archive_path, "ValkyrieWorkflow") + "/"
 
-    files = [
-        "workflow_timing.png",
-        "VacuumLog.html",
-        "TubeBottomLog.csv",
-        "flow_spark.svg"
-    ]
+    files = os.listdir(valkyrie_workflow_path)
 
     if os.path.exists(valkyrie_workflow_path + "ValkyrieWorkflow_block.html"):
 
-        shutil.copy(valkyrie_workflow_path + "ValkyrieWorkflow_block.html",
-                    os.path.join(output_path, "results.html"))
+        shutil.copy(
+            valkyrie_workflow_path + "ValkyrieWorkflow_block.html",
+            os.path.join(output_path, "results.html"),
+        )
         for file in files:
             try:
-                shutil.copy(valkyrie_workflow_path + file, os.path.join(output_path, file))
+                shutil.copy(
+                    valkyrie_workflow_path + file, os.path.join(output_path, file)
+                )
             except IOError:
                 pass
 
