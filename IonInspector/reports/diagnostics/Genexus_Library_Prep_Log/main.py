@@ -74,14 +74,10 @@ def execute(archive_path, output_path, archive_type):
         return print_alert("Could not find libPrep_log.csv!")
 
     with open(run_log_csv_path) as fp:
-        run_log_temp_data = get_valk_lib_prep_data(
-            fp.readlines()[:100], TARGET_TEMP_FIELDS
-        )
+        run_log_temp_data = get_valk_lib_prep_data(fp.readlines(), TARGET_TEMP_FIELDS)
 
     with open(run_log_csv_path) as fp:
-        run_log_fan_data = get_valk_lib_prep_data(
-            fp.readlines()[:100], TARGET_FAN_FIELDS
-        )
+        run_log_fan_data = get_valk_lib_prep_data(fp.readlines(), TARGET_FAN_FIELDS)
 
     with open(template_path, "r") as template_file:
         with open(results_path, "w") as results_file:
