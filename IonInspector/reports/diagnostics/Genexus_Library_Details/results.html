@@ -23,6 +23,7 @@
         </tr>
         </thead>
             {% for config in deck_configs %}
+            <tr>
                 <td>{{ config.assayName }}</td>
                 <td>{{ config.primerPoolID }}</td>
                 <td>{{ config.assayParameters.targetSampleInput|default:"?" }} ng</td>
@@ -30,6 +31,7 @@
                 <td>{{ config.pcrProfile.adjustNumTargetAmpCycles }}</td>
                 <td>{{ config.pcrProfile.annealExtendTime }} min</td>
                 <td>{{ config.assayParameters.ampureRatio1 }}</td>
+            </tr>
             {% endfor %}
         </table>
         </div>
