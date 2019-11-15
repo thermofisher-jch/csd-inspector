@@ -16,6 +16,12 @@ def execute(archive_path, output_path, archive_type):
 
     files = os.listdir(valkyrie_workflow_path)
 
+    if "results.json" in files:
+        files.remove("results.json")
+
+    if "ValkyrieWorkflow_block.html" in files:
+        files.remove("ValkyrieWorkflow_block.html")
+
     if os.path.exists(valkyrie_workflow_path + "ValkyrieWorkflow_block.html"):
 
         shutil.copy(
