@@ -4,6 +4,7 @@ from IonInspector.reports.diagnostics.common.inspector_utils import (
     read_explog,
     shutil,
     os,
+    print_info,
 )
 
 
