@@ -17,7 +17,7 @@ services:
     user: inspector
     build: ./
     working_dir: /opt/inspector
-    command: bash -c "service ssh start && python -u wait_for_postgres.py && ./manage.py migrate --noinput && ./manage.py runserver 0.0.0.0:8080"
+    command: bash -c "service ssh start && python -u wait_for_postgres.py && python ./manage.py migrate --noinput && python ./manage.py runserver 0.0.0.0:8080"
     links:
       - postgres
       - celery

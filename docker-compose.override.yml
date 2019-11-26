@@ -20,7 +20,10 @@ services:
 
   postgres:
     volumes:
-        - ./.local/postgresql_data:/var/lib/postgresql/data
+        - postgresql-data:/var/lib/postgresql/data
         - ./.local/postgresql_log:/var/log/postgresql
     ports:
       - "5433:5432"
+
+volumes:
+  postgresql-data:
