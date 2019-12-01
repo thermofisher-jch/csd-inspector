@@ -390,7 +390,7 @@ def write_results_from_template(data_dict, output_dir, diagnostic_script_dir):
     except IOError:
         raise Exception('Could not find template file at: ' + template_path)
 
-    with open(os.path.join(output_dir, "results.json"), "w") as fp:
+    with open(os.path.join(output_dir, "main.json"), "w") as fp:
         json.dump(data_dict, fp)
 
 

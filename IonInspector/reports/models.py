@@ -436,7 +436,7 @@ class Diagnostic(models.Model):
             if os.path.exists(html_path):
                 self.html = os.path.basename(html_path)
 
-            json_path = os.path.join(self.diagnostic_root, "results.json")
+            json_path = os.path.join(self.diagnostic_root, "main.json")
             if os.path.exists(json_path):
                 with open(json_path) as fp:
                     self.results = json.load(fp)
