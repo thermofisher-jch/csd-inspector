@@ -53,7 +53,6 @@ TEST_MANIFEST = {
         ("Pressure_And_Temperature", CATEGORY_SEQUENCING),
         ("Barcode_Report", CATEGORY_SEQUENCING),
         ("Run_Sequence_Details", CATEGORY_SEQUENCING),
-        ("Run_Type", CATEGORY_SEQUENCING)
     ],
     PROTON: [
         ("Filter_Metrics", CATEGORY_SEQUENCING),
@@ -68,7 +67,6 @@ TEST_MANIFEST = {
         ("Experiment_Errors", CATEGORY_SEQUENCING),
         ("Barcode_Report", CATEGORY_SEQUENCING),
         ("Run_Sequence_Details", CATEGORY_SEQUENCING),
-        ("Run_Type", CATEGORY_SEQUENCING)
     ],
     S5: [
         ("Filter_Metrics", CATEGORY_SEQUENCING),
@@ -84,7 +82,6 @@ TEST_MANIFEST = {
         ("Experiment_Errors", CATEGORY_SEQUENCING),
         ("Barcode_Report", CATEGORY_SEQUENCING),
         ("Run_Sequence_Details", CATEGORY_SEQUENCING),
-        ("Run_Type", CATEGORY_SEQUENCING)
     ],
     VALK: [
         ("Genexus_Vacuum_Log", CATEGORY_SAMPLE_PREP),
