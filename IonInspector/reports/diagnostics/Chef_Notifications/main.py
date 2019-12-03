@@ -58,7 +58,7 @@ def execute(archive_path, output_path, archive_type):
         root = get_xml_from_run_log(archive_path)
         notifications = get_chef_notifications(root, run_start)
 
-        context = Context({"notifications": notifications})
+        context = {"notifications": notifications}
         write_results_from_template(context, output_path, os.path.dirname(os.path.realpath(__file__)))
 
         if notifications:
