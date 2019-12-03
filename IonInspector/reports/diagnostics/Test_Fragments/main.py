@@ -44,7 +44,7 @@ def execute(archive_path, output_path, archive_type):
 
         # check that we got any test fragment information to report
         if len(rates) == 0:
-            raise Exception("Could not find any test framgents in the TF Stats file.")
+            raise Exception("Not enough TF's reported in thumbnail. Review full chip PDF for possible TF reads.")
 
         return print_info(" | ".join(rates))
     except Exception as exc:
