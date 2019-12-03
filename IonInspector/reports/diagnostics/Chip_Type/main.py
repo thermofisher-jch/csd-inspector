@@ -32,10 +32,10 @@ def parse_efuse(value):
 def execute(archive_path, output_path, archive_type):
     """Executes the test"""
 
-    try:
-        # get the path to the log file
-        explog = read_explog(archive_path)
+    # get the path to the log file
+    explog = read_explog(archive_path)
 
+    if archive_type == "Valkyrie":
         efuse = parse_efuse(explog["Chip Efuse"])
 
         run_date = parse(explog.get('Start Time', 'Unknown')).replace(day=1).date()
@@ -51,9 +51,23 @@ def execute(archive_path, output_path, archive_type):
             return print_alert(message + " EXPIRED!")
         else:
             return print_info(message)
+    else:
+        chip_type = get_chip_type_from_exp_log(explog)
 
-    except Exception as exc:
-        return handle_exception(exc, output_path)
+        # parse efuse line
+        efuse_dict = {}
+        for pair in explog.get('Chip Efuse', '').split(','):
+            if ":" in pair:
+                key, value = pair.split(":")
+                efuse_dict[key.strip()] = value.strip()
+
+        if "L" in efuse_dict:
+            chip_type += " | Lot " + efuse_dict["L"]
+
+        if "W" in efuse_dict:
+            chip_type += " | W " + efuse_dict["W"]
+
+        return print_info(chip_type)
 
 
 if __name__ == "__main__":
