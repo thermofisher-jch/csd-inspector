@@ -58,11 +58,11 @@ def execute(archive_path, output_path, archive_type):
         if time:
             summary += ": Expected run time %s" % time
 
-        context = Context({
+        context = {
             "script_line": script_line,
             "rows": rows,
             "time": time,
-        })
+        }
         write_results_from_template(context, output_path, os.path.dirname(os.path.realpath(__file__)))
 
         return print_info(summary.encode("UTF-8"))
