@@ -69,7 +69,7 @@ def deploy(tag=None, force=None):
             (" --force-recreate" if force else ""))
         upload_template("./conf/nginx.conf", "/etc/nginx/sites-enabled/inspector.conf", {
 
-        }, use_sudo=True)
+        }, use_sudo=True, backup=False)
         sudo("service nginx reload")
 
 
