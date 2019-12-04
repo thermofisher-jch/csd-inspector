@@ -8,6 +8,7 @@ import traceback
 import warnings
 from datetime import datetime
 from xml.etree import ElementTree
+from django.core.serializers.json import DjangoJSONEncoder
 
 import semver
 from bs4 import BeautifulSoup
@@ -392,7 +393,7 @@ def write_results_from_template(data_dict, output_dir, diagnostic_script_dir):
 
     with open(os.path.join(output_dir, "main.json"), "w") as fp:
         assert type(data_dict) in {list, dict}
-        json.dump(data_dict, fp)
+        json.dump(data_dict, fp, cls=DjangoJSONEncoder)
 
 
 class TemporaryDirectory(object):
