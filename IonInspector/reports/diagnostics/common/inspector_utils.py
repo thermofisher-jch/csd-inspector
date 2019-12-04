@@ -293,7 +293,7 @@ def parse_log_lines(raw_log_lines):
     # [BC]-[INFO]:2018-08-08 15:53:22,400: parseLoadCheckdata: (chefSolutionsSerial) = (12346150)
     parsed = []
     for line in raw_log_lines:
-        if line.startswith("["):
+        if line.startswith("[") and ":" in line:
             line_level, remaining = line.split(":", 1)
             line_date, remaining = datetime.strptime(remaining[:19], "%Y-%m-%d %H:%M:%S"), remaining[23:]
             line_message = remaining[1:]
