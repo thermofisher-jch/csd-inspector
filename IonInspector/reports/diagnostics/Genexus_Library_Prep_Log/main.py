@@ -19,8 +19,18 @@ def get_valk_lib_prep_data(lines, fields=[]):
     csv_file = csv.DictReader(lines, delimiter=",")
     # Get rows
     for row in csv_file:
+        # libprep can have multiple headers
         if row["time"] == "time":
-            break
+            # fill in missing data if there is at least one row
+            if len(run_log_data["rows"]) > 0:
+                prev_time = run_log_data["rows"][-1][0]
+                fake_row = [prev_time + 1.0]
+                for _ in range(len(fields) - 1):
+                    fake_row.append(None)
+
+                run_log_data["rows"].append(fake_row)
+            
+            continue
         # Add data
         new_row = []
         for field, display_name, formatter in fields:
