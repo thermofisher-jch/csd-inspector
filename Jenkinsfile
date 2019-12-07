@@ -1,15 +1,18 @@
 pipeline {
-    agent any
+    agent {
+        label "docker-host"
+    }
 
     stages {
         stage('Build') {
             steps {
-                echo 'Building..'
+                sh "python3 setup_dev_environment.py"
+                sh "docker-compose build"
             }
         }
         stage('Test') {
             steps {
-                echo 'Testing..'
+                sh "docker-compose run django python manage.py test --noinput --parallel"
             }
         }
     }
