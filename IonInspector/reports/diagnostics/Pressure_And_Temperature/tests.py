@@ -114,12 +114,12 @@ class PressureAndTemperatureOkayTestCase(SimpleTestCase):
 
             # pressure
             self.assertEquals(pressure_message, None)
-            self.assertEquals(flow_data["pressure"][0]["data"][0], [0, 7.88])
-            self.assertEquals(flow_data["pressure"][0]["data"][1], [1, 2.04])
+            self.assertEquals(flow_data["pressure"][0]["data"][0], [0, 9.93])
+            self.assertEquals(flow_data["pressure"][0]["data"][1], [1, 9.92])
 
             # temp
             self.assertEquals(temperature_message, None)
-            self.assertEquals(flow_data["temperature"][0]["data"][0], [0, 25.74])
+            self.assertEquals(flow_data["temperature"][0]["data"][0], [0, 29.98])
 
     def test_get_pressure_and_temp_valk_v2(self):
         files = {

@@ -1,6 +1,6 @@
 from django.test import SimpleTestCase
 from reports.diagnostics.common.inspector_utils import TemporaryDirectory
-from main import get_chip_status, get_total_reads_message
+from main import get_chip_status, get_total_reads_message, get_total_reads
 
 
 class ChipStatusTestCase(SimpleTestCase):
@@ -22,7 +22,7 @@ class ChipStatusTestCase(SimpleTestCase):
                 """{"full":{"num_reads":201105}}""",
         }
         with TemporaryDirectory(files) as archive_path:
-            message, report_level, context = get_chip_status(archive_path)
+            message, report_level, context = get_chip_status(archive_path, None, None)
             self.assertEquals(message, "Loading 79.7% | Gain 1.03 | Noise 151.68 | Projected Reads 33.4 million")
 
     def test_get_chip_status_520_on_5_4(self):
@@ -43,7 +43,7 @@ class ChipStatusTestCase(SimpleTestCase):
                 """{"full":{"num_reads":2232}}""",
         }
         with TemporaryDirectory(files) as archive_path:
-            message, report_level, context = get_chip_status(archive_path)
+            message, report_level, context = get_chip_status(archive_path, None, None)
             self.assertEquals(message, "Loading 69.9% | Gain 1.09 | Noise 53.59 | Projected Reads 29,908")
 
     def test_get_chip_status_520_on_5_6(self):
@@ -65,7 +65,7 @@ class ChipStatusTestCase(SimpleTestCase):
                 """{"full":{"num_reads":2232}}""",
         }
         with TemporaryDirectory(files) as archive_path:
-            message, report_level, context = get_chip_status(archive_path)
+            message, report_level, context = get_chip_status(archive_path, None, None)
             self.assertEquals(message, "Loading 69.9% | Gain 1.09 | Projected Reads 29,908")
 
     def test_get_total_reads_message_below(self):
@@ -74,7 +74,8 @@ class ChipStatusTestCase(SimpleTestCase):
                 """{"full":{"num_reads":2232}}""",
         }
         with TemporaryDirectory(files) as archive_path:
-            message, reads, spec = get_total_reads_message("314", archive_path)
+            total_reads = get_total_reads(archive_path, None)
+            message, reads, spec = get_total_reads_message("314", total_reads)
             self.assertEquals(message, "Total Reads 2,232")
             self.assertEquals(reads, 2232)
             self.assertEquals(spec, 400000)
@@ -85,7 +86,8 @@ class ChipStatusTestCase(SimpleTestCase):
                 """{"full":{"num_reads":361385}}""",
         }
         with TemporaryDirectory(files) as archive_path:
-            message, reads, spec = get_total_reads_message("P1", archive_path)
+            total_reads = get_total_reads(archive_path, None)
+            message, reads, spec = get_total_reads_message("P1", total_reads)
             self.assertEquals(message, "Projected Reads 60.0 million")
             self.assertEquals(reads, 59989910)
             self.assertEquals(spec, 60000000)
