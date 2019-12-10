@@ -11,4 +11,4 @@ local_dev_dirs = [
 ]
 
 for dir_name in local_dev_dirs:
-    Path(dir_name).mkdir(mode=0o777, exist_ok=True)
+    Path(dir_name).mkdir(mode=0o777, parents=True, exist_ok=True)
