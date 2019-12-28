@@ -22,6 +22,15 @@ def execute(archive_path, output_path, archive_type):
     else:
         return print_failed("Could not find TFStats.json!")
 
+    basecaller_stats_path = os.path.join(
+        archive_path, "CSA", "outputs", "BaseCallingActor-00", "BaseCaller.json"
+    )
+    if os.path.exists(basecaller_stats_path):
+        with open(basecaller_stats_path) as gp:
+            basecaller_stats = json.load(gp)
+    else:
+        return print_failed("Could not find BaseCaller.json")
+
     if "CF-1" in tf_stats:
         histograms = []
         for key in ["Q10", "Q17"]:
@@ -37,6 +46,10 @@ def execute(archive_path, output_path, archive_type):
             output_path,
             os.path.dirname(os.path.realpath(__file__)),
         )
-        return print_info("CF-1 - {0:.1f}%".format(tf_stats["CF-1"].get("Percent 50Q17", "Unknown")))
+        total_valid_cf = str(basecaller_stats["BeadSummary"]["tf"].get("valid"))
+
+        cf_details = "CF-1 - {0:.1f}% | Total Valid Reads: ".format(tf_stats["CF-1"].get("Percent 50Q17", "Unknown"))
+
+        return print_info(cf_details + total_valid_cf)
     else:
         return print_failed("Could not find CF-1 in TFStats.json!")
