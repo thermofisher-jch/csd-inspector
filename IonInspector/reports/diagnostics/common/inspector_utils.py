@@ -380,6 +380,13 @@ def parse_ts_version(version_string):
         version_string += ".0"
     if ".RC" in version_string:
         version_string = version_string.replace(".RC", "-rc.")
+    if version_string.count(".") > 2 and "-" not in version_string:
+        version_numbers = version_string.split(".")
+        version_string = "{core_ver}-{pre_rel}".format(
+            core_ver=".".join(version_numbers[0:3]),
+            pre_rel=".".join(version_numbers[3:]),
+        )
+
     semver.parse(version_string)  # Ensure that the string is not valid
     return version_string
 

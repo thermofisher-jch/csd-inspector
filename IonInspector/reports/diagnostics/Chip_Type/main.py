@@ -12,9 +12,11 @@ from IonInspector.reports.diagnostics.common.inspector_utils import (
     get_chip_type_from_exp_log,
 )
 
-ASSEMBLY = {"D": "Tong Hsing"}
+ASSEMBLY = {"D": "Tong Hsing", "C": "Corwill"}
 
-PRODUCT = {"A": "RUO", "X": "Dx"}
+# any character other than 'X' will be 'RUO'
+# For example, it will start with 'A' and then toggling over to 'B'
+PRODUCT = {"X": "Dx"}
 
 
 def parse_efuse(value):
@@ -31,8 +33,8 @@ def parse_efuse(value):
             values[k] = v
 
     # extra values
-    values["Assembly"] = ASSEMBLY[values["BC"][2]]
-    values["Product"] = PRODUCT[values["BC"][3]]
+    values["Assembly"] = ASSEMBLY.get(values["BC"][2], "Unknown Assembly")
+    values["Product"] = PRODUCT.get(values["BC"][3], "RUO")
 
     values["ExpirationYear"] = ord(values["BC"][4]) - ord("A") + 2015
     values["ExpirationMonth"] = ord(values["BC"][5]) - ord("A") + 1
