@@ -10,6 +10,20 @@ from IonInspector.reports.diagnostics.common.inspector_utils import (
 )
 
 
+def get_tf_details(tf_stats, basecaller_stats):
+    cf_1 = tf_stats["CF-1"].get("Percent 50Q17", "Unknown")
+    total_valid_cf = str(basecaller_stats["BeadSummary"]["tf"].get("valid", "Unknown"))
+
+    if cf_1 == "Unknown":
+        return "CF-1: {cf_1} | Total Valid Reads: {total_valid_cf}".format(
+            cf_1=cf_1, total_valid_cf=total_valid_cf,
+        )
+
+    return "CF-1: {cf_1:.1f}% | Total Valid Reads: {total_valid_cf}".format(
+        cf_1=cf_1, total_valid_cf=total_valid_cf,
+    )
+
+
 def execute(archive_path, output_path, archive_type):
     """Executes the test"""
 
@@ -46,10 +60,9 @@ def execute(archive_path, output_path, archive_type):
             output_path,
             os.path.dirname(os.path.realpath(__file__)),
         )
-        total_valid_cf = str(basecaller_stats["BeadSummary"]["tf"].get("valid"))
 
-        cf_details = "CF-1 - {0:.1f}% | Total Valid Reads: ".format(tf_stats["CF-1"].get("Percent 50Q17", "Unknown"))
+        cf_details = get_tf_details(tf_stats, basecaller_stats)
 
-        return print_info(cf_details + total_valid_cf)
+        return print_info(cf_details)
     else:
         return print_failed("Could not find CF-1 in TFStats.json!")
