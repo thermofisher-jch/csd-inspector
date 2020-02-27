@@ -12,6 +12,7 @@ from IonInspector.reports.diagnostics.common.inspector_utils import (
     get_ts_version,
     write_results_from_template,
     handle_exception,
+    print_info,
 )
 
 OK_STRING = "TS Version is acceptable at <strong>%s</strong>"
