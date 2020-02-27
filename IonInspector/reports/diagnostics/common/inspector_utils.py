@@ -27,8 +27,10 @@ def check_supported(explog):
     """
 
     chip_type = get_chip_type_from_exp_log(exp_log=explog)
-    if chip_type in ['521']:
-        raise Exception("The " + chip_type + " Chip has been blacklisted and cannot be evaulated.")
+    if chip_type in ["521"]:
+        raise Exception(
+            "The " + chip_type + " Chip has been blacklisted and cannot be evaulated."
+        )
 
 
 def get_explog_path(archive_path):
@@ -40,7 +42,7 @@ def get_explog_path(archive_path):
         os.path.join(archive_path, "CSA", EXPLOG_FINAL),
         os.path.join(archive_path, "CSA", EXPLOG),
         os.path.join(archive_path, EXPLOG_FINAL),
-        os.path.join(archive_path, EXPLOG)
+        os.path.join(archive_path, EXPLOG),
     ]
 
     for path in paths:
@@ -48,6 +50,14 @@ def get_explog_path(archive_path):
             return path
 
     raise Exception("explog_final.txt and explog.txt are missing.")
+
+
+def get_debug_path(archive_path):
+    path = os.path.join(archive_path, "CSA", "debug")
+    if os.path.exists(path):
+        return path
+    else:
+        return None
 
 
 def read_explog(archive_path):
@@ -92,7 +102,9 @@ def read_base_caller_json(archive_path, archive_type):
     :return:
     """
     if archive_type == "Valkyrie":
-        path = os.path.join(archive_path, "CSA", "outputs", "BaseCallingActor-00", "BaseCaller.json")
+        path = os.path.join(
+            archive_path, "CSA", "outputs", "BaseCallingActor-00", "BaseCaller.json"
+        )
     else:
         path = os.path.join(archive_path, "basecaller_results", "BaseCaller.json")
     if not os.path.exists(path):
@@ -103,9 +115,17 @@ def read_base_caller_json(archive_path, archive_type):
 
 def read_ionstats_basecaller_json(archive_path, archive_type):
     if archive_type == "Valkyrie":
-        path = os.path.join(archive_path, "CSA", "outputs", "BaseCallingActor-00", "ionstats_basecaller.json")
+        path = os.path.join(
+            archive_path,
+            "CSA",
+            "outputs",
+            "BaseCallingActor-00",
+            "ionstats_basecaller.json",
+        )
     else:
-        path = os.path.join(archive_path, "basecaller_results", "ionstats_basecaller.json")
+        path = os.path.join(
+            archive_path, "basecaller_results", "ionstats_basecaller.json"
+        )
     if not os.path.exists(path):
         raise Exception("ionstats_basecaller.json missing")
     with open(path) as fp:
@@ -135,12 +155,14 @@ def write_error_html(output_path):
     results_path = os.path.join(output_path, "results.html")
     if os.path.exists(results_path):
         os.remove(results_path)
-    with open(results_path, 'w') as results_path:
-        results_path.write('<head></head><body>')
-        results_path.write('<strong>Error which occurred during test execution</strong>')
+    with open(results_path, "w") as results_path:
+        results_path.write("<head></head><body>")
+        results_path.write(
+            "<strong>Error which occurred during test execution</strong>"
+        )
         results_path.write('<p style="white-space: pre-wrap; word-wrap: break-word;">')
         traceback.print_exc(file=results_path)
-        results_path.write('</p></body>')
+        results_path.write("</p></body>")
 
 
 def print_alert(message):
@@ -196,9 +218,9 @@ def get_csv_from_run_log(archive_path):
 
     # get path to all of the logs and xml data
     csv_path = ""
-    run_log_directory = os.path.join(archive_path, 'var', 'log', 'IonChef', 'RunLog')
+    run_log_directory = os.path.join(archive_path, "var", "log", "IonChef", "RunLog")
     for run_log in os.listdir(run_log_directory):
-        if run_log.endswith('.csv'):
+        if run_log.endswith(".csv"):
             csv_path = os.path.join(run_log_directory, run_log)
             break
 
@@ -207,8 +229,8 @@ def get_csv_from_run_log(archive_path):
 
     # groom the xml of known error conditions
     run_log = dict()
-    with open(csv_path, 'r') as csv_file:
-        csv_reader = csv.DictReader(csv_file, delimiter=',')
+    with open(csv_path, "r") as csv_file:
+        csv_reader = csv.DictReader(csv_file, delimiter=",")
         # create a dictionary of lists
         for header in csv_reader.fieldnames:
             run_log[header] = list()
@@ -224,9 +246,9 @@ def get_csv_from_run_log(archive_path):
 def get_chef_run_log_xml_path(archive_path):
     # get path to all of the logs and xml data
     xml_path = ""
-    run_log_directory = os.path.join(archive_path, 'var', 'log', 'IonChef', 'RunLog')
+    run_log_directory = os.path.join(archive_path, "var", "log", "IonChef", "RunLog")
     for run_log in os.listdir(run_log_directory):
-        if run_log.endswith('.xml'):
+        if run_log.endswith(".xml"):
             xml_path = os.path.join(run_log_directory, run_log)
             break
 
@@ -262,7 +284,7 @@ def get_xml_from_run_log(archive_path):
 
     # remove spaces from xml tags. Bs4 will just throw them out and we need them for some tests
     xml_lines = []
-    with open(xml_path, 'r') as xml_file:
+    with open(xml_path, "r") as xml_file:
         for xml_line in xml_file:
             # Remove space after <
             while "< " in xml_line:
@@ -295,7 +317,10 @@ def parse_log_lines(raw_log_lines):
     for line in raw_log_lines:
         if line.startswith("[") and ":" in line:
             line_level, remaining = line.split(":", 1)
-            line_date, remaining = datetime.strptime(remaining[:19], "%Y-%m-%d %H:%M:%S"), remaining[23:]
+            line_date, remaining = (
+                datetime.strptime(remaining[:19], "%Y-%m-%d %H:%M:%S"),
+                remaining[23:],
+            )
             line_message = remaining[1:]
             parsed.append([line_level.strip(), line_date, line_message.strip()])
     return parsed
@@ -309,17 +334,23 @@ def get_lines_from_chef_gui_logs(archive_path):
     """
 
     lines = list()
-    log_directory = os.path.join(archive_path, 'var', 'log', 'IonChef', 'ICS')
+    log_directory = os.path.join(archive_path, "var", "log", "IonChef", "ICS")
     for log in os.listdir(log_directory):
-        if log.startswith('gui'):
-            if log.endswith('.log'):
+        if log.startswith("gui"):
+            if log.endswith(".log"):
                 with open(os.path.join(log_directory, log)) as log_file:
-                    lines += [line.strip() for line in log_file.readlines() if line.strip()]
-            elif log.endswith('.tar'):
+                    lines += [
+                        line.strip() for line in log_file.readlines() if line.strip()
+                    ]
+            elif log.endswith(".tar"):
                 with tarfile.open(os.path.join(log_directory, log)) as log_tar:
                     for log_name in log_tar.getmembers():
                         log_file = log_tar.extractfile(log_name)
-                        lines += [line.strip() for line in log_file.readlines() if line.strip()]
+                        lines += [
+                            line.strip()
+                            for line in log_file.readlines()
+                            if line.strip()
+                        ]
     return sorted(parse_log_lines(lines), key=lambda x: x[1])  # sort by date
 
 
@@ -329,19 +360,19 @@ def get_chip_type_from_exp_log(exp_log):
     :parameter exp_log: Gets the exp log
     :return: A string of the exp log
     """
-    if 'ChipType' not in exp_log:
+    if "ChipType" not in exp_log:
         raise Exception("Cannot find Chip Type")
 
-    chip = exp_log['ChipType']
-    if chip == '900':
+    chip = exp_log["ChipType"]
+    if chip == "900":
         # get the chip type
-        if 'ChipVersion' not in exp_log:
+        if "ChipVersion" not in exp_log:
             raise Exception("Chip version missing from explog_final.txt")
 
-        chip = exp_log['ChipVersion'].split(".")[0]
+        chip = exp_log["ChipVersion"].split(".")[0]
 
     chip_type = chip if len(chip) < 3 else chip[:3]
-    return 'PQ' if chip_type == 'P2' else chip_type
+    return "PQ" if chip_type == "P2" else chip_type
 
 
 def parse_ts_version(version_string):
@@ -356,7 +387,7 @@ def parse_ts_version(version_string):
 def get_ts_version(archive_path):
     paths = [
         os.path.join(archive_path, "CSA", "version.txt"),
-        os.path.join(archive_path, "version.txt")
+        os.path.join(archive_path, "version.txt"),
     ]
 
     for path in paths:
@@ -367,7 +398,7 @@ def get_ts_version(archive_path):
 
     # get the version number
     line = open(path).readline()
-    version = line.split('=')[-1].strip()
+    version = line.split("=")[-1].strip()
     version = version.split()[0]
     return parse_ts_version(version.strip())
 
@@ -386,10 +417,10 @@ def write_results_from_template(data_dict, output_dir, diagnostic_script_dir):
     try:
         template = Template(open(template_path).read())
         result = template.render(Context(data_dict))
-        with open(os.path.join(output_dir, "results.html"), 'w') as out:
+        with open(os.path.join(output_dir, "results.html"), "w") as out:
             out.write(result.encode("UTF-8"))
     except IOError:
-        raise Exception('Could not find template file at: ' + template_path)
+        raise Exception("Could not find template file at: " + template_path)
 
     with open(os.path.join(output_dir, "main.json"), "w") as fp:
         assert type(data_dict) in {list, dict}
@@ -442,7 +473,12 @@ def get_chip_names_from_element_tree(element_tree):
                 names[i] = "Balance"
             elif chip_element_text.isdigit() and int(chip_element_text) < 10:
                 if chip_version_element is not None:
-                    names[i] = "P" + chip_element_text + "v" + chip_version_element.text.strip()
+                    names[i] = (
+                        "P"
+                        + chip_element_text
+                        + "v"
+                        + chip_version_element.text.strip()
+                    )
                 else:
                     names[i] = "P" + chip_element_text
             else:
@@ -494,13 +530,9 @@ def format_reads(count):
 
 def get_run_log_data(lines, fields=[]):
     # Read csv
-    run_log_data = {
-        "stages": [],
-        "labels": [],
-        "rows": []
-    }
+    run_log_data = {"stages": [], "labels": [], "rows": []}
 
-    csv_file = csv.DictReader(lines, delimiter=',', quotechar='"')
+    csv_file = csv.DictReader(lines, delimiter=",", quotechar='"')
     current_stage = "START"
     current_stage_start_time = 0
     new_time = None
@@ -515,23 +547,23 @@ def get_run_log_data(lines, fields=[]):
                 new_row.append(formatter(row.get(field)))
         run_log_data["rows"].append(new_row)
         # Track the stage intervals
-        new_time = float(row['timestamp'])
+        new_time = float(row["timestamp"])
         new_stage = row["stage0"].upper() if row["stage1"] != "PAUSE" else "PAUSE"
         if current_stage != new_stage:
-            run_log_data["stages"].append({
-                "name": current_stage,
-                "start": current_stage_start_time,
-                "end": new_time
-            })
+            run_log_data["stages"].append(
+                {
+                    "name": current_stage,
+                    "start": current_stage_start_time,
+                    "end": new_time,
+                }
+            )
             current_stage = new_stage
             current_stage_start_time = new_time
     # Add final stage
     if new_time is not None:
-        run_log_data["stages"].append({
-            "name": current_stage,
-            "start": current_stage_start_time,
-            "end": new_time
-        })
+        run_log_data["stages"].append(
+            {"name": current_stage, "start": current_stage_start_time, "end": new_time}
+        )
 
     # Make labels
     run_log_data["labels"] = [display_name for field, display_name, formatter in fields]
@@ -540,7 +572,7 @@ def get_run_log_data(lines, fields=[]):
 
 
 def get_sequencer_kits(archive_path):
-    params_path = os.path.join(archive_path, 'ion_params_00.json')
+    params_path = os.path.join(archive_path, "ion_params_00.json")
     # read the ion params file
     params = dict()
     if os.path.exists(params_path):
@@ -549,15 +581,18 @@ def get_sequencer_kits(archive_path):
 
     if params.get("exp_json", {}).get("chefKitType"):
         template_kit_name = params.get("exp_json", {}).get("chefKitType")
-    elif 'plan' in params and 'templatingKitName' in params['plan']:
-        template_kit_name = params['plan']['templatingKitName']
+    elif "plan" in params and "templatingKitName" in params["plan"]:
+        template_kit_name = params["plan"]["templatingKitName"]
     else:
         template_kit_name = "Unknown Templating Kit"
 
     # get the sequencing kit description from the exp log
     exp_log = read_explog(archive_path)
-    inspector_seq_kit = exp_log.get("SeqKitDesc", None) or exp_log.get("SeqKitPlanDesc",
-                                                                       None) or "Unknown Sequencing Kit"
+    inspector_seq_kit = (
+        exp_log.get("SeqKitDesc", None)
+        or exp_log.get("SeqKitPlanDesc", None)
+        or "Unknown Sequencing Kit"
+    )
 
     # get the system type
     system_type = "Unknown System Type"
