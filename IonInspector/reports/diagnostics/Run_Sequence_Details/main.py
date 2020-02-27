@@ -30,10 +30,10 @@ def parse_run_number_from_run_name(run_name, device_name):
 
 def get_device_name(explog, ion_param_exp):
     if "DeviceName" in explog:
-        return explog.get("DeviceName")
+        return explog.get("DeviceName", "")
 
     if "pgmName" in ion_param_exp:
-        return explog.get("pgmName")
+        return ion_param_exp.get("pgmName", "")
 
     return ""
 
