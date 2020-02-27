@@ -1,3 +1,4 @@
+
 {% if archive_type == "Valkyrie" %}
     {% verbatim %}
     <br><br>
@@ -64,12 +65,14 @@
                 <table class="table table-striped table-hover">
                     <thead>
                     <tr>
+                        <th>Sample Name</th>
                         <th>Barcode</th>
                         <th>Reads</th>
                         <th>Histogram</th>
                     </tr>
                     </thead>
                     <tr v-for="row in results.Barcode_Report.histograms" v-if="!row[0].filtered">
+                        <td>{{ row[0].sample_name }}</td>
                         <td>{{ row[0].name }}</td>
                         <td>{{ row[0].read_count.toLocaleString() }}</td>
                         <td></td>
@@ -80,3 +83,5 @@
     </div>
     {% endverbatim %}
 {% endif %}
+
+

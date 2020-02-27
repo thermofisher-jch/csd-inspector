@@ -28,7 +28,8 @@ def get_read_groups(datasets_basecaller_object):
         groups.append(
             {
                 "filtered": value.get("filtered", False) or "nomatch" in key,
-                "name": value.get("barcode_name", "No Barcode"),
+                "sample_name": value.get("sample", "N/A"),
+                "name": value.get("barcode_name", key.split(".").pop()),
                 "end_barcode": value.get("end_barcode", {}).get("barcode_name", ""),
                 "read_count": value.get("read_count", 0),
                 "index": value.get("index", -1),

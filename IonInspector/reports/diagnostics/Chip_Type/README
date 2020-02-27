@@ -1,4 +1,6 @@
-This will report the chip type contained in the explog_final.txt with the key TsChipType
+This will report the chip type contained in the explog_final.txt with the key ChipType (PGM), or ChipVersion (S5).
+If "Chip Efuse" field is found, more information will be appended such as lot, wafer, and expiration date in addition to
+using "CT" field for chip type.
 
 INPUTS:
 explog_final.txt or explog.txt

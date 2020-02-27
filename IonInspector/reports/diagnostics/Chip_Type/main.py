@@ -1,17 +1,30 @@
 #!/usr/bin/env python
 
 import sys
-from IonInspector.reports.diagnostics.common.inspector_utils import *
-from dateutil.parser import parse
 from datetime import date
 
-ASSEMBLY = {"D": "Tong Hsing"}
+from dateutil.parser import parse
 
-PRODUCT = {"A": "RUO", "X": "Dx"}
+from IonInspector.reports.diagnostics.common.inspector_utils import (
+    print_alert,
+    print_info,
+    read_explog,
+    get_chip_type_from_exp_log,
+)
+
+ASSEMBLY = {"D": "Tong Hsing", "C": "Corwill"}
+
+# any character other than 'X' will be 'RUO'
+# For example, it will start with 'A' and then toggling over to 'B'
+PRODUCT = {"X": "Dx"}
 
 
 def parse_efuse(value):
     values = {}
+
+    # if empty or None, return empty dict
+    if not value:
+        return values
 
     # raw values
     for chunk in value.split(","):
@@ -20,8 +33,8 @@ def parse_efuse(value):
             values[k] = v
 
     # extra values
-    values["Assembly"] = ASSEMBLY[values["BC"][2]]
-    values["Product"] = PRODUCT[values["BC"][3]]
+    values["Assembly"] = ASSEMBLY.get(values["BC"][2], "Unknown Assembly")
+    values["Product"] = PRODUCT.get(values["BC"][3], "RUO")
 
     values["ExpirationYear"] = ord(values["BC"][4]) - ord("A") + 2015
     values["ExpirationMonth"] = ord(values["BC"][5]) - ord("A") + 1
@@ -32,42 +45,31 @@ def parse_efuse(value):
 def execute(archive_path, output_path, archive_type):
     """Executes the test"""
 
-    # get the path to the log file
+    # get the path to the log file, read with special parser
+    # and return with explog dict
     explog = read_explog(archive_path)
 
-    if archive_type == "Valkyrie":
-        efuse = parse_efuse(explog["Chip Efuse"])
+    efuse = parse_efuse(explog.get("Chip Efuse", ""))
 
-        run_date = parse(explog.get('Start Time', 'Unknown')).replace(day=1).date()
-        exp_date = date(efuse["ExpirationYear"], efuse["ExpirationMonth"], 1)
-
-        message = "{} | L {} | W {} | Expiration {}".format(
-            efuse["CT"],
-            efuse["L"],
-            efuse["W"],
-            exp_date.strftime("%b %Y"))
-
-        if run_date > exp_date:
-            return print_alert(message + " EXPIRED!")
-        else:
-            return print_info(message)
-    else:
+    # PGM explog.txt does not have Chip Efuse field
+    if not efuse:
         chip_type = get_chip_type_from_exp_log(explog)
-
-        # parse efuse line
-        efuse_dict = {}
-        for pair in explog.get('Chip Efuse', '').split(','):
-            if ":" in pair:
-                key, value = pair.split(":")
-                efuse_dict[key.strip()] = value.strip()
-
-        if "L" in efuse_dict:
-            chip_type += " | Lot " + efuse_dict["L"]
-
-        if "W" in efuse_dict:
-            chip_type += " | W " + efuse_dict["W"]
-
         return print_info(chip_type)
+
+    run_date = parse(explog.get("Start Time", "Unknown")).replace(day=1).date()
+    exp_date = date(efuse["ExpirationYear"], efuse["ExpirationMonth"], 1)
+
+    message = "{chip_type} | L {lot_info} | W {wafer_info} | Expiration {exp_date_str}".format(
+        chip_type=efuse["CT"],
+        lot_info=efuse["L"],
+        wafer_info=efuse["W"],
+        exp_date_str=exp_date.strftime("%b %Y"),
+    )
+
+    if run_date > exp_date:
+        return print_alert(message + " EXPIRED!")
+    else:
+        return print_info(message)
 
 
 if __name__ == "__main__":
