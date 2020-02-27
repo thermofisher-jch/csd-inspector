@@ -32,7 +32,7 @@ def get_device_name(explog, ion_param_exp):
     if "DeviceName" in explog:
         return explog.get("DeviceName")
 
-    if "pgmName" in ion_param:
+    if "pgmName" in ion_param_exp:
         return explog.get("pgmName")
 
     return ""
