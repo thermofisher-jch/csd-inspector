@@ -23,13 +23,26 @@ def get_read_group_file_prefixes(datasets_basecaller_object):
 
 
 def get_read_groups(datasets_basecaller_object):
+
+    def get_barcode_name(read_key, read_group):
+        # "barcode_name" is not present, it can be combined barcode or no barcode
+        if "barcode_name" not in read_group:
+            if "." in read_key:
+                # combined barcodes
+                return read_key.split(".").pop()
+            else:
+                # a non-barcode rerun
+                return "No Barcode"
+
+        return read_group.get("barcode_name")
+
     groups = []
     for key, value in datasets_basecaller_object["read_groups"].iteritems():
         groups.append(
             {
                 "filtered": value.get("filtered", False) or "nomatch" in key,
                 "sample_name": value.get("sample", "N/A"),
-                "name": value.get("barcode_name", key.split(".").pop()),
+                "name": get_barcode_name(read_key=key, read_group=value),
                 "end_barcode": value.get("end_barcode", {}).get("barcode_name", ""),
                 "read_count": value.get("read_count", 0),
                 "index": value.get("index", -1),
