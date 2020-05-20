@@ -119,6 +119,7 @@ def execute(archive_path, output_path, archive_type):
         low_quality_failed_keypass = int(d['failed_keypass'])
         primer_dimer = int(d['adapter_trim'])
         low_quality_quality_trim = int(d['quality_trim'])
+        low_quality_tag_trim = int(d['tag_trim'])
         final_library_isps = int(d['valid'])
 
         data = {
@@ -129,6 +130,7 @@ def execute(archive_path, output_path, archive_type):
             'Low\nQuality:\nFailed\nKeypass': low_quality_failed_keypass/1000,
             'Primer\nDimer': primer_dimer/1000,
             'Low\nQuality:\nQuality\nTrim': low_quality_quality_trim/1000,
+            'Low\nQuality:\nTag\nTrim': low_quality_tag_trim/1000,
             'Final\nLibrary\nISPs': final_library_isps/1000,
             'Quality\nFilter': quality_filter/1000,
         }
@@ -150,6 +152,7 @@ def execute(archive_path, output_path, archive_type):
             'libarary_low_quality_failed_keypass':   low_quality_failed_keypass, 'libarary_low_quality_failed_keypass_perc': float(low_quality_failed_keypass) / float(library) * 100.0,
             'libarary_primer_dimer': primer_dimer, 'libarary_primer_dimer_perc': float(primer_dimer) / float(library) * 100.0,
             'libarary_low_quality_quality_trim': low_quality_quality_trim, 'libarary_low_quality_quality_trim_perc': float(low_quality_quality_trim) / float(library) * 100.0,
+            'libarary_low_quality_tag_trim': low_quality_tag_trim, 'libarary_low_quality_tag_trim_perc': float(low_quality_tag_trim) / float(library) * 100.0,
             'libarary_final_library_isps': final_library_isps, 'libarary_final_library_isps_perc': float(final_library_isps) / float(library) * 100.0,
             'quality_filter': quality_filter,
             'quality_filter_perc': float(quality_filter) / float(library) * 100.0,
