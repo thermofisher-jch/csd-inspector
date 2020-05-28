@@ -144,7 +144,7 @@ CELERY_RESULT_SERIALIZER = 'pickle'
 SITE_ROOT = os.path.dirname(os.path.dirname(__file__))
 
 
-VERSION = '1.5.4'
+VERSION = '1.5.5-rc.1'
 
 RAVEN_CONFIG = {
     'dsn': 'http://d8a6a72730684575afc834c95ebbdc60:1e5b396140654efd9b3361401f530204@sentry.itw//11',
