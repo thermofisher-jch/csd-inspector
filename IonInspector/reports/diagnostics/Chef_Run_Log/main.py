@@ -5,7 +5,7 @@ import os
 import json
 import glob
 
-from IonInspector.reports.diagnostics.common.inspector_utils import print_alert, print_info, print_warning
+from IonInspector.reports.diagnostics.common.inspector_utils import print_alert, print_info, print_warning, get_kit_from_element_tree, get_xml_from_run_log
 
 # Plots  csv header , display header, formatter
 from reports.diagnostics.common.inspector_utils import get_run_log_data
@@ -57,6 +57,15 @@ def execute(archive_path, output_path, archive_type):
 
     with open(run_log_csv_path) as fp:
         run_log_temp_data = get_run_log_data(fp, TARGET_TEMP_FIELDS)
+
+    # IO-361 : Alert if deck temp hit >=29
+    chef_run_log = get_xml_from_run_log(archive_path)
+    kitName = get_kit_from_element_tree(chef_run_log)
+
+    if "Ion AmpliSeq Kit for Chef DL8" in kitName:
+        for sublist in run_log_temp_data["rows"]:
+            if all(i >=29 for i in sublist[-2:]):
+                return print_alert(" %s : Ambient Below or Above deck temperature hit >= 29C" % kitName)
 
     with open(run_log_csv_path) as fp:
         run_log_fan_data = get_run_log_data(fp, TARGET_FAN_FIELDS)
