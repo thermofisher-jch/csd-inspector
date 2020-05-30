@@ -62,11 +62,6 @@ def execute(archive_path, output_path, archive_type):
     chef_run_log = get_xml_from_run_log(archive_path)
     kitName = get_kit_from_element_tree(chef_run_log)
 
-    if "Ion AmpliSeq Kit for Chef DL8" in kitName:
-        for sublist in run_log_temp_data["rows"]:
-            if all(i >=29 for i in sublist[-2:]):
-                return print_alert(" %s : Ambient Below or Above deck temperature hit >= 29C" % kitName)
-
     with open(run_log_csv_path) as fp:
         run_log_fan_data = get_run_log_data(fp, TARGET_FAN_FIELDS)
 
@@ -78,12 +73,16 @@ def execute(archive_path, output_path, archive_type):
                                    .replace("\"%raw_temp_data%\"", json.dumps(run_log_temp_data))
                                    .replace("\"%raw_fan_data%\"", json.dumps(run_log_fan_data))
                                    )
-
-        # Write out status
-        return print_info("See results for flow, fan, and temperature plots.")
-
     else:
         return print_warning("Run log has no rows.")
+
+    if "Ion AmpliSeq Kit for Chef DL8" in kitName:
+        for sublist in run_log_temp_data.get("rows"):
+            if all(i >=29 for i in sublist[-2:]):
+                return print_alert(" %s : Ambient Below or Above deck temperature hit >= 29C" % kitName)
+
+    # Write out status
+    return print_info("See results for flow, fan, and temperature plots.")
 
 
 if __name__ == "__main__":
