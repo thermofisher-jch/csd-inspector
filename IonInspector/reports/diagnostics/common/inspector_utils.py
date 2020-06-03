@@ -577,10 +577,17 @@ def get_run_log_data(lines, fields=[]):
 
     return run_log_data
 
+def guard_against_unicode(kitName, kitType):
+    try:
+        kitName.decode('ascii')
+    except UnicodeDecodeError:
+        return "Unknown %s" % kitType
+    
+    return kitName
 
 def get_sequencer_kits(archive_path):
     params_path = os.path.join(archive_path, "ion_params_00.json")
-    # read the ion params file
+    #read the ion params file
     params = dict()
     if os.path.exists(params_path):
         with open(params_path) as params_file:
@@ -592,6 +599,7 @@ def get_sequencer_kits(archive_path):
         template_kit_name = params["plan"]["templatingKitName"]
     else:
         template_kit_name = "Unknown Templating Kit"
+    template_kit_name = guard_against_unicode(template_kit_name, "Templating Kit")
 
     # get the sequencing kit description from the exp log
     exp_log = read_explog(archive_path)
@@ -600,6 +608,7 @@ def get_sequencer_kits(archive_path):
         or exp_log.get("SeqKitPlanDesc", None)
         or "Unknown Sequencing Kit"
     )
+    inspector_seq_kit = guard_against_unicode(inspector_seq_kit, "Sequencing Kit")
 
     # get the system type
     system_type = "Unknown System Type"
@@ -607,6 +616,7 @@ def get_sequencer_kits(archive_path):
         system_type = exp_log.get("SystemType")
     elif "PGM HW" in exp_log:
         system_type = "PGM" + exp_log.get("PGM HW")
+    system_type = guard_against_unicode(system_type, "System Type")
 
     return template_kit_name, inspector_seq_kit, system_type
 
