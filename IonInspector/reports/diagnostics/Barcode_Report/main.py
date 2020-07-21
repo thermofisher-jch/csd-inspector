@@ -47,6 +47,7 @@ def get_read_groups(datasets_basecaller_object):
                 "read_count": value.get("read_count", 0),
                 "index": value.get("index", -1),
                 "group": key,
+                "nuc_type": value.get("nucleotide_type", "")
             }
         )
     return sorted(groups, key=lambda k: k["index"])
@@ -89,13 +90,30 @@ def execute(archive_path, output_path, archive_type):
     std = numpy.std(filtered_data)
 
     histograms = []
+    # group, sparkline_path, histgram_data, inline_control
     if archive_type == "Valkyrie":
         for group in groups:
+            barcode_name = group["name"]
+            src_image_path = os.path.join(
+                archive_path, "CSA/outputs/BaseCallingActor-00/{}_rawlib.inline_control.png".format(barcode_name)
+            )
+            dst_image_path = os.path.join(
+                output_path, "{}.inline_control.png".format(barcode_name)
+            )
+
+            if os.path.exists(src_image_path):
+                # Copy to test dir
+                shutil.copyfile(src_image_path, dst_image_path)
+                inline_path = os.path.basename(dst_image_path)
+            else:
+                inline_path = None
+
             histograms.append(
                 [
                     group,
                     None,
                     json.dumps(get_histogram_data(archive_path, group["name"])),
+                    inline_path
                 ]
             )
     else:
@@ -110,9 +128,9 @@ def execute(archive_path, output_path, archive_type):
             if os.path.exists(src_image_path):
                 # Copy to test dir
                 shutil.copyfile(src_image_path, dst_image_path)
-                histograms.append([group, os.path.basename(dst_image_path), None])
+                histograms.append([group, os.path.basename(dst_image_path), None, None])
             else:
-                histograms.append([group, None, None])
+                histograms.append([group, None, None, None])
 
     write_results_from_template(
         {
