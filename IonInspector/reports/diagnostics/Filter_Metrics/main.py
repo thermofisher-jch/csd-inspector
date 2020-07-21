@@ -119,7 +119,7 @@ def execute(archive_path, output_path, archive_type):
         low_quality_failed_keypass = int(d['failed_keypass'])
         primer_dimer = int(d['adapter_trim'])
         low_quality_quality_trim = int(d['quality_trim'])
-        low_quality_tag_trim = int(d['tag_trim'])
+        low_quality_tag_trim = int(d.get('tag_trim', 0))
         final_library_isps = int(d['valid'])
 
         data = {
