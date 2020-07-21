@@ -143,3 +143,4 @@ class ArchiveResource(ModelResource):
         rerun_allowed_methods = ['post', ]
         values_allowed_methods = ['get', ]
         ordering = ['id', ]
+        filtering = {"archive_type": ["exact"]}
