@@ -26,11 +26,43 @@
             <tr>
                 <td>{{ config.assayName }}</td>
                 <td>{{ config.primerPoolID }}</td>
-                <td>{{ config.assayParameters.targetSampleInput|default:"?" }} ng</td>
+                <td>{{ config.assayParameters.targetSampleInputMinimum|default:"?" }} - {{ config.assayParameters.targetSampleInputMaximum|default:"?" }} ng</td>
                 <td>{{ config.pcrProfile.numTargetAmpCycles }}</td>
                 <td>{{ config.pcrProfile.adjustNumTargetAmpCycles }}</td>
-                <td>{{ config.pcrProfile.annealExtendTime }} min</td>
+                <td>{{ config.pcrProfile.annealExtendTime|default:"?" }} min</td>
                 <td>{{ config.assayParameters.ampureRatio1 }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <h3 class="lead">Sample Details</h3>
+    <div class="row">
+        <div class="col-md-12">
+        <table class="table table-striped table-hover">
+        <thead>
+        <tr>
+            <th>Sample Name</th>
+            <th>Barcode Plate Position</th>
+            <th>Sample Plate Position</th>
+            <th>Nucleotide Type</th>
+            <th>Volume</th>
+            <th>Dilution Factor</th>
+            <th>Concentration</th>
+        </tr>
+        </thead>
+            {% for sample in sample_maps %}
+            <tr>
+                <td>{{ sample.sampleId }}</td>
+                <td>{{ sample.barcodePlatePosition }}</td>
+                <td>{{ sample.samplePlatePosition }}</td>
+                <td>{{ sample.sampleType }}</td>
+                <td>{{ sample.sampleVolume }} ul</td>
+                <td>{{ sample.sampleDilutionFactor }}</td>
+                <td>{{ sample.sampleConcentration }} ng/ul</td>
             </tr>
             {% endfor %}
         </table>
