@@ -629,3 +629,26 @@ def format_kit_tag(tag):
     tag = tag.replace("AmpliSeq Kit for", "")
     tag = tag.replace("  ", " ")
     return tag.strip()
+
+
+def parse_experimentinfo_line(line):
+    key = ""
+    data = {}
+    for item in line.split():
+        if "=" in item:
+            key, value = item.split("=")
+            data[key] = [value]
+        else:
+            data[key].append(item)
+    return data
+
+
+def read_flow_info_from_explog(explog):
+    keys = [k for k in explog.keys() if k.startswith("acq") and k.endswith(".dat")]
+    keys = sorted(keys)
+    flow_data = {}
+    for i, k in enumerate(keys):
+        flow_data[i] = parse_experimentinfo_line(explog[k])
+        flow_data[i]["dat_name"] = k
+
+    return flow_data

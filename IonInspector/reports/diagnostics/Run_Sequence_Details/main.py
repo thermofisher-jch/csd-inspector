@@ -5,6 +5,7 @@ import os
 import json
 
 from dateutil.parser import parse
+from datetime import datetime
 
 from IonInspector.reports.diagnostics.common.inspector_utils import (
     read_explog,
@@ -13,6 +14,7 @@ from IonInspector.reports.diagnostics.common.inspector_utils import (
     write_results_from_template,
     handle_exception,
     print_info,
+    read_flow_info_from_explog
 )
 
 OK_STRING = "TS Version is acceptable at <strong>%s</strong>"
@@ -46,6 +48,23 @@ def get_system_type(explog, archive_type):
         return explog.get("Platform", "Valkyrie")
 
     return explog.get("SystemType", "")
+
+
+def get_flow_time(flow_data):
+    time_stamp = []
+    time_format = "%H:%M:%S"
+    for i in range(len(flow_data)-1):
+        time_delta = (datetime.strptime(flow_data[i+1].get("time")[0], time_format) -
+                      datetime.strptime(flow_data[i].get("time")[0], time_format))
+        time_stamp.append([i, time_delta.seconds])
+    return time_stamp
+
+
+def get_disk_perc(flow_data):
+    disk_perc = []
+    for i in range(len(flow_data)):
+        disk_perc.append([i, int(flow_data[i].get("diskPerFree")[0])])
+    return disk_perc
 
 
 def execute(archive_path, output_path, archive_type):
@@ -92,6 +111,10 @@ def execute(archive_path, output_path, archive_type):
                 device_name=device_name,
             )
 
+        flow_data = read_flow_info_from_explog(explog)
+        flow_time_secs = get_flow_time(flow_data)
+        disk_free_perc = get_disk_perc(flow_data)
+
         datetime_output_format = "%Y/%m/%d"
         template_context = {
             "tss_version": version,
@@ -101,6 +124,8 @@ def execute(archive_path, output_path, archive_type):
             "flows": flows,
             "serial_number": serial_number,
             "system_type": system_type,
+            "flow_time_seconds": flow_time_secs,
+            "disk_free_perc": disk_free_perc
         }
         write_results_from_template(
             template_context, output_path, os.path.dirname(os.path.realpath(__file__))
