@@ -23,7 +23,6 @@ def get_read_group_file_prefixes(datasets_basecaller_object):
 
 
 def get_read_groups(datasets_basecaller_object):
-
     def get_barcode_name(read_key, read_group):
         # "barcode_name" is not present, it can be combined barcode or no barcode
         if "barcode_name" not in read_group:
@@ -90,8 +89,10 @@ def execute(archive_path, output_path, archive_type):
     std = numpy.std(filtered_data)
 
     histograms = []
-    # group, sparkline_path, histgram_data, inline_control
+    # group, sparkline_path, histogram_data, inline_control
     if archive_type == "Valkyrie":
+        histograms_first_pass = []
+        sample_mapping = {}
         for group in groups:
             barcode_name = group["name"]
             src_image_path = os.path.join(
@@ -108,14 +109,40 @@ def execute(archive_path, output_path, archive_type):
             else:
                 inline_path = None
 
-            histograms.append(
-                [
-                    group,
-                    None,
-                    json.dumps(get_histogram_data(archive_path, group["name"])),
-                    inline_path
-                ]
+            sample_name = group["sample_name"]
+            if sample_name != "N/A":  # single barcode
+                sample_mapping[barcode_name] = sample_name
+
+            histograms_first_pass.append(
+                {
+                    "group": group,
+                    "histogram_data": json.dumps(get_histogram_data(archive_path, group["name"])),
+                    "inline_path": inline_path
+                }
             )
+
+        # fill missing sample name based on barcode name match
+        # will go by the last matched barcode
+        for hist in histograms_first_pass:
+            if hist["group"]["sample_name"] == "N/A":
+                for barcode_name, sample_name in sample_mapping.items():
+                    if barcode_name in hist["group"]["name"]:
+                        hist["group"]["sample_name"] = sample_name
+
+        # first sort by sample name, then by index
+        # combined barcode has index of -1, so it would go first
+        histograms_sorted = sorted(histograms_first_pass,
+                                   key=lambda hist: (hist["group"]["sample_name"], hist["group"]["index"]))
+
+        # transform to list of list
+        for hist in histograms_sorted:
+            histograms.append([
+                hist["group"],
+                None,
+                hist["histogram_data"],
+                hist["inline_path"]
+            ])
+
     else:
         for group in groups:
             prefix = prefixes[group["group"]]
