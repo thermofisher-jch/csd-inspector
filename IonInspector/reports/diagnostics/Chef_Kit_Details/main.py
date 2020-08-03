@@ -2,23 +2,8 @@
 
 import sys
 
-# from IonInspector.reports.diagnostics.common.inspector_utils import *
 from reports.diagnostics.common.inspector_utils import get_chip_names_from_element_tree, get_kit_from_element_tree, \
-    get_xml_from_run_log, get_lines_from_chef_gui_logs, print_info, handle_exception
-
-
-def get_parsed_loadcheck_data(lines):
-    loadcheck_key = "parseLoadCheckdata"
-    data = {}
-    for line in lines:
-        if loadcheck_key not in line[2]:
-            continue
-
-        loadcheck = line[2].split(":").pop().replace("(", "").replace(")", "").replace(" ", "")
-        k, v = loadcheck.split("=")
-        data[k] = v
-
-    return data
+    get_xml_from_run_log, get_lines_from_chef_gui_logs, print_info, handle_exception, get_parsed_loadcheck_data
 
 
 def execute(archive_path, output_path, archive_type):

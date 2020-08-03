@@ -580,12 +580,13 @@ def get_run_log_data(lines, fields=[]):
 
     return run_log_data
 
+
 def guard_against_unicode(kitName, kitType):
     try:
         kitName.decode('ascii')
     except UnicodeDecodeError:
         return "Unknown %s" % kitType
-    
+
     return kitName
 
 
@@ -614,7 +615,7 @@ def get_platform_and_systemtype(explog):
 
 def get_sequencer_kits(archive_path):
     params_path = os.path.join(archive_path, "ion_params_00.json")
-    #read the ion params file
+    # read the ion params file
     params = dict()
     if os.path.exists(params_path):
         with open(params_path) as params_file:
@@ -654,6 +655,33 @@ def get_sequencer_kits(archive_path):
     return template_kit_name, inspector_seq_kit, system_type
 
 
+def get_kit_lot_info(archive_path):
+    params_path = os.path.join(archive_path, "ion_params_00.json")
+    # read the ion params file
+    params = dict()
+    if os.path.exists(params_path):
+        with open(params_path) as params_file:
+            params = json.load(params_file)
+
+    # read explog text files (explog_final.txt > explog.txt)
+    exp_log = read_explog(archive_path)
+
+    # chef reagents, no way to get OT lot number
+    chef_solution_lot, chef_reagent_lot = "", ""
+    if "exp_json" in params:
+        chef_solution_lot = params["exp_json"].get("chefSolutionsLot", "")
+        chef_reagent_lot = params["exp_json"].get("chefReagentsLot", "")
+
+    # S5 and PGM only, no good way to get Proton seq lot number
+    sequencer_lot = exp_log.get("SeqKitLot", "")
+
+    chef_solution_lot = guard_against_unicode(chef_solution_lot, "").strip()
+    chef_reagent_lot = guard_against_unicode(chef_reagent_lot, "").strip()
+    sequencer_lot = guard_against_unicode(sequencer_lot, "").strip()
+
+    return chef_solution_lot, chef_reagent_lot, sequencer_lot
+
+
 def format_kit_tag(tag):
     if not tag:
         return "Unknown Chef Kit"
@@ -685,3 +713,17 @@ def read_flow_info_from_explog(explog):
         flow_data[i]["dat_name"] = k
 
     return flow_data
+
+
+def get_parsed_loadcheck_data(lines):
+    loadcheck_key = "parseLoadCheckdata"
+    data = {}
+    for line in lines:
+        if loadcheck_key not in line[2]:
+            continue
+
+        loadcheck = line[2].split(":").pop().replace("(", "").replace(")", "").replace(" ", "")
+        k, v = loadcheck.split("=")
+        data[k] = v
+
+    return data
