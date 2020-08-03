@@ -18,7 +18,7 @@
             <th>Input</th>
             <th>Target Amp Cycles</th>
             <th>Adjusted Target Cycles</th>
-            <th>Anneal/Extend</th>
+            <th>Equalizer Cycles</th>
             <th>Ampure Ratio</th>
         </tr>
         </thead>
@@ -29,7 +29,7 @@
                 <td>{{ config.assayParameters.targetSampleInputMinimum|default:"?" }} - {{ config.assayParameters.targetSampleInputMaximum|default:"?" }} ng</td>
                 <td>{{ config.pcrProfile.numTargetAmpCycles }}</td>
                 <td>{{ config.pcrProfile.adjustNumTargetAmpCycles }}</td>
-                <td>{{ config.pcrProfile.annealExtendTime|default:"?" }} min</td>
+                <td>{{ config.pcrProfile.numEqualizerCycles|default:"?" }}</td>
                 <td>{{ config.assayParameters.ampureRatio1 }}</td>
             </tr>
             {% endfor %}
