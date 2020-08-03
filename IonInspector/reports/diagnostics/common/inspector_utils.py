@@ -14,6 +14,8 @@ import semver
 from bs4 import BeautifulSoup
 from django.template import Context, Template
 
+from reports.utils import PGM_RUN, PROTON, S5, VALK, UNKNOWN_PLATFORM
+
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 MAX_MESSAGE_LENGTH = 1040
 EXPLOG_FINAL = "explog_final.txt"
@@ -404,10 +406,11 @@ def get_ts_version(archive_path):
         raise Exception("Could not find version.txt!")
 
     # get the version number
-    line = open(path).readline()
-    version = line.split("=")[-1].strip()
-    version = version.split()[0]
-    return parse_ts_version(version.strip())
+    with open(path) as f:
+        line = f.readline()
+        version = line.split("=")[-1].strip()
+        version = version.split()[0]
+        return parse_ts_version(version.strip())
 
 
 def run_used_chef(archive_path):
@@ -585,6 +588,30 @@ def guard_against_unicode(kitName, kitType):
     
     return kitName
 
+
+def get_platform_and_systemtype(explog):
+    platform = explog.get("Platform", UNKNOWN_PLATFORM)
+    systemtype = explog.get("SystemType", "Unknown System Type")
+
+    # PGM is special case
+    if "PGM HW" in explog:
+        return PGM_RUN, "PGM" + explog.get("PGM HW")
+
+    # Proton is in lower case
+    if platform == "proton":
+        return PROTON, systemtype
+
+    # system type for S5 will contain information such S5 Prime
+    if platform == S5:
+        return S5, systemtype
+
+    # system type for Valkyrie is Dx
+    if platform == VALK:
+        return VALK, "Genexus"
+
+    return platform, systemtype
+
+
 def get_sequencer_kits(archive_path):
     params_path = os.path.join(archive_path, "ion_params_00.json")
     #read the ion params file
@@ -593,29 +620,35 @@ def get_sequencer_kits(archive_path):
         with open(params_path) as params_file:
             params = json.load(params_file)
 
-    if params.get("exp_json", {}).get("chefKitType"):
-        template_kit_name = params.get("exp_json", {}).get("chefKitType")
-    elif "plan" in params and "templatingKitName" in params["plan"]:
+    # read explog text files (explog_final.txt > explog.txt)
+    exp_log = read_explog(archive_path)
+
+    if params.get("exp_json", {}).get("chefKitType", ""):
+        # S5
+        template_kit_name = params["exp_json"]["chefKitType"]
+    elif params.get("exp_json", {}).get("chefReagentID", ""):
+        # Genexus
+        template_kit_name = params["exp_json"]["chefReagentID"]
+    elif params.get("plan", {}).get("templatingKitName", ""):
+        # S5/Proton/PGM, a.k.a. TS RUO
         template_kit_name = params["plan"]["templatingKitName"]
     else:
         template_kit_name = "Unknown Templating Kit"
     template_kit_name = guard_against_unicode(template_kit_name, "Templating Kit")
 
-    # get the sequencing kit description from the exp log
-    exp_log = read_explog(archive_path)
-    inspector_seq_kit = (
-        exp_log.get("SeqKitDesc", None)
-        or exp_log.get("SeqKitPlanDesc", None)
-        or "Unknown Sequencing Kit"
-    )
+    # sequencing kit from exp_json (Genexus and S5) first
+    # if not, get the sequencing kit description from the exp log
+    inspector_seq_kit = params.get("exp_json", {}).get("sequencekitname", "")
+    if not inspector_seq_kit:
+        inspector_seq_kit = (
+                exp_log.get("SeqKitDesc", None)
+                or exp_log.get("SeqKitPlanDesc", None)
+                or "Unknown Sequencing Kit"
+        )
     inspector_seq_kit = guard_against_unicode(inspector_seq_kit, "Sequencing Kit")
 
     # get the system type
-    system_type = "Unknown System Type"
-    if "SystemType" in exp_log:
-        system_type = exp_log.get("SystemType")
-    elif "PGM HW" in exp_log:
-        system_type = "PGM" + exp_log.get("PGM HW")
+    _, system_type = get_platform_and_systemtype(exp_log)
     system_type = guard_against_unicode(system_type, "System Type")
 
     return template_kit_name, inspector_seq_kit, system_type

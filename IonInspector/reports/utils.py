@@ -1,7 +1,14 @@
 from django.http import HttpRequest
-from IonInspector.reports.diagnostics.common.inspector_utils import read_explog_from_handle
-import zipfile
 import os
+
+# define constants
+PGM_RUN = "PGM_Run"
+PROTON = "Proton"
+S5 = "S5"
+OT_LOG = "OT_Log"
+ION_CHEF = "Ion_Chef"
+VALK = "Valkyrie"
+UNKNOWN_PLATFORM = "Unknown Platform"
 
 
 def get_serialized_model(model, resource):

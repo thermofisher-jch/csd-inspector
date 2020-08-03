@@ -13,28 +13,23 @@ from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from django.utils import timezone
 from django.contrib.postgres.fields import ArrayField, JSONField
-
-from IonInspector.reports.diagnostics.common.inspector_utils import *
 from celeryconfig import celery_app
-from reports.utils import force_symlink
+
+from reports.diagnostics.common.inspector_utils import *
+from reports.utils import force_symlink, PGM_RUN, PROTON, S5, OT_LOG, ION_CHEF, VALK, UNKNOWN_PLATFORM
 
 from reports.tags.chef import get_chef_tags
 from reports.tags.pgm import get_pgm_tags
 from reports.tags.proton import get_proton_tags
 from reports.tags.s5 import get_s5_tags
 from reports.tags.ot import get_ot_tags
+from reports.tags.valkyrie import get_valk_tags
 
 # check to see if the settings are configured
 if not settings.configured:
     settings.configure()
 
-# define constants
-PGM_RUN = "PGM_Run"
-PROTON = "Proton"
-S5 = "S5"
-OT_LOG = "OT_Log"
-ION_CHEF = "Ion_Chef"
-VALK = "Valkyrie"
+
 
 CATEGORY_SEQUENCING = "SEQ"
 CATEGORY_SAMPLE_PREP = "PRE"
@@ -201,22 +196,14 @@ class Archive(models.Model):
         archive_dir = os.path.dirname(self.doc_file.path)
         self.extract_archive()
 
-        # if the explog has the PGM HW key, then this is a PGM
         try:
             explog = read_explog(archive_dir)
-            if 'PGM HW' in explog:
-                return PGM_RUN
+            platform, _ = get_platform_and_systemtype(explog)
 
-            # by reading the explog entry "platform" we should be able to differentiate between proton and S5
-            platform = explog.get('Platform', '')
-            if platform == 'proton':
-                return PROTON
-
-            if platform == 'S5':
-                return S5
-
-            if platform == 'Valkyrie':
-                return VALK
+            # do not return when it is undetermined.
+            # unknown platform is considered as error condition
+            if platform != UNKNOWN_PLATFORM:
+                return platform
 
         except Exception as e:
             pass
@@ -315,6 +302,8 @@ class Archive(models.Model):
             search_tags = get_proton_tags(self.archive_root)
         elif self.archive_type == S5:
             search_tags = get_s5_tags(self.archive_root)
+        elif self.archive_type == VALK:
+            search_tags = get_valk_tags(self.archive_root)
         else:
             search_tags = []
         self.search_tags = list(set([tag.strip() for tag in search_tags]))
