@@ -20,6 +20,7 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 MAX_MESSAGE_LENGTH = 1040
 EXPLOG_FINAL = "explog_final.txt"
 EXPLOG = "explog.txt"
+ION_PARAMS = "ion_params_00.json"
 
 
 def check_supported(explog):
@@ -52,6 +53,23 @@ def get_explog_path(archive_path):
             return path
 
     raise Exception("explog_final.txt and explog.txt are missing.")
+
+
+def get_ion_param_path(archive_path):
+    """
+    This method will find ION_PARAMS under CSA (genexus) or root dir
+    :return:
+    """
+    paths = [
+        os.path.join(archive_path, "CSA", ION_PARAMS),
+        os.path.join(archive_path, ION_PARAMS),
+    ]
+
+    for path in paths:
+        if os.path.exists(path):
+            return path
+
+    return None
 
 
 def get_debug_path(archive_path):
@@ -584,6 +602,8 @@ def get_run_log_data(lines, fields=[]):
 def guard_against_unicode(kitName, kitType):
     try:
         kitName.decode('ascii')
+    except UnicodeEncodeError:
+        return kitName.encode("ascii", "ignore")
     except UnicodeDecodeError:
         return "Unknown %s" % kitType
 
@@ -614,10 +634,10 @@ def get_platform_and_systemtype(explog):
 
 
 def get_sequencer_kits(archive_path):
-    params_path = os.path.join(archive_path, "ion_params_00.json")
     # read the ion params file
+    params_path = get_ion_param_path(archive_path)
     params = dict()
-    if os.path.exists(params_path):
+    if params_path:
         with open(params_path) as params_file:
             params = json.load(params_file)
 
@@ -656,10 +676,10 @@ def get_sequencer_kits(archive_path):
 
 
 def get_kit_lot_info(archive_path):
-    params_path = os.path.join(archive_path, "ion_params_00.json")
     # read the ion params file
+    params_path = get_ion_param_path(archive_path)
     params = dict()
-    if os.path.exists(params_path):
+    if params_path:
         with open(params_path) as params_file:
             params = json.load(params_file)
 

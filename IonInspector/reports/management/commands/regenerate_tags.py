@@ -12,6 +12,7 @@ class Command(BaseCommand):
         for archive in Archive.objects.order_by("-id")[:options['pks']]:
             try:
                 archive.generate_tags()
+                print("Archive #{}: {}".format(archive.id, archive.search_tags))
             except Exception as e:
                 print("Archive #{}:".format(archive.id))
                 traceback.print_exc()
