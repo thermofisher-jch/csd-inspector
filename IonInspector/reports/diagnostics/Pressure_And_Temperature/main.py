@@ -32,7 +32,7 @@ PRESSURE_LIMITS = {
     "Valkyrie": {
         "keys": ["manifoldPressure", "regulatorPressure"],
         "ranges": [
-            (0, 100, "Pressure is low", "Pressure is high", ALARM)
+            (9.5, 10, "Pressure is low", "Pressure is high", ALARM)
         ]
     }
 }
@@ -56,7 +56,7 @@ TEMP_LIMITS = {
     "Valkyrie": {
         "keys": ["wasteTemperature", "ambientTemperature"],
         "ranges": [
-            (0, 100, "Temperature is cold", "Temperature is hot", ALARM),
+            (20, 35, "Temperature is cold", "Temperature is hot", ALARM),
         ]},
 }
 
