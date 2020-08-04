@@ -601,7 +601,7 @@ def get_run_log_data(lines, fields=[]):
 
 def guard_against_unicode(kitName, kitType):
     try:
-        kitName.decode('ascii')
+        kitName.decode("ascii")
     except UnicodeEncodeError:
         return kitName.encode("ascii", "ignore")
     except UnicodeDecodeError:
@@ -662,9 +662,9 @@ def get_sequencer_kits(archive_path):
     inspector_seq_kit = params.get("exp_json", {}).get("sequencekitname", "")
     if not inspector_seq_kit:
         inspector_seq_kit = (
-                exp_log.get("SeqKitDesc", None)
-                or exp_log.get("SeqKitPlanDesc", None)
-                or "Unknown Sequencing Kit"
+            exp_log.get("SeqKitDesc", None)
+            or exp_log.get("SeqKitPlanDesc", None)
+            or "Unknown Sequencing Kit"
         )
     inspector_seq_kit = guard_against_unicode(inspector_seq_kit, "Sequencing Kit")
 
@@ -742,8 +742,93 @@ def get_parsed_loadcheck_data(lines):
         if loadcheck_key not in line[2]:
             continue
 
-        loadcheck = line[2].split(":").pop().replace("(", "").replace(")", "").replace(" ", "")
+        loadcheck = (
+            line[2].split(":").pop().replace("(", "").replace(")", "").replace(" ", "")
+        )
         k, v = loadcheck.split("=")
         data[k] = v
 
     return data
+
+
+def get_genexus_kit_info(archive_path):
+
+    deck_status = os.path.join(archive_path, "CSA", "DeckStatus.json")
+    planned_run = os.path.join(archive_path, "CSA", "planned_run.json")
+
+    deck_info = {}
+    with open(deck_status, "r") as f:
+        deck_info = json.load(f)
+
+    kit_config = {}
+    with open(planned_run, "r") as f:
+        data = json.load(f)
+        kit_config = data.get("object", {}).get("kitConfig", {})
+
+    deck_kit_lot_mapping = {}
+    for kit in deck_info:
+        ktype = kit["kitType"]
+        barcodes = kit["barcodeList"]
+        if not ktype in deck_kit_lot_mapping:
+            deck_kit_lot_mapping[ktype] = {}
+
+        for barcode in barcodes:
+            part_number = (
+                barcode["partNumber"] if barcode.get("partNumber", None) else "na"
+            )
+            lot_number = barcode.get("lotNumber", "")
+            deck_kit_lot_mapping[ktype][part_number] = lot_number
+
+    kit_config_mapping = {}
+    for config in kit_config:
+        ktype = config["kitType"]
+        components = config["components"] if config["components"] else []
+
+        if not ktype in kit_config_mapping:
+            kit_config_mapping[ktype] = {}
+
+        for component in components:
+            ctype = component["kitType"]
+            name = component.get("externalKitName", "")
+            part_number = component.get("kitPartNumber", "")
+            kit_config_mapping[ktype][ctype] = {}
+            kit_config_mapping[ktype][ctype]["name"] = name
+            kit_config_mapping[ktype][ctype]["partNumber"] = part_number
+
+    return deck_kit_lot_mapping, kit_config_mapping
+
+
+def get_genexus_lot_number(deck_kit_lot_mapping, kit_config_mapping, kit_types={}):
+    if not kit_types:
+        kit_types = {
+            "LibraryKit": ["Solution", "Reagent"],
+            "TemplatingKit": ["Solution", "Reagent"],
+            "SequencingKit": ["Solution", "Reagent"],
+            "ChipKit": ["Chip"],
+        }
+
+    for ktype, components in kit_types.items():
+        if ktype not in deck_kit_lot_mapping:
+            continue
+
+        if ktype not in kit_config_mapping:
+            continue
+
+        for ctype in components:
+            if ctype not in kit_config_mapping[ktype]:
+                continue
+
+            part_number = kit_config_mapping[ktype][ctype]["partNumber"]
+            name = kit_config_mapping[ktype][ctype]["name"]
+
+            lot_number = deck_kit_lot_mapping[ktype].get(part_number, "")
+            if part_number not in deck_kit_lot_mapping[ktype]:
+                lot_number = deck_kit_lot_mapping[ktype].get("na")
+
+            if lot_number:
+                yield "GX{k}{c}: {l}".format(
+                    l=lot_number,
+                    k=ktype.replace("Kit", ""),
+                    c=ctype.replace("Chip", ""),
+                )
+

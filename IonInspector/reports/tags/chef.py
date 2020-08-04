@@ -1,5 +1,11 @@
-from reports.diagnostics.common.inspector_utils import get_xml_from_run_log, get_chip_names_from_element_tree, \
-    get_kit_from_element_tree, format_kit_tag, get_lines_from_chef_gui_logs, get_parsed_loadcheck_data
+from reports.diagnostics.common.inspector_utils import (
+    get_xml_from_run_log,
+    get_chip_names_from_element_tree,
+    get_kit_from_element_tree,
+    format_kit_tag,
+    get_lines_from_chef_gui_logs,
+    get_parsed_loadcheck_data,
+)
 
 
 def get_chef_tags(archive_path):
@@ -23,8 +29,8 @@ def get_chef_tags(archive_path):
     reagents_lot = loadcheck_data.get("chefReagentsLot", None)
     solutions_lot = loadcheck_data.get("chefSolutionsLot", None)
     if solutions_lot:
-        tags.append("ChefSolutionLot: {}".format(solutions_lot))
+        tags.append("ChefSolution: {}".format(solutions_lot))
     if reagents_lot:
-        tags.append("ChefReagentLot: {}".format(reagents_lot))
+        tags.append("ChefReagent: {}".format(reagents_lot))
 
     return tags

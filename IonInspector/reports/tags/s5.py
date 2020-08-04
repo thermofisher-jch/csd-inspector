@@ -1,5 +1,12 @@
-from reports.diagnostics.common.inspector_utils import read_explog, get_chip_type_from_exp_log, get_sequencer_kits, \
-    format_kit_tag, get_ts_version, parse_ts_version, get_kit_lot_info
+from reports.diagnostics.common.inspector_utils import (
+    read_explog,
+    get_chip_type_from_exp_log,
+    get_sequencer_kits,
+    format_kit_tag,
+    get_ts_version,
+    parse_ts_version,
+    get_kit_lot_info,
+)
 
 
 def get_s5_tags(archive_path):
@@ -17,11 +24,11 @@ def get_s5_tags(archive_path):
 
     chef_solution_lot, chef_reagent_lot, sequencer_lot = get_kit_lot_info(archive_path)
     if chef_solution_lot:
-        tags.append("ChefSolutionLot: {}".format(chef_solution_lot))
+        tags.append("ChefSolution: {}".format(chef_solution_lot))
     if chef_reagent_lot:
-        tags.append("ChefReagentLot: {}".format(chef_reagent_lot))
+        tags.append("ChefReagent: {}".format(chef_reagent_lot))
     if sequencer_lot:
-        tags.append("SeqReagentLot: {}".format(sequencer_lot))
+        tags.append("S5SequencingReagent: {}".format(sequencer_lot))
 
     version = get_ts_version(archive_path)
     if version:
