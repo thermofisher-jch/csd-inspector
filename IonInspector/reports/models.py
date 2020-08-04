@@ -16,7 +16,16 @@ from django.contrib.postgres.fields import ArrayField, JSONField
 from celeryconfig import celery_app
 
 from reports.diagnostics.common.inspector_utils import *
-from reports.utils import force_symlink, PGM_RUN, PROTON, S5, OT_LOG, ION_CHEF, VALK, UNKNOWN_PLATFORM
+from reports.utils import (
+    force_symlink,
+    PGM_RUN,
+    PROTON,
+    S5,
+    OT_LOG,
+    ION_CHEF,
+    VALK,
+    UNKNOWN_PLATFORM,
+)
 
 from reports.tags.chef import get_chef_tags
 from reports.tags.pgm import get_pgm_tags
@@ -29,12 +38,10 @@ from reports.tags.valkyrie import get_valk_tags
 if not settings.configured:
     settings.configure()
 
-
-
 CATEGORY_SEQUENCING = "SEQ"
 CATEGORY_SAMPLE_PREP = "PRE"
 
-DIAGNOSTICS_SCRIPT_DIR = '/opt/inspector/IonInspector/reports/diagnostics'
+DIAGNOSTICS_SCRIPT_DIR = "/opt/inspector/IonInspector/reports/diagnostics"
 TEST_MANIFEST = {
     PGM_RUN: [
         ("Filter_Metrics", CATEGORY_SEQUENCING),
@@ -94,14 +101,14 @@ TEST_MANIFEST = {
         ("Experiment_Errors", CATEGORY_SEQUENCING),
         ("Barcode_Report", CATEGORY_SEQUENCING),
         ("Run_Sequence_Details", CATEGORY_SEQUENCING),
-        ("Run_Type", CATEGORY_SEQUENCING)
+        ("Run_Type", CATEGORY_SEQUENCING),
     ],
     OT_LOG: [
         ("OT_Plots", CATEGORY_SAMPLE_PREP),
         ("Sample_Pump", CATEGORY_SAMPLE_PREP),
         ("Oil_Pump", CATEGORY_SAMPLE_PREP),
         ("OT_Script", CATEGORY_SAMPLE_PREP),
-        ("Flowmeter", CATEGORY_SAMPLE_PREP)
+        ("Flowmeter", CATEGORY_SAMPLE_PREP),
     ],
     ION_CHEF: [
         ("Chef_Flexible_Workflow", CATEGORY_SAMPLE_PREP),
@@ -111,8 +118,8 @@ TEST_MANIFEST = {
         ("Chef_Version", CATEGORY_SAMPLE_PREP),
         ("Chef_Run_Details", CATEGORY_SAMPLE_PREP),
         ("Chef_Run_Log", CATEGORY_SAMPLE_PREP),
-        ("Integrity_Check", CATEGORY_SAMPLE_PREP)
-    ]
+        ("Integrity_Check", CATEGORY_SAMPLE_PREP),
+    ],
 }
 
 
@@ -129,7 +136,7 @@ def get_file_path(instance, filename):
         os.mkdir(media_dir, 0777)
         os.chmod(media_dir, 0777)
 
-    archive_dirs = os.path.join(media_dir, 'archive_files')
+    archive_dirs = os.path.join(media_dir, "archive_files")
     if not os.path.exists(archive_dirs):
         os.mkdir(archive_dirs)
     os.chmod(archive_dirs, 0777)
@@ -139,7 +146,7 @@ def get_file_path(instance, filename):
         os.mkdir(instance_dir, 0777)
     os.chmod(instance_dir, 0777)
 
-    return os.path.join('archive_files', str(instance.pk), filename)
+    return os.path.join("archive_files", str(instance.pk), filename)
 
 
 class Archive(models.Model):
@@ -147,12 +154,12 @@ class Archive(models.Model):
 
     # define a list of archive types
     ARCHIVE_TYPES = (
-        (PGM_RUN, 'PGM'),
-        (PROTON, 'PROTON'),
-        (S5, 'S5'),
-        (VALK, 'Genexus'),
-        (OT_LOG, 'OT'),
-        (ION_CHEF, 'CHEF')
+        (PGM_RUN, "PGM"),
+        (PROTON, "PROTON"),
+        (S5, "S5"),
+        (VALK, "Genexus"),
+        (OT_LOG, "OT"),
+        (ION_CHEF, "CHEF"),
     )
 
     # model attributes
@@ -177,10 +184,14 @@ class Archive(models.Model):
     taser_ticket_number = models.IntegerField(null=True)
 
     # use the get_file_path method to direct the file field on where to store the zip file
-    doc_file = models.FileField(upload_to=get_file_path, blank=True, null=True, max_length=1000)
+    doc_file = models.FileField(
+        upload_to=get_file_path, blank=True, null=True, max_length=1000
+    )
 
     # used to search the runs for tags
-    search_tags = ArrayField(models.CharField(max_length=255), default=list, db_index=True)
+    search_tags = ArrayField(
+        models.CharField(max_length=255), default=list, db_index=True
+    )
 
     # model relationships
     # diagnostics : Foreign Key from diagnostic class
@@ -189,7 +200,7 @@ class Archive(models.Model):
         """This will attempt to auto detect the archive type"""
 
         # if the base archive is a simple log or csv then this is a one touch
-        if self.doc_file.path.endswith('.log') or self.doc_file.path.endswith('.csv'):
+        if self.doc_file.path.endswith(".log") or self.doc_file.path.endswith(".csv"):
             return OT_LOG
 
         # everything else needs the archive to be extracted
@@ -209,12 +220,12 @@ class Archive(models.Model):
             pass
 
         # if the extracted files has a var directory then this is a ion chef
-        if os.path.exists(os.path.join(archive_dir, 'var')):
+        if os.path.exists(os.path.join(archive_dir, "var")):
             return ION_CHEF
 
         # if we have gotten to this point then we really have no idea what kind of archive this is and this
         # should be considered an error condition
-        raise Exception('Cannot determine the archive type.')
+        raise Exception("Cannot determine the archive type.")
 
     def extract_archive(self):
         """This will extract all of the data from the archive to the folder for evaluation"""
@@ -223,22 +234,26 @@ class Archive(models.Model):
             raise Exception("The archive file is not present at: " + self.doc_file.path)
 
         archive_dir = os.path.dirname(self.doc_file.path)
-        if self.doc_file.path.endswith('.zip'):
+        if self.doc_file.path.endswith(".zip"):
             doc_archive = zipfile.ZipFile(self.doc_file.path)
             doc_archive.extractall(path=archive_dir)
             doc_archive.close()
 
         # Some chef archives contains files with no read permission. This seems to kill the python tar library. So
         # instead we are using a subprocess to extract then chmod
-        elif self.doc_file.path.endswith('.tar') \
-                or self.doc_file.path.endswith('.tar.gz') \
-                or self.doc_file.path.endswith('.tar.xz') \
-                or self.doc_file.path.endswith('.txz'):
+        elif (
+                self.doc_file.path.endswith(".tar")
+                or self.doc_file.path.endswith(".tar.gz")
+                or self.doc_file.path.endswith(".tar.xz")
+                or self.doc_file.path.endswith(".txz")
+        ):
             check_call(["tar", "-xf", self.doc_file.path, "--directory", archive_dir])
             check_call(["chmod", "755", "-R", archive_dir])
 
         # Watch out. Some ot logs are are .log and some are .csv
-        elif self.doc_file.path.endswith('.log') or self.doc_file.path.endswith('.csv'):  # One Touch
+        elif self.doc_file.path.endswith(".log") or self.doc_file.path.endswith(
+                ".csv"
+        ):  # One Touch
             target_path = os.path.join(archive_dir, "onetouch.log")
             if not os.path.exists(target_path):
                 shutil.copy(self.doc_file.path, target_path)
@@ -253,15 +268,26 @@ class Archive(models.Model):
 
         # handle coverage analysis specific workarounds here
         archive_dir = os.path.dirname(self.doc_file.path)
-        coverage_analysis_path = os.path.join(archive_dir, 'coverageAnalysis')
+        coverage_analysis_path = os.path.join(archive_dir, "coverageAnalysis")
         if os.path.exists(coverage_analysis_path):
             # we are assuming any subdirectories here will be barcoded subdirectories since the pattern when creating the CSA only specifies content which is indicative of a barcode
-            for subdir in [name for name in os.listdir(coverage_analysis_path) if
-                           os.path.isdir(os.path.join(coverage_analysis_path, name))]:
-                force_symlink(os.path.join(settings.STATICFILES_DIRS[0], 'coverageAnalysis', 'flot'),
-                              os.path.join(coverage_analysis_path, subdir, 'flot'))
-                force_symlink(os.path.join(settings.STATICFILES_DIRS[0], 'coverageAnalysis', 'lifechart'),
-                              os.path.join(coverage_analysis_path, subdir, 'lifechart'))
+            for subdir in [
+                name
+                for name in os.listdir(coverage_analysis_path)
+                if os.path.isdir(os.path.join(coverage_analysis_path, name))
+            ]:
+                force_symlink(
+                    os.path.join(
+                        settings.STATICFILES_DIRS[0], "coverageAnalysis", "flot"
+                    ),
+                    os.path.join(coverage_analysis_path, subdir, "flot"),
+                )
+                force_symlink(
+                    os.path.join(
+                        settings.STATICFILES_DIRS[0], "coverageAnalysis", "lifechart"
+                    ),
+                    os.path.join(coverage_analysis_path, subdir, "lifechart"),
+                )
 
         # delete all other diagnostics first
         tests = Diagnostic.objects.filter(archive=self)
@@ -274,20 +300,26 @@ class Archive(models.Model):
 
         # if this is a sequencer CSA/FSA with chef information it would
         # make sense to optionally add all of the chef tests
-        if archive_type in [S5, PGM_RUN, PROTON] and os.path.exists(os.path.join(archive_dir, 'var')):
+        if archive_type in [S5, PGM_RUN, PROTON] and os.path.exists(
+                os.path.join(archive_dir, "var")
+        ):
             diagnostic_list += TEST_MANIFEST[ION_CHEF]
 
         # make tests folder
-        test_folder = os.path.join(self.archive_root, 'test_results')
+        test_folder = os.path.join(self.archive_root, "test_results")
         if not os.path.exists(test_folder):
             os.mkdir(test_folder)
             os.chmod(test_folder, 0777)
 
         for diagnostic_name, diagnostic_category in diagnostic_list:
-            diagnostic = Diagnostic(name=diagnostic_name, archive=self, category=diagnostic_category)
+            diagnostic = Diagnostic(
+                name=diagnostic_name, archive=self, category=diagnostic_category
+            )
             diagnostic.save()
             if async:
-                celery_app.send_task('reports.tasks.execute_diagnostic', (diagnostic.id,))
+                celery_app.send_task(
+                    "reports.tasks.execute_diagnostic", (diagnostic.id,)
+                )
             else:
                 diagnostic.execute()
 
@@ -322,7 +354,7 @@ class Archive(models.Model):
 def on_archive_delete(sender, instance, **kwargs):
     """Triggered when the archives are deleted"""
 
-    archive_root = os.path.join(settings.MEDIA_ROOT, 'archive_files', str(instance.pk))
+    archive_root = os.path.join(settings.MEDIA_ROOT, "archive_files", str(instance.pk))
     try:
         shutil.rmtree(archive_root)
     except:
@@ -342,22 +374,24 @@ class Diagnostic(models.Model):
     NA = "NA"
     FAILED = "Failed"
     DIAGNOSTIC_STATUSES = (
-        ('U', UNEXECUTED),
-        ('E', EXECUTING),
-        ('A', ALERT),
-        ('I', INFO),
-        ('W', WARNING),
-        ('O', OK),
-        ('N', NA),
-        ('F', FAILED)
+        ("U", UNEXECUTED),
+        ("E", EXECUTING),
+        ("A", ALERT),
+        ("I", INFO),
+        ("W", WARNING),
+        ("O", OK),
+        ("N", NA),
+        ("F", FAILED),
     )
 
     class Meta:
-        ordering = ['name']
+        ordering = ["name"]
 
     # model attributes
     name = models.CharField(max_length=255, default="")
-    status = models.CharField(max_length=255, choices=DIAGNOSTIC_STATUSES, default=UNEXECUTED)
+    status = models.CharField(
+        max_length=255, choices=DIAGNOSTIC_STATUSES, default=UNEXECUTED
+    )
     details = models.CharField(max_length=2048, default="")
     error = models.CharField(max_length=2048, default="")
     html = models.CharField(max_length=255, default="")
@@ -367,13 +401,17 @@ class Diagnostic(models.Model):
 
     CATEGORY_CHOICES = (
         (CATEGORY_SEQUENCING, "SEQUENCING"),
-        (CATEGORY_SAMPLE_PREP, "SAMPLE_PREP")
+        (CATEGORY_SAMPLE_PREP, "SAMPLE_PREP"),
     )
 
-    category = models.CharField(max_length=3, default=CATEGORY_SEQUENCING, choices=CATEGORY_CHOICES)
+    category = models.CharField(
+        max_length=3, default=CATEGORY_SEQUENCING, choices=CATEGORY_CHOICES
+    )
 
     # model relationships
-    archive = models.ForeignKey(Archive, related_name="diagnostics", on_delete=models.CASCADE)
+    archive = models.ForeignKey(
+        Archive, related_name="diagnostics", on_delete=models.CASCADE
+    )
 
     @cached_property
     def display_name(self):
@@ -382,7 +420,7 @@ class Diagnostic(models.Model):
     @cached_property
     def diagnostic_root(self):
         """returns the root of the files used in the diagnostic"""
-        test_folder = os.path.join(self.archive.archive_root, 'test_results')
+        test_folder = os.path.join(self.archive.archive_root, "test_results")
         results_folder = os.path.join(test_folder, self.name)
         if not os.path.exists(results_folder):
             # other workers may have already made the folder
@@ -397,7 +435,15 @@ class Diagnostic(models.Model):
     @cached_property
     def readme(self):
         return os.path.exists(
-            os.path.join(settings.SITE_ROOT, 'IonInspector', 'reports', 'diagnostics', self.name, 'README'))
+            os.path.join(
+                settings.SITE_ROOT,
+                "IonInspector",
+                "reports",
+                "diagnostics",
+                self.name,
+                "README",
+            )
+        )
 
     def execute(self):
         """This will execute the this diagnostic"""
@@ -410,12 +456,20 @@ class Diagnostic(models.Model):
 
             # execute the script
             diagnostic_module = importlib.import_module(
-                'IonInspector.reports.diagnostics.' + self.name.replace(' ', '_') + '.main')
+                "IonInspector.reports.diagnostics."
+                + self.name.replace(" ", "_")
+                + ".main"
+            )
             if settings.DEBUG:
                 reload(diagnostic_module)
-            diagnostic_results = diagnostic_module.execute(self.archive.archive_root, self.diagnostic_root,
-                                                           self.archive.archive_type)
-            assert not isinstance(diagnostic_results, type(None)), "Diagnostic is broken (Returned None)"
+            diagnostic_results = diagnostic_module.execute(
+                self.archive.archive_root,
+                self.diagnostic_root,
+                self.archive.archive_type,
+            )
+            assert not isinstance(
+                diagnostic_results, type(None)
+            ), "Diagnostic is broken (Returned None)"
             self.status, self.priority, self.details = diagnostic_results
 
             html_path = os.path.join(self.diagnostic_root, "results.html")
