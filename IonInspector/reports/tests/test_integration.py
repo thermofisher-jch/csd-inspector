@@ -3,7 +3,7 @@ from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils import timezone
 from reports.models import Archive
-from reports.models import PGM_RUN, PROTON, S5, OT_LOG, ION_CHEF  # Constants
+from reports.utils import PGM_RUN, PROTON, S5, OT_LOG, ION_CHEF  # Constants
 from reports.models import Diagnostic
 import os
 import time
@@ -79,8 +79,15 @@ class PGMTestCase(TestCase):
                 DIAGNOSTIC_FAILURE_STATUSES,
                 get_diagnostic_debug_info(diagnostic)
             )
-        self.assertEquals(self.archive_v1_0.search_tags,
-                          ['TS 5.2.0', '314 Chip', 'PGM Template OT2 200 Kit', 'PGM Sequencing 200 Kit v2'])
+        self.assertEquals(
+            self.archive_v1_0.search_tags,
+            [
+                "314 Chip",
+                "PGM Sequencing 200 Kit v2",
+                "PGM Template OT2 200 Kit",
+                "TS 5.2.0",
+            ],
+        )
 
     def test_diagnostics_v1_1(self):
         self.archive_v1_1.execute_diagnostics(async=False)
@@ -116,8 +123,18 @@ class ProtonTestCase(TestCase):
                 DIAGNOSTIC_FAILURE_STATUSES,
                 get_diagnostic_debug_info(diagnostic)
             )
-        self.assertEquals(self.archive.search_tags,
-                          ['PI Hi-Q Chef Kit', 'PI Hi-Q Sequencing 200 Kit', 'P1 Chip', 'TS 5.0.5'])
+
+        self.assertEquals(
+            self.archive.search_tags,
+            [
+                "ChefReagent: 1767683",
+                "ChefSolution: 1767682",
+                "P1 Chip",
+                "PI Hi-Q Chef Kit",
+                "PI Hi-Q Sequencing 200 Kit",
+                "TS 5.0.5",
+            ],
+        )
 
 
 class S5TestCase(TestCase):
@@ -144,7 +161,16 @@ class S5TestCase(TestCase):
                 DIAGNOSTIC_FAILURE_STATUSES,
                 get_diagnostic_debug_info(diagnostic)
             )
-        self.assertEquals(self.archive.search_tags, ['530 Chip', '520/530 Kit-OT2', 'TS 5.0.4', 'S5 Sequencing Kit'])
+        self.assertEquals(
+            self.archive.search_tags,
+            [
+                "520/530 Kit-OT2",
+                "530 Chip",
+                "S5 Sequencing Kit",
+                "S5SequencingReagent: 12",
+                "TS 5.0.4",
+            ],
+        )
 
 
 class S5WithChefTestCase(TestCase):
@@ -223,7 +249,15 @@ class ChefTestCase(TestCase):
                 DIAGNOSTIC_FAILURE_STATUSES,
                 get_diagnostic_debug_info(diagnostic)
             )
-        self.assertEquals(self.archive.search_tags, ["PI Hi-Q Chef Kit", "P1v3 Chip"])
+        self.assertEquals(
+            self.archive.search_tags,
+            [
+                "ChefReagent: 1742721",
+                "ChefSolution: 1715371",
+                "P1v3 Chip",
+                "PI Hi-Q Chef Kit",
+            ],
+        )
 
 
 class FieldSupportCase(TestCase):

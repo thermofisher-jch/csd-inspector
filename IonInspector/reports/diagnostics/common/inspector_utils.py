@@ -22,6 +22,7 @@ EXPLOG_FINAL = "explog_final.txt"
 EXPLOG = "explog.txt"
 ION_PARAMS = "ion_params_00.json"
 
+NOT_SCANNED = "NOT_SCANNED"
 
 def check_supported(explog):
     """
@@ -644,28 +645,21 @@ def get_sequencer_kits(archive_path):
     # read explog text files (explog_final.txt > explog.txt)
     exp_log = read_explog(archive_path)
 
-    if params.get("exp_json", {}).get("chefKitType", ""):
-        # S5
-        template_kit_name = params["exp_json"]["chefKitType"]
-    elif params.get("exp_json", {}).get("chefReagentID", ""):
-        # Genexus
-        template_kit_name = params["exp_json"]["chefReagentID"]
-    elif params.get("plan", {}).get("templatingKitName", ""):
-        # S5/Proton/PGM, a.k.a. TS RUO
-        template_kit_name = params["plan"]["templatingKitName"]
-    else:
-        template_kit_name = "Unknown Templating Kit"
+    template_kit_name = (
+            params.get("exp_json", {}).get("chefKitType", None)  # S5
+            or params.get("exp_json", {}).get("chefReagentID", None)  # Genexus
+            or params.get("plan", {}).get("templatingKitName", None)  # TS RUO
+            or "Unknown Templating Kit"
+    )
     template_kit_name = guard_against_unicode(template_kit_name, "Templating Kit")
 
-    # sequencing kit from exp_json (Genexus and S5) first
-    # if not, get the sequencing kit description from the exp log
-    inspector_seq_kit = params.get("exp_json", {}).get("sequencekitname", "")
-    if not inspector_seq_kit:
-        inspector_seq_kit = (
-            exp_log.get("SeqKitDesc", None)
-            or exp_log.get("SeqKitPlanDesc", None)
+    # get sequencing kit from exp_json (Genexus and S5)
+    inspector_seq_kit = (
+            exp_log.get("SeqKitDesc", None)  # Proton
+            or exp_log.get("SeqKitPlanDesc", None)  # TS RUO
+            or params.get("exp_json", {}).get("sequencekitname", None)  # S5 / Genexus
             or "Unknown Sequencing Kit"
-        )
+    )
     inspector_seq_kit = guard_against_unicode(inspector_seq_kit, "Sequencing Kit")
 
     # get the system type
@@ -694,6 +688,8 @@ def get_kit_lot_info(archive_path):
 
     # S5 and PGM only, no good way to get Proton seq lot number
     sequencer_lot = exp_log.get("SeqKitLot", "")
+    if sequencer_lot == NOT_SCANNED:
+        sequencer_lot = ""
 
     chef_solution_lot = guard_against_unicode(chef_solution_lot, "").strip()
     chef_reagent_lot = guard_against_unicode(chef_reagent_lot, "").strip()
@@ -831,4 +827,3 @@ def get_genexus_lot_number(deck_kit_lot_mapping, kit_config_mapping, kit_types={
                     k=ktype.replace("Kit", ""),
                     c=ctype.replace("Chip", ""),
                 )
-

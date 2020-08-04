@@ -169,6 +169,7 @@ class BarcodeReportTestCase(SimpleTestCase):
                 "read_count": 609591,
                 "index": -1,
                 "filtered": False,
+                "nuc_type": "",
             },
         )
         self.assertEqual(
@@ -181,6 +182,7 @@ class BarcodeReportTestCase(SimpleTestCase):
                 "read_count": 160472,
                 "index": 0,
                 "filtered": True,
+                "nuc_type": "",
             },
         )
         self.assertEqual(
@@ -193,6 +195,7 @@ class BarcodeReportTestCase(SimpleTestCase):
                 "read_count": 0,
                 "index": 1,
                 "filtered": True,
+                "nuc_type": "",
             },
         )
         self.assertEqual(
@@ -205,5 +208,6 @@ class BarcodeReportTestCase(SimpleTestCase):
                 "read_count": 346887,
                 "index": 101,
                 "filtered": False,
+                "nuc_type": "",
             },
         )

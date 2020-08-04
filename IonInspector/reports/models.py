@@ -306,7 +306,7 @@ class Archive(models.Model):
             search_tags = get_valk_tags(self.archive_root)
         else:
             search_tags = []
-        self.search_tags = list(set([tag.strip() for tag in search_tags]))
+        self.search_tags = sorted(list(set([tag.strip() for tag in search_tags])))
         self.save()
 
     @cached_property
