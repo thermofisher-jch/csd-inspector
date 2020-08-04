@@ -12,6 +12,38 @@ from IonInspector.reports.diagnostics.common.inspector_utils import (
 )
 
 
+def add_stages(lines):
+    run_log_data = {"stages": []}
+
+    csv_file = csv.DictReader(lines, delimiter=",", skipinitialspace=True)
+    curr_stage = ""
+    start_time = ""
+    end_time = ""
+    for row in csv_file:
+        if row["time"] == "time":
+            continue
+
+        if row["module"] == "run" and row["submodule"] == "main":
+            continue
+
+        # there is misnomer in script stage.
+        # set uniform name: Pooled Equalizer
+        if row["status"] == "started":
+            curr_stage = row["submodule"]
+            if "pooled equalizer" in curr_stage.lower():
+                curr_stage = "Pool Equalizer"
+            curr_start = convert_time_script_stage(row["time"])
+
+        elif row["status"] == "completed":
+            run_log_data["stages"].append({
+                "name": curr_stage,
+                "start": curr_start,
+                "end": convert_time_script_stage(row["time"])
+            })
+
+    return run_log_data
+
+
 def get_valk_lib_prep_data(lines, fields=[]):
     # Read csv
     run_log_data = {"labels": [], "rows": []}
@@ -44,6 +76,10 @@ def get_valk_lib_prep_data(lines, fields=[]):
     run_log_data["labels"] = [display_name for field, display_name, formatter in fields]
 
     return run_log_data
+
+
+def convert_time_script_stage(value):
+    return float(datetime.datetime.strptime(value, "%Y_%m_%d-%H:%M:%S").strftime("%s"))
 
 
 def convert_time_lib_prep(value):
@@ -79,6 +115,7 @@ def execute(archive_path, output_path, archive_type):
     )
     results_path = os.path.join(output_path, "results.html")
     run_log_csv_path = os.path.join(archive_path, "CSA", "libPrep_log.csv")
+    script_stages_csv_path = os.path.join(archive_path, "CSA", "ScriptStatus.csv")
 
     if not os.path.exists(run_log_csv_path):
         return print_alert("Could not find libPrep_log.csv!")
@@ -89,12 +126,18 @@ def execute(archive_path, output_path, archive_type):
     with open(run_log_csv_path) as fp:
         run_log_fan_data = get_valk_lib_prep_data(fp.readlines(), TARGET_FAN_FIELDS)
 
+    with open(script_stages_csv_path) as fp:
+        stages = add_stages(fp.readlines())
+
+    run_log_temp_data.update(stages)
+    run_log_fan_data.update(stages)
+
     with open(template_path, "r") as template_file:
         with open(results_path, "w") as results_file:
             results_file.write(
                 template_file.read()
-                .replace('"%raw_temp_data%"', json.dumps(run_log_temp_data))
-                .replace('"%raw_fan_data%"', json.dumps(run_log_fan_data))
+                    .replace('"%raw_temp_data%"', json.dumps(run_log_temp_data))
+                    .replace('"%raw_fan_data%"', json.dumps(run_log_fan_data))
             )
 
     # Write out status
