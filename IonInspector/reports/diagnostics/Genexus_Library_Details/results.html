@@ -10,30 +10,44 @@
     <h3 class="lead">Genexus Library Details</h3>
     <div class="row">
         <div class="col-md-12">
-        <table class="table table-striped table-hover">
-        <thead>
-        <tr>
-            <th>Assay Name</th>
-            <th>Primer Pool Id</th>
-            <th>Input</th>
-            <th>Target Amp Cycles</th>
-            <th>Adjusted Target Cycles</th>
-            <th>Equalizer Cycles</th>
-            <th>Ampure Ratio</th>
-        </tr>
-        </thead>
-            {% for config in deck_configs %}
-            <tr>
-                <td>{{ config.assayName }}</td>
-                <td>{{ config.primerPoolID }}</td>
-                <td>{{ config.assayParameters.targetSampleInputMinimum|default:"?" }} - {{ config.assayParameters.targetSampleInputMaximum|default:"?" }} ng</td>
-                <td>{{ config.pcrProfile.numTargetAmpCycles }}</td>
-                <td>{{ config.pcrProfile.adjustNumTargetAmpCycles }}</td>
-                <td>{{ config.pcrProfile.numEqualizerCycles|default:"?" }}</td>
-                <td>{{ config.assayParameters.ampureRatio1 }}</td>
-            </tr>
-            {% endfor %}
-        </table>
+            <table class="table table-striped table-hover">
+                <thead>
+                <tr>
+                    <th>Assay Name</th>
+                    <th>Primer Pool Id</th>
+                    <th>Input</th>
+                    <th>Target Amp Cycles</th>
+                    <th>Adjusted Target Cycles</th>
+                    {% if column_opts.numLibraryAmpCycles %}
+                        <th>Library Amp Cycles</th>
+                    {% endif %}
+                    {% if column_opts.annealExtendTime %}
+                        <th>Anneal/Extend</th>
+                    {% endif %}
+                    <th>Equalizer Cycles</th>
+                    <th>Ampure Ratio</th>
+                </tr>
+                </thead>
+                {% for config in deck_configs %}
+                    <tr>
+                        <td>{{ config.assayName }}</td>
+                        <td>{{ config.primerPoolID }}</td>
+                        <td>{{ config.assayParameters.targetSampleInputMinimum|default:"?" }}
+                            - {{ config.assayParameters.targetSampleInputMaximum|default:"?" }} ng
+                        </td>
+                        <td>{{ config.pcrProfile.numTargetAmpCycles }}</td>
+                        <td>{{ config.pcrProfile.adjustNumTargetAmpCycles }}</td>
+                        {% if column_opts.numLibraryAmpCycles %}
+                            <td>{{ config.pcrProfile.numLibraryAmpCycles|default:"?" }}</td>
+                        {% endif %}
+                        {% if column_opts.annealExtendTime %}
+                            <td>{{ config.pcrProfile.annealExtendTime|default:"?" }} min</td>
+                        {% endif %}
+                        <td>{{ config.pcrProfile.numEqualizerCycles|default:"?" }}</td>
+                        <td>{{ config.assayParameters.ampureRatio1 }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
         </div>
     </div>
 </div>
@@ -42,30 +56,32 @@
     <h3 class="lead">Sample Details</h3>
     <div class="row">
         <div class="col-md-12">
-        <table class="table table-striped table-hover">
-        <thead>
-        <tr>
-            <th>Sample Name</th>
-            <th>Barcode Plate Position</th>
-            <th>Sample Plate Position</th>
-            <th>Nucleotide Type</th>
-            <th>Volume</th>
-            <th>Dilution Factor</th>
-            <th>Concentration</th>
-        </tr>
-        </thead>
-            {% for sample in sample_maps %}
-            <tr>
-                <td>{{ sample.sampleId }}</td>
-                <td>{{ sample.barcodePlatePosition }}</td>
-                <td>{{ sample.samplePlatePosition }}</td>
-                <td>{{ sample.sampleType }}</td>
-                <td>{{ sample.sampleVolume }} ul</td>
-                <td>{{ sample.sampleDilutionFactor }}</td>
-                <td>{{ sample.sampleConcentration }} ng/ul</td>
-            </tr>
-            {% endfor %}
-        </table>
+            <table class="table table-striped table-hover">
+                <thead>
+                <tr>
+                    <th>Sample Name</th>
+                    <th>Barcode Plate Position</th>
+                    <th>Sample Plate Position</th>
+                    <th>Nucleotide Type</th>
+                    <th>Input Amount</th>
+                    <th>Volume</th>
+                    <th>Dilution Factor</th>
+                    <th>Concentration</th>
+                </tr>
+                </thead>
+                {% for sample in sample_maps %}
+                    <tr>
+                        <td>{{ sample.sampleId }}</td>
+                        <td>{{ sample.barcodePlatePosition }}</td>
+                        <td>{{ sample.samplePlatePosition }}</td>
+                        <td>{{ sample.sampleType }}</td>
+                        <td>{{ sample.sampleInput|floatformat:2 }} ng</td>
+                        <td>{{ sample.sampleVolume }} ul</td>
+                        <td>{{ sample.sampleDilutionFactor }}</td>
+                        <td>{{ sample.sampleConcentration }} ng/ul</td>
+                    </tr>
+                {% endfor %}
+            </table>
         </div>
     </div>
 </div>
