@@ -29,8 +29,8 @@ def get_chef_tags(archive_path):
     reagents_lot = loadcheck_data.get("chefReagentsLot", None)
     solutions_lot = loadcheck_data.get("chefSolutionsLot", None)
     if solutions_lot:
-        tags.append("ChefSolution: {}".format(solutions_lot))
+        tags.append("ChefSln: {}".format(solutions_lot))
     if reagents_lot:
-        tags.append("ChefReagent: {}".format(reagents_lot))
+        tags.append("ChefRgt: {}".format(reagents_lot))
 
     return tags

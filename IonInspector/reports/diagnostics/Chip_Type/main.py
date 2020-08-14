@@ -10,36 +10,8 @@ from IonInspector.reports.diagnostics.common.inspector_utils import (
     print_info,
     read_explog,
     get_chip_type_from_exp_log,
+    parse_efuse,
 )
-
-ASSEMBLY = {"D": "Tong Hsing", "C": "Corwill"}
-
-# any character other than 'X' will be 'RUO'
-# For example, it will start with 'A' and then toggling over to 'B'
-PRODUCT = {"X": "Dx"}
-
-
-def parse_efuse(value):
-    values = {}
-
-    # if empty or None, return empty dict
-    if not value:
-        return values
-
-    # raw values
-    for chunk in value.split(","):
-        if ":" in chunk:
-            k, v = chunk.split(":", 1)
-            values[k] = v
-
-    # extra values
-    values["Assembly"] = ASSEMBLY.get(values["BC"][2], "Unknown Assembly")
-    values["Product"] = PRODUCT.get(values["BC"][3], "RUO")
-
-    values["ExpirationYear"] = ord(values["BC"][4]) - ord("A") + 2015
-    values["ExpirationMonth"] = ord(values["BC"][5]) - ord("A") + 1
-
-    return values
 
 
 def execute(archive_path, output_path, archive_type):

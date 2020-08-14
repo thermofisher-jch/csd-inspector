@@ -22,13 +22,15 @@ def get_proton_tags(archive_path):
     if inspector_seq_kit:
         tags.append(format_kit_tag(inspector_seq_kit))
 
-    chef_solution_lot, chef_reagent_lot, sequencer_lot = get_kit_lot_info(archive_path)
+    chef_solution_lot, chef_reagent_lot, sequencer_lot, chip_lot = get_kit_lot_info(archive_path)
     if chef_solution_lot:
-        tags.append("ChefSolution: {}".format(chef_solution_lot))
+        tags.append("ChefSln: {}".format(chef_solution_lot))
     if chef_reagent_lot:
-        tags.append("ChefReagent: {}".format(chef_reagent_lot))
+        tags.append("ChefRgt: {}".format(chef_reagent_lot))
     if sequencer_lot:
-        tags.append("ProtonSequencingReagent: {}".format(sequencer_lot))
+        tags.append("ProtonSeqRgt: {}".format(sequencer_lot))
+    if chip_lot:
+        tags.append("ProtonChip: {}".format(chip_lot))
 
     version = get_ts_version(archive_path)
     if version:

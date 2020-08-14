@@ -24,6 +24,7 @@ ION_PARAMS = "ion_params_00.json"
 
 NOT_SCANNED = "NOT_SCANNED"
 
+
 def check_supported(explog):
     """
     this will go through the explog and look for invalid hardware
@@ -670,6 +671,8 @@ def get_sequencer_kits(archive_path):
 
 
 def get_kit_lot_info(archive_path):
+    """TS RUO platform"""
+
     # read the ion params file
     params_path = get_ion_param_path(archive_path)
     params = dict()
@@ -679,6 +682,9 @@ def get_kit_lot_info(archive_path):
 
     # read explog text files (explog_final.txt > explog.txt)
     exp_log = read_explog(archive_path)
+
+    efuse = parse_efuse(exp_log.get("Chip Efuse", ""))
+    chip_lot = efuse.get("L", "")
 
     # chef reagents, no way to get OT lot number
     chef_solution_lot, chef_reagent_lot = "", ""
@@ -695,7 +701,7 @@ def get_kit_lot_info(archive_path):
     chef_reagent_lot = guard_against_unicode(chef_reagent_lot, "").strip()
     sequencer_lot = guard_against_unicode(sequencer_lot, "").strip()
 
-    return chef_solution_lot, chef_reagent_lot, sequencer_lot
+    return chef_solution_lot, chef_reagent_lot, sequencer_lot, chip_lot
 
 
 def format_kit_tag(tag):
@@ -729,6 +735,35 @@ def read_flow_info_from_explog(explog):
         flow_data[i]["dat_name"] = k
 
     return flow_data
+
+
+def parse_efuse(value):
+    ASSEMBLY = {"D": "Tong Hsing", "C": "Corwill"}
+
+    # any character other than 'X' will be 'RUO'
+    # For example, it will start with 'A' and then toggling over to 'B'
+    PRODUCT = {"X": "Dx"}
+
+    values = {}
+
+    # if empty or None, return empty dict
+    if not value:
+        return values
+
+    # raw values
+    for chunk in value.split(","):
+        if ":" in chunk:
+            k, v = chunk.split(":", 1)
+            values[k] = v
+
+    # extra values
+    values["Assembly"] = ASSEMBLY.get(values["BC"][2], "Unknown Assembly")
+    values["Product"] = PRODUCT.get(values["BC"][3], "RUO")
+
+    values["ExpirationYear"] = ord(values["BC"][4]) - ord("A") + 2015
+    values["ExpirationMonth"] = ord(values["BC"][5]) - ord("A") + 1
+
+    return values
 
 
 def get_parsed_loadcheck_data(lines):
@@ -824,6 +859,11 @@ def get_genexus_lot_number(deck_kit_lot_mapping, kit_config_mapping, kit_types={
             if lot_number:
                 yield "GX{k}{c}: {l}".format(
                     l=lot_number,
-                    k=ktype.replace("Kit", ""),
-                    c=ctype.replace("Chip", ""),
+                    k=ktype.replace("Kit", "")
+                        .replace("Library", "Lib")
+                        .replace("Templating", "Tpl")
+                        .replace("Sequencing", "Seq"),
+                    c=ctype.replace("Chip", "")
+                        .replace("Solution", "Sln")
+                        .replace("Reagent", "Rgt"),
                 )
