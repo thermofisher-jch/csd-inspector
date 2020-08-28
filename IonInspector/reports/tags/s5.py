@@ -5,8 +5,21 @@ from reports.diagnostics.common.inspector_utils import (
     format_kit_tag,
     get_ts_version,
     parse_ts_version,
-    get_kit_lot_info,
+    get_s5_lot_info,
 )
+
+
+def genereate_lot_info_tags(lot_info, key_name, tag_name):
+    if lot_info.get(key_name, None) and lot_info[key_name]["productDesc"]:
+        if lot_info[key_name]["lotNumber"] == "Not Found":
+            return ""
+
+        ext = "ExT" if "ExT" in lot_info[key_name]["productDesc"] else ""
+        return "S5{ext}{tag_name}: {lot}".format(
+            ext=ext, lot=lot_info[key_name]["lotNumber"], tag_name=tag_name
+        )
+
+    return ""
 
 
 def get_s5_tags(archive_path):
@@ -22,15 +35,28 @@ def get_s5_tags(archive_path):
     if inspector_seq_kit:
         tags.append(format_kit_tag(inspector_seq_kit))
 
-    chef_solution_lot, chef_reagent_lot, sequencer_lot, chip_lot = get_kit_lot_info(archive_path)
-    if chef_solution_lot:
-        tags.append("ChefSln: {}".format(chef_solution_lot))
-    if chef_reagent_lot:
-        tags.append("ChefRgt: {}".format(chef_reagent_lot))
-    if sequencer_lot:
-        tags.append("S5SeqRgt: {}".format(sequencer_lot))
-    if chip_lot:
-        tags.append("S5Chip: {}".format(chip_lot))
+    lot_info = get_s5_lot_info(archive_path)
+
+    # chef ktis
+    if lot_info.get("chefSolutionsLot"):
+        tags.append("ChefSln: {}".format(lot_info.get("chefSolutionsLot")))
+
+    if lot_info.get("chefReagentsLot"):
+        tags.append("ChefRgt: {}".format(lot_info.get("chefReagentsLot")))
+
+    if lot_info.get("chipLot"):
+        tags.append("S5Chip: {}".format(lot_info.get("chipLot")))
+
+    # sequencing kits
+    kit_pairs = [
+        ("sequencingLotInfo", "SeqRgt"),
+        ("washLotInfo", "WashSln"),
+        ("cleaningLotInfo", "CleanSln"),
+    ]
+    for key_name, tag_name in kit_pairs:
+        tag = genereate_lot_info_tags(lot_info, key_name, tag_name)
+        if tag:
+            tags.append(tag)
 
     version = get_ts_version(archive_path)
     if version:

@@ -7,7 +7,8 @@ from IonInspector.reports.diagnostics.common.inspector_utils import (
     write_results_from_template,
 )
 
-AMPLIFICATION_IDX = 1
+# PCR Profile format:   [temperatures in 0.1 C ], [ durations in sec ], number of time repeated ]
+AMPLIFICATION_IDX = -2
 CYCLE_IDX = 2
 
 

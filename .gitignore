@@ -14,3 +14,4 @@ media/archive_files
 .local
 local_settings.py
 requirements.txt
+Pipfile.lock

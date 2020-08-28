@@ -647,19 +647,19 @@ def get_sequencer_kits(archive_path):
     exp_log = read_explog(archive_path)
 
     template_kit_name = (
-            params.get("exp_json", {}).get("chefKitType", None)  # S5
-            or params.get("exp_json", {}).get("chefReagentID", None)  # Genexus
-            or params.get("plan", {}).get("templatingKitName", None)  # TS RUO
-            or "Unknown Templating Kit"
+        params.get("exp_json", {}).get("chefKitType", None)  # S5
+        or params.get("exp_json", {}).get("chefReagentID", None)  # Genexus
+        or params.get("plan", {}).get("templatingKitName", None)  # TS RUO
+        or "Unknown Templating Kit"
     )
     template_kit_name = guard_against_unicode(template_kit_name, "Templating Kit")
 
     # get sequencing kit from exp_json (Genexus and S5)
     inspector_seq_kit = (
-            exp_log.get("SeqKitDesc", None)  # Proton
-            or exp_log.get("SeqKitPlanDesc", None)  # TS RUO
-            or params.get("exp_json", {}).get("sequencekitname", None)  # S5 / Genexus
-            or "Unknown Sequencing Kit"
+        exp_log.get("SeqKitDesc", None)  # Proton
+        or exp_log.get("SeqKitPlanDesc", None)  # TS RUO
+        or params.get("exp_json", {}).get("sequencekitname", None)  # S5 / Genexus
+        or "Unknown Sequencing Kit"
     )
     inspector_seq_kit = guard_against_unicode(inspector_seq_kit, "Sequencing Kit")
 
@@ -670,32 +670,88 @@ def get_sequencer_kits(archive_path):
     return template_kit_name, inspector_seq_kit, system_type
 
 
-def get_kit_lot_info(archive_path):
-    """TS RUO platform"""
-
+def read_ion_params(archive_path):
     # read the ion params file
     params_path = get_ion_param_path(archive_path)
     params = dict()
     if params_path:
         with open(params_path) as params_file:
             params = json.load(params_file)
+    return params
+
+
+def get_chip_lot_from_efuse(explog):
+    efuse = parse_efuse(explog.get("Chip Efuse", ""))
+    return efuse.get("L", "")
+
+
+def get_s5_lot_info(archive_path):
+    """S5"""
+
+    def prep_info(info):
+        info["productDesc"] = guard_against_unicode(
+            info.get("productDesc", ""), ""
+        ).strip()
+        info["lotNumber"] = guard_against_unicode(info.get("lotNumber", ""), "").strip()
+        return info
 
     # read explog text files (explog_final.txt > explog.txt)
     exp_log = read_explog(archive_path)
+    chip_lot = get_chip_lot_from_efuse(exp_log)
 
-    efuse = parse_efuse(exp_log.get("Chip Efuse", ""))
-    chip_lot = efuse.get("L", "")
+    sequencing_lot_info, wash_lot_info, cleaning_lot_info = dict(), dict(), dict()
+    try:
+        products = dict()
+        with open(get_init_log_path(archive_path), "r") as f:
+            lines = f.readlines()
+            products = parse_init_log(lines)
 
-    # chef reagents, no way to get OT lot number
+        for key, value in products.items():
+            if "sequencing" in key.lower():
+                sequencing_lot_info = prep_info(value)
+            elif "wash" in key.lower():
+                wash_lot_info = prep_info(value)
+            elif "cleaning" in key.lower():
+                cleaning_lot_info = prep_info(value)
+    except OSError:
+        # get_init_log_path raise OSError
+        pass
+
+    # chef reagents
+    params = read_ion_params(archive_path)
     chef_solution_lot, chef_reagent_lot = "", ""
     if "exp_json" in params:
         chef_solution_lot = params["exp_json"].get("chefSolutionsLot", "")
         chef_reagent_lot = params["exp_json"].get("chefReagentsLot", "")
 
-    # S5 and PGM only, no good way to get Proton seq lot number
+    return {
+        "chefSolutionsLot": guard_against_unicode(chef_solution_lot, "").strip(),
+        "chefReagentsLot": guard_against_unicode(chef_reagent_lot, "").strip(),
+        "chipLot": chip_lot,
+        "sequencingLotInfo": sequencing_lot_info,
+        "washLotInfo": wash_lot_info,
+        "cleaningLotInfo": cleaning_lot_info,
+    }
+
+
+def get_kit_lot_info(archive_path):
+    """PGM, Proton, Chef"""
+
+    # read explog text files (explog_final.txt > explog.txt)
+    exp_log = read_explog(archive_path)
+    chip_lot = get_chip_lot_from_efuse(exp_log)
+
+    # PGM only
     sequencer_lot = exp_log.get("SeqKitLot", "")
     if sequencer_lot == NOT_SCANNED:
         sequencer_lot = ""
+
+    # chef reagents
+    params = read_ion_params(archive_path)
+    chef_solution_lot, chef_reagent_lot = "", ""
+    if "exp_json" in params:
+        chef_solution_lot = params["exp_json"].get("chefSolutionsLot", "")
+        chef_reagent_lot = params["exp_json"].get("chefReagentsLot", "")
 
     chef_solution_lot = guard_against_unicode(chef_solution_lot, "").strip()
     chef_reagent_lot = guard_against_unicode(chef_reagent_lot, "").strip()
@@ -783,18 +839,13 @@ def get_parsed_loadcheck_data(lines):
 
 
 def get_genexus_kit_info(archive_path):
-
     deck_status = os.path.join(archive_path, "CSA", "DeckStatus.json")
     planned_run = os.path.join(archive_path, "CSA", "planned_run.json")
 
     deck_info = {}
-    with open(deck_status, "r") as f:
-        deck_info = json.load(f)
-
-    kit_config = {}
-    with open(planned_run, "r") as f:
-        data = json.load(f)
-        kit_config = data.get("object", {}).get("kitConfig", {})
+    if os.path.exists(deck_status):
+        with open(deck_status, "r") as f:
+            deck_info = json.load(f)
 
     deck_kit_lot_mapping = {}
     for kit in deck_info:
@@ -809,6 +860,12 @@ def get_genexus_kit_info(archive_path):
             )
             lot_number = barcode.get("lotNumber", "")
             deck_kit_lot_mapping[ktype][part_number] = lot_number
+
+    kit_config = {}
+    if os.path.exists(planned_run):
+        with open(planned_run, "r") as f:
+            data = json.load(f)
+            kit_config = data.get("object", {}).get("kitConfig", {})
 
     kit_config_mapping = {}
     for config in kit_config:
@@ -860,10 +917,53 @@ def get_genexus_lot_number(deck_kit_lot_mapping, kit_config_mapping, kit_types={
                 yield "GX{k}{c}: {l}".format(
                     l=lot_number,
                     k=ktype.replace("Kit", "")
-                        .replace("Library", "Lib")
-                        .replace("Templating", "Tpl")
-                        .replace("Sequencing", "Seq"),
+                    .replace("Library", "Lib")
+                    .replace("Templating", "Tpl")
+                    .replace("Sequencing", "Seq"),
                     c=ctype.replace("Chip", "")
-                        .replace("Solution", "Sln")
-                        .replace("Reagent", "Rgt"),
+                    .replace("Solution", "Sln")
+                    .replace("Reagent", "Rgt"),
                 )
+
+
+def get_init_log_path(archive_path):
+    init_paths = [
+        os.path.join(archive_path, "CSA", "InitLog.txt"),
+        os.path.join(archive_path, "InitLog.txt"),
+    ]
+
+    for p in init_paths:
+        if os.path.exists(p):
+            return p
+
+    raise OSError("InitLog.txt is not found")
+
+
+def parse_init_log(log_lines):
+    date_formats = {"expDate": "%Y/%m/%d"}
+    product_dict = {}
+    current_product = None
+    for line in log_lines:
+        if line.startswith("productDesc: "):
+            # start of block we want to parse
+            current_product = line.split(":", 1)[1].strip()
+            product_dict[current_product] = {"productDesc": current_product}
+        elif line.startswith("remainingUses: "):
+            # end of block we want to parse
+            product_dict[current_product]["remainingUses"] = line.split(":", 1)[
+                1
+            ].strip()
+            current_product = None
+        elif current_product:
+            # in block we want to parse
+            key, value = line.split(":", 1)
+            if key in date_formats:
+                try:
+                    product_dict[current_product][key] = datetime.strptime(
+                        value.strip(), date_formats[key]
+                    ).date()
+                except ValueError:
+                    product_dict[current_product][key] = value.strip()
+            else:
+                product_dict[current_product][key] = value.strip()
+    return product_dict
