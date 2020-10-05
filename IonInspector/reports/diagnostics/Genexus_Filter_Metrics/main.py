@@ -9,6 +9,7 @@ from IonInspector.reports.diagnostics.common.inspector_utils import (
     write_results_from_template,
     print_info,
     print_warning,
+    get_filePath,
 )
 
 
@@ -16,8 +17,8 @@ def parse_sigproc_stats(archive_path):
     stats = {}
     config = ConfigParser.RawConfigParser()
     config.read(
-        os.path.join(
-            archive_path, "CSA", "outputs", "SigProcActor-00", "analysis.bfmask.stats"
+        get_filePath(
+            archive_path, "analysis.bfmask.stats"
         )
     )
     for name, value in config.items("global"):
