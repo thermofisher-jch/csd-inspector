@@ -11,6 +11,7 @@ from IonInspector.reports.diagnostics.common.inspector_utils import (
     print_info,
     print_failed,
     write_results_from_template,
+    get_filePath,
 )
 
 
@@ -44,15 +45,11 @@ def execute(archive_path, output_path, archive_type):
     active_lanes = [active for active, assay in lanes.values()].count(True)
 
     # copy bead density
-    bead_image_path = os.path.join(output_path, "Bead_density_1000.png")
+    fileName = "Bead_density_1000.png"
+    bead_image_path = os.path.join(output_path, fileName)
     bead_image_url = "/media/" + os.path.relpath(bead_image_path, settings.MEDIA_ROOT)
     try:
-        shutil.copy(
-            os.path.join(
-                archive_path, "CSA/outputs/SigProcActor-00/Bead_density_1000.png"
-            ),
-            bead_image_path,
-        )
+        shutil.copy(get_filePath(archive_path, fileName), bead_image_path)
     except IOError:
         bead_image_url = None
         return print_failed("Could not find bead density image!")

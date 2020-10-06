@@ -6,6 +6,7 @@ import tempfile
 import tarfile
 import traceback
 import warnings
+from glob import glob
 from datetime import datetime
 from xml.etree import ElementTree
 from django.core.serializers.json import DjangoJSONEncoder
@@ -967,3 +968,14 @@ def parse_init_log(log_lines):
             else:
                 product_dict[current_product][key] = value.strip()
     return product_dict
+
+# Parse the search dir and get file path (can be used to find bead density, bfmask.stats, etc)
+def get_filePath(archive_path, fileName=None, searchDir="CSA/outputs/SigProcActor-00/"):
+    if fileName:
+        availableFilePaths = [y for x in os.walk(os.path.join(
+            archive_path, searchDir)) for y in glob(os.path.join(x[0], fileName))]
+        for filePath in availableFilePaths:
+            if os.path.isfile(filePath):
+                return filePath
+
+    return None
