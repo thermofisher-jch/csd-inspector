@@ -9,6 +9,11 @@
                 height: 1000px;
                 border: 0;
             }
+            .link {
+                width: 50%;
+                float: left;
+                text-align: center;
+            }
         </style>
     </head>
     <body>
@@ -25,9 +30,18 @@
                 {% endif %}
                 ISP Loading: {{ isp_report }}<br />
                 {{ total_reads_message }}
+                <hr/>
             </div>
         {% if chip_images %}
-            <iframe src="chip_images.html"></iframe>
+        <div class="container">
+            <header align="center">
+                <h3 style="display: inline-block;">Relative Offset</h3>
+                <span style="margin-left: 5px;"><a href="calibration.html">Click to view Calibration Report</a></span>
+            </header>
+            <div class="link"><img src="pix_offset_spatial.png" /></div>
+            <div class="link"><img src="pix_offset_histogram.png" /></div>
+        </div>
+        <iframe src="chip_images.html"></iframe>
         {% endif %}
         </div>
     </body>
