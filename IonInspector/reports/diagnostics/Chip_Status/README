@@ -1,4 +1,4 @@
-Chips may still perform within specification when the Noise alarm is present!
+Chips may still perform within specification when Noise or Gain alarms are present!
 
  Gain - Info Only
 
@@ -21,6 +21,7 @@ P1          | 0.90  | 1.20  |
 550         | 0.90  | 1.20  |
 PQ          | 1.10  | 1.40  |
 GX5         | 0.75  | 1.06  |
+GX7         | 0.937 | 1.143 |
 
  Reference Electrode - Alert
 
@@ -66,7 +67,8 @@ P1          | 170.0
 540         | 170.0
 550         | 185.0
 PQ          | 280.0
-GX5         | 335.0
+GX5         | 122.0
+GX7         | 147.0
 
 ==============================================================================
 

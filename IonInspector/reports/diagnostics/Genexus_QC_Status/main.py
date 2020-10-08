@@ -2,6 +2,7 @@
 import os
 import csv
 import fnmatch
+import copy
 from IonInspector.reports.diagnostics.common.inspector_utils import (
     print_info,
     print_alert,
@@ -92,6 +93,24 @@ def find_sample_name(rows):
     return "Unknown Sample"
 
 
+def get_other_details(rows):
+    other_headers = ['Software Version Details', 'Sample Details', 'Library Details', 'Run Details', 'Assay Details',
+                     'Reagent Information', 'Consumable Information', 'Analysis', 'Instrument Summary', 'Evaluation Metrics']
+    other_runDetails = {}
+    tempHeader = None
+    for row in rows:
+        if len(row):
+            if any(header in row[0] for header in other_headers):
+                tempHeader = row[0]
+                if 'Evaluation Metrics' not in tempHeader:
+                    other_runDetails[tempHeader] = []
+                continue
+            if 'Evaluation Metrics' not in tempHeader and tempHeader in other_runDetails:
+                other_runDetails[tempHeader].append(row)
+
+    return other_runDetails
+
+
 def populate_samples(sample_name, rows):
     sample_data = {
         "sample_name": sample_name,
@@ -107,9 +126,25 @@ def populate_samples(sample_name, rows):
         "metrics": {},
     }
 
+    run_level_data = {
+        "runlevel_qc_status": NA,
+        "keys": [],
+        "metrics": {},
+    }
     for qc_detail in get_qc_dict(rows):
         section = qc_detail.get("header")  # section header, i.e. Run QC Metrics
         type_name = qc_detail.get("type")
+
+        if "Run QC" in section:
+            if section not in run_level_data["metrics"]:
+                run_level_data["metrics"][section] = []
+            run_level_data["keys"] = qc_detail.get("keys")
+            for m in qc_detail.get("metrics", []):
+                run_level_data["runlevel_qc_status"] = m["QC Status"]
+                if type_name:
+                    m["Metric Name"] = "%s %s" % (type_name, m["Metric Name"])
+                run_level_data["metrics"][section].append(m)
+            continue
 
         # assuming all qc_details have the same keys, so last one gets used.
         sample_data["keys"] = qc_detail.get("keys")
@@ -137,7 +172,7 @@ def populate_samples(sample_name, rows):
                     failed_samples["metrics"][section] = []
                 failed_samples["metrics"][section].append(m)
 
-    return sample_data, failed_samples
+    return sample_data, failed_samples, run_level_data
 
 
 def transform_data_for_display(sample_data):
@@ -164,16 +199,22 @@ def execute(archive_path, output_path, archive_type):
     results = {"num_failed_samples": 0, "samples": []}
     info_per_sample = []
     failed_samples = []
+    run_level_data = []
+    infoRowsForOtherDetails = None
     for root, dirnames, filenames in os.walk(os.path.join(archive_path, "CSA")):
         for filename in fnmatch.filter(filenames, "Info.csv"):
             with open(os.path.join(root, filename), "rb") as fp:
                 info_rows = list(csv.reader(fp, delimiter=","))
                 sample_name = find_sample_name(info_rows)
 
-                sample_data, failed_data = populate_samples(sample_name, info_rows)
+                infoRowsForOtherDetails = copy.deepcopy(info_rows)
+                sample_data, failed_data, run_data = populate_samples(sample_name, info_rows)
                 metrics_names, qc_data = transform_data_for_display(sample_data)
                 _, failed_qc_data = transform_data_for_display(failed_data)
+                _, runlevel_qcdata = transform_data_for_display(run_data)
+
                 info_per_sample.append([sample_name, info_rows, metrics_names, qc_data])
+                run_level_data.append([metrics_names, runlevel_qcdata])
                 if failed_data["qc_status"] == FAIL:
                     failed_samples.append([sample_name, None, metrics_names, failed_qc_data])
 
@@ -183,10 +224,12 @@ def execute(archive_path, output_path, archive_type):
                 results["samples"].append(sample_data)
 
     info_per_sample.sort(key=lambda x: x[0])
-
+    
     write_results_from_template(
         {"info_per_sample": info_per_sample,
-         "failed_samples": failed_samples},
+         "failed_samples": failed_samples,
+         "run_level_data": [run_level_data[0]],
+         "other_runDetails": get_other_details(infoRowsForOtherDetails)},
         output_path,
         os.path.dirname(os.path.realpath(__file__)),
     )

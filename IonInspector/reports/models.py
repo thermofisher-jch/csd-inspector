@@ -97,7 +97,7 @@ TEST_MANIFEST = {
         ("Chip_Status", CATEGORY_SEQUENCING),
         ("Chip_Type", CATEGORY_SEQUENCING),
         ("Genexus_Test_Fragments", CATEGORY_SEQUENCING),
-        ("Pressure_And_Temperature", CATEGORY_SEQUENCING),
+        # ("Pressure_And_Temperature", CATEGORY_SEQUENCING), #IO-413
         ("Experiment_Errors", CATEGORY_SEQUENCING),
         ("Barcode_Report", CATEGORY_SEQUENCING),
         ("Run_Sequence_Details", CATEGORY_SEQUENCING),
