@@ -38,7 +38,7 @@ gain_ranges = {
     "530": PROTON_S5_GAIN_RANGE,
     "540": PROTON_S5_GAIN_RANGE,
     "550": PROTON_S5_GAIN_RANGE,
-    "556": PROTON_S5_GAIN_RANGE,
+    "560": PROTON_S5_GAIN_RANGE,
     "PQ": (1.1, 1.4),
     "GX5": VALKYRIE_GAIN_RANGE,
     "GX7": VALKYRIE_GX7_GAIN_RANGE
@@ -54,6 +54,7 @@ noise_thresholds = {
     "530": 90,
     "540": 170,
     "550": 185,
+    "560": 185,
     "PQ": 280,
     "GX5": 122,
     "GX7": 147,
