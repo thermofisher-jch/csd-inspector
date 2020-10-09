@@ -89,8 +89,19 @@ def parse_base_caller_stats(archive_path):
     return stats["Filtering"]["ReadDetails"]["lib"], stats["Filtering"]["BaseDetails"]
 
 
+def copy_chipDiagnosticsReportfiles(archive_path, output_path):
+    chipDiagnosticsReportfiles = ["pix_offset_spatial.png", "pix_offset_histogram.png", "chip_dac.png",  "calibration.html", "gain_spatial.png",
+                                  "chip_thermometer_temperature.png", "gain_histogram.png", "noise_spatial.png", "noise_histogram.png"]
+    for image in chipDiagnosticsReportfiles:
+        imagePath = os.path.join(archive_path, "chipDiagnostics", image)
+        if os.path.exists(imagePath):
+            shutil.copy(imagePath, output_path)
+    return True
+
+
 def copy_chip_images(archive_path, output_path):
     chip_images_html_path = os.path.join(archive_path, "ValkyrieWorkflow/chipImages.html")
+    copy_chipDiagnosticsReportfiles(archive_path, output_path)
     if os.path.exists(chip_images_html_path):
         shutil.copy(chip_images_html_path, os.path.join(output_path, "chip_images.html"))
         for image in glob.glob(archive_path + "/ValkyrieWorkflow/*.jpg"):
