@@ -641,11 +641,6 @@ def shorten_name(name):
             k=name
             .replace("Torrent","")
             .replace("Genexus", "GX")
-            .replace("Library", "Lib")
-            .replace("Templating", "Tpl")
-            .replace("Sequencing", "Seq")
-            .replace("Solution", "Sln")
-            .replace("Reagent", "Rgt"),
         )
     return name
 

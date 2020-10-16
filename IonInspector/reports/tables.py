@@ -53,7 +53,7 @@ class ArchiveTable(tables.Table):
             "<a href='%s' class='no-underline' target='_blank'>&nbsp;</a>" % reverse('report', args=[record.id]))
 
     def render_search_tags(self, value, record):
-        tags = "".join(["<span class='label'>{}</span>".format(x) for x in value])
+        tags = "".join(["<span class='label'>{}</span>".format(x) for x in value if ':' not in x])
         return mark_safe(
             "<a href='%s' class='no-underline' target='_blank' style='padding:7px'>%s</a>" % (reverse('report', args=[record.id]), tags))
 
