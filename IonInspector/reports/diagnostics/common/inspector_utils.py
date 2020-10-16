@@ -635,6 +635,19 @@ def get_platform_and_systemtype(explog):
 
     return platform, systemtype
 
+def shorten_name(name):
+    if name:
+        name = "{k}".format(
+            k=name
+            .replace("Torrent","")
+            .replace("Genexus", "GX")
+            .replace("Library", "Lib")
+            .replace("Templating", "Tpl")
+            .replace("Sequencing", "Seq")
+            .replace("Solution", "Sln")
+            .replace("Reagent", "Rgt"),
+        )
+    return name
 
 def get_sequencer_kits(archive_path):
     # read the ion params file
@@ -668,8 +681,7 @@ def get_sequencer_kits(archive_path):
     _, system_type = get_platform_and_systemtype(exp_log)
     system_type = guard_against_unicode(system_type, "System Type")
 
-    return template_kit_name, inspector_seq_kit, system_type
-
+    return shorten_name(template_kit_name), shorten_name(inspector_seq_kit), system_type
 
 def read_ion_params(archive_path):
     # read the ion params file
@@ -838,6 +850,20 @@ def get_parsed_loadcheck_data(lines):
 
     return data
 
+def get_serial_no(archive_path):
+    try:
+        explog = read_explog(archive_path)
+        check_supported(explog)
+
+         # get the Serial number
+        serial_number = explog.get("Serial Number", "Unknown")
+
+        if serial_number:
+            return "SN: {s}".format(
+                s=serial_number
+            )
+    except Exception as exc:
+        return exc.message
 
 def get_genexus_kit_info(archive_path):
     deck_status = os.path.join(archive_path, "CSA", "DeckStatus.json")

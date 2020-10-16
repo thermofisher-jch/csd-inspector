@@ -3,7 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <title>Run Details</title>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <style>
+        .container {
+            width: 75%;
+        }
+        #chefDetails>tbody>tr>td {
+            padding: 2;
+            font-size: smaller;
+        }
+
+        #qcMetrics>thead>tr>td {
+            padding: 4px;
+            font-size: medium;
+        }
+
+        .failed {
+            display: inline-block;
+            vertical-align: middle;
+        }
+
         body {
             padding-right: 30px;
             padding-left: 30px;
@@ -30,51 +49,90 @@
             flex: auto;
             width: 300px;
         }
+
         .histogram-container img {
             height: 30px;
         }
-
     </style>
 </head>
+
 <body>
-<p style="text-align: center">
-    Run Date: {{ run_date }}<br/>
+    <p style="text-align: center">
+        <div class="w-75 container">
+            <div class="panel panel-default">
+                <div class="panel-heading text-center lead">Chef Run Details</div>
+                <table class="table table-bordered table-striped table-hover" id="chefDetails">
+                    <tr>
+                        <td>Run Date:</td> <td>{{ run_date }}</td>
+                    </tr>
+                    <tr>
+                        {% if chef_name %}
+                            <td>Chef Name:</td>
+                            <td> {{ chef_name }}</td>
+                        {% else %}
+                            <td>Chef Name: </td>
+                            <td><i>Unknown</i></td>
+                        {% endif %}
+                    </tr>
+                    <tr>
+                        {% if sample_pos %}
+                            <td>Sample Number: </td>
+                            <td>{{ sample_pos }}</td>
+                        {% else %}
+                            <td>Sample Number: </td>
+                            <td><i>Unknown</i></td>
+                        {% endif %}
+                    </tr>
+                    {% if chef_reagents_lot %}
+                        <tr>
+                            <td>Chef Reagents Lot: </td>
+                            <td>{{ chef_reagents_lot }}</td>
+                        </tr>
+                    {% endif %}
+                    {% if chef_reagents_expiration %}
+                        <tr>
+                            <td>Chef Reagents Expiration Date: </td>
+                            <td>{{ chef_reagents_expiration }}</td>
+                        </tr>
+                    {% endif %}
+                    {% if chef_solutions_lot %}
+                        <tr>
+                            <td>Chef Solutions Lot: </td>
+                            <td>{{ chef_solutions_lot }}</td>
+                        </tr>
+                    {% endif %}
+                    {% if chef_solutions_expiration %}
+                        <tr>
+                            <td>Chef Solutions Expiration: </td>
+                            <td>{{ chef_solutions_expiration }}</td>
+                        </tr>
+                    {% endif %}
+                    {% if libPrepProtocol %}
+                        <tr>
+                            <td>Library Prep Protocol: </td>
+                            <td>{{ libPrepProtocol }}</td>
+                        </tr>
+                    {% endif %}
+                    {% if libraryPool %}
+                        <tr>
+                            <td> Library Pool Id: </td>
+                            <td>{{ libraryPool }}</td>
+                        </tr>
+                    {% endif %}
+                </table>
+            </div>
+        </div>
 
-    {% if chef_name %}
-        Chef Name: {{ chef_name }}<br/>
-    {% else %}
-        Chef Name: <i>Unknown</i><br/>
-    {% endif %}
-
-    {% if sample_pos %}
-        Sample Number: {{ sample_pos }}<br/>
-    {% else %}
-        Sample Number: <i>Unknown</i><br/>
-    {% endif %}
-
-    {% if chef_reagents_lot %}
-        Chef Reagents Lot: {{ chef_reagents_lot }}<br />
-    {% endif %}
-    {% if chef_reagents_expiration %}
-        Chef Reagents Expiration Date: {{ chef_reagents_expiration }}<br />
-    {% endif %}
-    {% if chef_solutions_lot %}
-        Chef Solutions Lot: {{ chef_solutions_lot }}<br />
-    {% endif %}
-    {% if chef_solutions_expiration %}
-        Chef Solutions Expiration: {{ chef_solutions_expiration }}<br />
-    {% endif %}
-</p>
-
-<br><br><br>
-<div class="grid">
-    {% for name, path in histograms %}
+    <br><br><br>
+    <div class="grid">
+        {% for name, path in histograms %}
         <div class="histogram-container">
             <img src="{{ path }}">
             <br>
             {{ name }}
         </div>
-    {% endfor %}
-</div>
+        {% endfor %}
+    </div>
 </body>
+
 </html>

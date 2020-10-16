@@ -1,0 +1,67 @@
+<html>
+<head>
+    <title>Genexus Run Summary Report</title>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <style>
+        .qcHeading {
+          padding: 0rem;
+          background: #31688f52;
+          text-align: left;
+        }
+        #qcMetrics>tbody>tr>td {
+          padding: 2;
+          font-size: smaller;
+        }
+        #qcMetrics>thead>tr>td {
+          padding: 4px;
+          font-size: medium;
+        }
+        .failed {
+            display: inline-block;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <h1 class="lead">Genexus Run Summary Report</h1>
+    <div class="row">
+        <div class="col-md-12">           
+            <br>
+            <div>
+            {% for key, values in other_runDetails.items %}
+            <div class="panel panel-default">
+                <div class="panel-heading text-center lead">{{ key }}</div>
+                <table class="table table-bordered table-striped table-hover" id="qcMetrics">
+                        {% for row in values %}
+                            {% if row %}
+                                <tr>
+                                    {% for col in row %}
+                                        {% ifnotequal col "" %}
+                                            <td>{{ col }}</td>
+                                        {% endifnotequal %}
+                                    {% endfor %}
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                
+                </table>
+            </div>
+            {% endfor %}        
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+<script>
+    $('#myTabs a').click(function (e) {
+        e.preventDefault();
+        $(this).tab('show')
+    })
+</script>
+</body>
+</html>
