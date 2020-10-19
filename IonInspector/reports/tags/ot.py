@@ -1,4 +1,5 @@
 import os
+from reports.diagnostics.common.inspector_utils import get_serial_no
 
 
 def get_ot_tags(archive_path):
@@ -12,5 +13,7 @@ def get_ot_tags(archive_path):
     script_tag = "OT " + script_tag
 
     tags.append(script_tag)
+
+    tags.append(get_serial_no(archive_path))
 
     return tags

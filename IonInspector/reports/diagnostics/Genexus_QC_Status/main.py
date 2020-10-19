@@ -110,6 +110,29 @@ def get_other_details(rows):
 
     return other_runDetails
 
+def runLevelQcData(qc_detail):
+    section = qc_detail.get("header")  # section header, i.e. Run QC/ Control QC Metrics
+    type_name = qc_detail.get("type")
+    run_level_failedQc = 0
+    run_level_data = {
+        "qc_status": NA,
+        "keys": [],
+        "metrics": {},
+    }
+
+    if section not in run_level_data["metrics"]:
+        run_level_data["metrics"][section] = []
+    run_level_data["keys"] = qc_detail.get("keys")
+    for m in qc_detail.get("metrics", []):
+        run_level_data["qc_status"] = m["QC Status"]
+        # any fail -> fail
+        if m["QC Status"] == FAIL:
+            run_level_failedQc += 1
+
+        if type_name:
+            m["Metric Name"] = "%s %s" % (type_name, m["Metric Name"])
+        run_level_data["metrics"][section].append(m)
+    return run_level_failedQc, run_level_data
 
 def populate_samples(sample_name, rows):
     sample_data = {
@@ -126,24 +149,23 @@ def populate_samples(sample_name, rows):
         "metrics": {},
     }
 
-    run_level_data = {
-        "runlevel_qc_status": NA,
-        "keys": [],
-        "metrics": {},
-    }
+    runQc_data = {}
+    run_level_failedQcs = {}
+    controlQc_data = {}
     for qc_detail in get_qc_dict(rows):
         section = qc_detail.get("header")  # section header, i.e. Run QC Metrics
         type_name = qc_detail.get("type")
 
-        if "Run QC" in section:
-            if section not in run_level_data["metrics"]:
-                run_level_data["metrics"][section] = []
-            run_level_data["keys"] = qc_detail.get("keys")
-            for m in qc_detail.get("metrics", []):
-                run_level_data["runlevel_qc_status"] = m["QC Status"]
-                if type_name:
-                    m["Metric Name"] = "%s %s" % (type_name, m["Metric Name"])
-                run_level_data["metrics"][section].append(m)
+        if "Run QC" in section and not bool(runQc_data):
+            run_level_failedQc, runQc_data = runLevelQcData(qc_detail)
+            if run_level_failedQc:
+                run_level_failedQcs["failedRunQc"] = run_level_failedQc
+            continue
+
+        if "Control QC" in section and not bool(controlQc_data):
+            run_level_failedQc, controlQc_data = runLevelQcData(qc_detail)
+            if run_level_failedQc:
+                run_level_failedQcs["failedControlQc"] = run_level_failedQc
             continue
 
         # assuming all qc_details have the same keys, so last one gets used.
@@ -172,7 +194,7 @@ def populate_samples(sample_name, rows):
                     failed_samples["metrics"][section] = []
                 failed_samples["metrics"][section].append(m)
 
-    return sample_data, failed_samples, run_level_data
+    return sample_data, failed_samples, runQc_data, controlQc_data, run_level_failedQcs
 
 
 def transform_data_for_display(sample_data):
@@ -199,7 +221,8 @@ def execute(archive_path, output_path, archive_type):
     results = {"num_failed_samples": 0, "samples": []}
     info_per_sample = []
     failed_samples = []
-    run_level_data = []
+    run_level_runQcdata = []
+    run_level_controlQcdata = []
     infoRowsForOtherDetails = None
     for root, dirnames, filenames in os.walk(os.path.join(archive_path, "CSA")):
         for filename in fnmatch.filter(filenames, "Info.csv"):
@@ -208,13 +231,16 @@ def execute(archive_path, output_path, archive_type):
                 sample_name = find_sample_name(info_rows)
 
                 infoRowsForOtherDetails = copy.deepcopy(info_rows)
-                sample_data, failed_data, run_data = populate_samples(sample_name, info_rows)
+                sample_data, failed_data, runQc_data, controlQc_data, run_level_failedQcs = populate_samples(
+                    sample_name, info_rows)
                 metrics_names, qc_data = transform_data_for_display(sample_data)
                 _, failed_qc_data = transform_data_for_display(failed_data)
-                _, runlevel_qcdata = transform_data_for_display(run_data)
+                _, runQc_data = transform_data_for_display(runQc_data)
+                _, controlQc_data = transform_data_for_display(controlQc_data)
 
                 info_per_sample.append([sample_name, info_rows, metrics_names, qc_data])
-                run_level_data.append([metrics_names, runlevel_qcdata])
+                run_level_runQcdata.append([metrics_names, runQc_data])
+                run_level_controlQcdata.append([metrics_names, controlQc_data])
                 if failed_data["qc_status"] == FAIL:
                     failed_samples.append([sample_name, None, metrics_names, failed_qc_data])
 
@@ -224,18 +250,33 @@ def execute(archive_path, output_path, archive_type):
                 results["samples"].append(sample_data)
 
     info_per_sample.sort(key=lambda x: x[0])
-    
     write_results_from_template(
         {"info_per_sample": info_per_sample,
          "failed_samples": failed_samples,
-         "run_level_data": [run_level_data[0]],
+         "run_level_data" : [[run_level_runQcdata[0]], [run_level_controlQcdata[0]]],
          "other_runDetails": get_other_details(infoRowsForOtherDetails)},
         output_path,
         os.path.dirname(os.path.realpath(__file__)),
     )
-
-    if results["num_failed_samples"] > 0:
-        return print_alert("%d samples have failed QC check." % results["num_failed_samples"])
+    alertMessages =[]
+    if results["num_failed_samples"] == 1:
+        alertMessages.append("%d sample has failed QC check" % results["num_failed_samples"])
+    elif results["num_failed_samples"] > 1:
+        alertMessages.append("%d samples have failed QC check" % results["num_failed_samples"])
+    
+    if run_level_failedQcs.get("failedRunQc", ""):
+        if run_level_failedQcs["failedRunQc"] == 1:
+            alertMessages.append("%d Run QC has failed" % run_level_failedQcs["failedRunQc"])
+        else:
+            alertMessages.append("%d Run QCs failed" % run_level_failedQcs["failedRunQc"])
+    if run_level_failedQcs.get("failedControlQc", ""):
+        if run_level_failedQcs.get("failedControlQc") == 1:
+            alertMessages.append("%d Control QC has failed" % results["failedControlQc"])
+        else:
+            alertMessages.append("%d Control QCs have failed" % results["failedControlQc"])
+    
+    if alertMessages:
+        return print_alert(" | ".join(alertMessages))
     else:
         num_pass = 0
         for sample in results["samples"]:

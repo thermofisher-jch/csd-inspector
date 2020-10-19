@@ -49,6 +49,16 @@ def execute(archive_path, output_path, archive_type):
         except:
             chef_solutions_expiration = None
 
+        planDict = ion_params.get('plan', dict())
+        categories = planDict.get('categories', '')
+        category = None
+        if 'ocav4' in categories:
+            category = "2 Library Pools - OCA Plus"
+        elif 'myeloid' in categories:
+            category = "Myeloid"
+         
+        libPoolId =  planDict.get('libraryPool', '')
+
         datetime_output_format = '%Y/%m/%d'
         template_context = {
             'run_date': run_date.strftime(datetime_output_format),
@@ -59,7 +69,9 @@ def execute(archive_path, output_path, archive_type):
                 datetime_output_format) if chef_reagents_expiration else '',
             'chef_solutions_lot': chef_solutions_lot,
             'chef_solutions_expiration': chef_solutions_expiration.strftime(
-                datetime_output_format) if chef_solutions_expiration else ''
+                datetime_output_format) if chef_solutions_expiration else '',
+            'libPrepProtocol': category if category else '',
+            'libraryPool': "Pool " + libPoolId if libPoolId else ''
         }
         write_results_from_template(template_context, output_path, os.path.dirname(os.path.realpath(__file__)))
 

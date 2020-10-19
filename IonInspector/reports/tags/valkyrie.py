@@ -7,6 +7,7 @@ from reports.diagnostics.common.inspector_utils import (
     parse_ts_version,
     get_genexus_kit_info,
     get_genexus_lot_number,
+    get_serial_no
 )
 
 
@@ -40,5 +41,7 @@ def get_valk_tags(archive_path):
     version = get_ts_version(archive_path)
     if version:
         tags.append("TS " + parse_ts_version(version))
+
+    tags.append(get_serial_no(archive_path))
 
     return tags
