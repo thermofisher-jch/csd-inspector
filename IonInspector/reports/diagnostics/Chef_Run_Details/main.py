@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import sys
+import glob
+import csv
 
 from IonInspector.reports.diagnostics.common.inspector_utils import *
 from reports.diagnostics.common.inspector_utils import parse_run_date_from_xml_path
@@ -26,7 +28,9 @@ RUN_DEVIATIONS = {
     "hid_snp_510_200bp": "HID",
     "pcr400bp": "400bp",
     "pcr200bp": "200bp",
-    "anneal62no10xab": "HID"
+    "anneal62no10xab": "HID",
+    "myeloid_protocol": "Myeloid",
+    "550_ocav4_short_protocol": "2 Library Pools - OCA Plus"
 }
 
 
@@ -74,6 +78,36 @@ def get_cycles_and_extend(element_tree):
 
     return cycles, extend
 
+def get_libPrepPoolInfo(rows):
+    pool = {}
+    for i, row in enumerate(rows):
+        if row:
+            if "lc_lib_combined_bc" in row:
+                pool2index = row.index('lc_lib_combined_bc')
+                pool["libPool2"] = rows[i+1][pool2index]
+            if "lc_empty_insert_c_bc" in row:
+                pool1index = row.index('lc_empty_insert_c_bc')
+                pool["libPool1"] = rows[i+1][pool1index]
+                break
+    return pool
+
+def get_libPrepProtocal(archive_path):
+    run_log_csv_filepath = None
+    info_rows = []
+
+
+    # Find the csv path
+    for file_name in glob(os.path.join(archive_path, 'var', 'log', 'IonChef', 'Data', "lc_runlog.csv")):
+        run_log_csv_filepath = file_name
+        break
+    if not run_log_csv_filepath:
+        return print_alert("Could not find lc RunLog csv!")
+
+    with open(run_log_csv_filepath, "rb") as fp:
+        info_rows = list(csv.reader(fp, delimiter=","))
+
+    return get_libPrepPoolInfo(info_rows)
+
 
 def execute(archive_path, output_path, archive_type):
     """Executes the test"""
@@ -110,6 +144,24 @@ def execute(archive_path, output_path, archive_type):
         if extend:
             message += " | Anneal/Extend (min): " + extend
 
+
+        os.path.join(os.path.dirname(os.path.realpath(__file__)), "results.html")
+        os.path.join(output_path, "results.html")
+        pool = get_libPrepProtocal(archive_path)
+
+        template_context = {
+            'runType' : summary,
+            'run_date':run_date,
+            'Cycles' : cycles,
+            'extend' : extend,
+            'deviation': deviation,
+        }
+        if 'OCA Plus' in deviation:
+            template_context['libPool1'] = pool.get("libPool1", "N/A")
+            template_context['libPool2'] = pool.get("libPool2", "N/A")
+
+        write_results_from_template(template_context, output_path, os.path.dirname(os.path.realpath(__file__)))
+        
         return print_info(message)
 
     except Exception as exc:

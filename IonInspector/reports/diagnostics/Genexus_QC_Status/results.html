@@ -25,14 +25,36 @@
           border: 2px solid red;
         }
     </style>
-   
 </head>
 <body>
-
 <div class="container-fluid">
     <h1 class="lead">Genexus QC Status</h1>
     <div class="row">
         <div class="col-md-12">
+            {% for sample_name, rows, qc_keys, qc_data in failed_samples %}
+            <h4><span class="label label-danger">Failed Metrics:</span>  <span class="failed">{{ sample_name }} </span></h4>
+            {% for qc_sect, qc_rows in qc_data %}
+                <br>
+                <div class="panel panel-default">
+                    <div class="panel-heading text-center lead">{{ qc_sect }}</div>
+                <table class="table table-bordered table-striped table-hover" id="qcMetrics">
+                    <thead class="qcHeading">    
+                    <tr>
+                        {% for key in qc_keys %}
+                            <td>{{ key }}</td>
+                        {% endfor %}
+                    </tr>
+                    </thead>
+                    {% for values in qc_rows %}
+                        <tr>
+                            {% for value in values %}
+                                <td>{{ value }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% endfor %}
+        {% endfor %}
             {% for run_level_qc in run_level_data %}
                 {% for qc_keys, qc_data in run_level_qc %}
                     {% for qc_sect, qc_rows in qc_data %}
@@ -61,32 +83,6 @@
             <br><br>
             </div>
             {% endfor %}
-            
-                {% for sample_name, rows, qc_keys, qc_data in failed_samples %}
-                    <h4><span class="label label-danger">Failed Metrics:</span>  <span class="failed">{{ sample_name }} </span></h4>
-                    {% for qc_sect, qc_rows in qc_data %}
-                        <br>
-                        <div class="panel panel-default">
-                            <div class="panel-heading text-center lead">{{ qc_sect }}</div>
-                        <table class="table table-bordered table-striped table-hover" id="qcMetrics">
-                            <thead class="qcHeading">    
-                            <tr>
-                                {% for key in qc_keys %}
-                                    <td>{{ key }}</td>
-                                {% endfor %}
-                            </tr>
-                            </thead>
-                            {% for values in qc_rows %}
-                                <tr>
-                                    {% for value in values %}
-                                        <td>{{ value }}</td>
-                                    {% endfor %}
-                                </tr>
-                            {% endfor %}
-                        </table>
-                        
-                    {% endfor %}
-                {% endfor %}
                 <br><br>
                 <!-- Nav tabs -->
                 <ul class="nav nav-tabs" role="tablist">
