@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #!/usr/bin/env python
 import os
 import csv
@@ -10,22 +11,17 @@ from IonInspector.reports.diagnostics.common.inspector_utils import (
     write_results_from_template,
 )
 
-
 def get_other_details(rows):
-    other_headers = ['Software Version Details', 'Sample Details', 'Library Details', 'Run Details', 'Assay Details',
-                     'Reagent Information', 'Consumable Information', 'Analysis', 'Instrument Summary', 'Evaluation Metrics']
     other_runDetails = {}
-    tempHeader = None
+    tempHeader = "Consumable Information"
     for row in rows:
-        if len(row):
-            if any(header in row[0] for header in other_headers):
-                tempHeader = row[0]
-                if 'Evaluation Metrics' not in tempHeader:
-                    other_runDetails[tempHeader] = []
-                continue
-            if 'Evaluation Metrics' not in tempHeader and tempHeader in other_runDetails:
-                other_runDetails[tempHeader].append(row)
-
+        if 'Consumable Information' in row:
+            other_runDetails[tempHeader] = []
+            continue
+        if 'Analysis' in row:
+            break
+        if tempHeader in other_runDetails:
+            other_runDetails[tempHeader].append(row)
     return other_runDetails
 
 def execute(archive_path, output_path, archive_type):

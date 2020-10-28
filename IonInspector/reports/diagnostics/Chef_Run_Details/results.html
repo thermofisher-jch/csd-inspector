@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Run Details</title>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <style>
+        .container {
+            width: 75%;
+        }
+
+        #chefDetails>tbody>tr>td {
+            padding: 2;
+            font-size: smaller;
+        }
+
+        body {
+            padding-right: 30px;
+            padding-left: 30px;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+
+        .grid {
+            display: flex;
+            flex-wrap: wrap;
+            flex-flow: row wrap;
+        }
+
+        .histogram-container {
+            background-color: #eee;
+            border-radius: 4px;
+            margin: 2px 2px 2px 2px;
+            min-width: 300px;
+            text-align: center;
+            padding: 6px;
+            flex: auto;
+            width: 300px;
+        }
+
+        .histogram-container img {
+            height: 30px;
+        }
+    </style>
+</head>
+
+<body>
+    <p style="text-align: center">
+        <div class="w-75 container">
+            <div class="panel panel-default">
+                <div class="panel-heading text-center lead">Chef Run Details</div>
+                <table class="table table-bordered table-striped table-hover" id="chefDetails">
+                    <tr>
+                        <td>Run Date:</td>
+                        <td>{{ run_date }}</td>
+                    </tr>
+                    <tr>
+                        {% if Cycles %}
+                        <td>Cycles:</td>
+                        <td> {{ Cycles }}</td>
+                    </tr>
+                    {% endif %}
+                    {% if extend %}
+                    <tr>
+                        <td>Anneal/Extend (min) </td>
+                        <td>{{ extend }}</td>
+                    </tr>
+                    {% endif %}
+                    {% if deviation %}
+                    <tr>
+                        <td>Library Prep Protocol: </td>
+                        <td>{{ deviation }}</td>
+                    </tr>
+                    {% endif %}
+                    {% if libPool1 %}
+                    <tr>
+                        <td> Pool 1: </td>
+                        <td>{{ libPool1 }}</td>
+                    </tr>
+                    {% endif %}
+                    {% if libPool2 %}
+                    <tr>
+                        <td> Pool 2: </td>
+                        <td>{{ libPool2 }}</td>
+                    </tr>
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+</body>
+
+</html>

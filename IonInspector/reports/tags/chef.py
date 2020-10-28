@@ -34,6 +34,4 @@ def get_chef_tags(archive_path):
     if reagents_lot:
         tags.append("ChefRgt: {}".format(reagents_lot))
     
-    tags.append(get_serial_no(archive_path))
-    
     return tags
