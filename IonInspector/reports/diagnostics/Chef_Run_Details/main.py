@@ -156,7 +156,7 @@ def execute(archive_path, output_path, archive_type):
             'extend' : extend,
             'deviation': deviation,
         }
-        if 'OCA Plus' in deviation:
+        if deviation and 'OCA Plus' in deviation:
             template_context['libPool1'] = pool.get("libPool1", "N/A")
             template_context['libPool2'] = pool.get("libPool2", "N/A")
 

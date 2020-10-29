@@ -80,6 +80,8 @@ def execute(archive_path, output_path, archive_type):
         for sublist in run_log_temp_data.get("rows"):
             if all(i >=29 for i in sublist[-2:]):
                 return print_alert(" %s : Ambient Below or Above deck temperature hit >= 29C" % kitName)
+            if all(i >=10 for i in sublist[-3:]):
+                return print_alert(" %s : Reagent Bay temperature hit >= 10C" % kitName)
 
     # Write out status
     return print_info("See results for flow, fan, and temperature plots.")
