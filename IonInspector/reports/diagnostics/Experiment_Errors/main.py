@@ -33,8 +33,15 @@ def get_error_lines_in_debug(archive_path, start_time, end_time):
         for line in dh:
             if error_pattern.search(line):
                 # this step is time consuming so only done when match is found
-                out_datetime = get_debug_log_datetime(line=line, start=start_time)
-                if start_time < out_datetime < end_time:
+                # start_time can be null
+                if start_time:
+                    out_datetime = get_debug_log_datetime(line=line, start=start_time)
+                    # end_time can also be null
+                    if end_time and (start_time < out_datetime < end_time):
+                        error_lines.append(line)
+                    elif start_time < out_datetime:
+                        error_lines.append(line)
+                else:
                     error_lines.append(line)
 
     return error_lines
@@ -57,8 +64,13 @@ def execute(archive_path, output_path, archive_type):
         explog = read_explog(archive_path)
         exp_error_log = explog.get("ExperimentErrorLog", "")
 
-        start_time = datetime.strptime(explog["Start Time"], EXPLOG_DATETIME_FORMAT)
-        end_time = datetime.strptime(explog["End Time"], EXPLOG_DATETIME_FORMAT)
+        start_time = None
+        if explog.get("Start Time", ""):
+            start_time = datetime.strptime(explog["Start Time"], EXPLOG_DATETIME_FORMAT)
+
+        end_time = None
+        if explog.get("End Time", ""):
+            end_time = datetime.strptime(explog["End Time"], EXPLOG_DATETIME_FORMAT)
 
         # read debug file
         debug_errors = get_error_lines_in_debug(archive_path, start_time, end_time)
