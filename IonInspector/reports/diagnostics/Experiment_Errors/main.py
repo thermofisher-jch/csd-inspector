@@ -3,6 +3,8 @@
 import sys
 import os
 import re
+from datetime import datetime
+
 from IonInspector.reports.diagnostics.common.inspector_utils import (
     get_explog_path,
     get_debug_path,
@@ -12,11 +14,14 @@ from IonInspector.reports.diagnostics.common.inspector_utils import (
     print_ok,
     print_failed,
     EXPLOG_FINAL,
+    EXPLOG_DATETIME_FORMAT,
+    get_debug_log_datetime,
 )
 
 DEBUG_ERROR_KEYWORDS = ["ValueError"]
 
-def get_error_lines_in_debug(archive_path):
+
+def get_error_lines_in_debug(archive_path, start_time, end_time):
     error_lines = []
     error_pattern = re.compile("|".join(DEBUG_ERROR_KEYWORDS))
 
@@ -27,10 +32,12 @@ def get_error_lines_in_debug(archive_path):
     with open(debug_path) as dh:
         for line in dh:
             if error_pattern.search(line):
-                error_lines.append(line)
+                # this step is time consuming so only done when match is found
+                out_datetime = get_debug_log_datetime(line=line, start=start_time)
+                if start_time < out_datetime < end_time:
+                    error_lines.append(line)
 
     return error_lines
-
 
 
 def execute(archive_path, output_path, archive_type):
@@ -50,8 +57,11 @@ def execute(archive_path, output_path, archive_type):
         explog = read_explog(archive_path)
         exp_error_log = explog.get("ExperimentErrorLog", "")
 
+        start_time = datetime.strptime(explog["Start Time"], EXPLOG_DATETIME_FORMAT)
+        end_time = datetime.strptime(explog["End Time"], EXPLOG_DATETIME_FORMAT)
+
         # read debug file
-        debug_errors = get_error_lines_in_debug(archive_path)
+        debug_errors = get_error_lines_in_debug(archive_path, start_time, end_time)
 
         if exp_error_log or debug_errors:
             with open(results_path, "w") as html_handle:
