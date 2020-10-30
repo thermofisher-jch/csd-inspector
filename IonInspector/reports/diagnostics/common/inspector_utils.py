@@ -25,6 +25,8 @@ ION_PARAMS = "ion_params_00.json"
 
 NOT_SCANNED = "NOT_SCANNED"
 
+EXPLOG_DATETIME_FORMAT = "%m/%d/%Y %H:%M:%S"
+
 
 def check_supported(explog):
     """
@@ -635,14 +637,12 @@ def get_platform_and_systemtype(explog):
 
     return platform, systemtype
 
+
 def shorten_name(name):
     if name:
-        name = "{k}".format(
-            k=name
-            .replace("Torrent","")
-            .replace("Genexus", "GX")
-        )
+        name = "{k}".format(k=name.replace("Torrent", "").replace("Genexus", "GX"))
     return name
+
 
 def get_sequencer_kits(archive_path):
     # read the ion params file
@@ -677,6 +677,7 @@ def get_sequencer_kits(archive_path):
     system_type = guard_against_unicode(system_type, "System Type")
 
     return shorten_name(template_kit_name), shorten_name(inspector_seq_kit), system_type
+
 
 def read_ion_params(archive_path):
     # read the ion params file
@@ -845,20 +846,20 @@ def get_parsed_loadcheck_data(lines):
 
     return data
 
+
 def get_serial_no(archive_path):
     try:
         explog = read_explog(archive_path)
         check_supported(explog)
 
-         # get the Serial number
+        # get the Serial number
         serial_number = explog.get("Serial Number", "Unknown")
 
         if serial_number:
-            return "SN: {s}".format(
-                s=serial_number
-            )
+            return "SN: {s}".format(s=serial_number)
     except Exception as exc:
         return exc.message
+
 
 def get_genexus_kit_info(archive_path):
     deck_status = os.path.join(archive_path, "CSA", "DeckStatus.json")
@@ -990,13 +991,85 @@ def parse_init_log(log_lines):
                 product_dict[current_product][key] = value.strip()
     return product_dict
 
+
 # Parse the search dir and get file path (can be used to find bead density, bfmask.stats, etc)
 def get_filePath(archive_path, fileName=None, searchDir="CSA/outputs/SigProcActor-00/"):
     if fileName:
-        availableFilePaths = [y for x in os.walk(os.path.join(
-            archive_path, searchDir)) for y in glob(os.path.join(x[0], fileName))]
+        availableFilePaths = [
+            y
+            for x in os.walk(os.path.join(archive_path, searchDir))
+            for y in glob(os.path.join(x[0], fileName))
+        ]
         for filePath in availableFilePaths:
             if os.path.isfile(filePath):
                 return filePath
 
     return None
+
+
+def get_debug_log_datetime(line, start):
+    """
+    # gx
+    # /var/log/debug.1:Oct 27 00:06:01 GNXS-0117 visionmgr: getImage: Retrieved camera 2 image in 0 msec  2764/3872 exp=23333
+
+    # s5
+    # Oct 27 09:49:50 S5XL-0159 kernel: [    0.000000] DMI: ASUSTeK COMPUTER INC. Z9PE-D16 Series/Z9PE-D16 Series, BIOS 5350 11/26/2013
+
+
+    # normal start time
+    >>> line = "/var/log/debug.1:Oct 27 00:06:01 GNXS-0117 visionmgr: DoReadBarcode 896: ReagentsLatchL is Latched"
+    >>> print(get_debug_log_datetime(line, start=datetime.strptime("2020-10-27 03:11:00", "%Y-%m-%d %H:%M:%S")).isoformat())
+    2020-10-27T00:06:01
+
+    >>> line = "/var/log/debug.1:Oct 29 00:06:01 GNXS-0117 visionmgr: DoReadBarcode 896: ReagentsLatchL is Latched"
+    >>> print(get_debug_log_datetime(line, start=datetime.strptime("2020-10-27 03:11:00", "%Y-%m-%d %H:%M:%S")).isoformat())
+    2020-10-29T00:06:01
+
+    # start time at Dec 31st
+    >>> line = "Dec 30 09:49:50 S5XL-0159 kernel: [    0.000000] MTRR default type: uncachable"
+    >>> print(get_debug_log_datetime(line, start=datetime.strptime("2020-12-31 23:11:00", "%Y-%m-%d %H:%M:%S")).isoformat())
+    2020-12-30T09:49:50
+
+    >>> line = "Jan 1 09:49:50 S5XL-0159 kernel: [    0.000000] MTRR default type: uncachable"
+    >>> print(get_debug_log_datetime(line, start=datetime.strptime("2020-12-31 23:11:00", "%Y-%m-%d %H:%M:%S")).isoformat())
+    2021-01-01T09:49:50
+
+
+    # start time at Jan 1st
+    >>> line = "Dec 31 09:49:50 S5XL-0159 kernel: [    0.000000] MTRR default type: uncachable"
+    >>> print(get_debug_log_datetime(line, start=datetime.strptime("2021-01-01 03:11:00", "%Y-%m-%d %H:%M:%S")).isoformat())
+    2020-12-31T09:49:50
+
+    >>> line = "Jan 1 09:49:50 S5XL-0159 kernel: [    0.000000] MTRR default type: uncachable"
+    >>> print(get_debug_log_datetime(line, start=datetime.strptime("2021-01-01 03:11:00", "%Y-%m-%d %H:%M:%S")).isoformat())
+    2021-01-01T09:49:50
+    """
+
+    DAYS = 3
+
+    tokens = line.split(" ")
+
+    # Genexus debug log starts with file path
+    if tokens[0].startswith("/"):
+        tokens[0] = tokens[0].split(":").pop()
+
+    # debug datetime: Day is space-patted
+    if not tokens[1]:
+        tokens.pop(1)
+
+    datetime_str = "{y}-{r}".format(y=start.year, r="-".join(tokens[:3]))
+    out_time = datetime.strptime(datetime_str, "%Y-%b-%d-%H:%M:%S")
+
+    delta = out_time - start
+    if delta.days > DAYS:
+        # if line date time is more than 3 days ahead of start time, then
+        # the line date time is from last year compare to start time
+        datetime_str = "{y}-{r}".format(y=start.year - 1, r="-".join(tokens[:3]))
+        out_time = datetime.strptime(datetime_str, "%Y-%b-%d-%H:%M:%S")
+    elif delta.days < -DAYS:
+        # if line date time is more than 3 days behind of start time, then
+        # the line date time is from next year compare to start time
+        datetime_str = "{y}-{r}".format(y=start.year + 1, r="-".join(tokens[:3]))
+        out_time = datetime.strptime(datetime_str, "%Y-%b-%d-%H:%M:%S")
+
+    return out_time

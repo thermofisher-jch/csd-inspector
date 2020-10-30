@@ -4,6 +4,7 @@ import sys
 import glob
 import csv
 
+
 from IonInspector.reports.diagnostics.common.inspector_utils import *
 from reports.diagnostics.common.inspector_utils import parse_run_date_from_xml_path
 
@@ -14,7 +15,7 @@ RUN_TYPES = {
     "cleaning": "Chef UV Clean",
     "factorytest": "Factory Test",
     "installtest": "Install Test",
-    "fullloadcheck": "Full Load Check"
+    "fullloadcheck": "Full Load Check",
 }
 
 # See https://stash.amer.thermo.com/projects/CHEF/repos/chef/browse/GUI/gui/OverrideWorkflowWindow.cpp
@@ -30,7 +31,7 @@ RUN_DEVIATIONS = {
     "pcr200bp": "200bp",
     "anneal62no10xab": "HID",
     "myeloid_protocol": "Myeloid",
-    "550_ocav4_short_protocol": "2 Library Pools - OCA Plus"
+    "550_ocav4_short_protocol": "2 Library Pools - OCA Plus",
 }
 
 
@@ -78,33 +79,41 @@ def get_cycles_and_extend(element_tree):
 
     return cycles, extend
 
+
 def get_libPrepPoolInfo(rows):
     pool = {}
     for i, row in enumerate(rows):
         if row:
             if "lc_lib_combined_bc" in row:
-                pool2index = row.index('lc_lib_combined_bc')
-                pool["libPool2"] = rows[i+1][pool2index]
+                pool2index = row.index("lc_lib_combined_bc")
+                pool["libPool2"] = rows[i + 1][pool2index]
             if "lc_empty_insert_c_bc" in row:
-                pool1index = row.index('lc_empty_insert_c_bc')
-                pool["libPool1"] = rows[i+1][pool1index]
+                pool1index = row.index("lc_empty_insert_c_bc")
+                pool["libPool1"] = rows[i + 1][pool1index]
                 break
     return pool
+
 
 def get_libPrepProtocal(archive_path):
     run_log_csv_filepath = None
     info_rows = []
 
-
     # Find the csv path
-    for file_name in glob(os.path.join(archive_path, 'var', 'log', 'IonChef', 'Data', "lc_runlog.csv")):
+    for file_name in glob(
+            os.path.join(archive_path, "var", "log", "IonChef", "Data", "lc_runlog.csv")
+    ):
         run_log_csv_filepath = file_name
         break
+
     if not run_log_csv_filepath:
-        return print_alert("Could not find lc RunLog csv!")
+        # return empty dict when not found
+        return {}
 
     with open(run_log_csv_filepath, "rb") as fp:
-        info_rows = list(csv.reader(fp, delimiter=","))
+        # check for NULL in line
+        info_rows = list(
+            csv.reader((line.replace("\0", "") for line in fp), delimiter=",")
+        )
 
     return get_libPrepPoolInfo(info_rows)
 
@@ -126,7 +135,7 @@ def execute(archive_path, output_path, archive_type):
 
         # get a groomed version of the output name and find it in the run type map
         output_name = run_type_node.text.strip().lower()
-        summary = RUN_TYPES.get(output_name) if output_name in RUN_TYPES else 'Other'
+        summary = RUN_TYPES.get(output_name) if output_name in RUN_TYPES else "Other"
 
         # add date from xml filename
         run_log_path = get_chef_run_log_xml_path(archive_path)
@@ -144,24 +153,25 @@ def execute(archive_path, output_path, archive_type):
         if extend:
             message += " | Anneal/Extend (min): " + extend
 
-
         os.path.join(os.path.dirname(os.path.realpath(__file__)), "results.html")
         os.path.join(output_path, "results.html")
         pool = get_libPrepProtocal(archive_path)
 
         template_context = {
-            'runType' : summary,
-            'run_date':run_date,
-            'Cycles' : cycles,
-            'extend' : extend,
-            'deviation': deviation,
+            "runType": summary,
+            "run_date": run_date,
+            "Cycles": cycles,
+            "extend": extend,
+            "deviation": deviation,
         }
-        if deviation and 'OCA Plus' in deviation:
-            template_context['libPool1'] = pool.get("libPool1", "N/A")
-            template_context['libPool2'] = pool.get("libPool2", "N/A")
+        if deviation and "OCA Plus" in deviation:
+            template_context["libPool1"] = pool.get("libPool1", "N/A")
+            template_context["libPool2"] = pool.get("libPool2", "N/A")
 
-        write_results_from_template(template_context, output_path, os.path.dirname(os.path.realpath(__file__)))
-        
+        write_results_from_template(
+            template_context, output_path, os.path.dirname(os.path.realpath(__file__))
+        )
+
         return print_info(message)
 
     except Exception as exc:

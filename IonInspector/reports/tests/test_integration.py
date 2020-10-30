@@ -95,6 +95,7 @@ class PGMTestCase(TestCase):
                 "314 Chip",
                 "PGM Sequencing 200 Kit v2",
                 "PGM Template OT2 200 Kit",
+                "SN: sn11c010302",
                 "TS 5.2.0",
             ],
         )
@@ -137,11 +138,13 @@ class ProtonTestCase(TestCase):
         self.assertEquals(
             self.archive.search_tags,
             [
-                "ChefReagent: 1767683",
-                "ChefSolution: 1767682",
+                "ChefRgt: 1767683",
+                "ChefSln: 1767682",
                 "P1 Chip",
                 "PI Hi-Q Chef Kit",
                 "PI Hi-Q Sequencing 200 Kit",
+                "ProtonChip: QNS752",
+                "SN: 2456487-0795",
                 "TS 5.0.5",
             ],
         )
@@ -177,7 +180,11 @@ class S5TestCase(TestCase):
                 "520/530 Kit-OT2",
                 "530 Chip",
                 "S5 Sequencing Kit",
-                "S5SequencingReagent: 12",
+                "S5Chip: QNC284",
+                "S5CleanSln: 013315",
+                "S5SeqRgt: 013309",
+                "S5WashSln: 013405",
+                "SN: 245733000432",
                 "TS 5.0.4",
             ],
         )
@@ -262,8 +269,8 @@ class ChefTestCase(TestCase):
         self.assertEquals(
             self.archive.search_tags,
             [
-                "ChefReagent: 1742721",
-                "ChefSolution: 1715371",
+                "ChefRgt: 1742721",
+                "ChefSln: 1715371",
                 "P1v3 Chip",
                 "PI Hi-Q Chef Kit",
             ],
