@@ -102,7 +102,7 @@ TEST_MANIFEST = {
         ("Barcode_Report", CATEGORY_SEQUENCING),
         ("Run_Sequence_Details", CATEGORY_SEQUENCING),
         ("Run_Type", CATEGORY_SEQUENCING),
-        ("Genexus_Run_Summary", CATEGORY_SEQUENCING)
+        ("Genexus_Reagent_Lot_Summary", CATEGORY_SEQUENCING)
     ],
     OT_LOG: [
         ("OT_Plots", CATEGORY_SAMPLE_PREP),

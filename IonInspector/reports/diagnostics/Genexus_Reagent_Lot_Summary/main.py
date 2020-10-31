@@ -13,15 +13,21 @@ from IonInspector.reports.diagnostics.common.inspector_utils import (
 
 def get_other_details(rows):
     other_runDetails = {}
-    tempHeader = "Consumable Information"
+    consumable = "Consumable Information"
+    reagent = "Reagent Information"
     for row in rows:
-        if 'Consumable Information' in row:
-            other_runDetails[tempHeader] = []
+        if reagent in row:
+            other_runDetails[reagent] = []
             continue
+        if reagent in other_runDetails and consumable  not in row and consumable not in other_runDetails:
+            other_runDetails[reagent].append(row)
+        if consumable in row:
+            other_runDetails[consumable] = []
+            continue
+        if consumable in other_runDetails and 'Analysis' not in row:
+            other_runDetails[consumable].append(row)
         if 'Analysis' in row:
             break
-        if tempHeader in other_runDetails:
-            other_runDetails[tempHeader].append(row)
     return other_runDetails
 
 def execute(archive_path, output_path, archive_type):
