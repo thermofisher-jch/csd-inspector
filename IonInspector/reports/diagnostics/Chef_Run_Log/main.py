@@ -76,10 +76,12 @@ def execute(archive_path, output_path, archive_type):
     else:
         return print_warning("Run log has no rows.")
 
-    if "Ion AmpliSeq Kit for Chef DL8" in kitName:
-        for sublist in run_log_temp_data.get("rows"):
-            if all(i >=29 for i in sublist[-2:]):
-                return print_alert(" %s : Ambient Below or Above deck temperature hit >= 29C" % kitName)
+
+    for sublist in run_log_temp_data.get("rows"):
+        if kitName:
+            if "Ion AmpliSeq Kit for Chef DL8" in kitName:
+                if all(i >=29 for i in sublist[-2:]):
+                    return print_alert(" %s : Ambient Below or Above deck temperature hit >= 29C" % kitName)
             if all(i >=10 for i in sublist[-3:]):
                 return print_alert(" %s : Reagent Bay temperature hit >= 10C" % kitName)
 
