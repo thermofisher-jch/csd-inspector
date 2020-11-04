@@ -78,11 +78,15 @@ def get_ion_param_path(archive_path):
 
 
 def get_debug_path(archive_path):
-    path = os.path.join(archive_path, "CSA", "debug")
-    if os.path.exists(path):
-        return path
-    else:
-        return None
+    paths = [
+        os.path.join(archive_path, "CSA", "debug"),
+        os.path.join(archive_path, "debug"),
+    ]
+    for path in paths:
+        if os.path.exists(path):
+            return path
+
+    return None
 
 
 def read_explog(archive_path):

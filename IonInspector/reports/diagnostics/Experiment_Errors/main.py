@@ -3,6 +3,7 @@
 import sys
 import os
 import re
+from collections import namedtuple
 from datetime import datetime
 
 from IonInspector.reports.diagnostics.common.inspector_utils import (
@@ -22,29 +23,38 @@ DEBUG_ERROR_KEYWORDS = ["ValueError"]
 
 
 def get_error_lines_in_debug(archive_path, start_time, end_time):
-    error_lines = []
+    errors = namedtuple("DebugErrors", ["before", "during", "after", "has_errors"])
+    errors.before = []
+    errors.during = []
+    errors.after = []
+    errors.has_errors = False
+
     error_pattern = re.compile("|".join(DEBUG_ERROR_KEYWORDS))
 
     debug_path = get_debug_path(archive_path)
     if not debug_path:
-        return error_lines
+        return errors
 
     with open(debug_path) as dh:
         for line in dh:
             if error_pattern.search(line):
+                errors.has_errors = True
                 # this step is time consuming so only done when match is found
                 # start_time can be null
                 if start_time:
                     out_datetime = get_debug_log_datetime(line=line, start=start_time)
-                    # end_time can also be null
-                    if end_time and (start_time < out_datetime < end_time):
-                        error_lines.append(line)
-                    elif start_time < out_datetime:
-                        error_lines.append(line)
-                else:
-                    error_lines.append(line)
+                    if start_time > out_datetime:
+                        errors.before.append(line)
 
-    return error_lines
+                    # end_time can be null
+                    elif end_time and end_time < out_datetime:
+                        errors.after.append(line)
+                    else:
+                        errors.during.append(line)
+                else:
+                    errors.during.append(line)
+
+    return errors
 
 
 def execute(archive_path, output_path, archive_type):
@@ -75,31 +85,64 @@ def execute(archive_path, output_path, archive_type):
         # read debug file
         debug_errors = get_error_lines_in_debug(archive_path, start_time, end_time)
 
-        if exp_error_log or debug_errors:
+        if exp_error_log or debug_errors.has_errors:
             with open(results_path, "w") as html_handle:
                 html_handle.write(
                     "<html><link rel=stylesheet href=some.css type=text/css>\n"
                 )
                 html_handle.write("</head><body>")
-                html_handle.write('<h2 align="center">Experiment error log</h2>')
-                html_handle.write('<p style="text-align:center;">')
-                html_handle.write("<table><tbody>")
-                html_handle.write("<tr><td colspan=2> ExperimentErrorLog </td></tr>")
-                for error in exp_error_log:
-                    html_handle.write(
-                        "<tr><td> &emsp;&emsp;&emsp;" + str(error) + "</td></tr>"
-                    )
-                html_handle.write("</tbody></table>")
 
-                html_handle.write('<h2 align="center">debug errors</h2>')
-                html_handle.write('<p style="text-align:center;">')
-                html_handle.write("<table><tbody>")
-                html_handle.write("<tr><td colspan=2> Errors in Debug </td></tr>")
-                for error in debug_errors:
+                if debug_errors.before:
                     html_handle.write(
-                        "<tr><td> &emsp;&emsp;&emsp;" + str(error) + "</td></tr>"
+                        '<h2 align="center">debug errors before experiment started</h2>'
                     )
-                html_handle.write("</tbody></table>")
+                    html_handle.write('<p style="text-align:center;">')
+                    html_handle.write("<table><tbody>")
+                    html_handle.write("<tr><td colspan=2> Errors in Debug </td></tr>")
+                    for error in debug_errors.before:
+                        html_handle.write(
+                            "<tr><td> &emsp;&emsp;&emsp;" + str(error) + "</td></tr>"
+                        )
+                    html_handle.write("</tbody></table>")
+
+                if exp_error_log:
+                    html_handle.write('<h2 align="center">Experiment error log</h2>')
+                    html_handle.write('<p style="text-align:center;">')
+                    html_handle.write("<table><tbody>")
+                    html_handle.write(
+                        "<tr><td colspan=2> ExperimentErrorLog </td></tr>"
+                    )
+                    for error in exp_error_log:
+                        html_handle.write(
+                            "<tr><td> &emsp;&emsp;&emsp;" + str(error) + "</td></tr>"
+                        )
+                    html_handle.write("</tbody></table>")
+
+                if debug_errors.during:
+                    html_handle.write(
+                        '<h2 align="center">debug errors during experiment</h2>'
+                    )
+                    html_handle.write('<p style="text-align:center;">')
+                    html_handle.write("<table><tbody>")
+                    html_handle.write("<tr><td colspan=2> Errors in Debug </td></tr>")
+                    for error in debug_errors.during:
+                        html_handle.write(
+                            "<tr><td> &emsp;&emsp;&emsp;" + str(error) + "</td></tr>"
+                        )
+                    html_handle.write("</tbody></table>")
+
+                if debug_errors.after:
+                    html_handle.write(
+                        '<h2 align="center">debug errors after experiment ended</h2>'
+                    )
+                    html_handle.write('<p style="text-align:center;">')
+                    html_handle.write("<table><tbody>")
+                    html_handle.write("<tr><td colspan=2> Errors in Debug </td></tr>")
+                    for error in debug_errors.after:
+                        html_handle.write(
+                            "<tr><td> &emsp;&emsp;&emsp;" + str(error) + "</td></tr>"
+                        )
+                    html_handle.write("</tbody></table>")
             return print_alert("Experiment errors found in explog or debug")
         else:
             return print_ok("No experiment or debug errors found")
