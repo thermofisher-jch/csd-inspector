@@ -83,7 +83,7 @@ def execute(archive_path, output_path, archive_type):
             if "Ion AmpliSeq Kit for Chef DL8" in kitName:
                 if all(i >=29 for i in sublist[-2:]):
                     return print_alert(" %s : Ambient Below or Above deck temperature hit >= 29C" % kitName)
-            if int(sublist[0]) > int(firstTimeStamp) + 300 and int(sublist[0]) < int(lastTimeStamp) - 300:
+            if int(sublist[0]) > int(firstTimeStamp) + 300 and int(sublist[0]) < int(lastTimeStamp) - 900:
                 if all(i >=10 for i in sublist[-3:]):
                     return print_alert(" %s : Reagent Bay temperature hit >= 10C" % kitName)
 
