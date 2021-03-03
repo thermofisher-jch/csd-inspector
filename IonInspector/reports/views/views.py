@@ -8,13 +8,13 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render, HttpResponseRedirect
 from django.utils import timezone
 from django_tables2 import RequestConfig
-from django.db.models import Func
 
-from api import ArchiveResource
+from reports.api import ArchiveResource
 from reports.forms import ArchiveForm
-from reports.models import Archive, Diagnostic, PGM_RUN
+from reports.models import Archive
 from reports.tables import ArchiveTable
-from utils import get_serialized_model
+from reports.values import PGM_RUN, CATEGORY_CHOICES, ARCHIVE_TYPES
+from reports.utils import get_serialized_model, Unnest
 
 logger = logging.getLogger(__name__)
 
@@ -86,10 +86,6 @@ def upload(request):
     return render(request, "upload.html", context=ctx)
 
 
-class Unnest(Func):
-    function = "UNNEST"
-
-
 def reports(request):
     """
     List all of the reports
@@ -152,19 +148,22 @@ def reports(request):
             .distinct()
     )
 
-    ctx = dict({
-        'archives': table,
-        'archive_types': Archive.ARCHIVE_TYPES,
-        'site_search': site_search,
-        'submitter_name_search': submitter_name_search,
-        'archive_type_search': archive_type_search,
-        'identifier_search': identifier_search,
-        'taser_ticket_number_search': taser_ticket_number_search,
-        'date_start_search': date_start_search,
-        'date_end_search': date_end_search,
-        'tags_search': tags_search,
-        'available_tags': available_tags
-    })
+    ctx = dict(
+        {
+            "archives": table,
+            "archive_types": ARCHIVE_TYPES,
+            "site_search": site_search,
+            "submitter_name_search": submitter_name_search,
+            "archive_type_search": archive_type_search,
+            "identifier_search": identifier_search,
+            "taser_ticket_number_search": taser_ticket_number_search,
+            "date_start_search": date_start_search,
+            "date_end_search": date_end_search,
+            "tags_search": tags_search,
+            "available_tags": available_tags,
+            "template_name": "tables/reports.html",
+        }
+    )
     return render(request, "reports.html", context=ctx)
 
 

@@ -14,8 +14,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 import semver
 from bs4 import BeautifulSoup
 from django.template import Context, Template
-
-from reports.utils import PGM_RUN, PROTON, S5, VALK, UNKNOWN_PLATFORM
+from reports.values import PGM_RUN, PROTON, S5, VALK, UNKNOWN_PLATFORM
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 MAX_MESSAGE_LENGTH = 1040
@@ -93,7 +92,6 @@ def read_explog(archive_path):
     """
     This method will read and output a array of colon delimited key/value pairs from the explog_final.txt
     :param archive_path: the root directory of the archive
-    :param archive_type:
     :return:
     """
     with open(get_explog_path(archive_path)) as explog_handle:

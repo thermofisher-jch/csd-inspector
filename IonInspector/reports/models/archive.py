@@ -1,23 +1,27 @@
-"""
-This will hold all of the data models for the inspector.
-"""
-import errno
-import importlib
+import datetime
+import os
+import shutil
 import zipfile
-from subprocess import *
+from subprocess import check_call
 
 from cached_property import cached_property
 from django.conf import settings
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
-from django.utils import timezone
-from django.contrib.postgres.fields import ArrayField, JSONField
 from celeryconfig import celery_app
 
-from reports.diagnostics.common.inspector_utils import *
-from reports.utils import (
-    force_symlink,
+from reports.diagnostics.common.inspector_utils import (
+    read_explog,
+    get_platform_and_systemtype,
+)
+from .diagnostic import Diagnostic
+from reports.utils import force_symlink, get_file_path
+from reports.values import (
+    ARCHIVE_TYPES,
+    CATEGORY_SEQUENCING,
+    CATEGORY_SAMPLE_PREP,
     PGM_RUN,
     PROTON,
     S5,
@@ -37,9 +41,6 @@ from reports.tags.valkyrie import get_valk_tags
 # check to see if the settings are configured
 if not settings.configured:
     settings.configure()
-
-CATEGORY_SEQUENCING = "SEQ"
-CATEGORY_SAMPLE_PREP = "PRE"
 
 DIAGNOSTICS_SCRIPT_DIR = "/opt/inspector/IonInspector/reports/diagnostics"
 TEST_MANIFEST = {
@@ -123,47 +124,11 @@ TEST_MANIFEST = {
     ],
 }
 
-
-def get_file_path(instance, filename):
-    """
-    Used for determining a path for the file to be saved to
-    :param instance: This archive instance
-    :param filename: The name of the file to be saved
-    :return: The path to save the archive file to
-    """
-
-    media_dir = settings.MEDIA_ROOT
-    if not os.path.exists(media_dir):
-        os.mkdir(media_dir, 0777)
-        os.chmod(media_dir, 0777)
-
-    archive_dirs = os.path.join(media_dir, "archive_files")
-    if not os.path.exists(archive_dirs):
-        os.mkdir(archive_dirs)
-    os.chmod(archive_dirs, 0777)
-
-    instance_dir = os.path.join(archive_dirs, str(instance.pk))
-    if not os.path.exists(instance_dir):
-        os.mkdir(instance_dir, 0777)
-    os.chmod(instance_dir, 0777)
-
-    return os.path.join("archive_files", str(instance.pk), filename)
-
-
 class Archive(models.Model):
     """An archive sample"""
 
-    # define a list of archive types
-    ARCHIVE_TYPES = (
-        (PGM_RUN, "PGM"),
-        (PROTON, "PROTON"),
-        (S5, "S5"),
-        (VALK, "Genexus"),
-        (OT_LOG, "OT"),
-        (ION_CHEF, "CHEF"),
-    )
+    # user-provided label on upload
 
-    # model attributes
     identifier = models.CharField(max_length=255)
 
     # the site from which the archive was found
@@ -191,7 +156,11 @@ class Archive(models.Model):
 
     # used to search the runs for tags
     search_tags = ArrayField(
-        models.CharField(max_length=255), default=list, db_index=True
+        models.CharField(max_length=255),
+        default=list,
+        db_index=True,
+        unique=False,
+        null=False,
     )
 
     # model relationships
@@ -302,7 +271,7 @@ class Archive(models.Model):
         # if this is a sequencer CSA/FSA with chef information it would
         # make sense to optionally add all of the chef tests
         if archive_type in [S5, PGM_RUN, PROTON] and os.path.exists(
-                os.path.join(archive_dir, "var")
+            os.path.join(archive_dir, "var")
         ):
             diagnostic_list += TEST_MANIFEST[ION_CHEF]
 
@@ -361,140 +330,3 @@ def on_archive_delete(sender, instance, **kwargs):
     except:
         # do nothing here as this is just a clean up
         pass
-
-
-class Diagnostic(models.Model):
-    """A test to run against an archive"""
-
-    UNEXECUTED = "Unexecuted"
-    EXECUTING = "Executing"
-    ALERT = "Alert"
-    INFO = "Info"
-    WARNING = "Warning"
-    OK = "OK"
-    NA = "NA"
-    FAILED = "Failed"
-    DIAGNOSTIC_STATUSES = (
-        ("U", UNEXECUTED),
-        ("E", EXECUTING),
-        ("A", ALERT),
-        ("I", INFO),
-        ("W", WARNING),
-        ("O", OK),
-        ("N", NA),
-        ("F", FAILED),
-    )
-
-    class Meta:
-        ordering = ["name"]
-
-    # model attributes
-    name = models.CharField(max_length=255, default="")
-    status = models.CharField(
-        max_length=255, choices=DIAGNOSTIC_STATUSES, default=UNEXECUTED
-    )
-    details = models.CharField(max_length=2048, default="")
-    error = models.CharField(max_length=2048, default="")
-    html = models.CharField(max_length=255, default="")
-    priority = models.IntegerField(default=0)
-    start_execute = models.DateTimeField(null=True)
-    results = JSONField(null=True, default={})
-
-    CATEGORY_CHOICES = (
-        (CATEGORY_SEQUENCING, "SEQUENCING"),
-        (CATEGORY_SAMPLE_PREP, "SAMPLE_PREP"),
-    )
-
-    category = models.CharField(
-        max_length=3, default=CATEGORY_SEQUENCING, choices=CATEGORY_CHOICES
-    )
-
-    # model relationships
-    archive = models.ForeignKey(
-        Archive, related_name="diagnostics", on_delete=models.CASCADE
-    )
-
-    @cached_property
-    def display_name(self):
-        return self.name.replace("_", " ").title()
-
-    @cached_property
-    def diagnostic_root(self):
-        """returns the root of the files used in the diagnostic"""
-        test_folder = os.path.join(self.archive.archive_root, "test_results")
-        results_folder = os.path.join(test_folder, self.name)
-        if not os.path.exists(results_folder):
-            # other workers may have already made the folder
-            try:
-                os.mkdir(results_folder)
-            except OSError as e:
-                if e.errno != errno.EEXIST:
-                    raise
-
-        return results_folder
-
-    @cached_property
-    def readme(self):
-        return os.path.exists(
-            os.path.join(
-                settings.SITE_ROOT,
-                "IonInspector",
-                "reports",
-                "diagnostics",
-                self.name,
-                "README",
-            )
-        )
-
-    def execute(self):
-        """This will execute the this diagnostic"""
-
-        try:
-            # set the status
-            self.status = self.EXECUTING
-            self.start_execute = timezone.now()
-            self.save()
-
-            # execute the script
-            diagnostic_module = importlib.import_module(
-                "IonInspector.reports.diagnostics."
-                + self.name.replace(" ", "_")
-                + ".main"
-            )
-            if settings.DEBUG:
-                reload(diagnostic_module)
-            diagnostic_results = diagnostic_module.execute(
-                self.archive.archive_root,
-                self.diagnostic_root,
-                self.archive.archive_type,
-            )
-            assert not isinstance(
-                diagnostic_results, type(None)
-            ), "Diagnostic is broken (Returned None)"
-            self.status, self.priority, self.details = diagnostic_results
-
-            html_path = os.path.join(self.diagnostic_root, "results.html")
-            if os.path.exists(html_path):
-                self.html = os.path.basename(html_path)
-
-            json_path = os.path.join(self.diagnostic_root, "main.json")
-            if os.path.exists(json_path):
-                with open(json_path) as fp:
-                    self.results = json.load(fp)
-
-        except Exception as exc:
-            self.details = str(exc)
-            # record the exception in the details and rely on the finally statement to call save
-            write_error_html(self.diagnostic_root)
-            self.status = Diagnostic.FAILED
-
-        # constrain the length of the details to 512
-        self.details = self.details[:512]
-        self.save()
-
-
-@receiver(pre_delete, sender=Diagnostic, dispatch_uid="delete_diagnostic")
-def on_diagnostic_delete(sender, instance, **kwargs):
-    """Triggered when the diagnostic are deleted"""
-    if os.path.exists(instance.diagnostic_root):
-        shutil.rmtree(instance.diagnostic_root)
