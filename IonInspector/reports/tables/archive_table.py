@@ -5,6 +5,7 @@ from django.utils.safestring import mark_safe
 from django_tables2.utils import A
 
 from reports.models import Archive
+from .width_attrs import width_attrs
 
 
 class ArchiveTable(tables.Table):
@@ -12,47 +13,78 @@ class ArchiveTable(tables.Table):
     Table for rendering archives.
     """
 
-    id = tables.Column(verbose_name='ID', attrs={'th': {'style': 'width: 60px'}}, empty_values=())
-    time = tables.Column(verbose_name='Date', attrs={'th': {'style': 'width: 160px'}}, empty_values=())
-    identifier = tables.Column(verbose_name='Label', orderable=True, empty_values=(), accessor='identifier',
-                               attrs={'th': {'style': 'width: 30%'}})
-    site = tables.Column(verbose_name='Site', attrs={'th': {'style': 'width: 20%'}}, empty_values=())
-    submitter_name = tables.Column(verbose_name='Submitter', attrs={'th': {'style': 'width: 15%'}}, empty_values=())
-    archive_type = tables.Column(verbose_name='Type', attrs={'th': {'style': 'width: 100px'}}, empty_values=())
-    taser_ticket_number = tables.Column(verbose_name="TASER", attrs={'th': {'style': 'width: 80px'}}, empty_values=())
-    search_tags = tables.Column(verbose_name="Tags", attrs={'th': {'style': 'width: 200px'}}, empty_values=())
-
-    def render_id(self, value, record):
-        return mark_safe(
-            "<a href='%s' class='no-underline' target='_blank'>%s</a>" % (reverse('report', args=[record.id]), value))
+    id = tables.LinkColumn(
+        verbose_name="ID",
+        attrs=width_attrs("60px"),
+        orderable=True,
+        viewname="report",
+        args=[A("id")],
+        accessor=A("id"),
+        empty_values=(),
+    )
+    time = tables.DateTimeColumn(
+        verbose_name="Date",
+        attrs=width_attrs("160px"),
+        orderable=True,
+        accessor=A("time"),
+        empty_values=(None,),
+    )
+    identifier = tables.LinkColumn(
+        verbose_name="Label",
+        attrs=width_attrs("30%"),
+        orderable=True,
+        viewname="report",
+        args=[A("id")],
+        accessor=A("identifier"),
+        empty_values=(None, ""),
+    )
+    site = tables.LinkColumn(
+        verbose_name="Site",
+        attrs=width_attrs("20%"),
+        orderable=True,
+        viewname="report",
+        args=[A("id")],
+        accessor=A("site"),
+        empty_values=(None, ""),
+    )
+    submitter_name = tables.LinkColumn(
+        verbose_name="Submitter",
+        attrs=width_attrs("15%"),
+        orderable=True,
+        viewname="report",
+        args=[A("id")],
+        accessor=A("submitter_name"),
+        empty_values=(None, ""),
+    )
+    archive_type = tables.LinkColumn(
+        verbose_name="Type",
+        attrs=width_attrs("100px"),
+        orderable=True,
+        viewname="report",
+        args=[A("id")],
+        accessor=A("archive_type"),
+        empty_values=("", "Unknown", None),
+    )
+    taser_ticket_number = tables.URLColumn(
+        verbose_name="TASER",
+        attrs=width_attrs("80px"),
+        orderable=True,
+        empty_values=(0, "", None),
+    )
+    search_tags = tables.LinkColumn(
+        verbose_name="Tags",
+        attrs=width_attrs("200px"),
+        orderable=True,
+        viewname="report",
+        args=[A("id")],
+        accessor=A("search_tags"),
+        empty_values=(list(), None),
+    )
 
     def render_time(self, value, record):
-        return mark_safe("<a href='%s' class='no-underline' target='_blank'>%s</a>" % (
-            reverse('report', args=[record.id]), naturaltime(value)))
-
-    def render_identifier(self, value, record):
-        return mark_safe(
-            "<a href='%s' class='no-underline' target='_blank'>%s</a>" % (reverse('report', args=[record.id]), value))
-
-    def render_site(self, value, record):
-        return mark_safe(
-            "<a href='%s' class='no-underline' target='_blank'>%s</a>" % (reverse('report', args=[record.id]), value))
-
-    def render_submitter_name(self, value, record):
-        return mark_safe(
-            "<a href='%s' class='no-underline' target='_blank'>%s</a>" % (reverse('report', args=[record.id]), value))
-
-    def render_archive_type(self, value, record):
-        return mark_safe(
-            "<a href='%s' class='no-underline' target='_blank'>%s</a>" % (reverse('report', args=[record.id]), value))
-
-    def render_taser_ticket_number(self, value, record):
-        if value:
-            return mark_safe(
-                "<a href='https://jira.amer.thermo.com/browse/FST-%i' target='_blank'>TASER: %i</a>" % (value, value))
         return mark_safe(
             "<a href='%s' class='no-underline' target='_blank'>%s</a>"
-            % (reverse("report", args=[record.id]))
+            % (reverse("report", args=[record.id]), naturaltime(value))
         )
 
     def render_search_tags(self, value, record):
@@ -87,3 +119,7 @@ class ArchiveTable(tables.Table):
         exclude = (
             "doc_file",
             "summary",
+        show_header = True
+        orderable = True
+        empty_text = "No matches found"
+        template_name = "tables/reports.html"
