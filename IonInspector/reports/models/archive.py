@@ -212,17 +212,17 @@ class Archive(models.Model):
         # Some chef archives contains files with no read permission. This seems to kill the python tar library. So
         # instead we are using a subprocess to extract then chmod
         elif (
-                self.doc_file.path.endswith(".tar")
-                or self.doc_file.path.endswith(".tar.gz")
-                or self.doc_file.path.endswith(".tar.xz")
-                or self.doc_file.path.endswith(".txz")
+            self.doc_file.path.endswith(".tar")
+            or self.doc_file.path.endswith(".tar.gz")
+            or self.doc_file.path.endswith(".tar.xz")
+            or self.doc_file.path.endswith(".txz")
         ):
             check_call(["tar", "-xf", self.doc_file.path, "--directory", archive_dir])
             check_call(["chmod", "755", "-R", archive_dir])
 
         # Watch out. Some ot logs are are .log and some are .csv
         elif self.doc_file.path.endswith(".log") or self.doc_file.path.endswith(
-                ".csv"
+            ".csv"
         ):  # One Touch
             target_path = os.path.join(archive_dir, "onetouch.log")
             if not os.path.exists(target_path):

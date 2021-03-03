@@ -12,12 +12,11 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Archive',
+            name="Archive",
             fields=[
                 (
                     "id",
@@ -59,28 +58,74 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='Diagnostic',
+            name="Diagnostic",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(default=b'', max_length=255)),
-                ('status', models.CharField(choices=[(b'U', b'Unexecuted'), (b'E', b'Executing'), (b'A', b'Alert'), (b'I', b'Info'), (b'W', b'Warning'), (b'O', b'OK'), (b'N', b'NA'), (b'F', b'Failed')], default=b'Unexecuted', max_length=255)),
-                ('details', models.CharField(default=b'', max_length=2048)),
-                ('error', models.CharField(default=b'', max_length=2048)),
-                ('html', models.CharField(default=b'', max_length=255)),
-                ('priority', models.IntegerField(default=0)),
-                ('start_execute', models.DateTimeField(null=True)),
-                ('archive', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='diagnostics', to='reports.Archive')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(default=b"", max_length=255)),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            (b"U", b"Unexecuted"),
+                            (b"E", b"Executing"),
+                            (b"A", b"Alert"),
+                            (b"I", b"Info"),
+                            (b"W", b"Warning"),
+                            (b"O", b"OK"),
+                            (b"N", b"NA"),
+                            (b"F", b"Failed"),
+                        ],
+                        default=b"Unexecuted",
+                        max_length=255,
+                    ),
+                ),
+                ("details", models.CharField(default=b"", max_length=2048)),
+                ("error", models.CharField(default=b"", max_length=2048)),
+                ("html", models.CharField(default=b"", max_length=255)),
+                ("priority", models.IntegerField(default=0)),
+                ("start_execute", models.DateTimeField(null=True)),
+                (
+                    "archive",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="diagnostics",
+                        to="reports.Archive",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['name'],
+                "ordering": ["name"],
             },
         ),
         migrations.CreateModel(
-            name='Tag',
+            name="Tag",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('archive', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='tags', to='reports.Archive')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                (
+                    "archive",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="tags",
+                        to="reports.Archive",
+                    ),
+                ),
             ],
         ),
     ]
