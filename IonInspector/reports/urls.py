@@ -13,6 +13,11 @@ urlpatterns = [
         views.InstrumentsListView.as_view(),
         name="instruments-list",
     ),
+    url(
+        r"^instruments/(?P<pk>\d+)/$",
+        views.InstrumentDetailView.as_view(),
+        name="instrument-detail",
+    ),
     url(r"^diagnostic/(\w+)$", views.readme, name="readme"),
     # legacy redirect
     url(

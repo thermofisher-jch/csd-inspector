@@ -13,6 +13,7 @@ def active_nav(request):
         "upload": "SUBMIT",
         "reports": "REPORT",
         "report": "REPORT",
+        "instrument-detail": "INSTRUMENT",
         "instruments-list": "INSTRUMENT",
         "readme": "REPORT",
         "documentation": "DOCS",

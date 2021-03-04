@@ -25,4 +25,27 @@ class Migration(migrations.Migration):
                 ('fse', models.CharField(blank=True, db_column=b'fse_name', max_length=255, null=True, verbose_name=b'Field Support Engineer')),
             ],
         ),
+        migrations.CreateModel(
+            name='ValkyrieArchive',
+            fields=[
+                ('archive', models.OneToOneField(db_column=b'id', on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, related_name='as_valkyrie', serialize=False, to='reports.Archive', verbose_name=b'Archive ID')),
+                ('run_number', models.SmallIntegerField(db_column=b'run_number', verbose_name=b'Run Number')),
+                ('run_started_at', models.DateTimeField(db_column=b'run_started_at', db_index=True, verbose_name=b'Run Start Time')),
+                ('run_name', models.CharField(db_column=b'run_name', editable=False, max_length=255, null=True, verbose_name=b'Run Name')),
+                ('lanes_used', models.CharField(db_column=b'lanes_used', editable=False, max_length=24, null=True, verbose_name=b'Lanes Used')),
+                ('run_type', models.CharField(db_column=b'run_type', editable=False, max_length=255, null=True, verbose_name=b'Run Type')),
+                ('assay_types', models.CharField(db_column=b'assay_types', editable=False, max_length=255, null=True, verbose_name=b'Assay Types')),
+                ('instrument', models.ForeignKey(db_column=b'instrument', null=True, on_delete=django.db.models.deletion.PROTECT, related_name='valkyrie_archives', to='reports.Instrument', verbose_name=b'Host Instrument')),
+            ],
+        ),
+        migrations.AddField(
+            model_name='archive',
+            name='failure_mode',
+            field=models.TextField(default='', null=True),
+        ),
+        migrations.AddField(
+            model_name='archive',
+            name='is_baseline',
+            field=models.BooleanField(default=False),
+        ),
     ]

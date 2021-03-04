@@ -1,1 +1,2 @@
 from archive_upload_form import ArchiveForm
+from instrument_model_form import InstrumentModelForm

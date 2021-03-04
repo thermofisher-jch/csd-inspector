@@ -1,1 +1,2 @@
 from instrument_list_filter import InstrumentListFilter
+from instrument_tracker_list_filter import InstrumentTrackerListFilter

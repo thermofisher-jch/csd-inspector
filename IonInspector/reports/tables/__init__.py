@@ -1,2 +1,3 @@
 from archive_table import ArchiveTable
 from instrument_list_table import InstrumentTable
+from valkyrie_archive_table import ValkyrieInstrumentArchiveTable

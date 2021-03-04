@@ -1,0 +1,24 @@
+{% extends "pages/common_modeled.html" %}
+{% load render_table from django_tables2 %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="row-fluid">
+        <div class="span6">
+            {% crispy form "bootstrap3" %}
+        </div>
+        <div class="span6">
+            <h4>Filters:</h4><br>{% crispy filter.form 'bootstrap3' %}
+        </div>
+    </div>
+    <script>
+            var searchForm = $("#search-form");
+            searchForm.find("input").change(function () {
+                searchForm.submit();
+            });
+            searchForm.find("select").change(function () {
+                searchForm.submit();
+            });
+    </script>
+    {% render_table table "django_tables2/bootstrap.html" %}
+{% endblock content %}
