@@ -68,6 +68,15 @@
             {% endfor %}
         </div>
         <div class="span3">
+            {% if archive.as_valkyrie and archive.as_valkyrie.instrument.serial_number %}
+                <span id="archive-serial" data-value="{{ archive.as_valkyrie.instrument.serial_number }}">
+                    <a href="{% url 'instrument-detail' archive.as_valkyrie.instrument.id %}"
+                       target="_blank">Serial Number: {{ archive.as_valkyrie.instrument.serial_number }}</a>
+                </span>
+            {% else %}
+                <span id="archive-serial" class="muted" data-value=""></span>
+            {% endif %}
+                <br><br>
             {% if archive.taser_ticket_number %}
                 <span id="archive-taser" data-value="{{ archive.taser_ticket_number }}">
                     <a href="https://jira.amer.thermo.com/browse/FST-{{ archive.taser_ticket_number }}"
@@ -180,7 +189,6 @@
             $("#no_delete").click(function () {
                 $("#delete_prompt").slideUp();
             });
-
         });
     </script>
 {% endblock content %}

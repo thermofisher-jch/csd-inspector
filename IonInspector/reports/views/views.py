@@ -117,8 +117,8 @@ def reports(request):
     if request.GET.get("identifier", ""):
         identifier_search = request.GET["identifier"]
         archives = archives.filter(identifier__icontains=identifier_search)
-    if request.GET.get('inst_serial', ''):
-        identifier_search = request.GET['inst_serial']
+    if request.GET.get("inst_serial", ""):
+        identifier_search = request.GET["inst_serial"]
         archives = archives.filter(identifier__icontains=identifier_search)
     if request.GET.get("taser_ticket_number_name", ""):
         taser_ticket_number_search = request.GET["taser_ticket_number_name"]

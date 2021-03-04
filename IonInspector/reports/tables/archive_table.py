@@ -71,6 +71,15 @@ class ArchiveTable(tables.Table):
         orderable=True,
         empty_values=(0, "", None),
     )
+    serial_number = tables.LinkColumn(
+        verbose_name="Serial Number",
+        attrs=width_attrs("6vw"),
+        orderable=True,
+        viewname="instrument-detail",
+        args=[A("as_valkyrie__instrument")],
+        accessor=A("as_valkyrie__instrument__serial_number"),
+        empty_values=(None),
+    )
     search_tags = tables.LinkColumn(
         verbose_name="Tags",
         attrs=width_attrs("200px"),
@@ -118,6 +127,7 @@ class ArchiveTable(tables.Table):
         # exclude the summary column data
         exclude = (
             "doc_file",
+            "serial_number",
             "summary",
             "failure_mode",
             "is_baseline",
