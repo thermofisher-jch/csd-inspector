@@ -8,6 +8,11 @@ urlpatterns = [
     url(r"^upload/", views.upload, name="upload"),
     url(r"^reports/", views.reports, name="reports"),
     url(r"^report/(?P<pk>\d+)/$", views.report, name="report"),
+    url(
+        r"^instruments/$",
+        views.InstrumentsListView.as_view(),
+        name="instruments-list",
+    ),
     url(r"^diagnostic/(\w+)$", views.readme, name="readme"),
     # legacy redirect
     url(

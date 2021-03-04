@@ -103,9 +103,8 @@ class ArchiveResource(ModelResource):
 
     def post_rerun(self, request, **kwargs):
         """
-        The remove the archive
+        Re-run archive diagnostics
         """
-
         try:
             bundle = self.build_bundle(request=request)
             obj = self.cached_obj_get(bundle, **self.remove_api_resource_names(kwargs))

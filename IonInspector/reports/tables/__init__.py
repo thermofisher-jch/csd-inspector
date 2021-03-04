@@ -1,1 +1,2 @@
 from archive_table import ArchiveTable
+from instrument_list_table import InstrumentTable
