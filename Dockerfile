@@ -23,6 +23,8 @@ python-lzma \
 python-django \
 python-django-tastypie \
 python-django-tables2 \
+python-django-filters \
+python-django-crispy-forms \
 python-cached-property \
 python-dateutil \
 python-magic \
