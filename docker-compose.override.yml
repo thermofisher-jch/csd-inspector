@@ -5,25 +5,34 @@ services:
     volumes:
       - .:/opt/inspector
       - ./.local/celery:/var/log/celery
-      - ./.local/media:/var/lib/inspector/media
       - ./.local/logs:/var/log/inspector
+      - inspector-media:/var/lib/inspector/media
 
   django:
     user: root
     volumes:
       - .:/opt/inspector
-      - ./.local/media:/var/lib/inspector/media
       - ./.local/logs:/var/log/inspector
+      - inspector-media:/var/lib/inspector/media
     ports:
       - "8090:8080"
       - "8099:22"
 
   postgres:
     volumes:
-        - postgresql-data:/var/lib/postgresql/data
-        - ./.local/postgresql_log:/var/log/postgresql
+      - postgresql-data:/var/lib/postgresql/data:delegated
+      - postgresql-log:/var/log/postgresql:delegated
     ports:
       - "5433:5432"
 
+  rabbitmq:
+    volumes:
+      - rabbit-data:/var/lib/rabbitmq:delegated
+
 volumes:
   postgresql-data:
+  postgresql-log:
+  inspector-media:
+  inspector-logs:
+  celery-workspace:
+  rabbit-data:
