@@ -64,34 +64,42 @@
                 <input autocomplete="false" name="hidden" type="text" style="display:none;">
                 {% csrf_token %}
                 {{ form.upload_another }}
-                <p>{{ form.non_field_errors }}</p>
+                {{ form.non_field_errors }}
                 <div class="row">
                     <div class="span3">
-                        <p>{{ form.name.label_tag }}</p>
+                        {{ form.name.label_tag }}
                         {{ form.name }}
                     </div>
                     <div class="span3">
-                        <p>{{ form.site_name.label_tag }}</p>
+                        {{ form.site_name.label_tag }}
                         {{ form.site_name }}
                     </div>
                 </div>
                 <div class="row">
                     <div class="span3">
-                        <p>{{ form.archive_identifier.label_tag }}</p>
+                        {{ form.archive_identifier.label_tag }}
                         {{ form.archive_identifier }}
                     </div>
                     <div class="span3">
-                        <p>{{ form.taser_ticket_number.label_tag }}</p>
+                        {{ form.taser_ticket_number.label_tag }}
                         {{ form.taser_ticket_number }}
                     </div>
                 </div>
-                <div style="height: 60px;">
-                    <div id="file_select">
-                        <p>{{ form.doc_file.label_tag }} {{ form.doc_file.help_text }}</p>
-                        <p>
-                            {{ form.doc_file.errors }}
+                <div class="row">
+                    <div class="span6">
+                        <label for="{{ form.is_baseline.id_for_label }}">
+                            {{ form.is_baseline.label}}&nbsp;{{ form.is_baseline }}
+                        </label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="span6">
+                        <div id="file_select">
+                            {{ form.doc_file.label_tag }}
                             {{ form.doc_file }}
-                        </p>
+                            {{ form.doc_file.help_text }}
+                            {{ form.doc_file.errors }}
+                        </div>
                     </div>
                 </div>
                 <div id="action_container">

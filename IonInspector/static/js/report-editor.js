@@ -7,12 +7,25 @@ var reportEditorApp = {
         archiveSite: $("#archive-site"),
         archiveType: $("#archive-type"),
         archiveSummary: $("#archive-summary"),
-        archiveTaser: $("#archive-taser")
+        archiveFailureMode: $("#archive-failure-mode"),
+        archiveIsBaseline: $("#archive-is-baseline"),
+        archiveTaser: $("#archive-taser"),
     },
-    init: function (archiveId, archiveTypes) {
+    init: function (archiveId, archiveTypes, initialBaseline) {
         this.archiveId = archiveId;
         this.archiveTypes = archiveTypes;
-        this.elements.editButton.click(this.enable.bind(this));
+        this.elements.archiveIsBaseline.addClass("label");
+        if (initialBaseline) {
+            this.elements.archiveIsBaseline.addClass("label-success");
+            this.elements.archiveIsBaseline.data('value', 'true');
+            this.elements.archiveIsBaseline.text("Baseline Run");
+        } else {
+            this.elements.archiveIsBaseline.addClass("label-warning");
+            this.elements.archiveIsBaseline.data('value', 'false');
+            this.elements.archiveIsBaseline.text("Issue Run");
+        }
+        this.elements.editButton.click(
+            this.enable.bind(this));
     },
     enable: function () {
         // Switch button to save button
@@ -38,6 +51,11 @@ var reportEditorApp = {
             type: "text",
             placeholder: "No Summary"
         }, {
+            element: this.elements.archiveFailureMode,
+            fontSize: 14,
+            type: "text",
+            placeholder: "No Failure Mode"
+        }, {
             element: this.elements.archiveTaser,
             fontSize: 14,
             type: "number",
@@ -57,8 +75,27 @@ var reportEditorApp = {
             }))
         }.bind(this));
 
-        //Switch text to inputs
+        //Switch toggle badge to checkbox widgets
+        this.elements.archiveIsBaseline.removeClass("label");
+        let initialBaseline = (this.elements.archiveIsBaseline.data('value') === 'true');
+        if (initialBaseline) {
+            this.elements.archiveIsBaseline.removeClass("label-success");
+        } else {
+            this.elements.archiveIsBaseline.removeClass("label-warning");
+        }
+        this.elements.archiveIsBaseline.text("");
+        var checkbox = this.elements.archiveIsBaseline.html($("<input/>", {
+            type: "checkbox",
+            checked: initialBaseline,
+            style: "float: right;"
+            })
+        );
+        checkbox.wrapInner(
+            $("<label>Is Baseline Run:&nbsp;</label>")
+        );
 
+
+        // Switch machine type to select with option list.
         var archiveTypeSelect = $("<select/>", {
             type: "text",
             dir: "rtl",
@@ -95,7 +132,9 @@ var reportEditorApp = {
                 site: this.elements.archiveSite.find("input").val(),
                 archive_type: this.elements.archiveType.find("select").val(),
                 summary: this.elements.archiveSummary.find("input").val(),
-                taser_ticket_number: this.elements.archiveTaser.find("input").val() || null
+                failure_mode: this.elements.archiveFailureMode.find("input").val(),
+                taser_ticket_number: this.elements.archiveTaser.find("input").val() || null,
+                is_baseline: this.elements.archiveIsBaseline.find("input")[0].checked
             }),
             success: function (response, textStatus, jqXhr) {
             },

@@ -46,6 +46,7 @@ def upload(request):
             site=form.data["site_name"],
             time=timezone.now(),
             submitter_name=form.data["name"],
+            is_baseline=("is_baseline" in form.data),
             taser_ticket_number=int(form.data["taser_ticket_number"])
             if form.data["taser_ticket_number"]
             else None,

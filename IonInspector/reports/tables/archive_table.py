@@ -119,6 +119,9 @@ class ArchiveTable(tables.Table):
         exclude = (
             "doc_file",
             "summary",
+            "failure_mode",
+            "is_baseline",
+        )
         show_header = True
         orderable = True
         empty_text = "No matches found"

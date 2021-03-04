@@ -145,6 +145,10 @@ class Archive(models.Model):
 
     # any summary information
     summary = models.CharField(max_length=255, default=u"")
+    failure_mode = models.TextField(unique=False, default=u"", blank=False, null=True)
+
+    # Boolean flag for filtering flaw cases from known good baselines
+    is_baseline = models.BooleanField(unique=False, default=False, null=False)
 
     # an optional taser ticket reference
     taser_ticket_number = models.IntegerField(null=True)

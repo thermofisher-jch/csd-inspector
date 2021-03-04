@@ -49,9 +49,20 @@
         </div>
     </div>
     <div class="row-fluid">
-        <div class="span6">
+        <div class="span9">
+            <label>Assessment:</label>
             <span class="muted" id="archive-summary" data-value="{{ archive.summary }}"
                   style="min-height: 36px; display: inline-block; width: 100%">{{ archive.summary }}</span><br>
+        <label>Failure Mode:</label>
+        <span class="muted" id="archive-failure-mode" data-value="{{ archive.failure_mode }}"
+              style="min-height: 36px; display: inline-block; width: 100%">{{ archive.failure_mode }}</span><br>
+        </div>
+        <div class="span3" style="text-align: right">
+            <span id="archive-is-baseline" style="font-size: 14px; padding: 8px; border-radius:7px"/>
+        </div>
+    </div>
+    <div class="row-fluid">
+        <div class="span6">
             {% for tag in archive.search_tags %}
                 <span class="label">{{ tag }}</span>
             {% endfor %}
@@ -138,7 +149,7 @@
     <script src="/static/js/diagnostics-table.js"></script>
     <script>
         Raven.context(function () {
-            //Track shift status
+            // Track shift status
             var shiftPressed = false;
             $(document).on('mousemove', function(e){shiftPressed = e.shiftKey;});
             //Setup archive details editor
@@ -162,7 +173,7 @@
                     }
                 })
             });
-            //Setup delete button
+            // Setup delete button
             $("#ask_delete").click(function () {
                 $("#delete_prompt").slideDown();
             });
