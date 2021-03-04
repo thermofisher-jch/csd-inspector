@@ -27,26 +27,23 @@ def force_symlink(source, link):
 
 
 def get_file_path(instance, filename):
-    """
-    Used for determining a path for the file to be saved to
-    :param instance: This archive instance
-    :param filename: The name of the file to be saved
-    :return: The path to save the archive file to
-    """
-
+    """Used for determining a path for the file to be saved to :param instance: This archive instance :param filename: The name of the file to be saved :return: The path to save the archive file to """
     media_dir = settings.MEDIA_ROOT
     if not os.path.exists(media_dir):
         os.mkdir(media_dir, 0777)
+    if not (os.stat(media_dir).st_mode & 0777) == 0777:
         os.chmod(media_dir, 0777)
 
     archive_dirs = os.path.join(media_dir, "archive_files")
     if not os.path.exists(archive_dirs):
         os.mkdir(archive_dirs)
-    os.chmod(archive_dirs, 0777)
+    if not (os.stat(archive_dirs).st_mode & 0777) == 0777:
+        os.chmod(archive_dirs, 0777)
 
     instance_dir = os.path.join(archive_dirs, str(instance.pk))
     if not os.path.exists(instance_dir):
         os.mkdir(instance_dir, 0777)
-    os.chmod(instance_dir, 0777)
+    if not (os.stat(instance_dir).st_mode & 0777) == 0777:
+        os.chmod(instance_dir, 0777)
 
     return os.path.join("archive_files", str(instance.pk), filename)

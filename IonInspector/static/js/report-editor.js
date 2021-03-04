@@ -3,6 +3,7 @@ var reportEditorApp = {
     archiveTypes: null,
     elements: {
         editButton: $("#archive-edit"),
+        cancelButton: $("#archive-cancel"),
         archiveIdentifier: $("#archive-identifier"),
         archiveSite: $("#archive-site"),
         archiveType: $("#archive-type"),
@@ -26,11 +27,15 @@ var reportEditorApp = {
         }
         this.elements.editButton.click(
             this.enable.bind(this));
+        this.elements.cancelButton.click(function() {
+		    window.location = '';
+	    });
     },
     enable: function () {
         // Switch button to save button
         this.elements.editButton.html("<i class='icon-ok icon-white'></i> Save");
         this.elements.editButton.addClass("btn-primary");
+        this.elements.cancelButton.removeClass("hide");
         this.elements.editButton.off('click');
         this.elements.editButton.click(this.save.bind(this));
 
@@ -61,8 +66,8 @@ var reportEditorApp = {
             type: "number",
             placeholder: "No TASER #"
         }].map(function (item) {
-            var value = item.element.text();
-            item.element.html("").append($("<input/>", {
+            var value = item.element.text = '::';
+            item.element.html($("<input/>", {
                 type: item.type,
                 value: item.element.data("value"),
                 placeholder: item.placeholder,
@@ -113,10 +118,10 @@ var reportEditorApp = {
             archiveTypeSelect.append($("<option/>", {
                 text: type.name,
                 value: type.value,
-                selected: this.elements.archiveType.data("value") == type.value
+                selected: this.elements.archiveType.data("value") === type.value
             }));
         }.bind(this));
-        this.elements.archiveType.html("").append(archiveTypeSelect);
+        this.elements.archiveType.html(archiveTypeSelect);
 
     },
     save: function () {

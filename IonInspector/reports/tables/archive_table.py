@@ -1,7 +1,7 @@
 import django_tables2 as tables
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.core.urlresolvers import reverse
-from django.utils.safestring import mark_safe
+from django.utils.safestring import mark_safe, mark_for_escaping
 from django_tables2.utils import A
 
 from reports.models import Archive
@@ -99,7 +99,7 @@ class ArchiveTable(tables.Table):
     def render_search_tags(self, value, record):
         tags = "".join(
             [
-                "<span class='label'>{}</span>".format(x)
+                "<span class='label'>{}</span>".format(mark_for_escaping(x))
                 for x in value
                 if ":" not in x
             ]

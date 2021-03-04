@@ -101,6 +101,7 @@
                     <a class="btn" href="/media/archive_files/{{ archive.pk }}/"><i class="icon-folder-open"></i> View
                         Files</a>
                     <a class="btn" id="archive-edit"><i class="icon-edit"></i> Edit</a>
+                    <a class="btn btn-inverse hide" id="archive-cancel"><i class="icon-stop icon-white"></i> Cancel</a>
                     <button id="run-tests" class="btn"><i class="icon-repeat"></i> Re-run Tests</button>
                     {% if coverage_analysis_path %}
                         <a class="btn" href="{{ coverage_analysis_path }}"> View Coverage Analysis</a>
@@ -161,18 +162,35 @@
             // Track shift status
             var shiftPressed = false;
             $(document).on('mousemove', function(e){shiftPressed = e.shiftKey;});
-            //Setup archive details editor
-            reportEditorApp.init('{{ archive.pk }}', JSON.parse('{{ archive_type_choices_json|safe }}'));
-            //Setup diagnostic table
-            diagnosticsTableApp.init(
-                '#diagnostics-table-template',
-                JSON.parse({{ api_resource|safe }}),
-                JSON.parse({{ diagnostic_category_choices_json|safe }}),
-                JSON.parse({{ is_sequencer|safe }})
-            );
-            //Setup rerun test button
+            try {
+                // Setup archive details editor
+                reportEditorApp.init('{{ archive.pk }}', JSON.parse('{{ archive_type_choices_json|safe }}'),
+                                     '{{ archive.is_baseline }}' === 'True');
+                // Setup diagnostic table
+                diagnosticsTableApp.init(
+                    '#diagnostics-table-template',
+                    JSON.parse({{ api_resource|safe }}),
+                    JSON.parse({{ diagnostic_category_choices_json|safe }}),
+                    JSON.parse({{ is_sequencer|safe }})
+                );
+            } catch(error) {
+                console.log('Crashed!!!');
+                console.error(error);
+                throw error;
+            } finally {
+                // console.log("Finishing!  G'bye!");
+            }
+            // Setup rerun test button
             $("#run-tests").click(function () {
-                diagnosticsTableApp.setUnexecuted();
+                try {
+                    diagnosticsTableApp.setUnexecuted();
+                } catch(error) {
+                    console.log("Crashed while setting un-executed!");
+                    console.error(error);
+                    throw error;
+                } finally {
+                    // console.log("Finishing!  G'bye!");
+                }
                 $.ajax({
                     type: "POST",
                     url: "{% url 'api_dispatch_rerun_archive' resource_name='Archive' api_name='v1' pk=archive.pk %}" +

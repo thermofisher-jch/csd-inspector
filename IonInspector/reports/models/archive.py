@@ -264,9 +264,10 @@ class Archive(models.Model):
                 )
 
         # delete all other diagnostics first
-        tests = Diagnostic.objects.filter(archive=self)
-        for run_test in tests:
-            run_test.delete()
+        # tests = Diagnostic.objects.filter(archive=self)
+        # for run_test in tests:
+        #     run_test.delete()
+        Diagnostic.objects.filter(archive=self).delete()
 
         # get all of the diagnostics to be run on this type of archive
         archive_type = str(self.archive_type)
@@ -322,6 +323,13 @@ class Archive(models.Model):
 
     def is_sequencer(self):
         return self.archive_type in [S5, PROTON, PGM_RUN, VALK]
+
+        class Meta:
+            app_label = 'reports'
+
+
+# TODO: Receivers should not be imported from a model file as this can
+#       lead to them registering for the same events multiple times.
 
 
 @receiver(pre_delete, sender=Archive, dispatch_uid="delete_archive")
