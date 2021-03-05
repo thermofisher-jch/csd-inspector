@@ -11,6 +11,7 @@ def active_nav(request):
     active_urls = {
         "index": "INDEX",
         "upload": "SUBMIT",
+        "batch-upload-form": "SUBMIT",
         "reports": "REPORT",
         "report": "REPORT",
         "instrument-detail": "INSTRUMENT",
@@ -19,3 +20,11 @@ def active_nav(request):
         "documentation": "DOCS",
     }
     return {"active_nav": active_urls.get(request.resolver_match.url_name)}
+
+
+def use_datatables(request):
+    return {
+        "use_datatables": (
+            request.resolver_match.url_name in {"upload", "batch-upload-form"}
+        )
+    }

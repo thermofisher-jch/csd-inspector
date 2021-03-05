@@ -11,6 +11,7 @@ from django.db.models import F, CharField, Value, ExpressionWrapper
 from django.db.models.functions import Concat
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
+from django.urls import reverse
 
 from celeryconfig import celery_app
 from reports.diagnostics.common.inspector_utils import (
@@ -105,7 +106,7 @@ TEST_MANIFEST = {
         ("Barcode_Report", CATEGORY_SEQUENCING),
         ("Run_Sequence_Details", CATEGORY_SEQUENCING),
         ("Run_Type", CATEGORY_SEQUENCING),
-        ("Genexus_Reagent_Lot_Summary", CATEGORY_SEQUENCING)
+        ("Genexus_Reagent_Lot_Summary", CATEGORY_SEQUENCING),
     ],
     OT_LOG: [
         ("OT_Plots", CATEGORY_SAMPLE_PREP),
@@ -196,6 +197,16 @@ class Archive(models.Model):
         upload_to=get_file_path, blank=True, null=True, max_length=1000
     )
 
+    sha1_hash = models.CharField(
+        max_length=27, unique=False, null=True, blank=False, db_index=False
+    )
+    md5_hash = models.CharField(
+        max_length=22, unique=False, null=True, blank=False, db_index=False
+    )
+    crc32_sum = models.CharField(
+        max_length=6, unique=False, null=True, blank=False, db_index=False
+    )
+
     # used to search the runs for tags
     search_tags = ArrayField(
         models.CharField(max_length=255),
@@ -260,7 +271,7 @@ class Archive(models.Model):
             or self.doc_file.path.endswith(".txz")
         ):
             check_call(["tar", "-xf", self.doc_file.path, "--directory", archive_dir])
-            check_call(["chmod", "755", "-R", archive_dir])
+            check_call(["chmod", "2775", "-R", archive_dir])
 
         # Watch out. Some ot logs are are .log and some are .csv
         elif self.doc_file.path.endswith(".log") or self.doc_file.path.endswith(
@@ -322,7 +333,7 @@ class Archive(models.Model):
         test_folder = os.path.join(self.archive_root, "test_results")
         if not os.path.exists(test_folder):
             os.mkdir(test_folder)
-            os.chmod(test_folder, 0777)
+            os.chmod(test_folder, 2775)
 
         for diagnostic_name, diagnostic_category in diagnostic_list:
             diagnostic = Diagnostic(
@@ -364,6 +375,9 @@ class Archive(models.Model):
 
     class Meta:
         app_label = "reports"
+
+    def get_absolute_url(self):
+        return reverse("report", args=[self.id])
 
 
 # TODO: Receivers should not be imported from a model file as this can

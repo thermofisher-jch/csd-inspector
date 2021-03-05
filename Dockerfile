@@ -48,12 +48,19 @@ RUN Rscript -e "library(BiocInstaller); biocLite('rhdf5')"
 
 # setup variables
 ENV PROJECT_DIR /opt/inspector
+ENV MEDIA_ROOT /var/lib/inspector/media
+ENV NGINX_TEMP_ROOT /var/lib/inspector/nginxTemp
 ENV PYTHONPATH  /opt/inspector/IonInspector:$PYTHONPATH
-RUN mkdir -p $PROJECT_DIR
 WORKDIR ${PROJECT_DIR}
 
 # create ssh keys
 RUN /usr/bin/ssh-keygen -A
 
 # add the src code
-COPY ./ /opt/inspector
+COPY ./ ${PROJECT_DIR}
+
+# Bootstrap cointainer volume mount points with required directories and permission bits
+RUN umask 002 && ${PROJECT_DIR}/init_volume_paths.sh 
+
+# Yield root
+USER 8247

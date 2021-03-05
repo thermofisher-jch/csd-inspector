@@ -1,2 +1,4 @@
-from archive_upload_form import ArchiveForm
-from instrument_model_form import InstrumentModelForm
+from .instrument_model_form import InstrumentModelForm
+from .single_archive_upload_form import SingleArchiveUploadForm
+from .batch_archive_upload_form import BatchArchiveUploadForm
+from .capture_archive_hashes_form import CaptureArchiveHashesForm

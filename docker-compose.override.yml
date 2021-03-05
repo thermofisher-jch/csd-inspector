@@ -2,37 +2,50 @@
 version: '3'
 services:
   celery:
+    image: thf/inspector-celery:latest
     volumes:
-      - .:/opt/inspector
-      - ./.local/celery:/var/log/celery
-      - ./.local/logs:/var/log/inspector
+      - .:/opt/inspector:ro
+      - ./.local/celery:/var/log/celery:delegated
+      - ./.local/logs:/var/log/inspector:delegated
       - inspector-media:/var/lib/inspector/media
 
   django:
-    user: root
+    image: thf/inspector-django:latest
     volumes:
-      - .:/opt/inspector
-      - ./.local/logs:/var/log/inspector
+      - .:/opt/inspector:ro
+      - ./.local/logs:/var/log/inspector:delegated
       - inspector-media:/var/lib/inspector/media
+      - nginx-temp:/var/lib/inspector/nginxTemp
+    ports:
+      - "8099:22"
+
+  nginx:
+    volumes:
+      - .:/opt/inspector:ro
+      - ./nginx/nginx.conf:/opt/bitnami/nginx/conf/nginx.conf:ro
+      - inspector-media:/var/lib/inspector/media
+      - nginx-temp:/var/lib/inspector/nginxTemp
+      - nginx-logs:/opt/bitnami/nginx/logs
     ports:
       - "8090:8080"
-      - "8099:22"
+
 
   postgres:
     volumes:
-      - postgresql-data:/var/lib/postgresql/data:delegated
-      - postgresql-log:/var/log/postgresql:delegated
+      - postgresql-data:/var/lib/postgresql/data
+      - postgresql-log:/var/log/postgresql
     ports:
       - "5433:5432"
 
   rabbitmq:
     volumes:
-      - rabbit-data:/var/lib/rabbitmq:delegated
+      - rabbit-data:/var/lib/rabbitmq
 
 volumes:
   postgresql-data:
   postgresql-log:
   inspector-media:
-  inspector-logs:
   celery-workspace:
   rabbit-data:
+  nginx-logs:
+  nginx-temp:

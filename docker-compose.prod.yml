@@ -3,6 +3,8 @@ version: '3'
 services:
   rabbitmq:
     restart: always
+    volumes:
+      - rabbit-data:/var/lib/rabbitmq
 
   celery:
     restart: always
@@ -12,16 +14,29 @@ services:
       - /var/log/inspector:/var/log/inspector
 
   django:
-    command: bash -c "wait-for-it postgres:5432 -- python ./manage.py migrate --noinput && gunicorn -w 16 --timeout 90 -b 0.0.0.0:8000 IonInspector.wsgi"
+    command: bash -c "wait-for-it postgres:5432 -- python ./manage.py migrate --noinput && gunicorn -w 16 --timeout 900 -b 0.0.0.0:8000 IonInspector.wsgi"
     restart: always
     volumes:
       - /mnt/raid/inspector/media:/var/lib/inspector/media
+      - /var/lib/inspector/nginxTemp:/var/lib/inspector/nginxTemp
       - /var/log/inspector:/var/log/inspector
+
+  nginx:
+    restart: always
+    volumes:
+      - /mnt/raid/inspector/media:/var/lib/inspector/media
+      - /var/lib/inspector/nginxTemp:/var/lib/inspector/nginxTemp
+      - nginx-logs:/opt/bitnami/nginx/logs"
     ports:
-      - "8657:8000"
+      - "8657:8080"
 
   postgres:
     restart: always
     volumes:
       - /var/lib/inspector/postgres/postgresql_data:/var/lib/postgresql/data
       - /var/lib/inspector/postgres/postgresql_log:/var/log/postgresql
+
+volumes:
+  rabbit-data:
+  nginx-logs:
+
