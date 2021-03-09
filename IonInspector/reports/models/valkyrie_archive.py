@@ -4,8 +4,10 @@ import shutil
 
 from django.conf import settings
 from django.db import models, transaction
-from django.db.models import F
 from django.db.models.signals import post_save, pre_delete
+from django.db.models import Case, When, Value, ExpressionWrapper, CharField
+from django.db.models.expressions import F
+from django.db.models.functions import Concat
 from django.dispatch import receiver
 from django.urls import reverse
 
@@ -21,12 +23,74 @@ if not settings.configured:
 
 class ValkyrieArchiveQuerySet(models.QuerySet):
     def with_tracker(self):
-        return self.annotate(
-            assessment=F("archive__summary"),
-            failure_mode=F("archive__failure_mode"),
-            identifier=F("archive__identifier"),
-            is_baseline=F("archive__is_baseline"),
+        qs_with_exprs = self.annotate(
             serial_number=F("instrument__serial_number"),
+            lane1_comma=(
+                ExpressionWrapper(
+                    Concat(Value("1("), F("lane1_assay_type"), Value("), ")),
+                    output_field=CharField(),
+                )
+            ),
+            lane2_comma=(
+                ExpressionWrapper(
+                    Concat(Value("2("), F("lane2_assay_type"), Value("), ")),
+                    output_field=CharField(),
+                )
+            ),
+            lane3_comma=(
+                ExpressionWrapper(
+                    Concat(Value("3("), F("lane3_assay_type"), Value("), ")),
+                    output_field=CharField(),
+                )
+            ),
+            lane4_comma=(
+                ExpressionWrapper(
+                    Concat(Value("4("), F("lane4_assay_type"), Value("), ")),
+                    output_field=CharField(),
+                )
+            ),
+        )
+        return qs_with_exprs.annotate(
+            assay_type=Case(
+                When(
+                    lane4_assay_type__isnull=Value(False),
+                    then=Concat(
+                        F("lane1_comma"),
+                        Concat(
+                            F("lane2_comma"),
+                            Concat(
+                                F("lane3_comma"),
+                                Value("4("),
+                                F("lane4_assay_type"),
+                                Value(")"),
+                            ),
+                        ),
+                    ),
+                ),
+                When(
+                    lane3_assay_type__isnull=Value(False),
+                    then=Concat(
+                        F("lane1_comma"),
+                        Concat(
+                            F("lane2_comma"),
+                            Value("3("),
+                            F("lane3_assay_type"),
+                            Value(")"),
+                        ),
+                    ),
+                ),
+                When(
+                    lane2_assay_type__isnull=Value(False),
+                    then=Concat(
+                        F("lane1_comma"),
+                        Value("2("),
+                        F("lane2_assay_type"),
+                        Value(")"),
+                    ),
+                ),
+                default=Concat(Value("1("), F("lane1_assay_type"), Value(")")),
+                output_field=CharField(),
+            ),
         )
 
 
@@ -77,9 +141,9 @@ class ValkyrieArchive(models.Model):
         unique=False,
         null=False,
     )
-    run_name = models.CharField(
-        verbose_name="Run Name",
-        db_column="run_name",
+    lane1_assay_type = models.CharField(
+        verbose_name="Lane1 Assay Type",
+        db_column="lane1_assay",
         db_index=False,
         max_length=255,
         editable=False,
@@ -87,19 +151,9 @@ class ValkyrieArchive(models.Model):
         blank=False,
         null=True,
     )
-    lanes_used = models.CharField(
-        verbose_name="Lanes Used",
-        db_column="lanes_used",
-        db_index=False,
-        max_length=24,
-        editable=False,
-        unique=False,
-        blank=False,
-        null=True,
-    )
-    run_type = models.CharField(
-        verbose_name="Run Type",
-        db_column="run_type",
+    lane2_assay_type = models.CharField(
+        verbose_name="Lane2 Assay Type",
+        db_column="lane2_assay",
         db_index=False,
         max_length=255,
         editable=False,
@@ -107,9 +161,19 @@ class ValkyrieArchive(models.Model):
         blank=False,
         null=True,
     )
-    assay_types = models.CharField(
-        verbose_name="Assay Types",
-        db_column="assay_types",
+    lane3_assay_type = models.CharField(
+        verbose_name="Lane3 Assay Type",
+        db_column="lane3_assay",
+        db_index=False,
+        max_length=255,
+        editable=False,
+        unique=False,
+        blank=False,
+        null=True,
+    )
+    lane4_assay_type = models.CharField(
+        verbose_name="Lane4 Assay Type",
+        db_column="lane4_assay",
         db_index=False,
         max_length=255,
         editable=False,
@@ -137,20 +201,19 @@ def on_archive_update(sender, instance, **kwargs):
         serial_number = explog.get("Serial Number", None)
         device_name = explog.get("DeviceName", None)
         run_started_at = explog.get("Start Time", None)
-        run_type = explog.get("RunType", "Unknown")
         run_name = explog.get("runName", "Unknown")
 
-        assay_types = list()
-        lanes_used = list()
+        assay_types = dict()
         for ii in ("1", "2", "3", "4"):
             if explog.get("LanesActive%s" % ii, "no") == "yes":
-                lanes_used.append(ii)
+                key = "lane%s_assay_type" % ii
                 lane_assay = explog.get("LanesAssay%s" % ii, None)
                 if not lane_assay is None:
-                    assay_types.append(str(lane_assay))
-        lanes_used = ", ".join(lanes_used)
-        assay_types = ", ".join(assay_types)
         run_number = int(run_name[(len(device_name) + 1) :].split("-")[0])
+                    if os.path.isfile(emphasis_check_file):
+                        assay_types[key] = "<b>%s</b>" % str(lane_assay)
+                    else:
+                        assay_types[key] = str(lane_assay)
 
         if run_started_at is not None:
             run_started_at = datetime.datetime.strptime(
@@ -165,6 +228,15 @@ def on_archive_update(sender, instance, **kwargs):
             assay_types=assay_types,
             run_number=run_number,
         )
+        if "lane1_assay_type" in assay_types:
+            valkyrie_archive.lane1_assay_type = assay_types["lane1_assay_type"]
+        if "lane2_assay_type" in assay_types:
+            valkyrie_archive.lane2_assay_type = assay_types["lane2_assay_type"]
+        if "lane3_assay_type" in assay_types:
+            valkyrie_archive.lane3_assay_type = assay_types["lane3_assay_type"]
+        if "lane4_assay_type" in assay_types:
+            valkyrie_archive.lane4_assay_type = assay_types["lane4_assay_type"]
+
         with transaction.atomic():
             valkyrie_archive.instrument = Instrument.objects.get_or_create(
                 serial_number=serial_number,
