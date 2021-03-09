@@ -19,7 +19,7 @@ class InstrumentDetailView(SingleTableMixin, FilterMixin, UpdateView):
 
     def get_table(self):
         filterset = self.get_filterset(self.get_filterset_class())
-        retval = ValkyrieInstrumentArchiveTable(filterset.qs)
+        retval = ValkyrieInstrumentArchiveTable(filterset.qs.select_related())
         request_config = RequestConfig(self.request, True)
         request_config.configure(retval)
         return retval

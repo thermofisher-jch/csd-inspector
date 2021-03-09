@@ -4,8 +4,8 @@ from django.core.urlresolvers import reverse
 from django.utils.safestring import mark_safe, mark_for_escaping
 from django_tables2.utils import A
 
-from reports.models import Archive
 from .width_attrs import width_attrs
+from ..models import Archive
 
 
 class ArchiveTable(tables.Table):
@@ -65,11 +65,12 @@ class ArchiveTable(tables.Table):
         accessor=A("archive_type"),
         empty_values=("", "Unknown", None),
     )
-    taser_ticket_number = tables.URLColumn(
+    taser_ticket_url = tables.URLColumn(
         verbose_name="TASER",
         attrs=width_attrs("72px"),
         orderable=True,
-        empty_values=(0, "", None),
+        text=lambda archive: archive.taser_ticket_number,
+        empty_values=("", None),
     )
     serial_number = tables.LinkColumn(
         verbose_name="Serial Number",
@@ -78,7 +79,8 @@ class ArchiveTable(tables.Table):
         viewname="instrument-detail",
         args=[A("as_valkyrie__instrument")],
         accessor=A("as_valkyrie__instrument__serial_number"),
-        empty_values=(None),
+        empty_values=("", None),
+    )
     is_known_good = tables.LinkColumn(
         verbose_name="Known Good?",
         attrs=width_attrs("88px"),
@@ -124,7 +126,7 @@ class ArchiveTable(tables.Table):
         sequence = (
             "id",
             "identifier",
-            "taser_ticket_number",
+            "taser_ticket_url",
             "submitter_name",
             "time",
             "archive_type",
@@ -135,6 +137,7 @@ class ArchiveTable(tables.Table):
         # exclude the summary column data
         exclude = (
             "doc_file",
+            "taser_ticket_number",
             "serial_number",
             "summary",
             "failure_mode",

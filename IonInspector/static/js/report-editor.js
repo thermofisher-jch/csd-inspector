@@ -171,6 +171,9 @@ var reportEditorApp = {
             success: function (response, textStatus, jqXhr) {
             },
             error: function (jqXHR, textStatus, errorThrown) {
+                console.log(textStatus, jqXHR.statusText, jqXHR.statusCode)
+                console.error(jqXHR.responseText)
+                console.error(errorThrown)
                 alert("Error saving changes!");
             },
             complete: function () {

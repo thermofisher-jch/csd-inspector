@@ -1,4 +1,3 @@
-import datetime
 import os
 import shutil
 import zipfile
@@ -8,10 +7,12 @@ from cached_property import cached_property
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
+from django.db.models import F, CharField, Value, ExpressionWrapper
+from django.db.models.functions import Concat
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
-from celeryconfig import celery_app
 
+from celeryconfig import celery_app
 from reports.diagnostics.common.inspector_utils import (
     read_explog,
     get_platform_and_systemtype,
@@ -125,8 +126,43 @@ TEST_MANIFEST = {
     ],
 }
 
+
+class ArchiveManager(models.Manager):
+    def get_queryset(self):
+        return ArchiveQuerySet(model=self.model, using=self._db, hints=self._hints)
+
+    def with_serial_number(self):
+        return self.get_queryset().with_serial_number()
+
+    def with_taser_ticket_url(self):
+        return self.get_queryset().with_taser_ticket_url()
+
+
+class ArchiveQuerySet(models.QuerySet):
+    def with_serial_number(self):
+        return self.annotate(
+            serial_number=ExpressionWrapper(
+                F("as_valkyrie__instrument__serial_number"),
+                output_field=CharField(max_length=255),
+            )
+        )
+
+    def with_taser_ticket_url(self):
+        return self.annotate(
+            taser_ticket_url=ExpressionWrapper(
+                Concat(
+                    Value("https://jira.amer.thermo.com/browse/FST-"),
+                    F("taser_ticket_number"),
+                ),
+                output_field=CharField(max_length=255),
+            )
+        )
+
+
 class Archive(models.Model):
     """An archive sample"""
+
+    objects = ArchiveManager()
 
     # user-provided label on upload
     identifier = models.CharField(max_length=255)

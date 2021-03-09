@@ -40,7 +40,6 @@ def upload(request):
     # Handle file upload
     if request.method == "POST":
         form = ArchiveForm(data=request.POST, files=request.FILES)
-
         archive = Archive(
             identifier=form.data["archive_identifier"],
             site=form.data["site_name"],
@@ -74,7 +73,7 @@ def upload(request):
             ctx = dict({"error_msg": exc.message})
             return render(request, "error.html", context=ctx)
 
-        # Redirect to the document list after POST if "Upload Archive" was selected
+        # Redirect to new document's detail view after POST if "Upload Archive" was selected
         if form.data["upload_another"] != "yes":
             return HttpResponseRedirect(reverse("report", args=[archive.pk]))
         else:
@@ -145,7 +144,7 @@ def reports(request):
         if date_end:
             archives = archives.filter(time__lt=date_end)
 
-    table = ArchiveTable(archives, order_by="-time")
+    table = ArchiveTable(archives.with_taser_ticket_url(), order_by="-time")
     table.paginate(page=request.GET.get("page", 1), per_page=100)
     RequestConfig(request).configure(table)
 

@@ -1,13 +1,12 @@
 import datetime
 import os
-import shutil
 
 from django.conf import settings
 from django.db import models, transaction
-from django.db.models.signals import post_save, pre_delete
 from django.db.models import Case, When, Value, ExpressionWrapper, CharField
 from django.db.models.expressions import F
 from django.db.models.functions import Concat
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
 
@@ -102,10 +101,10 @@ class ValkyrieArchiveManager(models.Manager):
         ).with_tracker()
 
     def with_tracker(self):
-        return self.get_queryset().with_tracker()
+        return self.get_queryset().with_tracker().select_related()
 
 
-class ValkyrieArchive(models.Model):
+class ValkyrieArchive(Archive):
     objects = ValkyrieArchiveManager()
 
     archive = models.OneToOneField(
@@ -200,33 +199,49 @@ def on_archive_update(sender, instance, **kwargs):
         explog = read_explog(archive_dir)
         serial_number = explog.get("Serial Number", None)
         device_name = explog.get("DeviceName", None)
-        run_started_at = explog.get("Start Time", None)
-        run_name = explog.get("runName", "Unknown")
 
+        try:
+            valkyrie_archive = instance.as_valkyrie
+        except AttributeError:  # RelatedObjectDoesNotExist:
+            valkyrie_archive = ValkyrieArchive(archive=instance)
+
+        if valkyrie_archive.instrument is not None:
+            # No need to initialize this a second or subsequent time.
+            return
+
+        valkyrie_archive.archive_id = instance.id
+        valkyrie_archive.archive_type = instance.archive_type
+        valkyrie_archive.identifier = instance.identifier
+        valkyrie_archive.doc_file = instance.doc_file
+        valkyrie_archive.failure_mode = instance.failure_mode
+        valkyrie_archive.summary = instance.summary
+        valkyrie_archive.site = instance.site
+        valkyrie_archive.submitter_name = instance.submitter_name
+        valkyrie_archive.taser_ticket_number = instance.taser_ticket_number
+        valkyrie_archive.time = instance.time
+        valkyrie_archive.search_tags = instance.search_tags
+
+        run_started_at = explog.get("Start Time", None)
+        valkyrie_archive.run_name = explog.get("runName", "Unknown")
+        valkyrie_archive.run_number = int(
+            valkyrie_archive.run_name[(len(device_name) + 1) :].split("-")[0]
+        )
         assay_types = dict()
         for ii in ("1", "2", "3", "4"):
             if explog.get("LanesActive%s" % ii, "no") == "yes":
                 key = "lane%s_assay_type" % ii
                 lane_assay = explog.get("LanesAssay%s" % ii, None)
                 if not lane_assay is None:
-        run_number = int(run_name[(len(device_name) + 1) :].split("-")[0])
+                    emphasis_check_file = os.path.join(
+                        archive_dir, "rawTrace", "rawTrace_lane_%s.html" % ii
+                    )
                     if os.path.isfile(emphasis_check_file):
                         assay_types[key] = "<b>%s</b>" % str(lane_assay)
                     else:
                         assay_types[key] = str(lane_assay)
 
-        if run_started_at is not None:
-            run_started_at = datetime.datetime.strptime(
-                run_started_at, "%m/%d/%Y %H:%M:%S"
-            )
-        valkyrie_archive = ValkyrieArchive(
-            archive=instance,
-            run_started_at=run_started_at,
-            run_name=run_name,
-            run_type=run_type,
-            lanes_used=lanes_used,
-            assay_types=assay_types,
-            run_number=run_number,
+        valkyrie_archive.run_started_at = datetime.datetime.strptime(
+            run_started_at, "%m/%d/%Y %H:%M:%S"
         )
         if "lane1_assay_type" in assay_types:
             valkyrie_archive.lane1_assay_type = assay_types["lane1_assay_type"]
@@ -238,8 +253,18 @@ def on_archive_update(sender, instance, **kwargs):
             valkyrie_archive.lane4_assay_type = assay_types["lane4_assay_type"]
 
         with transaction.atomic():
-            valkyrie_archive.instrument = Instrument.objects.get_or_create(
+            instrument_result = Instrument.objects.get_or_create(
                 serial_number=serial_number,
-                defaults={"site": instance.site, "instrument_name": device_name},
-            )[0]
+                defaults={
+                    "site": valkyrie_archive.site,
+                    "instrument_name": device_name,
+                },
+            )
+            if instrument_result[1]:
+                print("Created a new object")
+            else:
+                print("Reusing a previously created dependency")
+            instrument_obj = instrument_result[0]
+            print("Today I met a " + str(instrument_obj))
+            valkyrie_archive.instrument_id = instrument_obj.id
             valkyrie_archive.save()
