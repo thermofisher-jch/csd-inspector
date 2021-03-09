@@ -12,6 +12,7 @@ var reportEditorApp = {
         archiveFailureMode: $("#archive-failure-mode"),
         archiveIsKnownGood: $("#archive-is-known-good"),
         archiveTaser: $("#archive-taser"),
+        onEditLabels: $("label.on-edit-label"),
     },
     init: function (archiveId, archiveTypes, initialDisposition) {
         this.archiveId = archiveId;
@@ -138,9 +139,10 @@ var reportEditorApp = {
                 value: type.value,
                 selected: this.elements.archiveType.data("value") === type.value
             }));
+
+        this.elements.onEditLabels.removeClass('on-edit-label');
         }.bind(this));
         this.elements.archiveType.html(archiveTypeSelect);
-
     },
     save: function () {
         const knownRadioInputs = this.elements.archiveIsKnownGood.find("input");

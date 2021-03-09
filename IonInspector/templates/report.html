@@ -26,6 +26,10 @@
             float: right;
         }
 
+        .on-edit-label {
+            display: none;
+        }
+
         #archive-is-known-good {
             text-align: left
         }
@@ -35,6 +39,9 @@
             margin-right: 5px;
         }
 
+        div.form-actions {
+            margin-top: 10px;
+        }
     </style>
 {% endblock %}
 {% load staticfiles %}
@@ -53,14 +60,17 @@
 
     <div class="row-fluid">
         <div class="span12">
+            <label for="archive-identifier" class="on-edit-label">Identifier:</label>
             <h1 id="archive-identifier" data-value="{{ archive.identifier }}">{{ archive.identifier }}</h1>
         </div>
     </div>
     <div class="row-fluid">
         <div class="span9">
+            <label for="archive-site" class="on-edit-label">Site:</label>
             <h3 id="archive-site" data-value="{{ archive.site }}">{{ archive.site }}</h3>
         </div>
         <div class="span3">
+            <label for="archive-type" class="on-edit-label">Archive Type:</label>
             <h3 id="archive-type" style="text-align: right"
                 data-value="{{ archive.archive_type }}">{{ archive.get_archive_type_display }}</h3>
         </div>
@@ -78,6 +88,16 @@
             <span id="archive-is-known-good" class="disposition-badge"/>
         </div>
     </div>
+    {% if archive.as_valkyrie and archive.as_valkyrie.instrument.serial_number %}
+        <div class="row-fluid">
+            <div class="offset6 span3">
+                <span id="archive-serial" data-value="{{ archive.as_valkyrie.instrument.serial_number }}">
+                    <a href="{% url 'instrument-detail' archive.as_valkyrie.instrument.id %}"
+                       target="_blank">Serial Number: {{ archive.as_valkyrie.instrument.serial_number }}</a>
+                </span>
+            </div>
+        </div>
+    {% endif %}
     <div class="row-fluid">
         <div class="span6">
             {% for tag in archive.search_tags %}
@@ -85,16 +105,8 @@
             {% endfor %}
         </div>
         <div class="span3">
-            {% if archive.as_valkyrie and archive.as_valkyrie.instrument.serial_number %}
-                <span id="archive-serial" data-value="{{ archive.as_valkyrie.instrument.serial_number }}">
-                    <a href="{% url 'instrument-detail' archive.as_valkyrie.instrument.id %}"
-                       target="_blank">Serial Number: {{ archive.as_valkyrie.instrument.serial_number }}</a>
-                </span>
-            {% else %}
-                <span id="archive-serial" class="muted" data-value=""></span>
-            {% endif %}
-                <br><br>
             {% if archive.taser_ticket_number %}
+                <label for="archive-taser" class="on-edit-label">TASER Number:</label>
                 <span id="archive-taser" data-value="{{ archive.taser_ticket_number }}">
                     <a href="https://jira.amer.thermo.com/browse/FST-{{ archive.taser_ticket_number }}"
                        target="_blank">TASER: {{ archive.taser_ticket_number }}</a>

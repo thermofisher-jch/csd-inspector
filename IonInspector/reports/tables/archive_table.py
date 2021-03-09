@@ -15,7 +15,7 @@ class ArchiveTable(tables.Table):
 
     id = tables.LinkColumn(
         verbose_name="ID",
-        attrs=width_attrs("60px"),
+        attrs=width_attrs("32px"),
         orderable=True,
         viewname="report",
         args=[A("id")],
@@ -31,7 +31,7 @@ class ArchiveTable(tables.Table):
     )
     identifier = tables.LinkColumn(
         verbose_name="Label",
-        attrs=width_attrs("30%"),
+        attrs=width_attrs("25%"),
         orderable=True,
         viewname="report",
         args=[A("id")],
@@ -40,7 +40,7 @@ class ArchiveTable(tables.Table):
     )
     site = tables.LinkColumn(
         verbose_name="Site",
-        attrs=width_attrs("20%"),
+        attrs=width_attrs("18%"),
         orderable=True,
         viewname="report",
         args=[A("id")],
@@ -58,7 +58,7 @@ class ArchiveTable(tables.Table):
     )
     archive_type = tables.LinkColumn(
         verbose_name="Type",
-        attrs=width_attrs("100px"),
+        attrs=width_attrs("96px"),
         orderable=True,
         viewname="report",
         args=[A("id")],
@@ -67,7 +67,7 @@ class ArchiveTable(tables.Table):
     )
     taser_ticket_number = tables.URLColumn(
         verbose_name="TASER",
-        attrs=width_attrs("80px"),
+        attrs=width_attrs("72px"),
         orderable=True,
         empty_values=(0, "", None),
     )
@@ -141,5 +141,6 @@ class ArchiveTable(tables.Table):
         )
         show_header = True
         orderable = True
+        order_by = "-date"
         empty_text = "No matches found"
         template_name = "tables/reports.html"
