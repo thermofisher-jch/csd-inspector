@@ -19,6 +19,10 @@
             searchForm.find("select").change(function () {
                 searchForm.submit();
             });
+            var kg = $("#id_is_known_good").selectize({
+                plugins: ['remove_button'],
+                closeAfterSelect: true,
+            });
     </script>
     {% render_table table "django_tables2/bootstrap.html" %}
 {% endblock content %}

@@ -39,7 +39,6 @@
             $('#new_archive').submit(function () {
                 localStorage.setItem("submitter-name", $submitterName.val());
             });
-
         });
     </script>
     <style type="text/css">
@@ -48,6 +47,11 @@
             -moz-transition: none;
             -o-transition: none;
             transition: none;
+        }
+
+        ul.disposition-radio li {
+            display: inline-block;
+            margin-right: 5px;
         }
     </style>
 {% endblock extra_head_js %}
@@ -87,8 +91,8 @@
                 </div>
                 <div class="row">
                     <div class="span6">
-                        <label for="{{ form.is_baseline.id_for_label }}">
-                            {{ form.is_baseline.label}}&nbsp;{{ form.is_baseline }}
+                        <label for="{{ form.is_known_good.id_for_label }}">
+                            {{ form.is_known_good.label}}&nbsp;{{ form.is_known_good }}
                         </label>
                     </div>
                 </div>

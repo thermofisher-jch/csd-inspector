@@ -29,6 +29,7 @@ from reports.values import (
     ION_CHEF,
     VALK,
     UNKNOWN_PLATFORM,
+    TRI_STATE_SYMBOL_SELECT,
 )
 
 from reports.tags.chef import get_chef_tags
@@ -128,7 +129,6 @@ class Archive(models.Model):
     """An archive sample"""
 
     # user-provided label on upload
-
     identifier = models.CharField(max_length=255)
 
     # the site from which the archive was found
@@ -147,8 +147,10 @@ class Archive(models.Model):
     summary = models.CharField(max_length=255, default=u"")
     failure_mode = models.TextField(unique=False, default=u"", blank=False, null=True)
 
-    # Boolean flag for filtering flaw cases from known good baselines
-    is_baseline = models.BooleanField(unique=False, default=False, null=False)
+    # Three-stage flag for categorizing a case as known good, known issue, or not yet known.
+    is_known_good = models.CharField(
+        max_length=4, unique=False, choices=TRI_STATE_SYMBOL_SELECT, null=False
+    )
 
     # an optional taser ticket reference
     taser_ticket_number = models.IntegerField(null=True)
@@ -324,14 +326,12 @@ class Archive(models.Model):
     def is_sequencer(self):
         return self.archive_type in [S5, PROTON, PGM_RUN, VALK]
 
-        class Meta:
-            app_label = 'reports'
+    class Meta:
+        app_label = "reports"
 
 
 # TODO: Receivers should not be imported from a model file as this can
 #       lead to them registering for the same events multiple times.
-
-
 @receiver(pre_delete, sender=Archive, dispatch_uid="delete_archive")
 def on_archive_delete(sender, instance, **kwargs):
     """Triggered when the archives are deleted"""

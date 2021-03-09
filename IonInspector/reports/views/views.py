@@ -46,7 +46,7 @@ def upload(request):
             site=form.data["site_name"],
             time=timezone.now(),
             submitter_name=form.data["name"],
-            is_baseline=("is_baseline" in form.data),
+            is_known_good=form.data["is_known_good"],
             taser_ticket_number=int(form.data["taser_ticket_number"])
             if form.data["taser_ticket_number"]
             else None,
@@ -100,6 +100,7 @@ def reports(request):
     archive_type_search = ""
     identifier_search = ""
     taser_ticket_number_search = ""
+    is_known_good_search = []
     date_start_search = ""
     date_end_search = ""
     tags_search = ""
@@ -126,6 +127,9 @@ def reports(request):
     if request.GET.get("tags", ""):
         tags_search = request.GET.getlist("tags")
         archives = archives.filter(search_tags__contains=tags_search)
+    if request.GET.get("is_known_good"):
+        is_known_good_search = request.GET.getlist("is_known_good")
+        archives = archives.filter(is_known_good__in=is_known_good_search)
     if request.GET.get("date_start", ""):
         date_start_search = request.GET["date_start"]
     if request.GET.get("date_end", ""):
@@ -160,6 +164,9 @@ def reports(request):
             "archive_type_search": archive_type_search,
             "identifier_search": identifier_search,
             "taser_ticket_number_search": taser_ticket_number_search,
+            "include_known_good": "selected=" if "T" in is_known_good_search else "",
+            "include_known_issues": "selected=" if "F" in is_known_good_search else "",
+            "include_unknown": "selected=" if "K" in is_known_good_search else "",
             "date_start_search": date_start_search,
             "date_end_search": date_end_search,
             "tags_search": tags_search,

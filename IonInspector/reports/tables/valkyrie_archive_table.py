@@ -43,6 +43,9 @@ class ValkyrieInstrumentArchiveTable(tables.Table):
     lanes_used = tables.LinkColumn(
         verbose_name="Lanes Used",
         attrs=width_attrs("75px"),
+    is_known_good = tables.LinkColumn(
+        verbose_name="Known Good Run",
+        attrs=width_attrs("64px"),
         orderable=True,
         accessor=A("lanes_used"),
         viewname="report",
@@ -61,14 +64,9 @@ class ValkyrieInstrumentArchiveTable(tables.Table):
         attrs=width_attrs("130px"),
         orderable=True,
         accessor=A("run_type"),
+        accessor=A("is_known_good"),
         viewname="report",
         args=[A("archive_id")],
-    )
-    is_baseline = tables.BooleanColumn(
-        verbose_name="Baseline Run",
-        attrs=width_attrs("30px"),
-        orderable=True,
-        accessor=A("is_baseline"),
     )
     assessment = tables.LinkColumn(
         verbose_name="Assessment",
@@ -99,7 +97,7 @@ class ValkyrieInstrumentArchiveTable(tables.Table):
             "run_type",
             "lanes_used",
             "assay_types",
-            "is_baseline",
+            "is_known_good",
             "assessment",
             "failure_mode",
         )
@@ -111,7 +109,7 @@ class ValkyrieInstrumentArchiveTable(tables.Table):
             "run_type",
             "lanes_used",
             "assay_types",
-            "is_baseline",
+            "is_known_good",
             "assessment",
             "failure_mode",
         )

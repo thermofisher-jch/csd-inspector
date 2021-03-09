@@ -1,6 +1,7 @@
 var reportEditorApp = {
     archiveId: null,
     archiveTypes: null,
+    initialDisposition: null,
     elements: {
         editButton: $("#archive-edit"),
         cancelButton: $("#archive-cancel"),
@@ -9,21 +10,26 @@ var reportEditorApp = {
         archiveType: $("#archive-type"),
         archiveSummary: $("#archive-summary"),
         archiveFailureMode: $("#archive-failure-mode"),
-        archiveIsBaseline: $("#archive-is-baseline"),
+        archiveIsKnownGood: $("#archive-is-known-good"),
         archiveTaser: $("#archive-taser"),
     },
-    init: function (archiveId, archiveTypes, initialBaseline) {
+    init: function (archiveId, archiveTypes, initialDisposition) {
         this.archiveId = archiveId;
         this.archiveTypes = archiveTypes;
-        this.elements.archiveIsBaseline.addClass("label");
-        if (initialBaseline) {
-            this.elements.archiveIsBaseline.addClass("label-success");
-            this.elements.archiveIsBaseline.data('value', 'true');
-            this.elements.archiveIsBaseline.text("Baseline Run");
+        this.initialDisposition = initialDisposition;
+        this.elements.archiveIsKnownGood.addClass("label");
+        if (initialDisposition === 'T') {
+            this.elements.archiveIsKnownGood.addClass("label-success");
+            this.elements.archiveIsKnownGood.data('value', 'T');
+            this.elements.archiveIsKnownGood.text("Known Good Run");
+        } else if(initialDisposition === 'F') {
+            this.elements.archiveIsKnownGood.addClass("label-warning");
+            this.elements.archiveIsKnownGood.data('value', 'F');
+            this.elements.archiveIsKnownGood.text("Known Issue Run");
         } else {
-            this.elements.archiveIsBaseline.addClass("label-warning");
-            this.elements.archiveIsBaseline.data('value', 'false');
-            this.elements.archiveIsBaseline.text("Issue Run");
+            this.elements.archiveIsKnownGood.addClass("label-info");
+            this.elements.archiveIsKnownGood.data('value', 'K');
+            this.elements.archiveIsKnownGood.text("Unknown Run");
         }
         this.elements.editButton.click(
             this.enable.bind(this));
@@ -81,27 +87,39 @@ var reportEditorApp = {
         }.bind(this));
 
         //Switch toggle badge to checkbox widgets
-        this.elements.archiveIsBaseline.removeClass("label");
-        let initialBaseline = (this.elements.archiveIsBaseline.data('value') === 'true');
-        if (initialBaseline) {
-            this.elements.archiveIsBaseline.removeClass("label-success");
-        } else {
-            this.elements.archiveIsBaseline.removeClass("label-warning");
-        }
-        this.elements.archiveIsBaseline.text("");
-        var checkbox = this.elements.archiveIsBaseline.html($("<input/>", {
-            type: "checkbox",
-            checked: initialBaseline,
-            style: "float: right;"
-            })
-        );
-        checkbox.wrapInner(
-            $("<label>Is Baseline Run:&nbsp;</label>")
-        );
-
+        let knownGoodRadioBox = $('<ul class="disposition-radio"/>')
+        const states = [
+            ['K', 'Unknown'],
+            ['T', 'Known Good'],
+            ['F', 'Known Issue']
+        ];
+        states.forEach(function (type) {
+            let attrs = {
+                type: "radio",
+                name: "is_known_good",
+                class: "disposition-radio",
+                value: type[0],
+                id: "id_is_known_good_" + type[0],
+            };
+            const listElem = $('<li/>')
+            const inputElem = $('<input/>', attrs)
+            const labelElem = $('<label/>', { for: "id_is_known_good_" + type[0] })
+            labelElem.text(type[1] + ': ');
+            knownGoodRadioBox.append(
+                listElem.wrapInner(inputElem).wrapInner(labelElem)
+            );
+            if (type[0] === this.initialDisposition) {
+                inputElem.click();
+            }
+        }.bind(this));
+        let outerLabel = $('<label/>', { id: 'archive-is-known-good' } );
+        outerLabel.text('Run Outcome:');
+        outerLabel.append(knownGoodRadioBox)
+        this.elements.archiveIsKnownGood.replaceWith(outerLabel);
+        this.elements.archiveIsKnownGood = outerLabel;
 
         // Switch machine type to select with option list.
-        var archiveTypeSelect = $("<select/>", {
+        const archiveTypeSelect = $("<select/>", {
             type: "text",
             dir: "rtl",
             style: "font-size: 25px;" +
@@ -125,6 +143,13 @@ var reportEditorApp = {
 
     },
     save: function () {
+        const knownRadioInputs = this.elements.archiveIsKnownGood.find("input");
+        let isKnownGoodValue = 'K';
+        for (ii of [0, 1, 2]) {
+            if (knownRadioInputs[ii].checked) {
+               isKnownGoodValue = knownRadioInputs[ii].value;
+            }
+        }
         $.ajax({
             headers: {
                 'Accept': 'application/json',
@@ -139,7 +164,7 @@ var reportEditorApp = {
                 summary: this.elements.archiveSummary.find("input").val(),
                 failure_mode: this.elements.archiveFailureMode.find("input").val(),
                 taser_ticket_number: this.elements.archiveTaser.find("input").val() || null,
-                is_baseline: this.elements.archiveIsBaseline.find("input")[0].checked
+                is_known_good: isKnownGoodValue,
             }),
             success: function (response, textStatus, jqXhr) {
             },

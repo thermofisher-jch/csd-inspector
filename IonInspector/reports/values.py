@@ -70,5 +70,25 @@ TEST_RUN_TYPES = (
     (ION_CHEF, "CHEF"),
 )
 
+SYMBOLIC_UNK = u"\u2047"
+SYMBOLIC_YES = u"\u2714"
+SYMBOLIC_NO = u"\u2718"
+TRI_STATE_SYMBOL_SELECT = (
+    (b"K", SYMBOLIC_UNK),
+    (b"T", SYMBOLIC_YES),
+    (b"F", SYMBOLIC_NO),
+)
+TRI_STATE_SYMBOL_DICT = {
+    "K": SYMBOLIC_UNK,
+    "T": SYMBOLIC_YES,
+    "F": SYMBOLIC_NO,
+}
 
-SAFE_SELF_TEMPLATE = "<a href='%s' class='no-underline' target='_blank'>%s</a>"
+VERBAL_UNK = "Unknown"
+VERBAL_YES = "Known Good"
+VERBAL_NO = "Known Issue"
+TRI_STATE_VERBAL = (
+    (b"K", VERBAL_UNK),
+    (b"T", VERBAL_YES),
+    (b"F", VERBAL_NO),
+)

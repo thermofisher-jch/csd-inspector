@@ -18,6 +18,23 @@
                 margin-bottom: 20px;
             }
         }
+
+        span.disposition-badge {
+            border-radius: 7px;
+            font-size: 14px;
+            padding: 8px;
+            float: right;
+        }
+
+        #archive-is-known-good {
+            text-align: left
+        }
+
+        ul.disposition-radio li  {
+            display: inline-block;
+            margin-right: 5px;
+        }
+
     </style>
 {% endblock %}
 {% load staticfiles %}
@@ -57,8 +74,8 @@
         <span class="muted" id="archive-failure-mode" data-value="{{ archive.failure_mode }}"
               style="min-height: 36px; display: inline-block; width: 100%">{{ archive.failure_mode }}</span><br>
         </div>
-        <div class="span3" style="text-align: right">
-            <span id="archive-is-baseline" style="font-size: 14px; padding: 8px; border-radius:7px"/>
+        <div class="span3">
+            <span id="archive-is-known-good" class="disposition-badge"/>
         </div>
     </div>
     <div class="row-fluid">
@@ -165,7 +182,7 @@
             try {
                 // Setup archive details editor
                 reportEditorApp.init('{{ archive.pk }}', JSON.parse('{{ archive_type_choices_json|safe }}'),
-                                     '{{ archive.is_baseline }}' === 'True');
+                                     '{{ archive.is_known_good }}');
                 // Setup diagnostic table
                 diagnosticsTableApp.init(
                     '#diagnostics-table-template',

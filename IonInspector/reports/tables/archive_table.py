@@ -79,6 +79,13 @@ class ArchiveTable(tables.Table):
         args=[A("as_valkyrie__instrument")],
         accessor=A("as_valkyrie__instrument__serial_number"),
         empty_values=(None),
+    is_known_good = tables.LinkColumn(
+        verbose_name="Known Good?",
+        attrs=width_attrs("88px"),
+        orderable=True,
+        viewname="report",
+        args=[A("id")],
+        accessor=A("is_known_good"),
     )
     search_tags = tables.LinkColumn(
         verbose_name="Tags",
@@ -122,6 +129,7 @@ class ArchiveTable(tables.Table):
             "time",
             "archive_type",
             "site",
+            "is_known_good",
             "search_tags",
         )
         # exclude the summary column data
@@ -130,7 +138,6 @@ class ArchiveTable(tables.Table):
             "serial_number",
             "summary",
             "failure_mode",
-            "is_baseline",
         )
         show_header = True
         orderable = True
