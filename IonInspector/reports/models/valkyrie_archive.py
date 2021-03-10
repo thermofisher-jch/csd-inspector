@@ -180,6 +180,16 @@ class ValkyrieArchive(Archive):
         blank=False,
         null=True,
     )
+    lane_emphasis_flag = models.SmallIntegerField(
+        verbose_name="Lane Emphasis Flags",
+        db_column="lane_emphasis",
+        db_index=False,
+        editable=False,
+        default=0,
+        unique=False,
+        blank=False,
+        null=False,
+    )
 
     class Meta:
         app_label = "reports"
@@ -219,6 +229,7 @@ def on_archive_update(sender, instance, **kwargs):
         valkyrie_archive.submitter_name = instance.submitter_name
         valkyrie_archive.taser_ticket_number = instance.taser_ticket_number
         valkyrie_archive.time = instance.time
+        valkyrie_archive.is_known_good = instance.is_known_good
         valkyrie_archive.search_tags = instance.search_tags
 
         run_started_at = explog.get("Start Time", None)
@@ -227,6 +238,8 @@ def on_archive_update(sender, instance, **kwargs):
             valkyrie_archive.run_name[(len(device_name) + 1) :].split("-")[0]
         )
         assay_types = dict()
+        emphasis = 0
+        lane_bit = 1
         for ii in ("1", "2", "3", "4"):
             if explog.get("LanesActive%s" % ii, "no") == "yes":
                 key = "lane%s_assay_type" % ii
@@ -235,14 +248,15 @@ def on_archive_update(sender, instance, **kwargs):
                     emphasis_check_file = os.path.join(
                         archive_dir, "rawTrace", "rawTrace_lane_%s.html" % ii
                     )
+                    assay_types[key] = str(lane_assay)
                     if os.path.isfile(emphasis_check_file):
-                        assay_types[key] = "<b>%s</b>" % str(lane_assay)
-                    else:
-                        assay_types[key] = str(lane_assay)
+                        emphasis = emphasis | lane_bit
+            lane_bit = lane_bit << 1
 
         valkyrie_archive.run_started_at = datetime.datetime.strptime(
             run_started_at, "%m/%d/%Y %H:%M:%S"
         )
+        valkyrie_archive.lane_emphasis_flag = emphasis
         if "lane1_assay_type" in assay_types:
             valkyrie_archive.lane1_assay_type = assay_types["lane1_assay_type"]
         if "lane2_assay_type" in assay_types:

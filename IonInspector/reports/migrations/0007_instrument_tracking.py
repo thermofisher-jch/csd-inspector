@@ -9,45 +9,184 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('reports', '0006_auto_20190725_1959'),
+        ("reports", "0006_auto_20190725_1959"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Instrument',
+            name="Instrument",
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False, verbose_name=b'ID')),
-                ('serial_number', models.CharField(db_column=b'serial_number', max_length=255, unique=True, verbose_name=b'Serial Number')),
-                ('instrument_name', models.CharField(db_column=b'instrument_name', max_length=255, null=True, verbose_name=b'Instrument Name')),
-                ('site', models.CharField(db_column=b'site', max_length=255, null=True, verbose_name=b'Site Name')),
-                ('fas', models.CharField(blank=True, db_column=b'fas_name', max_length=255, null=True, verbose_name=b'Field Application Scientist')),
-                ('fbs', models.CharField(blank=True, db_column=b'fbs_name', max_length=255, null=True, verbose_name=b'Field Bioinformatics Scientist')),
-                ('fse', models.CharField(blank=True, db_column=b'fse_name', max_length=255, null=True, verbose_name=b'Field Support Engineer')),
+                (
+                    "id",
+                    models.AutoField(
+                        primary_key=True, serialize=False, verbose_name=b"ID"
+                    ),
+                ),
+                (
+                    "serial_number",
+                    models.CharField(
+                        db_column=b"serial_number",
+                        max_length=255,
+                        unique=True,
+                        verbose_name=b"Serial Number",
+                    ),
+                ),
+                (
+                    "instrument_name",
+                    models.CharField(
+                        db_column=b"instrument_name",
+                        max_length=255,
+                        null=True,
+                        verbose_name=b"Instrument Name",
+                    ),
+                ),
+                (
+                    "site",
+                    models.CharField(
+                        db_column=b"site",
+                        max_length=255,
+                        null=True,
+                        verbose_name=b"Site Name",
+                    ),
+                ),
+                (
+                    "fas",
+                    models.CharField(
+                        blank=True,
+                        db_column=b"fas_name",
+                        max_length=255,
+                        null=True,
+                        verbose_name=b"Field Application Scientist",
+                    ),
+                ),
+                (
+                    "fbs",
+                    models.CharField(
+                        blank=True,
+                        db_column=b"fbs_name",
+                        max_length=255,
+                        null=True,
+                        verbose_name=b"Field Bioinformatics Scientist",
+                    ),
+                ),
+                (
+                    "fse",
+                    models.CharField(
+                        blank=True,
+                        db_column=b"fse_name",
+                        max_length=255,
+                        null=True,
+                        verbose_name=b"Field Support Engineer",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='ValkyrieArchive',
+            name="ValkyrieArchive",
             fields=[
-                ('archive', models.OneToOneField(db_column=b'id', on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, related_name='as_valkyrie', serialize=False, to='reports.Archive', verbose_name=b'Archive ID')),
-                ('run_number', models.SmallIntegerField(db_column=b'run_number', verbose_name=b'Run Number')),
-                ('run_started_at', models.DateTimeField(db_column=b'run_started_at', db_index=True, verbose_name=b'Run Start Time')),
-                ('lane1_assay_type', models.CharField(db_column=b'lane1_assay', editable=False, max_length=255, null=True, verbose_name=b'Lane1 Assay Type')),
-                ('lane2_assay_type', models.CharField(db_column=b'lane2_assay', editable=False, max_length=255, null=True, verbose_name=b'Lane2 Assay Type')),
-                ('lane3_assay_type', models.CharField(db_column=b'lane3_assay', editable=False, max_length=255, null=True, verbose_name=b'Lane3 Assay Type')),
-                ('lane4_assay_type', models.CharField(db_column=b'lane4_assay', editable=False, max_length=255, null=True, verbose_name=b'Lane4 Assay Type')),
-                ('instrument', models.ForeignKey(db_column=b'instrument', null=True, on_delete=django.db.models.deletion.PROTECT, related_name='valkyrie_archives', to='reports.Instrument', verbose_name=b'Host Instrument')),
+                (
+                    "archive",
+                    models.OneToOneField(
+                        db_column=b"id",
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        related_name="as_valkyrie",
+                        serialize=False,
+                        to="reports.Archive",
+                        verbose_name=b"Archive ID",
+                    ),
+                ),
+                (
+                    "run_number",
+                    models.SmallIntegerField(
+                        db_column=b"run_number", verbose_name=b"Run Number"
+                    ),
+                ),
+                (
+                    "run_started_at",
+                    models.DateTimeField(
+                        db_column=b"run_started_at",
+                        db_index=True,
+                        verbose_name=b"Run Start Time",
+                    ),
+                ),
+                (
+                    "lane1_assay_type",
+                    models.CharField(
+                        db_column=b"lane1_assay",
+                        editable=False,
+                        max_length=255,
+                        null=True,
+                        verbose_name=b"Lane1 Assay Type",
+                    ),
+                ),
+                (
+                    "lane2_assay_type",
+                    models.CharField(
+                        db_column=b"lane2_assay",
+                        editable=False,
+                        max_length=255,
+                        null=True,
+                        verbose_name=b"Lane2 Assay Type",
+                    ),
+                ),
+                (
+                    "lane3_assay_type",
+                    models.CharField(
+                        db_column=b"lane3_assay",
+                        editable=False,
+                        max_length=255,
+                        null=True,
+                        verbose_name=b"Lane3 Assay Type",
+                    ),
+                ),
+                (
+                    "lane4_assay_type",
+                    models.CharField(
+                        db_column=b"lane4_assay",
+                        editable=False,
+                        max_length=255,
+                        null=True,
+                        verbose_name=b"Lane4 Assay Type",
+                    ),
+                ),
+                (
+                    "lane_emphasis_flag",
+                    models.SmallIntegerField(
+                        db_column=b"lane_emphasis",
+                        default=0,
+                        editable=False,
+                        verbose_name=b"Lane Emphasis Flags",
+                    ),
+                ),
+                (
+                    "instrument",
+                    models.ForeignKey(
+                        db_column=b"instrument",
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="valkyrie_archives",
+                        to="reports.Instrument",
+                        verbose_name=b"Host Instrument",
+                    ),
+                ),
             ],
-            bases=('reports.archive',),
+            bases=("reports.archive",),
         ),
         migrations.AddField(
-            model_name='archive',
-            name='failure_mode',
-            field=models.TextField(default='', null=True),
+            model_name="archive",
+            name="failure_mode",
+            field=models.TextField(default="", null=True),
         ),
         migrations.AddField(
-            model_name='archive',
-            name='is_known_good',
-            field=models.CharField(choices=[(b'K', '\u2047'), (b'T', '\u2714'), (b'F', '\u2718')], default=b'K', max_length=4),
+            model_name="archive",
+            name="is_known_good",
+            field=models.CharField(
+                choices=[(b"K", "\u2047"), (b"T", "\u2714"), (b"F", "\u2718")],
+                default=b"K",
+                max_length=4,
+            ),
             preserve_default=False,
         ),
     ]
