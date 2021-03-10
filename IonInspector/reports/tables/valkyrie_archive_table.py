@@ -35,7 +35,7 @@ class ValkyrieInstrumentArchiveTable(tables.Table):
         verbose_name="Assay Type",
         attrs=width_attrs("140px"),
         orderable=True,
-        accessor=A("run_number"),
+        accessor=A("assay_type"),
         viewname="report",
         args=[A("archive_id")],
     )
