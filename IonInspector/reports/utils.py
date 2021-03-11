@@ -10,6 +10,12 @@ class Unnest(Func):
     function = "UNNEST"
 
 
+class Concat_WS(Func):
+    """Function node PostgresQL's ConcatW() function for concatenating colimns with a delimiter"""
+
+    function = "CONCAT_WS"
+
+
 def get_serialized_model(model, resource):
     """Used to get a tastypie json object for a specific model instance.
     Nice for pre loading JS data structures."""

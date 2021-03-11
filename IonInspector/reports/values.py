@@ -92,3 +92,29 @@ TRI_STATE_VERBAL = (
     (b"T", VERBAL_YES),
     (b"F", VERBAL_NO),
 )
+
+
+class LaneMeta:
+    def __init__(self, index, value_callback):
+        self._index = index
+        self._value_callback = value_callback
+        self._bit_mask = 1 << (index - 1)
+
+    @property
+    def index(self):
+        return self._index
+
+    @property
+    def bit_mask(self):
+        return self._bit_mask
+
+    def value(self, archive):
+        return self._value_callback(archive)
+
+
+LANE_META_OBJECTS = [
+    LaneMeta(1, lambda x: x.lane1_assay_type),
+    LaneMeta(2, lambda x: x.lane2_assay_type),
+    LaneMeta(3, lambda x: x.lane3_assay_type),
+    LaneMeta(4, lambda x: x.lane4_assay_type),
+]

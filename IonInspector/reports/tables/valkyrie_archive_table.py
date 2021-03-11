@@ -1,4 +1,5 @@
 import django_tables2 as tables
+from django.utils.safestring import mark_for_escaping, mark_safe
 from django_tables2 import A
 
 from reports.models import ValkyrieArchive, Archive
@@ -91,3 +92,16 @@ class ValkyrieInstrumentArchiveTable(tables.Table):
         show_header = True
         template_name = "django_tables2/bootstrap.html"
         empty_text = "No matching case history found"
+
+    def render_assay_type(self, value, record):
+        return mark_safe(
+            "".join(
+                [
+                    "<span class='label label-info'>%s</span>"
+                    % mark_for_escaping(x[3:])
+                    if x.startswith("<*>")
+                    else "<span class='label'>%s</span>" % mark_for_escaping(x)
+                    for x in value.split("; ")
+                ]
+            )
+        )
