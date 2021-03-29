@@ -52,7 +52,7 @@ class ValkyrieInstrumentArchiveTable(tables.Table):
         verbose_name="Assessment",
         attrs=width_attrs("164px"),
         orderable=True,
-        accessor=A("assessment"),
+        accessor=A("summary"),
         viewname="report",
         args=[A("archive_id")],
     )
