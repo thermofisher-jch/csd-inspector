@@ -1476,7 +1476,7 @@
                                     {
                                         name: 'acknowledge_success',
                                         text: "Acknowledge Successful",
-                                        action: this._ackAll,
+                                        action: this._ackSuccessful,
                                         enabled: false,
                                     },
                                     {
