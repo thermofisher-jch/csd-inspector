@@ -1734,31 +1734,27 @@
                         item.enqueueForUpload();
                     });
             };
-
-            this._removeAll = () => {
-                // Must establish a closure to expose elements from this outside the row handler,
-                // because DataTables will bind this to a row context object for each row as it iterates
-                // and we very much need that context to get at the data and DOM for each row.
+           this._removeAll = () => { 
                 this._editor.remove(
-                    this.rows().nodes(), true, {
+                    this._dataTable.rows().nodes(), true, {
                         title: 'Delete all rows?',
                         message: 'Do you really want to delete all pending data entry rows?  This cannot be undone!',
                         buttons: 'Confirm delete'
                     }
-                ).submit();
+                ).show();
             }
 
             this._removeDuplicates = () => {
-                // Must establish a closure to expose elements from this outside the row handler,
-                // because DataTables will bind this to a row context object for each row as it iterates
-                // and we very much need that context to get at the data and DOM for each row.
                 const editorApi = this._editor;
                 const storeApi = this._store;
-                this._dataTable.rows()
-                    .remove(function(idx, data) {
-                        const item = storeApi.lookupArchive(data);
-                        return item.isDuplicate();
-                    }, true, {
+                this._dataTable.row().select()
+                this._editor.remove(
+                    this._dataTable.rows(
+                        function(idx, data) {
+                            const item = storeApi.lookupArchive(data);
+                            return item.isDuplicate();
+                        }
+                    ).nodes(), true, {
                         title: 'Delete all duplicates?',
                         buttons: 'Confirm delete'
                     }).show();
@@ -2135,11 +2131,6 @@
                                         className: "btn-default",
                                     },
                                 ]
-                            }, {
-                                name: "edit",
-                                extend: "edit",
-                                editor: this._editor,
-                                enabled: true
                             }
                         ],
                         editor: this._editor
