@@ -86,6 +86,7 @@
             <ul class="nav">
                 <li class="{% if active_nav == "SUBMIT" %}active{% endif %}"><a href="{% url "upload" %}">Submit Archive</a></li>
                 <li class="{% if active_nav == "REPORT" %}active{% endif %}"><a href="{% url "reports" %}">List Reports</a></li>
+                <li class="{% if active_nav == "INSTRUMENT" %}active{% endif %}"><a href="{% url "instruments-list" %}">Find Instruments</a></li>
                 <li class="{% if active_nav == "DOCS" %}active{% endif %}"><a href="https://thermofisher.sharepoint.com/sites/collaboration/Ion-Torrent-Service-Support/Pages/Ion%20Inspector.aspx">Documentation</a></li>
             </ul>
             <form id="jump_form" class="navbar-form pull-right">

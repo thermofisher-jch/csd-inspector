@@ -11,17 +11,13 @@
         }
 
         #archive_table > thead * th {
-            vertical-align: middle;
-            horiz-align: center;
+            vertical-align: bottom;
+            text-align: center;
         }
 
         #archive_type > thead * a {
-            vertical-align: middle;
-            horiz-align: center;
-        }
-
-        #archive_table > thead * {
-
+            vertical-align: bottom;
+            text-align: center;
         }
 
         #archive_table > tbody * {
@@ -43,6 +39,9 @@
         #archive_table td {
             padding: 0px;
             cursor: pointer;
+            display: table-cell;
+            text-align: center;
+            vertical-align: middle;
         }
 
         #archive_table {
@@ -66,6 +65,11 @@
 
         #archive_table tr td a:focus {
             outline: none;
+        }
+
+        #archive_table tr td.no-underline a {
+            text-decoration: none;
+            color: #333333;
         }
 
         #archive_table tr td a.no-underline {
@@ -106,6 +110,10 @@
     </script>
     <script>
         var s = $('#search_tags').selectize({
+            plugins: ['remove_button'],
+            closeAfterSelect: true,
+        });
+        var kg = $('#is_known_good').selectize({
             plugins: ['remove_button'],
             closeAfterSelect: true,
         });

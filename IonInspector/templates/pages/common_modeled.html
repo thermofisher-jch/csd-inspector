@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block extra_head_js %}
+    <style>
+        .form-horizontal .control-label {
+            display: inline-block;
+            font-size: 12px;
+            text-align: right;
+        }
+
+        .form-horizontal .controls {
+            display: inline-block;
+            margin-left: 4px;
+            padding-left: 4px;
+        }
+
+        .table-container {
+            width: 100%;
+        }
+
+        #model-table {
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        #model-table th {
+            padding-right: 20px;
+        }
+
+        #model-table th, #model-table thead a {
+            border-top: 0 none;
+            vertical-align: bottom;
+            text-align: center;
+        }
+
+        #model-table thead tr.filter-row th {
+            background-image: none;
+        }
+
+        #model-table thead a {
+            color: #333333;
+        }
+
+        #model-table th input, #model-table th select {
+            width: 100%;
+        }
+
+        #model-table td {
+            padding: 10px 10px;
+            cursor: pointer
+            display: table-cell;
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        #model-table tbody * {
+            font-size: 14px;
+        }
+
+        #model-table tr td a {
+            display: block;
+            width: 100%;
+            min-height: 20px;
+        }
+
+        #model-table tr td a:focus {
+            outline: 2px;
+        }
+
+        #model-table tr td.no-underline a {
+            text-decoration: none;
+            color: #333333;
+        }
+
+        #model-table tr td a.no-underline {
+            text-decoration: none;
+            color: #333333;
+        }
+
+        #model-table .label {
+            font-size: 12px;
+            margin-right: 6px;
+        }
+
+        #id_is_known_good + div {
+           width: 250px;
+        }
+    </style>
+{% endblock extra_head_js %}

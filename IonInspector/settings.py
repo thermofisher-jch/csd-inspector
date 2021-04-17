@@ -35,6 +35,8 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'reports',
+    'crispy_forms',
+    'django_filters',
     'django_tables2',
     'tastypie',
     'raven.contrib.django.raven_compat'
@@ -129,7 +131,6 @@ TEMPLATES = [
                 "IonInspector.reports.context_processors.active_nav"
             ],
         },
-
     },
 ]
 

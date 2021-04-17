@@ -18,6 +18,30 @@
                 margin-bottom: 20px;
             }
         }
+
+        span.disposition-badge {
+            border-radius: 7px;
+            font-size: 14px;
+            padding: 8px;
+            float: right;
+        }
+
+        .on-edit-label {
+            display: none;
+        }
+
+        #archive-is-known-good {
+            text-align: left
+        }
+
+        ul.disposition-radio li  {
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        div.form-actions {
+            margin-top: 10px;
+        }
     </style>
 {% endblock %}
 {% load staticfiles %}
@@ -36,28 +60,53 @@
 
     <div class="row-fluid">
         <div class="span12">
+            <label for="archive-identifier" class="on-edit-label">Identifier:</label>
             <h1 id="archive-identifier" data-value="{{ archive.identifier }}">{{ archive.identifier }}</h1>
         </div>
     </div>
     <div class="row-fluid">
         <div class="span9">
+            <label for="archive-site" class="on-edit-label">Site:</label>
             <h3 id="archive-site" data-value="{{ archive.site }}">{{ archive.site }}</h3>
         </div>
         <div class="span3">
+            <label for="archive-type" class="on-edit-label">Archive Type:</label>
             <h3 id="archive-type" style="text-align: right"
                 data-value="{{ archive.archive_type }}">{{ archive.get_archive_type_display }}</h3>
         </div>
     </div>
     <div class="row-fluid">
-        <div class="span6">
+        <div class="span9">
+            <label>Assessment:</label>
             <span class="muted" id="archive-summary" data-value="{{ archive.summary }}"
                   style="min-height: 36px; display: inline-block; width: 100%">{{ archive.summary }}</span><br>
+        <label>Failure Mode:</label>
+        <span class="muted" id="archive-failure-mode" data-value="{{ archive.failure_mode }}"
+              style="min-height: 36px; display: inline-block; width: 100%">{{ archive.failure_mode }}</span><br>
+        </div>
+        <div class="span3">
+            <span id="archive-is-known-good" class="disposition-badge"/>
+        </div>
+    </div>
+    {% if archive.as_valkyrie and archive.as_valkyrie.instrument.serial_number %}
+        <div class="row-fluid">
+            <div class="offset6 span3">
+                <span id="archive-serial" data-value="{{ archive.as_valkyrie.instrument.serial_number }}">
+                    <a href="{% url 'instrument-detail' archive.as_valkyrie.instrument.id %}"
+                       target="_blank">Serial Number: {{ archive.as_valkyrie.instrument.serial_number }}</a>
+                </span>
+            </div>
+        </div>
+    {% endif %}
+    <div class="row-fluid">
+        <div class="span6">
             {% for tag in archive.search_tags %}
                 <span class="label">{{ tag }}</span>
             {% endfor %}
         </div>
         <div class="span3">
             {% if archive.taser_ticket_number %}
+                <label for="archive-taser" class="on-edit-label">TASER Number:</label>
                 <span id="archive-taser" data-value="{{ archive.taser_ticket_number }}">
                     <a href="https://jira.amer.thermo.com/browse/FST-{{ archive.taser_ticket_number }}"
                        target="_blank">TASER: {{ archive.taser_ticket_number }}</a>
@@ -81,6 +130,7 @@
                     <a class="btn" href="/media/archive_files/{{ archive.pk }}/"><i class="icon-folder-open"></i> View
                         Files</a>
                     <a class="btn" id="archive-edit"><i class="icon-edit"></i> Edit</a>
+                    <a class="btn btn-inverse hide" id="archive-cancel"><i class="icon-stop icon-white"></i> Cancel</a>
                     <button id="run-tests" class="btn"><i class="icon-repeat"></i> Re-run Tests</button>
                     {% if coverage_analysis_path %}
                         <a class="btn" href="{{ coverage_analysis_path }}"> View Coverage Analysis</a>
@@ -138,21 +188,38 @@
     <script src="/static/js/diagnostics-table.js"></script>
     <script>
         Raven.context(function () {
-            //Track shift status
+            // Track shift status
             var shiftPressed = false;
             $(document).on('mousemove', function(e){shiftPressed = e.shiftKey;});
-            //Setup archive details editor
-            reportEditorApp.init('{{ archive.pk }}', JSON.parse('{{ archive_type_choices_json|safe }}'));
-            //Setup diagnostic table
-            diagnosticsTableApp.init(
-                '#diagnostics-table-template',
-                JSON.parse({{ api_resource|safe }}),
-                JSON.parse({{ diagnostic_category_choices_json|safe }}),
-                JSON.parse({{ is_sequencer|safe }})
-            );
-            //Setup rerun test button
+            try {
+                // Setup archive details editor
+                reportEditorApp.init('{{ archive.pk }}', JSON.parse('{{ archive_type_choices_json|safe }}'),
+                                     '{{ archive.is_known_good }}');
+                // Setup diagnostic table
+                diagnosticsTableApp.init(
+                    '#diagnostics-table-template',
+                    JSON.parse({{ api_resource|safe }}),
+                    JSON.parse({{ diagnostic_category_choices_json|safe }}),
+                    JSON.parse({{ is_sequencer|safe }})
+                );
+            } catch(error) {
+                console.log('Crashed!!!');
+                console.error(error);
+                throw error;
+            } finally {
+                // console.log("Finishing!  G'bye!");
+            }
+            // Setup rerun test button
             $("#run-tests").click(function () {
-                diagnosticsTableApp.setUnexecuted();
+                try {
+                    diagnosticsTableApp.setUnexecuted();
+                } catch(error) {
+                    console.log("Crashed while setting un-executed!");
+                    console.error(error);
+                    throw error;
+                } finally {
+                    // console.log("Finishing!  G'bye!");
+                }
                 $.ajax({
                     type: "POST",
                     url: "{% url 'api_dispatch_rerun_archive' resource_name='Archive' api_name='v1' pk=archive.pk %}" +
@@ -162,14 +229,13 @@
                     }
                 })
             });
-            //Setup delete button
+            // Setup delete button
             $("#ask_delete").click(function () {
                 $("#delete_prompt").slideDown();
             });
             $("#no_delete").click(function () {
                 $("#delete_prompt").slideUp();
             });
-
         });
     </script>
 {% endblock content %}

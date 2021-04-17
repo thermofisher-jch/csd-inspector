@@ -1,0 +1,20 @@
+# This is the base docker compose file used in both dev and prod
+version: '3'
+services:
+  openrefine:
+    image: tf-sci/inspector-openrefine:3.4.1
+    build:
+      context: ./
+      args: 
+        - RELEASE=3.4.1
+    restart: always
+    environment:
+      - REFINE_MEMORY=2048m
+      - REFINE_MIN_MEMORY=2048m
+    volumes:
+      - refine-data:/mnt/refine
+    ports:
+      - "3333:3333"
+
+volumes:
+  refine-data:
