@@ -1,3 +1,5 @@
+{% load inspector_taglib %}
+
 <html>
 <head>
     <title>Genexus QC Status Report</title>
@@ -90,7 +92,7 @@
                 <ul class="nav nav-tabs" role="tablist">
                     {% for sample_name, rows, keys, qc_data in info_per_sample %}
                         <li role="presentation" class="{% if forloop.first %}active{% endif %}"><a
-                                href="#{{ sample_name }}" role="tab"
+                                href="#{{ sample_name|hrefify }}" role="tab"
                                 data-toggle="tab">{{ sample_name }}</a></li>
                     {% endfor %}
                 </ul>
@@ -98,7 +100,7 @@
                 <div class="tab-content">
                     {% for sample_name, rows, qc_keys, qc_data in info_per_sample %}
                         <div role="tabpanel" class="tab-pane {% if forloop.first %}active{% endif %}"
-                             id="{{ sample_name }}">
+                             id="{{ sample_name|hrefify }}">
                             <h3> QC Metrics </h3>
                             {% for qc_sect, qc_rows in qc_data %}
                                 <br>
