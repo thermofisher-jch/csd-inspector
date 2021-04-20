@@ -19,7 +19,7 @@
         const ACCEPTED_SUFFIXES = [".zip", ".tar.gz", ".tar.xz", ".txz", ".tar", ".csv", ".log"]
 
         const DEBOUNCE_DELAY = 2;
-        const MAX_CONCURRENT_UPLOADS = 2;
+        const MAX_CONCURRENT_UPLOADS = 1;
         const KNOWN_GOOD_OPTIONS =
             [{label: "\u2047", value: "K"}, {label: "\u2714", value: "T"}, {label: "\u2718", value: "F"}];
         const KNOWN_GOOD_OPTIONS_LOOKUP = {"K": "\u2047", "T": "\u2714", "F": "\u2718"};
@@ -38,6 +38,7 @@
         const STATE_LOST = "Aborted Data Entry";
         const STATE_READY_LOST = "Aborted Upload";
         const STATE_FAILED_LOST = "Aborted Retry";
+        const STATE_DELETED = "Deleted";
 
         const ON_RELOAD_STATE_MAP = {
             [[STATE_NEW]]: STATE_LOST,
@@ -62,6 +63,7 @@
             [[STATE_READY_LOST]]: "info",
             [[STATE_FAILED_LOST]]: "danger",
             [[STATE_DUPLICATE]]: "danger",
+            [[STATE_DELETED]]: "danger",
         };
 
         const EDITABLE_FORM_STATES = new Set([STATE_NEW, STATE_INCOMPLETE, STATE_READY])
@@ -526,7 +528,7 @@
                 delete this._files[local_key];
                 localStorage.removeItem("failMeta/" + local_key)
                 localStorage.removeItem("passMeta/" + local_key)
-
+                item._metadata._status_message = STATE_DELETED;
                 this._emitter.emitEvent(EVENT_UPLOAD_TASK_DELETED, [item]);
             },
 
@@ -1516,7 +1518,7 @@
                 buttonContainer.appendTo(this._actContainer);
                 const ackAllApi = this._dataTable.buttons("acknowledge_all:name");
                 const ackSelectedApi = this._dataTable.buttons("acknowledge_selected:name");
-                const ackSuccessfulApi = this._dataTable.buttons("acknowledge_successful:name");
+                const ackSuccessfulApi = this._dataTable.buttons("acknowledge_success:name");
                 const retryAllApi = this._dataTable.buttons("retry_all:name");
                 const retrySelectedApi = this._dataTable.buttons("retry_selected:name");
 
@@ -1991,7 +1993,8 @@
                     autoFill: {
                         editor: this._editor,
                         focus: "hover",
-                        columns: [`${PROP_NAME}:name`, `${PROP_SITE}:name`],
+                        columns: [`${PROP_NAME}:name`, `${PROP_SITE}:name`, `${PROP_LABEL}:name`,
+                                  `${PROP_TASER_TICKET_NUMBER}:name`, `${PROP_IS_KNOWN_GOOD}:name`],
                         horizontal: false,
                         vertical: true
                     },
@@ -2348,6 +2351,7 @@
                 const _handleFileUploadStopped = (uploadable) => {
                     delete this._uploadsInFlight[uploadable._local_key]
                     this._numberInFlight = this._numberInFlight - 1;
+                    console.log("(A) Deducted nif: " + this._numberInFlight);
                     this._maybeUploadMore();
                 };
 
@@ -2367,6 +2371,7 @@
                         uploadable.abortXhrUpload();
                         delete this._uploadsInFlight[uploadable._local_key]
                         this._numberInFlight = this._numberInFlight - 1;
+                        console.log("(B) Deducted nif: " + this._numberInFlight);
                         this._maybeUploadMore();
                     }
                 }
@@ -2385,6 +2390,7 @@
                     if (nextLaunch && '_local_key' in nextLaunch) {
                         this._uploadsInFlight[nextLaunch._local_key] = nextLaunch;
                         this._numberInFlight += 1;
+                        console.log("(C) Increased nif: " + this._numberInFlight);
                         nextLaunch.launchUploadFlight();
                     }
                 }
