@@ -41,9 +41,9 @@
             localStorage.setItem("submitter-name", $submitterName.val());
         });
     });
-    </script>
-    <script src="{% static 'vendor/EventEmitter-5.2.8/js/EventEmitter.js' %}"></script>
-    <script src="{% static 'js/bulk-uploader.js' %}" type="text/javascript"></script>
+</script>
+<script src="{% static 'vendor/EventEmitter-5.2.8/js/EventEmitter.js' %}"></script>
+<script src="{% static 'js/bulk-uploader.js' %}" type="text/javascript"></script>
 {% endblock extra_head_js %}
 
 {% block extra_head_css %}
@@ -60,7 +60,10 @@
         margin-right: 5px;
     }
 
-    <!-- Temporary added styles from batch upload -->
+    <!--
+    Temporary added styles from batch upload
+
+    -->
     #main-row {
         height: calc(100vh - 172px);
     }
@@ -106,28 +109,41 @@
 
     .blocked span {
         visibility: hidden;
-
     }
 
     div.DTE_Inline {
         margin-bottom: 4px;
     }
 
-    div#action_row {
+    div.zone-content {
+        height: calc(45vh - 174px);
+        overflow-x: auto;
+        overflow-y: visible;
+    }
+
+    /*dl.legend @media (min-width: 992px) {*/
+    /*    width: 47vw;*/
+    /*}*/
+
+    /*dl.legend {*/
+    /*    width: 94vw;*/
+    /*}*/
+
+    div#action-row {
         position: absolute;
         bottom: 4px;
         left: 4px;
-        width: calc(100% - 10px);
+        width: calc(100% - 8px);
     }
 
-    span#action_container_left {
+    span#action-container-left {
         float: left;
-        width: 65%
+        width: 45%
     }
 
-    span#action_container_right {
+    span#action-container-right {
         float: right;
-        width: 30%
+        width: 50%
     }
 
     div#show-content-modal {
@@ -143,230 +159,217 @@
 {% block content %}
 <div>
     <ul id="myTabs" class="nav nav-tabs" role="tablist">
-        <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">Single</a></li>
-        <li role="presentation"><a href="#batch" aria-controls="batch" role="tab" data-toggle="tab">Batch</a></li>
+        <li role="presentation" class="active">
+            <a href="#home" aria-controls="home" role="tab" data-toggle="tab">Single</a>
+        </li>
+        <li role="presentation">
+            <a href="#batch" aria-controls="batch" role="tab" data-toggle="tab">Batch</a>
+        </li>
     </ul>
-<!-- Tab panes -->
-  <div class="tab-content">
-    <div id="home" class="tab-pane active" role="tabpanel">
-<div class="row">
-    <div class="col-xs-12">
-        <h1>Upload
-            <small> a new archive for testing</small>
-        </h1>
-    </div>
-</div>
-<div class="row">
-    <div class="col-xs-6">
-        <!-- Upload form. Note enctype attribute! -->
-        <form id="new_archive" action="{% url 'upload' %}" method="post" enctype="multipart/form-data"
-              autocomplete="false">
-            <!-- to stop chromes address fill -->
-            <input autocomplete="false" name="hidden" type="text" style="display:none;">
-            {% csrf_token %}
-            {{ form.upload_another }}
-            {{ form.non_field_errors }}
-            <div class="form-row">
-                <div class="form-group col-xs-6">
-                    {{ form.name.label_tag }}
-                    {{ form.name }}
-                </div>
-                <div class="form-group col-xs-6">
-                    {{ form.site_name.label_tag }}
-                    {{ form.site_name }}
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group col-xs-6">
-                    {{ form.archive_identifier.label_tag }}
-                    {{ form.archive_identifier }}
-                </div>
-                <div class="form-group col-xs-6">
-                    {{ form.taser_ticket_number.label_tag }}
-                    {{ form.taser_ticket_number }}
-                </div>
-            </div>
-            <div class="form-row">
+    <!-- Tab panes -->
+    <div class="tab-content">
+        <div id="home" class="tab-pane active" role="tabpanel">
+            <div class="row">
                 <div class="col-xs-12">
-                    <div class="checkbox form-group">
-                    {{ form.is_baseline }}
-                    {{ form.is_baseline.label_tag }}
-                    </div>
+                    <h1>Upload
+                        <small> a new archive for testing</small>
+                    </h1>
                 </div>
             </div>
-            <div class="form-row">
-                <div class="col-xs-12">
-                    <div class="checkbox form-group">
-                        <label for="{{ form.is_known_good.id_for_label}}">
-                            {{ form.is_known_good.label}}&nbsp;{{ form.is_known_good }}
-                        </label>
-                    </div>
+            <div class="row">
+                <div class="col-xs-6">
+                    <!-- Upload form. Note enctype attribute! -->
+                    <form id="new_archive" action="{% url 'upload' %}" method="post" enctype="multipart/form-data"
+                          autocomplete="false">
+                        <!-- to stop chromes address fill -->
+                        <input autocomplete="false" name="hidden" type="text" style="display:none;">
+                        {% csrf_token %}
+                        {{ form.upload_another }}
+                        {{ form.non_field_errors }}
+                        <div class="form-row">
+                            <div class="form-group col-xs-6">
+                                {{ form.name.label_tag }}
+                                {{ form.name }}
+                            </div>
+                            <div class="form-group col-xs-6">
+                                {{ form.site_name.label_tag }}
+                                {{ form.site_name }}
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-xs-6">
+                                {{ form.archive_identifier.label_tag }}
+                                {{ form.archive_identifier }}
+                            </div>
+                            <div class="form-group col-xs-6">
+                                {{ form.taser_ticket_number.label_tag }}
+                                {{ form.taser_ticket_number }}
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="col-xs-12">
+                                <div class="checkbox form-group">
+                                    {{ form.is_baseline }}
+                                    {{ form.is_baseline.label_tag }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="col-xs-12">
+                                <div class="checkbox form-group">
+                                    <label for="{{ form.is_known_good.id_for_label}}">
+                                        {{ form.is_known_good.label}}&nbsp;{{ form.is_known_good }}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-xs-12">
+                                {{ form.doc_file.label_tag }}
+                                {{ form.doc_file }}
+                                {{ form.doc_file.help_text }}
+                                {{ form.doc_file.errors }}
+                            </div>
+                        </div>
+                        <div id="action_container">
+                            <div class="form-actions">
+                                <input type="submit" value="Upload Archive" class="btn btn-primary">
+                                <input id="upload-another" type="button" value="Upload and Add Another" class="btn">
+                                <button class="btn" type="reset">Reset</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-xs-6">
+                    <dl class="dl-horizontal">
+                        <dt attributes='{ class: "col-sm-2" }' attributes='{ class: "col-sm-2" }'>Your Name</dt>
+                        <dd></dd>
+                        <dt attributes='{ class: "col-sm-2" }'>Site Name</dt>
+                        <dd>Must remain consistent for search functionality. ex) geneticDX and genetic DX will not be
+                            grouped
+                            the same.
+                        </dd>
+                        <dt attributes='{ class: "col-sm-2" }'>Archive Label</dt>
+                        <dd>Description of the run ex) Low Loading, High LQ, CEPH Control, Good Run.</dd>
+                        <dt attributes='{ class: "col-sm-2" }'>TASER Ticket Number</dt>
+                        <dd>Links runs to a TASER ticket. Enter 4-digit value following FST-. This can be edited after
+                            upload if
+                            ticket is created at a later time.
+                        </dd>
+                        <dt attributes='{ class: "col-sm-2" }'>Select File</dt>
+                        <dd>Choose a zipped CSA, FSA or log.</dd>
+                        <dt attributes='{ class: "col-sm-2" }'>Click Upload Archive</dt>
+                        <dd></dd>
+                    </dl>
                 </div>
             </div>
-            <div class="form-row">
-                <div class="form-group col-xs-12">
-                    {{ form.doc_file.label_tag }}
-                    {{ form.doc_file }}
-                    {{ form.doc_file.help_text }}
-                    {{ form.doc_file.errors }}
-                </div>
-            </div>
-            <div id="action_container">
-                <div class="form-actions">
-                    <input type="submit" value="Upload Archive" class="btn btn-primary">
-                    <input id="upload-another" type="button" value="Upload and Add Another" class="btn">
-                    <button class="btn" type="reset">Reset</button>
-                </div>
-            </div>
-        </form>
-    </div>
-    <div class="col-xs-6">
-        <dl class="dl-horizontal">
-            <dt attributes='{ class: "col-sm-2" }' attributes='{ class: "col-sm-2" }'>Your Name</dt>
-            <dd></dd>
-            <dt attributes='{ class: "col-sm-2" }'>Site Name</dt>
-            <dd>Must remain consistent for search functionality. ex) geneticDX and genetic DX will not be grouped
-                the same.
-            </dd>
-            <dt attributes='{ class: "col-sm-2" }'>Archive Label</dt>
-            <dd>Description of the run ex) Low Loading, High LQ, CEPH Control, Good Run.</dd>
-            <dt attributes='{ class: "col-sm-2" }'>TASER Ticket Number</dt>
-            <dd>Links runs to a TASER ticket. Enter 4-digit value following FST-. This can be edited after upload if
-                ticket is created at a later time.
-            </dd>
-            <dt attributes='{ class: "col-sm-2" }'>Select File</dt>
-            <dd>Choose a zipped CSA, FSA or log.</dd>
-            <dt attributes='{ class: "col-sm-2" }'>Click Upload Archive</dt>
-            <dd></dd>
-        </dl>
-    </div>
-</div>
-    </div>
-      <div id="batch" class="tab-pane" roll="tabpanel">
-          <form action="{% url 'upload-batch' %}" method="post" enctype="multipart/form-data">
-              <div id="drop-row" class="row-fluid">
-                  <div id="drop-target" class="col-xs-12">
-            <span id="zone-content-entry">
-                <h4>Upload Drop Zone</h4>
-		Drag files form your desktop and drop here to begin add new upload requests to Data Entry view.
+        </div>
+        <div id="batch" class="tab-pane" roll="tabpanel">
+            <form action="{% url 'upload-batch' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div id="drop-row" class="row-fluid">
+                    <div id="drop-target" class="col-xs-12">
+            <h4>Upload Drop Zone</h4>
+            <div id="zone-content-entry" class="zone-content">
+                <div class="row-fluid">Drag files form your desktop and drop here to begin add new upload requests to Data Entry view.</div>
                 <div class="row-fluid">
-                    <div class="col-xs-6">
-                        <dl class="dl-horizontal">
-                            <dt attributes="{ class: &quot;col-sm-2&quot; }">Submitter</dt>
+                    <div class="col-xs-12 col-md-6">
+                        <dl class="legend dl-horizontal">
+                            <dt>Submitter</dt>
                             <dd>Your own name, most likely.</dd>
-                            <dt attributes="{ class: &quot;col-sm-2&quot; }">Site</dt>
+                            <dt>Site</dt>
                             <dd>Instrument location, 'Site' from instrument page.  Spaces matters.</dd>
-                            <dt attributes="{ class: &quot;col-sm-2&quot; }">Archive Label</dt>
+                            <dt>Archive Label</dt>
                             <dd>Brief recognizable description to represent this run in lists of runs.</dd>
-                            <dt attributes="{ class: &quot;col-sm-2&quot; }">TASER</dt>
+                            <dt>TASER</dt>
                             <dd>Link a TASER ticket by its digits following FST, excluding 'FST-' itself..</dd>
-                            <dt attributes="{ class: &quot;col-sm-2&quot; }">Known Good?</dt>
+                            <dt>Known Good?</dt>
                             <dd>Select disposition: Unknown, Known Good, or Known Issue</dd>
                         </dl>
                     </div>
-                    <div class="col-xs-6">
-                        <dl class="dl-horizontal">
-                            <dt attributes="{ class &quot;col-xsxw-2&quot; }">
-                                <span class="label label-warning">Incomplete Form</span>
-                            </dt>
+                    <div class="col-xs-12 col-md-6">
+                        <dl class="legend dl-horizontal">
+                            <dt><span class="label label-warning">Incomplete Form</span></dt>
                             <dd>Submitter, Site, and Archive Label are required.</dd>
-                            <dt attributes="{ class &quot;col-xs-2&quot; }">
-                                <span class="label label-success">Ready To Upload</span></dt>
+                            <dt><span class="label label-success">Ready To Upload</span></dt>
                             <dd>Minimum required fields sre set.  Tap badge to send for upload!</dd>
-                            <dt attributes="{ class &quot;col-xs-2&quot; }">
-                                <span class="label label-danger">Duplicate File</span>
-                            </dt>
+                            <dt><span class="label label-danger">Duplicate File</span></dt>
                             <dd>This drop duplicates another file being tracked.  Tap its badge to discard.</dd>
                         </dl>
                     </div>
                 </div>
-            </span>
-            <span id="zone-content-progress">
-                <h4>Upload Drop Zone</h4>"Progress Reports" reports status of current and previous uploads activity.  Completed uploads can be acknowledged to remove them from view or used to navigate to their reports.  Failed uploads can be retried or acknowledged here.
-                New archives dropped here appear on "Data Entry" view, and aborted archives restore as described below.
+            </div>
+            <div id="zone-content-progress" class="zone-content">
                 <div class="row-fluid">
-                    <div class="col-xs-6">
-                         <dl class="dl-horizontal">
-                             <dt attributes="{ class &quot;col-sm-2&quot; }">
-                                <span class="label label-success">Successful Upload</span>
-                             </dt>
-                             <dd>Upload finished correctly!  Click this badge to see report.</dd>
-                             <dt attributes="{ class &quot;col-sm-2&quot; }">
-                                 <span class="label label-danger">Failed Upload</span>
-                             </dt>
-                             <dd>Upload finished unsuccessfully.  Click this badge to retry.</dd>
-                             <dt attributes="{ class &quot;col-sm-2&quot; }">
-                                 <span class="label label-info">Waiting In Queue</span>
-                             </dt>
-                             <dd>Waiting for its turn to upload to server</dd>
-                             <dt attributes="{ class &quot;col-sm-2&quot; }">
-                                 <span class="label label-primary">Uploading Now</span>
-                             </dt>
-                             <dd>Active transfer in progress to upload server</dd>
-                         </dl>
-                    </div>
+                    "Progress Reports" reports status of current and previous uploads activity.  Completed uploads can be acknowledged to remove them from view or used to navigate to their reports.  Failed uploads can be retried or acknowledged here.
+                    New archives dropped here appear on "Data Entry" view, and aborted archives restore as described below.
                 </div>
                 <div class="row-fluid">
-                      <div class="col-xs-6">
-                          <dl class="dl-horizontal">
-                              <dt attributes="{ class &quot;col-sm-2&quot; }">
-                                  <span class="label label-warning">Aborted Data Entry</span>
-                              </dt>
-                              <dd>Aborted during pre-upload Data Entry. Returns there if restored.</dd>
-                              <dt attributes="{ class &quot;col-sm-2&quot; }">
-                                  <span class="label label-info">Aborted Upload</span>
-                              </dt>
-                              <dd>Aborted while waiting to upload. Queues for upload if restored.</dd>
-                              <dt attributes="{ class &quot;col-sm-2&quot; }">
-                                  <span class="label label-danger">Aborted Retry</span>
-                              </dt>
-                              <dd>Aborted after upload failed. Retries upload if restored.</dd>
-                          </dl>
-                      </div>
-                  </div>
-                  </span>
-                  <img/>
-                  <div id="action_row">
-                      <span id="action_container_left" class="form-actions"></span>
-                      <span id="action_container_right" class="form-actions">
-                            <div class="btn-group btn-group-justified" role="group">
-                                <a id="view-toggle-entry" href="#" class="btn btn-default" role="button">Data Entry</a>
-                                <a id="view-toggle-progress" href="#" class="btn btn-default" role="button">UploadProgress</a>
-                            </div>
-                      </span>
-                  </div>
+                    <div class="col-md-6 col-sm-12">
+                        <dl class="legend dl-horizontal">
+                            <dt><span class="label label-success">Successful Upload</span></dt>
+                            <dd>Upload finished correctly!  Click this badge to see report.</dd>
+                            <dt><span class="label label-danger">Failed Upload</span></dt>
+                            <dd>Upload finished unsuccessfully.  Click this badge to retry.</dd>
+                            <dt><span class="label label-info">Waiting In Queue</span></dt>
+                            <dd>Waiting for its turn to upload to server</dd>
+                            <dt><span class="label label-primary">Uploading Now</span></dt>
+                            <dd>Active transfer in progress to upload server</dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-6 col-xs-12">
+                        <dl class="legend dl-horizontal">
+                            <dt><span class="label label-warning">Aborted Data Entry</span></dt>
+                            <dd>Aborted during pre-upload Data Entry. Returns there if restored.</dd>
+                            <dt><span class="label label-info">Aborted Upload</span></dt>
+                            <dd>Aborted while waiting to upload. Queues for upload if restored.</dd>
+                            <dt><span class="label label-danger">Aborted Retry</span></dt>
+                            <dd>Aborted after upload failed. Retries upload if restored.</dd>
+                        </dl>
+                    </div>
+                </div>
             </div>
-      </div>
-      <div id="form-row" class="row-fluid">
-          <div class="col-sm-12">
-              <!-- to stop chromes address fill -->
-              <input autocomplete="false" name="hidden" type="hidden">
-              {% csrf_token %}
-              <table id="input-table" class="table table-bordered table-condensed text-center"
-                     style="width: 100%;">
-              </table>
-              <table id="progress-table" class="table table-bordered table-condensed text-center"
-                     style="width: 100%;">
-              </table>
-          </div>
-      </div>
-      </form>
-      <script>
-          $(document).ready(function () {
-              $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-                  $.fn.dataTable.tables({visible: true, api: true}).columns.adjust();
-              });
-              window.batchUploadAppModule = new BatchUploadAppModule(
-                  "{{ version }}", "#drop-target",
-                  "#input-table", "#progress-table",
-                  "#view-toggle-entry", "#view-toggle-progress",
-                  "#zone-content-entry", "#zone-content-progress",
-		  "/csrf/", "/upload/batch/"
-              );
-              window.batchUploadAppModule.start();
-          });
-      </script>
-  </div>
+            <img/>
+            <div id="action-row">
+                <span id="action-container-left" class="form-actions"></span>
+                <span id="action-container-right" class="form-actions">
+                    <div class="btn-group btn-group-justified" role="group">
+                        <a id="view-toggle-entry" href="#" class="btn btn-default" role="button">Data Entry</a>
+                        <a id="view-toggle-progress" href="#" class="btn btn-default" role="button">UploadProgress</a>
+                    </div>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div id="form-row" class="row-fluid">
+        <div class="col-xs-12">
+            <!-- to stop chromes address fill -->
+            <input autocomplete="false" name="hidden" type="hidden">
+            <table id="input-table" class="table table-bordered table-condensed text-center"
+                   style="width: 100%;">
+            </table>
+            <table id="progress-table" class="table table-bordered table-condensed text-center"
+                   style="width: 100%;">
+            </table>
+        </div>
+    </div>
+</form>
+<script>
+    $(document).ready(function () {
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            $.fn.dataTable.tables({visible: true, api: true}).columns.adjust();
+        });
+        window.batchUploadAppModule = new BatchUploadAppModule(
+            "{{ version }}", "#drop-target",
+            "#input-table", "#progress-table",
+            "#view-toggle-entry", "#view-toggle-progress",
+            "#zone-content-entry", "#zone-content-progress",
+            "/csrf/", "/upload/batch/"
+        );
+        window.batchUploadAppModule.start();
+    });
+</script>
+        </div>
     </div>
 </div></div>
 {% endblock content %}

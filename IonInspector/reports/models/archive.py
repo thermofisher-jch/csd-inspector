@@ -271,7 +271,7 @@ class Archive(models.Model):
             or self.doc_file.path.endswith(".txz")
         ):
             check_call(["tar", "-xf", self.doc_file.path, "--directory", archive_dir])
-            check_call(["chmod", "2775", "-R", archive_dir])
+            check_call(["chmod", "-R", "u=r,u+w,u-x,g=r,g+w,g-x,g+s,o-r,o-w,o-x,a+X", archive_dir])
 
         # Watch out. Some ot logs are are .log and some are .csv
         elif self.doc_file.path.endswith(".log") or self.doc_file.path.endswith(

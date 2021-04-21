@@ -1199,7 +1199,7 @@
             this._emitter = emitter;
             this._tableSelector = tableSelector;
             this._jqTable = $(tableSelector);
-            this._actContainer = $("#action_container_left")
+            this._actContainer = $("#action-container-left")
             this._dataTable = undefined
             this._store = store;
             this._initialized = false;
@@ -1341,8 +1341,8 @@
                     }],
                     columns: [
                         {
-                            title: "File", name: PROP_DOC_FILE, data: PATH_DOC_FILE,
-                            type: "string", render: $.fn.dataTable.render.ellipsis(72)
+                            title: "File", name: PROP_DOC_FILE, data: PATH_DOC_FILE, type: "string",
+                            // type: "string", render: $.fn.dataTable.render.ellipsis(72)
                         },
                         {
                             title: "Submitter", name: PROP_NAME, data: PATH_NAME, type: "string"
@@ -1396,6 +1396,7 @@
                     info: false,
                     searching: false,
                     scrollY: "calc(50vh - 90px)",
+                    scrollX: "100vw",
                     drawCallback: _onTableDraw,
                     select: true,
                 });
@@ -1416,12 +1417,13 @@
                             const errorStash = localStorage.getItem("failMeta/" + row_id);
                             if (!errorStash) {
                                 console.warn('Sorry, no error stash found for ' + row_id);
-                                return false;
+                            } else {
+                                const errorMeta = JSON.parse(errorStash);
+                                errorScenarioHandlers[errorMeta.scenario](row_id, errorMeta);
                             }
-
-                            const errorMeta = JSON.parse(errorStash);
-                            errorScenarioHandlers[errorMeta.scenario](row_id, errorMeta);
                         }
+
+                        return false;
                     }
                     if (status === STATE_UPLOADED) {
                         const passStash = localStorage.getItem("passMeta/" + row_id);
@@ -1433,7 +1435,8 @@
                         const locationUrl = passMeta.messagePayload.report_url;
                         const message = 'Uploaded successfully at ' + new Date(passMeta.eventClock) + ` as <a href="${location}" target="_blank">${location}</a>.`;
                         const contextColor = 'success';
-                        showReportIFrame(message, contextColor, locationUrl, undefined);
+                        // showReportIFrame(message, contextColor, locationUrl, undefined);
+                        window.open(locationUrl, row_id)
                     }
                     if (status === STATE_FAILED) {
                         const item = storeApi.lookupArchive(row_id);
@@ -1442,6 +1445,8 @@
                             return false;
                         }
                     }
+
+                    return false;
                 });
 
                 this._dataTableWrapper = $(this._tableSelector + "_wrapper");
@@ -1705,7 +1710,7 @@
             this._emitter = emitter;
             this._tableSelector = tableSelector;
             this._jqTable = $(tableSelector);
-            this._actContainer = $("#action_container_left")
+            this._actContainer = $("#action-container-left")
             this._dataTableWrapper = undefined;
             this._dataTable = undefined;
             this._editor = undefined;
@@ -1915,8 +1920,8 @@
                     }],
                     columns: [
                         {
-                            title: "File", name: PROP_DOC_FILE, data: PATH_DOC_FILE,
-                            type: "string", render: $.fn.dataTable.render.ellipsis(72)
+                            title: "File", name: PROP_DOC_FILE, data: PATH_DOC_FILE, type: "string"
+                            // type: "string", render: $.fn.dataTable.render.ellipsis(72)
                         },
                         {
                             title: "Submitter", name: PROP_NAME, data: PATH_NAME,
@@ -1977,6 +1982,7 @@
                     info: false,
                     searching: false,
                     scrollY: "calc(50vh - 90px)",
+                    scrollX: "100vw",
                     drawCallback: _onTableDraw,
                     keys: {
                         columns: [
