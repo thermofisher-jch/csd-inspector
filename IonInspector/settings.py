@@ -128,6 +128,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 "IonInspector.reports.context_processors.version_number",
+                "IonInspector.reports.context_processors.use_datatables",
                 "IonInspector.reports.context_processors.active_nav"
             ],
         },
@@ -145,7 +146,7 @@ CELERY_RESULT_SERIALIZER = 'pickle'
 SITE_ROOT = os.path.dirname(os.path.dirname(__file__))
 
 
-VERSION = '1.6.2'
+VERSION = '1.7.0-rc.9'
 
 RAVEN_CONFIG = {
     'dsn': 'http://d8a6a72730684575afc834c95ebbdc60:1e5b396140654efd9b3361401f530204@sentry.itw//11',

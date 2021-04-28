@@ -17,11 +17,21 @@ services:
     user: inspector
     build: ./
     working_dir: /opt/inspector
-    command: bash -c "service ssh start && python -u wait_for_postgres.py && python ./manage.py migrate --noinput && python ./manage.py runserver 0.0.0.0:8080"
+    command: bash -c "service ssh start && python -u wait_for_postgres.py && python ./manage.py migrate --noinput && python ./manage.py runserver 0.0.0.0:8000"
     links:
       - postgres
       - celery
       - rabbitmq
+
+  nginx:
+    build:
+      context: .
+      dockerfile: ./nginx/Dockerfile
+    image: thf/nginx-uploader:latest
+    environment:
+      - NGINX_HTTP_PORT_NUMBER=8080
+    links:
+      - django
 
   postgres:
     image: postgres:11.4-alpine

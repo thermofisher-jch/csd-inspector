@@ -8,7 +8,6 @@ from django.db.models.expressions import F, When, Case
 from django.db.models.functions import Concat
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.urls import reverse
 
 from reports.diagnostics.common.inspector_utils import read_explog
 from reports.values import VALK, LANE_META_OBJECTS
@@ -157,9 +156,6 @@ class ValkyrieArchive(Archive):
 
     class Meta:
         app_label = "reports"
-
-    def get_absolute_url(self):
-        return reverse("report", args=[self.archive_id])
 
 
 # TODO: Receivers should not be imported from a model file as this can

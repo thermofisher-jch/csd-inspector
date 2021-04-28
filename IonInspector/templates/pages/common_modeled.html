@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block extra_head_js %}
+{% block extra_head_css %}
     <style>
         .form-horizontal .control-label {
             display: inline-block;
@@ -86,4 +86,6 @@
            width: 250px;
         }
     </style>
-{% endblock extra_head_js %}
+    {% block extra_extra_head_css %}
+    {% endblock %}
+{% endblock extra_head_css %}

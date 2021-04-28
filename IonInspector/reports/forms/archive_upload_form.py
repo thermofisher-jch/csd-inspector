@@ -1,22 +1,27 @@
+from abc import ABCMeta
 from django import forms
 
 from reports.values import TRI_STATE_VERBAL
 
 
-class ArchiveForm(forms.Form):
+class ArchiveUploadForm(forms.Form):
     """Form for uploading a document"""
 
     name = forms.CharField(
         label="Your Name",
         required=True,
-        widget=forms.TextInput(attrs={"autocomplete": "off"}),
+        widget=forms.TextInput(attrs={"autocomplete": "off", "class": "form-control"}),
     )
     site_name = forms.CharField(
         label="Site Name",
         required=True,
-        widget=forms.TextInput(attrs={"autocomplete": "off"}),
+        widget=forms.TextInput(attrs={"autocomplete": "off", "class": "form-control"}),
     )
-    archive_identifier = forms.CharField(label="Archive Identifier", required=True)
+    archive_identifier = forms.CharField(
+        label="Archive Identifier",
+        required=True,
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+    )
     is_known_good = forms.CharField(
         label="Known Disposition?",
         initial=None,
@@ -26,7 +31,8 @@ class ArchiveForm(forms.Form):
         ),
     )
     taser_ticket_number = forms.IntegerField(
-        label="TASER Ticket Number", required=False, min_value=0
+        label="TASER Ticket Number",
+        required=False,
+        min_value=1,
+        widget=forms.NumberInput(attrs={"class": "form-control"}),
     )
-    doc_file = forms.FileField(label="Select file", required=True)
-    upload_another = forms.CharField(initial="no", widget=forms.HiddenInput)

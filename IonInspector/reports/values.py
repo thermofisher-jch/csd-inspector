@@ -112,6 +112,16 @@ class LaneMeta:
         return self._value_callback(archive)
 
 
+NGINX_UPLOAD_MAP = {
+    "doc_file.md5": "doc_file_md5",
+    "doc_file.sha1": "doc_file_sha1",
+    "doc_file.number": "doc_file_number",
+    "doc_file.size": "doc_file_size",
+    "doc_file.crc32": "doc_file_crc32",
+    "doc_file.path_saved": "doc_file_path_saved",
+    "doc_file.source_name": "doc_file_source_name",
+    "doc_file.content_type": "doc_file_content_type",
+}
 LANE_META_OBJECTS = [
     LaneMeta(1, lambda x: x.lane1_assay_type),
     LaneMeta(2, lambda x: x.lane2_assay_type),

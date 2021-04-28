@@ -5,16 +5,17 @@ import os
 from dateutil.parser import parse as date_parse
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.db.models.fields.files import FieldFile
 from django.shortcuts import render, HttpResponseRedirect
 from django.utils import timezone
 from django_tables2 import RequestConfig
 
 from reports.api import ArchiveResource
-from reports.forms import ArchiveForm
+from reports.forms import SingleArchiveUploadForm
 from reports.models import Archive
 from reports.tables import ArchiveTable
 from reports.values import PGM_RUN, CATEGORY_CHOICES, ARCHIVE_TYPES
-from reports.utils import get_serialized_model, Unnest
+from reports.utils import get_file_path, get_serialized_model, Unnest
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +40,7 @@ def upload(request):
 
     # Handle file upload
     if request.method == "POST":
-        form = ArchiveForm(data=request.POST, files=request.FILES)
+        form = SingleArchiveUploadForm(data=request.POST, files=request.FILES)
         archive = Archive(
             identifier=form.data["archive_identifier"],
             site=form.data["site_name"],
@@ -77,12 +78,14 @@ def upload(request):
         if form.data["upload_another"] != "yes":
             return HttpResponseRedirect(reverse("report", args=[archive.pk]))
         else:
-            new_form = ArchiveForm(data=request.POST.copy(), files=request.FILES)
+            new_form = SingleArchiveUploadForm(
+                data=request.POST.copy(), files=request.FILES
+            )
             new_form.data["upload_another"] = "no"
             ctx = dict({"form": new_form})
             return render(request, "upload.html", context=ctx)
     else:
-        form = ArchiveForm()
+        form = SingleArchiveUploadForm()
 
     ctx = dict({"form": form})
     return render(request, "upload.html", context=ctx)
