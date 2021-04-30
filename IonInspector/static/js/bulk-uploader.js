@@ -1147,7 +1147,8 @@
                         // due to a bug in Chrome's File System API impl - #149735
                         fileReadSuccess(item.getAsFile(), entry.fullPath);
                     } else {
-                        readDirectory(entry.createReader());
+			alert('Directory-based uploading is temporarily disabled by design.  Please drop multiple files instead');
+                        // readDirectory(entry.createReader());
                     }
                 }, this);
 
