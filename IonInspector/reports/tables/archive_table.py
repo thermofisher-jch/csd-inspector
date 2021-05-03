@@ -145,6 +145,9 @@ class ArchiveTable(tables.Table):
             "serial_number",
             "summary",
             "failure_mode",
+            "sha1_hash",
+            "md5_hash",
+            "crc32_sum"
         )
         show_header = True
         orderable = True
