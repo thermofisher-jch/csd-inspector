@@ -1,3 +1,4 @@
+import pytz
 import django_tables2 as tables
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.core.urlresolvers import reverse
@@ -100,9 +101,12 @@ class ArchiveTable(tables.Table):
     )
 
     def render_time(self, value, record):
+        PST = pytz.timezone('US/Pacific')
         return mark_safe(
-            "<a href='%s' class='no-underline' target='_blank'>%s</a>"
-            % (reverse("report", args=[record.id]), naturaltime(value))
+            "<a href='%s' class='no-underline' target='_blank'>%s</a>" % (
+                reverse("report", args=[record.id]),
+                value.astimezone(PST).strftime("%d %b %Y, %H:%M %p %Z")
+            )
         )
 
     def render_search_tags(self, value, record):
