@@ -17,6 +17,7 @@ from IonInspector.reports.diagnostics.common.inspector_utils import (
     read_ionstats_basecaller_json,
     format_reads,
 )
+from IonInspector.reports.diagnostics.common.inspector_errors import FileNotFoundError
 
 REPORT_LEVEL_INFO = 0
 REPORT_LEVEL_WARN = 1
@@ -80,13 +81,14 @@ total_read_specs = {
 
 
 def parse_base_caller_stats(archive_path):
-    with open(
-            os.path.join(
-                archive_path, "CSA", "outputs", "BaseCallingActor-00", "BaseCaller.json"
-            )
-    ) as fp:
+    path = os.path.join(
+        archive_path, "CSA", "outputs", "BaseCallingActor-00", "BaseCaller.json"
+    )
+    if not os.path.exists(path):
+        raise FileNotFoundError(path)
+    with open(path) as fp:
         stats = json.load(fp)
-    return stats["Filtering"]["ReadDetails"]["lib"], stats["Filtering"]["BaseDetails"]
+        return stats["Filtering"]["ReadDetails"]["lib"], stats["Filtering"]["BaseDetails"]
 
 
 def copy_chipDiagnosticsReportfiles(archive_path, output_path):
@@ -241,17 +243,25 @@ def get_chip_status(archive_path, output_path, archive_type):
             isp_report = "Required stats files not included"
 
     # total reads
-    total_reads = get_total_reads(archive_path, archive_type)
-    total_reads_message, full_chip_reads, full_chip_reads_spec = get_total_reads_message(
-        chip_type, total_reads
-    )
+    total_reads = None
+    total_reads_message = None
+    try:
+        total_reads = get_total_reads(archive_path, archive_type)
+        total_reads_message, full_chip_reads, full_chip_reads_spec = get_total_reads_message(
+            chip_type, total_reads
+        )
+    except FileNotFoundError:
+        total_reads_message = "Total Reads not known"
 
     # final reads
     final_reads_message = None
     if archive_type == "Valkyrie":
-        base_caller_read_stats, base_caller_base_stats = parse_base_caller_stats(archive_path)
-        final_reads = base_caller_read_stats["valid"]
-        final_reads_message = "Final Reads {}".format(format_reads(final_reads))
+        try:
+            base_caller_read_stats, base_caller_base_stats = parse_base_caller_stats(archive_path)
+            final_reads = base_caller_read_stats["valid"]
+            final_reads_message = "Final Reads {}".format(format_reads(final_reads))
+        except FileNotFoundError:
+            final_reads_message = "Final Reads not known"
 
     # generate message
     message = "Loading {} | Gain {}".format(
