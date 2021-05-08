@@ -271,9 +271,9 @@ def execute(archive_path, output_path, archive_type):
             alertMessages.append("%d Run QCs failed" % run_level_failedQcs["failedRunQc"])
     if run_level_failedQcs.get("failedControlQc", ""):
         if run_level_failedQcs.get("failedControlQc") == 1:
-            alertMessages.append("%d Control QC has failed" % results["failedControlQc"])
+            alertMessages.append("%d Control QC has failed" % run_level_failedQcs["failedControlQc"])
         else:
-            alertMessages.append("%d Control QCs have failed" % results["failedControlQc"])
+            alertMessages.append("%d Control QCs have failed" % run_level_failedQcs["failedControlQc"])
     
     if alertMessages:
         return print_alert(" | ".join(alertMessages))
