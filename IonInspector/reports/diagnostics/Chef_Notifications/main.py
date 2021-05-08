@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+import re
 import sys
 import os.path
 from datetime import datetime, timedelta
@@ -44,15 +44,17 @@ def get_chef_notifications(xml_root, run_start):
     return notifications
 
 
+CHEF_FILE_DATE_REGEX = re.compile('^.*([0-9]{4}-[0-9]{1,2}-[0-9]{1,2}_[0-9]{4})')
+
 def execute(archive_path, output_path, archive_type):
     """Executes the test"""
     try:
-
         # parse the file name for the starting time of the run
-        xml_name = os.path.basename(os.path.splitext(get_chef_run_log_xml_path(archive_path))[0])
-        xml_parts = xml_name.split('_')
-        date_string = xml_parts[2] + "-" + xml_parts[3]
-        run_start = datetime.strptime(date_string, '%Y-%m-%d-%H%M')
+        xml_name = os.path.basename(
+            os.path.splitext(
+                get_chef_run_log_xml_path(archive_path))[0])
+        date_string = CHEF_FILE_DATE_REGEX.findall(xml_name)[0]
+        run_start = datetime.strptime(date_string, '%Y-%m-%d_%H%M')
 
         # now get the xml root node to get the notifications
         root = get_xml_from_run_log(archive_path)
