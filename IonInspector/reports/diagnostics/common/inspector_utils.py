@@ -15,6 +15,8 @@ import semver
 from bs4 import BeautifulSoup
 from django.template import Context, Template
 from reports.values import PGM_RUN, PROTON, S5, VALK, UNKNOWN_PLATFORM
+from IonInspector.reports.diagnostics.common.inspector_errors import FileNotFoundError
+
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 MAX_MESSAGE_LENGTH = 1040
@@ -154,7 +156,7 @@ def read_ionstats_basecaller_json(archive_path, archive_type):
             archive_path, "basecaller_results", "ionstats_basecaller.json"
         )
     if not os.path.exists(path):
-        raise Exception("ionstats_basecaller.json missing")
+        raise FileNotFoundError(path)
     with open(path) as fp:
         return json.load(fp)
 
