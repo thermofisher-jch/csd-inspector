@@ -115,6 +115,20 @@ def get_file_path(instance, filename):
     return os.path.join("archive_files", str(instance.pk), filename)
 
 
+def is_likely_tar_file(file_path):
+    return file_path.endswith(".tar") \
+        or file_path.endswith(".tar.gz") \
+        or file_path.endswith(".tar.xz") \
+        or file_path.endswith(".txz")
+
+
+class UnusableArchiveError(AssertionError):
+    """ Exception class for errors preventing archive recognition """
+    def __init__(self, archive_file_path, message): # real signature unknown
+        super(UnusableArchiveError, self).__init__(
+            str(archive_file_path) + " could not be recognized as a support archive: " + message)
+
+
 class ArchiveWorkspaceError(AssertionError):
     """ Exception class for errors preventing preventing Inspector from managing its own
     local state in its archive-specific storage workspace."""
