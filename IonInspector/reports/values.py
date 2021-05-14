@@ -128,3 +128,10 @@ LANE_META_OBJECTS = [
     LaneMeta(3, lambda x: x.lane3_assay_type),
     LaneMeta(4, lambda x: x.lane4_assay_type),
 ]
+
+# Well-known path elements used to assemble canonical path locations in CSA archives and
+# locate the root of a namespace reserved for in-container diagnostic state.
+DIAGNOSTICS_ROOT_ROLE = "Diagnostics Root Namespace"
+DIAGNOSTICS_NAMESPACE_ROOT = "test_results"
+GENEXUS_INSTRUMENT_TRACKER_DIAGNOSTIC_NAME = "GenexusInstrumentTracker"
+BEAD_DENSITY_FILE_NAME = "Bead_density_1000.png"

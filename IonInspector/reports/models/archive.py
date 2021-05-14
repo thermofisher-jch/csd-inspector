@@ -19,7 +19,7 @@ from reports.diagnostics.common.inspector_utils import (
     get_platform_and_systemtype,
 )
 from .diagnostic import Diagnostic
-from reports.utils import force_symlink, get_file_path
+from reports.utils import force_symlink, get_file_path, ensure_all_diagnostics_namespace
 from reports.values import (
     ARCHIVE_TYPES,
     CATEGORY_SEQUENCING,
@@ -330,10 +330,7 @@ class Archive(models.Model):
             diagnostic_list += TEST_MANIFEST[ION_CHEF]
 
         # make tests folder
-        test_folder = os.path.join(self.archive_root, "test_results")
-        if not os.path.exists(test_folder):
-            os.mkdir(test_folder)
-            os.chmod(test_folder, 2775)
+        test_folder = ensure_all_diagnostics_namespace(self.archive_root)
 
         for diagnostic_name, diagnostic_category in diagnostic_list:
             diagnostic = Diagnostic(

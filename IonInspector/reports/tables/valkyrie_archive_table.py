@@ -11,22 +11,29 @@ class ValkyrieInstrumentArchiveTable(tables.Table):
 
     run_number = tables.LinkColumn(
         verbose_name="Run Number",
-        attrs=width_attrs("64px"),
+        attrs=width_attrs("60px"),
         orderable=True,
         accessor=A("run_number"),
         viewname="report",
         args=[A("archive_id")],
     )
+    loading_density = tables.TemplateColumn(
+        verbose_name="Loading Density",
+        attrs=width_attrs("52px"),
+        orderable=False,
+        accessor=A("loading_density"),
+        template_name="partials/loading_density_thumbnail.html"
+    )
     run_started_at = tables.DateColumn(
         verbose_name="Run Start Date",
-        attrs=width_attrs("72px"),
+        attrs=width_attrs("64px"),
         short=True,
         orderable=True,
         accessor=A("run_started_at"),
     )
     identifier = tables.LinkColumn(
         verbose_name="Label",
-        attrs=width_attrs("100px"),
+        attrs=width_attrs("80px"),
         orderable=True,
         accessor=A("identifier"),
         viewname="report",
@@ -34,7 +41,7 @@ class ValkyrieInstrumentArchiveTable(tables.Table):
     )
     assay_type = tables.LinkColumn(
         verbose_name="Assay Type",
-        attrs=width_attrs("140px"),
+        attrs=width_attrs("128px"),
         orderable=True,
         accessor=A("assay_type"),
         viewname="report",
@@ -50,7 +57,7 @@ class ValkyrieInstrumentArchiveTable(tables.Table):
     )
     assessment = tables.LinkColumn(
         verbose_name="Assessment",
-        attrs=width_attrs("164px"),
+        attrs=width_attrs("160px"),
         orderable=True,
         accessor=A("summary"),
         viewname="report",
@@ -58,7 +65,7 @@ class ValkyrieInstrumentArchiveTable(tables.Table):
     )
     failure_mode = tables.LinkColumn(
         verbose_name="Failure Mode",
-        attrs=width_attrs("164px"),
+        attrs=width_attrs("160px"),
         orderable=True,
         accessor=A("failure_mode"),
         viewname="report",
@@ -71,6 +78,7 @@ class ValkyrieInstrumentArchiveTable(tables.Table):
         attrs = {"class": "table table-striped table-hover", "id": "model-table"}
         fields = (
             "run_number",
+            "loading_density",
             "run_started_at",
             "identifier",
             "assay_type",
@@ -80,6 +88,7 @@ class ValkyrieInstrumentArchiveTable(tables.Table):
         )
         sequence = (
             "run_number",
+            "loading_density",
             "run_started_at",
             "identifier",
             "assay_type",
