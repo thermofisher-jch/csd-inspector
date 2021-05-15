@@ -33,6 +33,8 @@ class ChefRunDetailsTestCase(SimpleTestCase):
 
     test_xml_path_1 = "example/242470601-000033_rc_2017-5-3_1547.xml"
     test_xml_path_2 = "/opt/example/242470284-000327_rl_2017-4-18_1759.xml"
+    test_xml_path_3 = "/var/lib/media/archive_files/105360/var/log/IonChef/RunLog/Clinical_CHEF1" \
+                      "-002131_rl_2020-5-26_1543.xml"
 
     def test_parse_run_date_from_xml_path(self):
         run_date = parse_run_date_from_xml_path(self.test_xml_path_1)
@@ -40,6 +42,9 @@ class ChefRunDetailsTestCase(SimpleTestCase):
 
         run_date = parse_run_date_from_xml_path(self.test_xml_path_2)
         self.assertEqual(run_date, datetime(2017, 4, 18, hour=17, minute=59))
+
+        run_date = parse_run_date_from_xml_path(self.test_xml_path_3)
+        self.assertEqual(run_date, datetime(2020, 5, 26, hour=15, minute=43))
 
     def test_get_deviation_from_element_tree(self):
         element_tree = ElementTree.fromstring("""
