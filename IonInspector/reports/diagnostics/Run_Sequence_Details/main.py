@@ -52,12 +52,22 @@ def get_system_type(explog, archive_type):
 
 def get_flow_time(flow_data):
     time_stamp = []
-    time_format = "%H:%M:%S"
-    for i in range(len(flow_data)-1):
-        time_delta = (datetime.strptime(flow_data[i+1].get("time")[0], time_format) -
-                      datetime.strptime(flow_data[i].get("time")[0], time_format))
+    last_time = parse_flow_time(flow_data[0])
+    for i in range(1, len(flow_data)):
+        next_time = parse_flow_time(flow_data[i])
+        time_delta = next_time - last_time
+        last_time = next_time
         time_stamp.append([i, time_delta.seconds])
     return time_stamp
+
+
+def parse_flow_time(flow_item):
+    time_format = "%H:%M:%S"
+    raw_value = flow_item.get("time")
+    token_count = len(raw_value)
+    if token_count > 0:
+        return datetime.strptime(raw_value[token_count - 1], time_format)
+    raise ValueError("Every flow record must have a timestamp")
 
 
 def get_disk_perc(flow_data):
