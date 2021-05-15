@@ -4,6 +4,7 @@ import json
 import os
 import shutil
 import sys
+import logging
 
 import numpy
 
@@ -12,6 +13,8 @@ from IonInspector.reports.diagnostics.common.inspector_utils import (
     print_info,
     handle_exception,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def get_read_group_file_prefixes(datasets_basecaller_object):
@@ -143,6 +146,21 @@ def execute(archive_path, output_path, archive_type):
                 hist["inline_path"]
             ])
 
+        inline_controls_source_path = os.path.join(
+            archive_path, "CSA/outputs/BaseCallingActor-00/inline_control_stats.json")
+        inline_controls_diag_path = os.path.join(
+            output_path, "inline_control_stats.json")
+        try:
+            # If a link exists from a previous execution, delete and re-create it.
+            if os.path.exists(inline_controls_diag_path):
+                os.unlink(inline_controls_diag_path)
+            os.symlink(inline_controls_source_path, inline_controls_diag_path)
+            inline_control_stats = True
+        except OSError as exp:
+            # Not a severe enough error to halt the report, but log it and prevent
+            # rendering a broken link.
+            logger.exception("Error linking inline_controls", exc_info=exp)
+            inline_control_stats = False
     else:
         for group in groups:
             prefix = prefixes[group["group"]]
@@ -158,6 +176,8 @@ def execute(archive_path, output_path, archive_type):
                 histograms.append([group, os.path.basename(dst_image_path), None, None])
             else:
                 histograms.append([group, None, None, None])
+        # Only Genexus instrument type has this file to link.
+        inline_control_stats = False
 
     write_results_from_template(
         {
@@ -167,6 +187,7 @@ def execute(archive_path, output_path, archive_type):
             "std": std,
             "cv": (std / mean) * 100.0 if mean != 0.0 else 0,
             "min_percent": (min_read_cound / mean) * 100.0 if mean != 0.0 else 0,
+            "inline_control_stats": inline_control_stats,
         },
         output_path,
         os.path.dirname(os.path.realpath(__file__)),

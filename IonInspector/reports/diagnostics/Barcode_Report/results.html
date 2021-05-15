@@ -62,7 +62,11 @@
                     <th>Barcode</th>
                     <th>Total Reads</th>
                     <th>Read Length Histogram</th>
-                    <th>Inline Controls</th>
+                    <th>{% if inline_control_stats %}
+                        <a href="inline_control_stats.json">Inline Controls</a>
+                    {%else%}
+                        Inline Controls
+                    {%endif%}</th>
                 </tr>
                 {% for group, img_path, data, inline_path in histograms %}
                     <tr class="histogram-row {% if group.filtered %}filtered{% endif %}"
