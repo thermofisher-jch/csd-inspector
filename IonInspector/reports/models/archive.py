@@ -1,7 +1,8 @@
 import os
 import shutil
+import logging
 import zipfile
-from subprocess import check_call
+from subprocess import check_call, CalledProcessError
 
 from cached_property import cached_property
 from django.conf import settings
@@ -19,7 +20,8 @@ from reports.diagnostics.common.inspector_utils import (
     get_platform_and_systemtype,
 )
 from .diagnostic import Diagnostic
-from reports.utils import force_symlink, get_file_path, ensure_all_diagnostics_namespace
+from reports.utils import force_symlink, get_file_path, UnusableArchiveError, is_likely_tar_file, \
+    ensure_all_diagnostics_namespace
 from reports.values import (
     ARCHIVE_TYPES,
     CATEGORY_SEQUENCING,
@@ -44,6 +46,8 @@ from reports.tags.valkyrie import get_valk_tags
 # check to see if the settings are configured
 if not settings.configured:
     settings.configure()
+
+logger = logging.getLogger(__name__)
 
 DIAGNOSTICS_SCRIPT_DIR = "/opt/inspector/IonInspector/reports/diagnostics"
 TEST_MANIFEST = {
@@ -240,7 +244,7 @@ class Archive(models.Model):
                 return platform
 
         except Exception as e:
-            pass
+            logger.exception(e)
 
         # if the extracted files has a var directory then this is a ion chef
         if os.path.exists(os.path.join(archive_dir, "var")):
@@ -258,21 +262,30 @@ class Archive(models.Model):
 
         archive_dir = os.path.dirname(self.doc_file.path)
         if self.doc_file.path.endswith(".zip"):
-            doc_archive = zipfile.ZipFile(self.doc_file.path)
-            doc_archive.extractall(path=archive_dir)
-            doc_archive.close()
-
-        # Some chef archives contains files with no read permission. This seems to kill the python tar library. So
-        # instead we are using a subprocess to extract then chmod
-        elif (
-            self.doc_file.path.endswith(".tar")
-            or self.doc_file.path.endswith(".tar.gz")
-            or self.doc_file.path.endswith(".tar.xz")
-            or self.doc_file.path.endswith(".txz")
-        ):
-            check_call(["tar", "-xf", self.doc_file.path, "--directory", archive_dir])
-            check_call(["chmod", "-R", "u=r,u+w,u-x,g=r,g+w,g-x,g+s,o-r,o-w,o-x,a+X", archive_dir])
-
+            try:
+                self.attempt_zip_extraction(self.doc_file.path, archive_dir)
+            except Exception as err1:
+                try:
+                    self.attempt_tar_extraction(self.doc_file.path, archive_dir)
+                except CalledProcessError as err2:
+                    # Log both exceptions, but re-raise the first one as this second one was a
+                    # last resort attempt.
+                    logger.exception(err1)
+                    logger.exception(err2)
+                    raise err1
+        # Some chef archives contains files with no read permission. This seems to kill the
+        # python tar library.  So instead we are using a subprocess to extract then chmod
+        elif (is_likely_tar_file(self.doc_file.path)):
+            try:
+                self.attempt_tar_extraction(self.doc_file.path, archive_dir)
+            except CalledProcessError as err1:
+                try:
+                    self.attempt_zip_extraction(self.doc_file.path, archive_dir)
+                except Exception as err2:
+                    logger.exception(err1)
+                    logger.exception(err2)
+                    raise err1
+            self.check_for_double_packing(archive_dir)
         # Watch out. Some ot logs are are .log and some are .csv
         elif self.doc_file.path.endswith(".log") or self.doc_file.path.endswith(
             ".csv"
@@ -280,6 +293,79 @@ class Archive(models.Model):
             target_path = os.path.join(archive_dir, "onetouch.log")
             if not os.path.exists(target_path):
                 shutil.copy(self.doc_file.path, target_path)
+
+
+    def attempt_zip_extraction(self, file_path, archive_dir):
+        with zipfile.ZipFile(file_path) as doc_archive:
+            doc_archive.extractall(path=archive_dir)
+            doc_archive.close()
+
+
+    def attempt_tar_extraction(self, file_path, archive_dir):
+        check_call(["tar", "-xf", file_path, "--directory", archive_dir])
+        check_call(["chmod", "-R", "u=r,u+w,u-x,g=r,g+w,g-x,g+s,o-r,o-w,o-x,a+X", archive_dir])
+
+
+    def check_for_double_packing(self, archive_dir):
+        """Check whether we unpacked fewer than 6 files.  If so, look for another nested archive
+           file and a run report PDF file.  If found, this is a Genexus 6.6 archive with
+           RunReport PDF and a nested pre-6.6 format CSA archive.  In that case, we must also
+           unpack the nested archive to achieve an end state consistent with earlier versions
+           and we symlink the run report with a well defined name for easier access by reports."""
+        top_contents = os.listdir(archive_dir)
+        if len(top_contents) < 8:
+            nested_archive = None
+            report_pdf = None
+            for child_path in top_contents:
+                full_child_path = os.path.join(archive_dir, child_path)
+                if full_child_path != self.doc_file.path and is_likely_tar_file(child_path):
+                    """We don't want to trigger on ourselves, but one condition we are looking
+                       for is a second archive in tar format with a different name"""
+                    if nested_archive is None:
+                        nested_archive = child_path
+                    else:
+                        logger.info(
+                            "Multiple archives found; {} is not a 6.6 case".format(
+                                self.doc_file.path))
+                        return
+                elif child_path.endswith(".pdf") and not child_path.startswith("Planned"):
+                    if report_pdf is None:
+                        report_pdf = child_path
+                    else:
+                        logger.info(
+                            "Multiple PDF files found; {} is not a 6.6 case".format(
+                                self.doc_file.path))
+                        return
+
+            if nested_archive is None:
+                if report_pdf is None:
+                    logger.info(
+                        "{} unpacked with neither PDF nor nested archive".format(
+                            self.doc_file.path
+                        )
+                    )
+                else:
+                    logger.warn(
+                        "{} unpacked with non-Auditing PDF but no nested archive".format(
+                            self.doc_file.path
+                    ))
+                    os.symlink(report_pdf, os.path.join(archive_dir, "GenexusRunReport.pdf"))
+            else:
+                logger.info("{} has a nested archive to unpack".format(self.doc_file.path))
+                self.attempt_tar_extraction(nested_archive, archive_dir)
+                if report_pdf is None:
+                    logger.warn(
+                        "{} unpacked with a nested archive, but not Genexus Report PDF".format(
+                            self.doc_file.path
+                        )
+                    )
+                else:
+                    logger.info(
+                        "{} is a 6.6 nested archive with Genexus run report".format(
+                            self.doc_file.path)
+                    )
+                    os.symlink(report_pdf, os.path.join(archive_dir, "GenexusRunReport.pdf"))
+
 
     def execute_diagnostics(self, async=True, skip_extraction=False):
         """this method will execute all of the diagnostics"""
