@@ -1,6 +1,8 @@
 import datetime
+import logging
 import os
 
+from celery.utils.time import to_utc
 from django.conf import settings
 from django.db import models, transaction
 from django.db.models import Value, Q
@@ -9,17 +11,19 @@ from django.db.models.functions import Concat
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from reports.diagnostics.common.inspector_utils import read_explog
-from reports.values import VALK, LANE_META_OBJECTS
-from reports.utils import Concat_WS
+from reports.diagnostics.common.inspector_utils import read_explog, get_filePath
+from reports.values import VALK, LANE_META_OBJECTS, GENEXUS_INSTRUMENT_TRACKER_DIAGNOSTIC_NAME, \
+    BEAD_DENSITY_FILE_NAME, DIAGNOSTICS_NAMESPACE_ROOT
+from reports.utils import Concat_WS, ensure_all_diagnostics_namespace, \
+    ensure_namespace_for_diagnostic
 from .instrument import Instrument
 from .archive import Archive
 
 # check to see if the settings are configured
-
 if not settings.configured:
     settings.configure()
 
+logger = logging.getLogger(__name__)
 
 def lane_with_emphasis(lane_number):
     bit_mask = 1 << (lane_number - 1)
@@ -39,6 +43,10 @@ def lane_with_emphasis(lane_number):
 
 class ValkyrieArchiveQuerySet(models.QuerySet):
     def with_tracker(self):
+        tracker_namespace_root = os.path.join(
+            DIAGNOSTICS_NAMESPACE_ROOT, GENEXUS_INSTRUMENT_TRACKER_DIAGNOSTIC_NAME)
+        tracker_image_ref = os.path.join(tracker_namespace_root, BEAD_DENSITY_FILE_NAME)
+
         return self.annotate(
             serial_number=F("instrument__serial_number"),
             lane1_emphasis=F("lane_emphasis_flag").bitand(Value(1)),
@@ -53,6 +61,13 @@ class ValkyrieArchiveQuerySet(models.QuerySet):
                 lane_with_emphasis(3),
                 lane_with_emphasis(4),
             ),
+            loading_density = Concat_WS(
+                Value("/"),
+                Value(settings.MEDIA_URL),
+                Value("archive_files"),
+                F("id"),
+                Value(tracker_image_ref)
+            )
         )
 
 
@@ -175,7 +190,7 @@ def on_archive_update(sender, instance, **_):
         except AttributeError:  # RelatedObjectDoesNotExist:
             valkyrie_archive = ValkyrieArchive(archive=instance)
 
-        if valkyrie_archive.instrument is not None:
+        if valkyrie_archive.instrument_id is not None:
             # No need to initialize this a second or subsequent time.
             return
 
@@ -240,3 +255,27 @@ def on_archive_update(sender, instance, **_):
             instrument_obj = instrument_result[0]
             valkyrie_archive.instrument_id = instrument_obj.id
             valkyrie_archive.save()
+
+        # Rather than storing a reference or making a copy of image content the tracker
+        # wants to use in its view, we instead make a symbolic link at a well-defined
+        # location in order to be able to find this image with each future reporting view
+        # without having to repeat this dynamic search more than its one time use here.
+        # The link will be created using only constants that would be expected to be known
+        # to the instrument tracker at the time when it later needs a reference to this
+        # found file.
+        #
+        # Tracker is not actually a diagnostic currently, but it is something that has been
+        # built with instrument type awareness, so is in that sense part of what should be
+        # plugged in with the Genexus instrument type.  Artistic license taken for the moment
+        # to use diagnostic as the closest term available to mean instrument type extension.
+        archive_source_path = get_filePath(
+            valkyrie_archive.archive_root, BEAD_DENSITY_FILE_NAME)
+        tracker_root_path = ensure_namespace_for_diagnostic(
+            valkyrie_archive.archive_root, GENEXUS_INSTRUMENT_TRACKER_DIAGNOSTIC_NAME)
+        tracker_ref_path = os.path.join(tracker_root_path, BEAD_DENSITY_FILE_NAME)
+        try:
+            os.symlink(archive_source_path, tracker_ref_path)
+        except IOError as exp:
+            """Failure to store this reference is worth logging, but not sufficiently
+               critical to justify rejecting archive import altogether."""
+            logger.exception(exp)
