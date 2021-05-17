@@ -260,34 +260,16 @@ class Archive(models.Model):
         """This will extract all of the data from the archive to the folder for evaluation"""
         # if the file is not there then there is nothing we can do
         if not os.path.exists(self.doc_file.path):
-            raise Exception("The archive file is not present at: " + self.doc_file.path)
+            raise ArchiveWorkspaceError("The archive file is not present at: " + self.doc_file.path)
 
         archive_dir = os.path.dirname(self.doc_file.path)
         if self.doc_file.path.endswith(".zip"):
-            try:
-                self.attempt_zip_extraction(self.doc_file.path, archive_dir)
-            except Exception as err1:
-                try:
-                    self.attempt_tar_extraction(self.doc_file.path, archive_dir)
-                except CalledProcessError as err2:
-                    # Log both exceptions, but re-raise the first one as this second one was a
-                    # last resort attempt.
-                    logger.exception(err1)
-                    logger.exception(err2)
-                    raise err1
+            self.extract_zip_fallback_tar(self.doc_file.path, archive_dir)
             self.check_for_double_packing(archive_dir)
         # Some chef archives contains files with no read permission. This seems to kill the
         # python tar library.  So instead we are using a subprocess to extract then chmod
         elif (is_likely_tar_file(self.doc_file.path)):
-            try:
-                self.attempt_tar_extraction(self.doc_file.path, archive_dir)
-            except CalledProcessError as err1:
-                try:
-                    self.attempt_zip_extraction(self.doc_file.path, archive_dir)
-                except Exception as err2:
-                    logger.exception(err1)
-                    logger.exception(err2)
-                    raise err1
+            self.extract_tar_fallback_zip(self.doc_file.path, archive_dir)
             self.check_for_double_packing(archive_dir)
         # Watch out. Some ot logs are are .log and some are .csv
         elif self.doc_file.path.endswith(".log") or self.doc_file.path.endswith(
@@ -307,6 +289,32 @@ class Archive(models.Model):
     def attempt_tar_extraction(self, file_path, archive_dir):
         check_call(["tar", "-xf", file_path, "--directory", archive_dir])
         check_call(["chmod", "-R", "u=r,u+w,u-x,g=r,g+w,g-x,g+s,o-r,o-w,o-x,a+X", archive_dir])
+
+
+    def extract_tar_fallback_zip(self, file_path, archive_dir):
+        try:
+            self.attempt_tar_extraction(file_path, archive_dir)
+        except CalledProcessError as err1:
+            try:
+                self.attempt_zip_extraction(file_path, archive_dir)
+            except Exception as err2:
+                logger.exception("Initial tar archive unpack error", exc_info=err1)
+                logger.exception("Fallback zip archive unpack error", exc_info=err2)
+                raise err1
+
+
+    def extract_zip_fallback_tar(self, file_path, archive_dir):
+        try:
+            self.attempt_zip_extraction(file_path, archive_dir)
+        except Exception as err1:
+            try:
+                self.attempt_tar_extraction(file_path, archive_dir)
+            except CalledProcessError as err2:
+                # Log both exceptions, but re-raise the first one as this second one was a
+                # last resort attempt.
+                logger.exception("Initial zip archive unpack error", exc_info=err1)
+                logger.exception("Fallback tar archive unpack error", exc_info=err2)
+                raise err1
 
 
     def check_for_double_packing(self, archive_dir):
@@ -340,7 +348,7 @@ class Archive(models.Model):
 
         if nested_archive is not None:
             if nested_archive != ambiguous_marker:
-                self.attempt_tar_extraction(nested_archive, archive_dir)
+                self.extract_tar_fallback_zip(nested_archive, archive_dir)
                 try:
                     force_symlink(
                         nested_archive,
