@@ -15,7 +15,7 @@ from reports.diagnostics.common.inspector_utils import read_explog, get_filePath
 from reports.values import VALK, LANE_META_OBJECTS, GENEXUS_INSTRUMENT_TRACKER_DIAGNOSTIC_NAME, \
     BEAD_DENSITY_FILE_NAME, DIAGNOSTICS_NAMESPACE_ROOT
 from reports.utils import Concat_WS, ensure_all_diagnostics_namespace, \
-    ensure_namespace_for_diagnostic
+    ensure_namespace_for_diagnostic, force_symlink
 from .instrument import Instrument
 from .archive import Archive
 
@@ -270,12 +270,16 @@ def on_archive_update(sender, instance, **_):
         # to use diagnostic as the closest term available to mean instrument type extension.
         archive_source_path = get_filePath(
             valkyrie_archive.archive_root, BEAD_DENSITY_FILE_NAME)
-        tracker_root_path = ensure_namespace_for_diagnostic(
-            valkyrie_archive.archive_root, GENEXUS_INSTRUMENT_TRACKER_DIAGNOSTIC_NAME)
-        tracker_ref_path = os.path.join(tracker_root_path, BEAD_DENSITY_FILE_NAME)
-        try:
-            os.symlink(archive_source_path, tracker_ref_path)
-        except IOError as exp:
-            """Failure to store this reference is worth logging, but not sufficiently
-               critical to justify rejecting archive import altogether."""
-            logger.exception(exp)
+        if archive_source_path is not None:
+            tracker_root_path = ensure_namespace_for_diagnostic(
+                valkyrie_archive.archive_root, GENEXUS_INSTRUMENT_TRACKER_DIAGNOSTIC_NAME)
+            tracker_ref_path = os.path.join(tracker_root_path, BEAD_DENSITY_FILE_NAME)
+            try:
+                force_symlink(archive_source_path, tracker_ref_path)
+            except IOError as exp:
+                """Failure to store this reference is worth logging, but not sufficiently
+                   critical to justify rejecting archive import altogether."""
+                logger.exception(exp)
+        else:
+            logger.warn("No %s file found under %s" % (BEAD_DENSITY_FILE_NAME,
+                                                       valkyrie_archive.archive_root))
