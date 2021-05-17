@@ -35,6 +35,7 @@ from reports.values import (
     UNKNOWN_PLATFORM,
     TRI_STATE_SYMBOL_SELECT,
     NESTED_ARCHIVE, 
+    RUN_REPORT_PDF,
 )
 
 from reports.tags.chef import get_chef_tags
@@ -369,7 +370,7 @@ class Archive(models.Model):
                 try:
                     force_symlink(
                         report_pdf,
-                        os.path.join(archive_dir, "GenexusRunReport.pdf")
+                        os.path.join(archive_dir, RUN_REPORT_PDF)
                     )
                 except OSError as exp:
                     # Don't fail archive import just beccause we failed to link
