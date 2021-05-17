@@ -34,6 +34,7 @@ from reports.values import (
     VALK,
     UNKNOWN_PLATFORM,
     TRI_STATE_SYMBOL_SELECT,
+    NESTED_ARCHIVE, 
 )
 
 from reports.tags.chef import get_chef_tags
@@ -254,6 +255,7 @@ class Archive(models.Model):
         # should be considered an error condition
         raise Exception("Cannot determine the archive type.")
 
+
     def extract_archive(self):
         """This will extract all of the data from the archive to the folder for evaluation"""
         # if the file is not there then there is nothing we can do
@@ -273,6 +275,7 @@ class Archive(models.Model):
                     logger.exception(err1)
                     logger.exception(err2)
                     raise err1
+            self.check_for_double_packing(archive_dir)
         # Some chef archives contains files with no read permission. This seems to kill the
         # python tar library.  So instead we are using a subprocess to extract then chmod
         elif (is_likely_tar_file(self.doc_file.path)):
@@ -312,59 +315,63 @@ class Archive(models.Model):
            RunReport PDF and a nested pre-6.6 format CSA archive.  In that case, we must also
            unpack the nested archive to achieve an end state consistent with earlier versions
            and we symlink the run report with a well defined name for easier access by reports."""
+        ambiguous_marker = 'AmBiguOus'
+        well_known_nested_archive = os.path.join(archive_dir, NESTED_ARCHIVE)
+        nested_archive = None
+        report_pdf = None
         top_contents = os.listdir(archive_dir)
-        if len(top_contents) < 8:
-            nested_archive = None
-            report_pdf = None
+        if len(top_contents) < 6:
             for child_path in top_contents:
                 full_child_path = os.path.join(archive_dir, child_path)
                 if full_child_path != self.doc_file.path and is_likely_tar_file(child_path):
                     """We don't want to trigger on ourselves, but one condition we are looking
                        for is a second archive in tar format with a different name"""
                     if nested_archive is None:
-                        nested_archive = child_path
+                        nested_archive = full_child_path
                     else:
-                        logger.info(
-                            "Multiple archives found; {} is not a 6.6 case".format(
-                                self.doc_file.path))
-                        return
+                        nested_archive = ambiguous_marker
                 elif child_path.endswith(".pdf") and not child_path.startswith("Planned"):
                     if report_pdf is None:
-                        report_pdf = child_path
+                        report_pdf = full_child_path
                     else:
-                        logger.info(
-                            "Multiple PDF files found; {} is not a 6.6 case".format(
-                                self.doc_file.path))
-                        return
+                        report_pdf = ambiguous_marker
+        elif os.path.exists(well_known_nested_archive):
+            nested_archive = well_known_nested_archive
 
-            if nested_archive is None:
-                if report_pdf is None:
-                    logger.info(
-                        "{} unpacked with neither PDF nor nested archive".format(
-                            self.doc_file.path
-                        )
-                    )
-                else:
-                    logger.warn(
-                        "{} unpacked with non-Auditing PDF but no nested archive".format(
-                            self.doc_file.path
-                    ))
-                    os.symlink(report_pdf, os.path.join(archive_dir, "GenexusRunReport.pdf"))
-            else:
-                logger.info("{} has a nested archive to unpack".format(self.doc_file.path))
+        if nested_archive is not None:
+            if nested_archive != ambiguous_marker:
                 self.attempt_tar_extraction(nested_archive, archive_dir)
-                if report_pdf is None:
-                    logger.warn(
-                        "{} unpacked with a nested archive, but not Genexus Report PDF".format(
-                            self.doc_file.path
-                        )
+                try:
+                    force_symlink(
+                        nested_archive,
+                        os.path.join(archive_dir, NESTED_ARCHIVE)
                     )
-                else:
-                    logger.info(
-                        "{} is a 6.6 nested archive with Genexus run report".format(
-                            self.doc_file.path)
+                except OSError as exp:
+                    # Don't fail archive import just because we failed to link
+                    # its nested archive.
+                    logger.exception(
+                        "Nested archive {} unpacked, but failed to symlink for later ".format(
+                            nested_archive), exc_info=exp)
+            else:
+                logger.warning("{} contained too many nested archives to unpack one".format(
+                    self.doc_file.path))
+        if report_pdf is not None:
+            if report_pdf != ambiguous_marker:
+                logger.info("{} contained a run report PDF to symlink".format(self.doc_file.path))
+                try:
+                    force_symlink(
+                        report_pdf,
+                        os.path.join(archive_dir, "GenexusRunReport.pdf")
                     )
-                    os.symlink(report_pdf, os.path.join(archive_dir, "GenexusRunReport.pdf"))
+                except OSError as exp:
+                    # Don't fail archive import just beccause we failed to link
+                    # its report PDF.
+                    logger.exception(
+                        "Failed to symlink report PDF {} at well-known path".format(
+                            report_pdf), exc_info=exp)
+            else:
+                logger.warning("{} contained too many run report PDFs to symlink one".format(
+                    self.doc_file.path))
 
 
     def execute_diagnostics(self, async=True, skip_extraction=False):
