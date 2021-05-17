@@ -176,6 +176,13 @@ def execute(archive_path, output_path, archive_type):
                                    key=lambda hist: (hist["group"]["sample_name"], hist["group"]["index"]))
 
         # transform to list of list
+        # for hist in histograms_sorted:
+        #     histograms.append([
+        #         hist["group"],
+        #         None,
+        #         hist["histogram_data"],
+        #         hist["inline_path"]
+        #     ])
         histograms = [[
             hist["group"],
             None,
