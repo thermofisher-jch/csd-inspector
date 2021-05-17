@@ -5,7 +5,7 @@
 (function( factory ){
 	if ( typeof define === 'function' && define.amd ) {
 		// AMD
-		define( ['jquery', 'datatables.net-bs', 'datatables.net-editor'], function ( $ ) {
+		define( ['jquery', 'datatables.net-bs5', 'datatables.net-editor'], function ( $ ) {
 			return factory( $, window, document );
 		} );
 	}
@@ -17,7 +17,7 @@
 			}
 
 			if ( ! $ || ! $.fn.dataTable ) {
-				$ = require('datatables.net-bs')(root, $).$;
+				$ = require('datatables.net-bs5')(root, $).$;
 			}
 
 			if ( ! $.fn.dataTable.Editor ) {
@@ -35,6 +35,7 @@
 'use strict';
 var DataTable = $.fn.dataTable;
 
+
 /*
  * Set the default display controller to be our bootstrap control 
  */
@@ -45,9 +46,9 @@ DataTable.Editor.defaults.display = "bootstrap";
  * Alter the buttons that Editor adds to Buttons so they are suitable for bootstrap
  */
 var i18nDefaults = DataTable.Editor.defaults.i18n;
-i18nDefaults.create.title = "<h3>"+i18nDefaults.create.title+"</h3>";
-i18nDefaults.edit.title = "<h3>"+i18nDefaults.edit.title+"</h3>";
-i18nDefaults.remove.title = "<h3>"+i18nDefaults.remove.title+"</h3>";
+i18nDefaults.create.title = '<h5 class="modal-title">'+i18nDefaults.create.title+'</h5>';
+i18nDefaults.edit.title = '<h5 class="modal-title">'+i18nDefaults.edit.title+'</h5>';
+i18nDefaults.remove.title = '<h5 class="modal-title">'+i18nDefaults.remove.title+'</h5>';
 
 
 /*
@@ -65,21 +66,21 @@ $.extend( true, $.fn.dataTable.Editor.classes, {
 	},
 	"form": {
 		"tag": "form-horizontal",
-		"button": "btn btn-default",
-		"buttonInternal": "btn btn-default"
+		"button": "btn",
+		"buttonInternal": "btn btn-outline-secondary"
 	},
 	"field": {
-		"wrapper": "DTE_Field",
-		"label":   "col-lg-4 control-label",
-		"input":   "col-lg-8 controls",
-		"error":   "error has-error",
-		"msg-labelInfo": "help-block",
-		"msg-info":      "help-block",
-		"msg-message":   "help-block",
-		"msg-error":     "help-block",
-		"multiValue":    "well well-sm multi-value",
+		"wrapper": "DTE_Field form-group row",
+		"label":   "col-lg-4 col-form-label",
+		"input":   "col-lg-8",
+		"error":   "error is-invalid",
+		"msg-labelInfo": "form-text text-secondary small",
+		"msg-info":      "form-text text-secondary small",
+		"msg-message":   "form-text text-secondary small",
+		"msg-error":     "form-text text-danger small",
+		"multiValue":    "card multi-value",
 		"multiInfo":     "small",
-		"multiRestore":  "well well-sm multi-restore"
+		"multiRestore":  "card multi-restore"
 	}
 } );
 
@@ -103,32 +104,42 @@ $.extend( true, DataTable.ext.buttons, {
 
 DataTable.Editor.fieldTypes.datatable.tableClass = 'table';
 
-let shown = false;
-let fullyShown = false;
-
-const dom = {
-	// Note that `modal-dialog-scrollable` is BS4.3+ only. It has no effect on 4.0-4.2
-	content: $(
-		'<div class="modal fade DTED">'+
-			'<div class="modal-dialog">'+
-				'<div class="modal-content"></div>'+
-			'</div>'+
-		'</div>'
-	),
-	close: $('<button class="close">&times;</div>')
-};
-
 /*
  * Bootstrap display controller - this is effectively a proxy to the Bootstrap
  * modal control.
  */
+let shown = false;
+let fullyShown = false;
+
+const dom = {
+	content: $(
+		'<div class="modal fade DTED">'+
+			'<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered"></div>'+
+		'</div>'
+	),
+	close: $('<button class="btn-close"></div>')
+};
+const modal = new bootstrap.Modal(dom.content[0], {
+	backdrop: "static",
+	keyboard: false
+});
+
 DataTable.Editor.display.bootstrap = $.extend( true, {}, DataTable.Editor.models.displayController, {
+	/*
+	 * API methods
+	 */
 	init: function ( dte ) {
 		// Add `form-control` to required elements
 		dte.on( 'displayOrder.dtebs', function ( e, display, action, form ) {
 			$.each( dte.s.fields, function ( key, field ) {
 				$('input:not([type=checkbox]):not([type=radio]), select, textarea', field.node() )
 					.addClass( 'form-control' );
+
+				$('input[type=checkbox], input[type=radio]', field.node() )
+					.addClass( 'form-check-input' );
+
+				$('select', field.node() )
+					.addClass( 'form-select' );
 			} );
 		} );
 
@@ -143,56 +154,37 @@ DataTable.Editor.display.bootstrap = $.extend( true, {}, DataTable.Editor.models
 			.removeClass('btn-group')
 			.addClass('btn-group-vertical');
 
-		var content = dom.content.find('div.modal-dialog');
-		content.children().detach();
-		content.append( append );
-
 		// Setup events on each show
 		dom.close
 			.attr('title', dte.i18n.close)
-			.off('click.dte-bs3')
-			.on('click.dte-bs3', function () {
+			.off('click.dte-bs5')
+			.on('click.dte-bs5', function () {
 				dte.close('icon');
 			})
-			.prependTo($('div.modal-header', dom.content));
+			.appendTo($('div.modal-header', append));
 
 		// This is a bit horrible, but if you mousedown and then drag out of the modal container, we don't
 		// want to trigger a background action.
-		var allowBackgroundClick = false;
+		let allowBackgroundClick = false;
 		$(document)
-			.off('mousedown.dte-bs3')
-			.on('mousedown.dte-bs3', 'div.modal', function (e) {
-				if ( ! shown ) {
-					return;
-				}
-
+			.off('mousedown.dte-bs5')
+			.on('mousedown.dte-bs5', 'div.modal', function (e) {
 				allowBackgroundClick = $(e.target).hasClass('modal') && shown
 					? true
 					: false;
 			} );
 
 		$(document)
-			.off('click.dte-bs3')
-			.on('click.dte-bs3', 'div.modal', function (e) {
+			.off('click.dte-bs5')
+			.on('click.dte-bs5', 'div.modal', function (e) {
 				if ( $(e.target).hasClass('modal') && allowBackgroundClick ) {
 					dte.background();
 				}
-
-				if ( ! $(e.target).hasClass('modal') ) {
-					return;	
-				}
-
-				// If scrollbar shown
-				if ($('div.modal-dialog').height() > $(e.target).height()) {
-					// And if clicking inside it - do nothing
-					if (e.pageX >= document.body.offsetWidth - DataTable.__browser.barWidth) {
-						return;
-					}
-				}
-
-				// All checks pass - do background action
-				dte.background();
 			} );
+
+		var content = dom.content.find('div.modal-dialog');
+		content.children().detach();
+		content.append( append );
 
 		if ( shown ) {
 			if ( callback ) {
@@ -211,6 +203,8 @@ DataTable.Editor.display.bootstrap = $.extend( true, {}, DataTable.Editor.models
 					dte.s.setFocus.focus();
 				}
 
+				fullyShown = true;
+
 				if ( callback ) {
 					callback();
 				}
@@ -218,13 +212,9 @@ DataTable.Editor.display.bootstrap = $.extend( true, {}, DataTable.Editor.models
 			.one('hidden', function () {
 				shown = false;
 			})
-			.appendTo( 'body' )
-			.modal( {
-				backdrop: "static",
-				keyboard: false
-			} );
-
-		dom.close.prependTo($('div.modal-header', dom.content));
+			.appendTo( 'body' );
+		
+		modal.show();
 	},
 
 	close: function ( dte, callback ) {
@@ -235,13 +225,26 @@ DataTable.Editor.display.bootstrap = $.extend( true, {}, DataTable.Editor.models
 			return;
 		}
 
+		// Check if actually displayed or not before hiding. BS4 doesn't like `hide`
+		// before it has been fully displayed
+		if ( ! fullyShown ) {
+			$(dom.content)
+				.one('shown.bs.modal', function () {
+					DataTable.Editor.display.bootstrap.close( dte, callback );
+				} );
+
+			return;
+		}
+
 		$(dom.content)
 			.one( 'hidden.bs.modal', function () {
 				$(this).detach();
-			} )
-			.modal('hide');
+			} );
+
+		modal.hide();
 
 		shown = false;
+		fullyShown = false;
 
 		if ( callback ) {
 			callback();
@@ -252,6 +255,7 @@ DataTable.Editor.display.bootstrap = $.extend( true, {}, DataTable.Editor.models
 		return dom.content[0];
 	}
 } );
+
 
 return DataTable.Editor;
 }));
