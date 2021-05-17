@@ -1,25 +1,39 @@
+@charset "UTF-8";
 div.DTE div.DTE_Form_Error {
+  display: none;
   color: #b11f1f;
 }
-
-div.modal div.DTE div.DTE_Form_Error {
+div.DTE label {
+  padding-top: 9px !important;
+  align-self: flex-start;
+  justify-content: flex-end;
+}
+div.DTE div.eight.wide.field {
+  flex-direction: column;
+}
+div.DTE div.DTE_Field_InputControl {
+  width: 100%;
+  margin: 0 !important;
+}
+div.DTE div.ui.message:empty {
   display: none;
-  float: left;
-  padding-top: 7px;
 }
 
-div.DTE_Field {
-  position: relative;
+div.DTE_Field div.ui.message {
+  width: 100%;
 }
 div.DTE_Field div.multi-value,
 div.DTE_Field div.multi-restore {
   display: none;
   cursor: pointer;
+  margin-top: 0;
 }
 div.DTE_Field div.multi-value span,
 div.DTE_Field div.multi-restore span {
   display: block;
   color: #666;
+  font-size: 0.85em;
+  line-height: 1.35em;
 }
 div.DTE_Field div.multi-value:hover,
 div.DTE_Field div.multi-restore:hover {
@@ -37,9 +51,6 @@ div.DTE_Field:after {
   line-height: 0;
   clear: both;
   visibility: hidden;
-}
-div.DTE_Field div:not([data-dte-e=msg-error]) {
-  color: inherit;
 }
 
 div.DTE_Inline {
@@ -127,35 +138,23 @@ span.dtr-data div.DTE_Inline {
   display: inline-table;
 }
 
-div.DTE_Inline div.DTE_Field {
-  width: 100%;
+div.DTE.DTE_Inline.ui.form label {
+  display: none !important;
 }
-div.DTE_Inline div.DTE_Field > div {
+div.DTE.DTE_Inline.ui.form div.DTE_Field {
+  width: 100%;
+  margin: 0 !important;
+}
+div.DTE.DTE_Inline.ui.form div.DTE_Field div.DTE_Field_Input {
+  width: 100% !important;
+  box-sizing: border-box;
+}
+div.DTE.DTE_Inline.ui.form div.DTE_Field > div {
   width: 100%;
   padding: 0;
 }
-div.DTE_Inline div.DTE_Field input.form-control {
-  height: 30px;
-}
-div.DTE_Inline div.DTE_Field div.help-block {
-  display: none;
-  margin-top: 10px;
-  margin-bottom: 0;
-}
-div.DTE_Inline.DTE_Processing:after {
+div.DTE.DTE_Inline.ui.form.DTE_Processing:after {
   top: 5px;
-}
-
-div.DTE_Field_Type_checkbox div.controls,
-div.DTE_Field_Type_radio div.controls {
-  margin-top: 0.4em;
-}
-div.DTE_Field_Type_checkbox div.controls label,
-div.DTE_Field_Type_radio div.controls label {
-  margin-left: 0.75em;
-  margin-bottom: 0;
-  vertical-align: middle;
-  font-weight: normal;
 }
 
 div.DTE_Bubble {
@@ -304,51 +303,39 @@ div.DTE_Bubble_Background > div:not([dummy]) {
   filter: progid:DXImageTransform.Microsoft.gradient(enabled="false");
 }
 
+div.DTE_Bubble {
+  z-index: 1001;
+}
 div.DTE_Bubble div.DTE_Bubble_Liner {
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
   border-radius: 6px;
   padding: 1em;
   border: 1px solid rgba(0, 0, 0, 0.2);
 }
+div.DTE_Bubble div.DTE_Bubble_Liner div.DTE_Bubble_Table > form div.DTE_Form_Content div.DTE_Field {
+  flex-direction: column;
+}
 div.DTE_Bubble div.DTE_Bubble_Liner div.DTE_Bubble_Table > form div.DTE_Form_Content div.DTE_Field label,
 div.DTE_Bubble div.DTE_Bubble_Liner div.DTE_Bubble_Table > form div.DTE_Form_Content div.DTE_Field > div {
-  width: 100%;
-  max-width: 100%;
+  justify-content: flex-start;
+  width: 100% !important;
   float: none;
   clear: both;
   text-align: left;
-  flex: none;
 }
 div.DTE_Bubble div.DTE_Bubble_Liner div.DTE_Bubble_Table > form div.DTE_Form_Content div.DTE_Field label {
-  padding: 0 0 4px 0;
+  padding-bottom: 4px;
+}
+div.DTE_Bubble div.DTE_Bubble_Liner div.DTE_Bubble_Table > form div.DTE_Form_Content div.DTE_Field:first-child label {
+  padding-top: 0 !important;
 }
 div.DTE_Bubble div.DTE_Bubble_Liner div.DTE_Bubble_Table div.DTE_Form_Buttons {
   text-align: right;
-  margin-top: 0;
-}
-div.DTE_Bubble div.DTE_Bubble_Liner div.DTE_Header {
-  background-color: #f7f7f7;
-  border-bottom: 1px solid #ebebeb;
-  font-size: 14px;
-  width: 100%;
-}
-div.DTE_Bubble div.DTE_Bubble_Liner div.DTE_Bubble_Close:after {
-  margin-top: -2px;
-  display: block;
+  padding: 0;
 }
 div.DTE_Bubble div.DTE_Bubble_Triangle {
   border-bottom: 1px solid rgba(0, 0, 0, 0.2);
   border-left: 1px solid rgba(0, 0, 0, 0.2);
-}
-
-div.DTE_Bubble_Background {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 10;
-  background-color: rgba(0, 0, 0, 0.05);
 }
 
 div.DTE div.editor_upload {
@@ -467,31 +454,38 @@ div.DTE div.editor_upload ul li button {
   padding-bottom: 8px;
 }
 
-div.DTE_Field_Type_datatable div.dataTables_info {
-  font-size: 0.8em;
-  line-height: 1.3em;
-  padding-right: 1em;
-  font-weight: normal;
+div.DTE_Field_Type_datatable label {
+  display: block !important;
+  text-align: right;
 }
-div.DTE_Field_Type_datatable div.dataTables_info span.select-info {
-  display: block;
+div.DTE_Field_Type_datatable div.dataTables_filter {
+  display: block !important;
+  text-align: left;
+  margin-bottom: 6px;
+}
+div.DTE_Field_Type_datatable div.dataTables_filter input {
+  width: 100% !important;
 }
 div.DTE_Field_Type_datatable div.dt-buttons {
-  padding-bottom: 0.5em;
+  margin-bottom: 6px;
   width: 100%;
 }
 div.DTE_Field_Type_datatable div.dt-buttons:empty {
   display: none;
 }
+div.DTE_Field_Type_datatable div.dataTables_info {
+  font-size: 0.8em;
+  font-weight: normal;
+  line-height: 1.3em;
+}
+div.DTE_Field_Type_datatable div.dataTables_info span.select-info {
+  display: block;
+}
 div.DTE_Field_Type_datatable div.dataTables_wrapper div.dataTables_paginate {
+  margin-top: 0.3em;
   text-align: center;
 }
 
-@media (min-width: 1200px) {
-  div.DTE_Field_Type_datatable label.control-label {
-    text-align: left;
-  }
-}
 div.DTE div.DTE_Processing_Indicator {
   position: absolute;
   top: 17px;
@@ -573,11 +567,10 @@ div.DTE div.DTE_Processing_Indicator:after {
   }
 }
 
-table.dataTable tbody tr.highlight {
-  background-color: #3399ff !important;
+table.dataTable tbody tr.highlight th,
+table.dataTable tbody tr.highlight td {
+  background-color: #2185D0 !important;
 }
-table.dataTable tbody tr.highlight,
-table.dataTable tbody tr.noHighlight,
 table.dataTable tbody tr.highlight td,
 table.dataTable tbody tr.noHighlight td {
   -webkit-transition: background-color 500ms linear;
@@ -587,193 +580,7 @@ table.dataTable tbody tr.noHighlight td {
   transition: background-color 500ms linear;
 }
 
-div.DTE div.DTE_Field div.DTE_Processing_Indicator {
-  top: 13px;
-  right: 20px;
-}
-
 div.DTE div.DTE_Processing_Indicator {
-  top: 52px;
+  top: 22px;
   right: 12px;
-}
-
-/*
- * Namespace: DTED - DataTables Editor Display - Envelope
- */
-div.DTED_Envelope_Wrapper {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  height: 100%;
-  z-index: 11;
-  display: none;
-  overflow: hidden;
-}
-div.DTED_Envelope_Wrapper div.DTED_Envelope_Shadow {
-  position: absolute;
-  top: -10px;
-  left: 10px;
-  right: 10px;
-  height: 10px;
-  z-index: 10;
-  box-shadow: 0 0 20px black;
-}
-div.DTED_Envelope_Wrapper div.DTED_Envelope_Container {
-  position: absolute;
-  top: 0;
-  left: 5%;
-  width: 90%;
-  border-left: 1px solid #777;
-  border-right: 1px solid #777;
-  border-bottom: 1px solid #777;
-  box-shadow: 3px 3px 10px #555;
-  border-bottom-left-radius: 5px;
-  border-bottom-right-radius: 5px;
-  background-color: white;
-}
-div.DTED_Envelope_Wrapper div.DTED_Envelope_Container div.DTE_Processing_Indicator {
-  right: 36px;
-}
-div.DTED_Envelope_Wrapper div.DTED_Envelope_Container div.DTE_Footer {
-  border-bottom-left-radius: 5px;
-  border-bottom-right-radius: 5px;
-}
-div.DTED_Envelope_Wrapper div.DTED_Envelope_Container div.DTED_Envelope_Close {
-  position: absolute;
-  top: 19px;
-  right: 19px;
-  cursor: pointer;
-  z-index: 12;
-}
-div.DTED_Envelope_Wrapper div.DTED_Envelope_Container div.DTED_Envelope_Close:after {
-  content: "×";
-  color: rgba(0, 0, 0, 0.5);
-  font-weight: bold;
-  font-size: 22px;
-  font-family: "Courier New", Courier, monospace;
-}
-div.DTED_Envelope_Wrapper div.DTED_Envelope_Container div.DTED_Envelope_Close:hover:after {
-  color: black;
-}
-
-div.DTED_Envelope_Background {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  /* Fallback */
-  background: -ms-radial-gradient(center, ellipse farthest-corner, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.7) 100%);
-  /* IE10 Consumer Preview */
-  background: -moz-radial-gradient(center, ellipse farthest-corner, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.7) 100%);
-  /* Firefox */
-  background: -o-radial-gradient(center, ellipse farthest-corner, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.7) 100%);
-  /* Opera */
-  background: -webkit-gradient(radial, center center, 0, center center, 497, color-stop(0, rgba(0, 0, 0, 0.3)), color-stop(1, rgba(0, 0, 0, 0.7)));
-  /* Webkit (Safari/Chrome 10) */
-  background: -webkit-radial-gradient(center, ellipse farthest-corner, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.7) 100%);
-  /* Webkit (Chrome 11+) */
-  background: radial-gradient(ellipse farthest-corner at center, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.7) 100%);
-  /* W3C Markup, IE10 Release Preview */
-  z-index: 10;
-}
-div.DTED_Envelope_Background > div {
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  bottom: 0;
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000);
-  -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000)";
-}
-div.DTED_Envelope_Background > div:not([dummy]) {
-  filter: progid:DXImageTransform.Microsoft.gradient(enabled="false");
-}
-
-div.DTED_Envelope_Wrapper div.DTED_Envelope_Container div.DTED_Envelope_Close {
-  top: 10px;
-  background: transparent;
-  text-shadow: none;
-  box-shadow: none;
-  border: none;
-  font-size: 21px;
-  color: black;
-  opacity: 0.2;
-}
-div.DTED_Envelope_Wrapper div.DTED_Envelope_Container div.DTED_Envelope_Close:hover {
-  opacity: 1;
-}
-
-div.card.multi-value,
-div.card.multi-restore {
-  padding: 0.5em;
-}
-div.card.multi-value span,
-div.card.multi-restore span {
-  line-height: 1.2em;
-}
-
-div.DTE_Bubble div.DTE_Bubble_Liner div.DTE_Bubble_Table > form div.DTE_Form_Content {
-  margin: 0 1em;
-}
-div.DTE_Bubble div.DTE_Bubble_Liner div.DTE_Bubble_Table div.DTE_Form_Buttons {
-  margin-top: 1em;
-}
-
-div.DTE_Inline div.DTE_Field {
-  width: 100%;
-  margin: 0;
-}
-div.DTE_Inline div.DTE_Field > div {
-  max-width: 100%;
-  flex: none;
-}
-div.DTE_Inline div.DTE_Field input {
-  margin: -5px 0 -10px !important;
-}
-
-div.DTE_Body div.DTE_Body_Content div.DTE_Field.block label,
-div.DTE_Body div.DTE_Body_Content div.DTE_Field.block > div {
-  max-width: 100%;
-  flex: 0 0 100%;
-}
-
-div.DTE_Field_Type_checkbox div label,
-div.DTE_Field_Type_radio div label {
-  margin-left: 0.75em;
-  vertical-align: middle;
-}
-
-div.DTE div.DTE_Processing_Indicator {
-  top: 20px;
-  right: 36px;
-}
-
-div.DTE_Field_Type_datatable div.dataTables_info {
-  font-size: 0.8em;
-  line-height: 1.3em;
-  padding-right: 0;
-}
-div.DTE_Field_Type_datatable div.dataTables_info span.select-info {
-  display: block;
-}
-div.DTE_Field_Type_datatable div.dt-buttons {
-  padding-bottom: 0.5em;
-  width: 100%;
-}
-div.DTE_Field_Type_datatable div.dt-buttons:empty {
-  display: none;
-}
-div.DTE_Field_Type_datatable div.dataTables_wrapper > table {
-  border: 1px solid #ced4da;
-  border-radius: 3px;
-}
-div.DTE_Field_Type_datatable div.dataTables_wrapper > table thead th,
-div.DTE_Field_Type_datatable div.dataTables_wrapper > table tbody td {
-  border-top: none;
-}
-div.DTE_Field_Type_datatable div.dataTables_wrapper div.dataTables_paginate ul.pagination {
-  justify-content: center;
 }

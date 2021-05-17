@@ -1,3 +1,4 @@
+@charset "UTF-8";
 div.DTE {
   position: relative;
 }
@@ -371,7 +372,7 @@ div.DTE_Field_Type_datatable div.dataTables_paginate {
   text-align: center;
   font-size: 0.8em;
 }
-div.DTE_Field_Type_datatable table.dataTable {
+div.DTE_Field_Type_datatable table.dataTable.no-footer {
   border-bottom: 1px solid #aaa !important;
 }
 div.DTE_Field_Type_datatable table.dataTable thead th, div.DTE_Field_Type_datatable table.dataTable thead td {
@@ -387,6 +388,12 @@ div.DTE_Field_Type_datatable table.dataTable tbody td:first-child {
 div.DTE_Field_Type_datatable table.dataTable tbody th:last-child,
 div.DTE_Field_Type_datatable table.dataTable tbody td:last-child {
   border-right: 1px solid #aaa;
+}
+div.DTE_Field_Type_datatable table.dataTable tfoot th, div.DTE_Field_Type_datatable table.dataTable tfoot td {
+  font-weight: normal;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  border-top: 1px solid #aaa;
 }
 div.DTE_Field_Type_datatable div.dataTables_scrollHead table.dataTable,
 div.DTE_Field_Type_datatable div.dataTables_scrollHead table.dataTable thead th,
