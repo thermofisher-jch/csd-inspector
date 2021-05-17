@@ -299,6 +299,18 @@ class Archive(models.Model):
         with zipfile.ZipFile(file_path) as doc_archive:
             doc_archive.extractall(path=archive_dir)
             doc_archive.close()
+        base_filename = os.path.basename(file_path)
+        for candidate in os.listdir(archive_dir):
+            if candidate != base_filename and base_filename.startswith(candidate):
+                full_candidate = os.path.join(archive_dir, candidate)
+                if os.path.isdir(full_candidate):
+                    for nested_child in os.listdir(full_candidate):
+                        shutil.move(
+                            os.path.join(full_candidate, nested_child),
+                            os.path.join(archive_dir, nested_child)
+                        )
+                    os.rmdir(full_candidate)
+                    break
 
 
     def attempt_tar_extraction(self, file_path, archive_dir):
