@@ -2,6 +2,7 @@
 
 import json
 import os
+import re
 import shutil
 import sys
 import logging
@@ -25,7 +26,7 @@ def get_read_group_file_prefixes(datasets_basecaller_object):
     return file_prefixes
 
 
-def get_read_groups(datasets_basecaller_object):
+def get_read_groups(datasets_basecaller_object, barcode_to_nucleotide_types):
     def get_barcode_name(read_key, read_group):
         # "barcode_name" is not present, it can be combined barcode or no barcode
         if "barcode_name" not in read_group:
@@ -34,24 +35,31 @@ def get_read_groups(datasets_basecaller_object):
                 return read_key.split(".").pop()
             else:
                 # a non-barcode rerun
-                return "No Barcode"
-
+                return u"No Barcode"
         return read_group.get("barcode_name")
 
-    groups = []
-    for key, value in datasets_basecaller_object["read_groups"].iteritems():
-        groups.append(
-            {
-                "filtered": value.get("filtered", False) or "nomatch" in key,
-                "sample_name": value.get("sample", "N/A"),
-                "name": get_barcode_name(read_key=key, read_group=value),
-                "end_barcode": value.get("end_barcode", {}).get("barcode_name", ""),
-                "read_count": value.get("read_count", 0),
-                "index": value.get("index", -1),
-                "group": key,
-                "nuc_type": value.get("nucleotide_type", "")
-            }
-        )
+    def shape_group_data(read_key, read_group):
+        barcode_name = get_barcode_name(read_key=read_key, read_group=read_group)
+        nucleotide_type = read_group.get("nucleotide_type", u"")
+        if nucleotide_type == u"":
+            nucleotide_type = barcode_to_nucleotide_types.get(
+                barcode_name, nucleotide_type
+            )
+        return {
+            "filtered": read_group.get("filtered", False) or "nomatch" in read_key,
+            "sample_name": read_group.get("sample", "N/A"),
+            "name": barcode_name,
+            "end_barcode": read_group.get("end_barcode", {}).get("barcode_name", ""),
+            "read_count": read_group.get("read_count", 0),
+            "index": read_group.get("index", -1),
+            "group": read_key,
+            "nuc_type": nucleotide_type
+        }
+
+    groups = [
+        shape_group_data(key, value)
+        for (key, value) in datasets_basecaller_object["read_groups"].iteritems()
+    ]
     return sorted(groups, key=lambda k: k["index"])
 
 
@@ -72,17 +80,47 @@ def get_histogram_data(archive_path, barcode):
         return []
 
 
+def genexus_map_barcode_to_nucleotide_type(archive_path):
+    library_type_re = re.compile("^Library Type,([^,]*),")
+    barcode_id_re = re.compile("^Barcode Id,([^,]*),")
+    barcodes_to_nucleotide_type = {}
+    csa_root = os.path.join(archive_path, "CSA")
+    for info_csv_path in {
+        os.path.join(csa_root, x, "Info.csv")
+        for x in os.listdir(csa_root)
+        if os.path.exists(os.path.join(csa_root, x, "Info.csv"))
+    }:
+        with open(info_csv_path) as info_handle:
+            next_expected = library_type_re
+            next_line = info_handle.readline()
+            next_nuc_type = None
+            while next_line != "":
+                next_match = next_expected.match(next_line)
+                if next_match is not None:
+                    if next_expected == library_type_re:
+                        next_nuc_type = next_match.groups()[0].decode()
+                        next_expected = barcode_id_re
+                    else:
+                        next_barcode_id = next_match.groups()[0].decode()
+                        barcodes_to_nucleotide_type[next_barcode_id] = next_nuc_type
+                        next_expected = library_type_re
+                        next_nuc_type = None
+                next_line = info_handle.readline()
+    return barcodes_to_nucleotide_type
+
+
 def execute(archive_path, output_path, archive_type):
     if archive_type == "Valkyrie":
         datasets_path = "CSA/outputs/BaseCallingActor-00/datasets_basecaller.json"
+        barcodes_to_nucleotide_types = genexus_map_barcode_to_nucleotide_type(archive_path)
     else:
         datasets_path = "basecaller_results/datasets_basecaller.json"
+        barcodes_to_nucleotide_types = { }
 
     with open(os.path.join(archive_path, datasets_path)) as datasets_file:
         datasets_object = json.load(datasets_file)
 
-    prefixes = get_read_group_file_prefixes(datasets_object)
-    groups = get_read_groups(datasets_object)
+    groups = get_read_groups(datasets_object, barcodes_to_nucleotide_types)
 
     # get all of the filtered data sets
     total_reads = sum([float(x["read_count"]) for x in groups])
@@ -138,13 +176,12 @@ def execute(archive_path, output_path, archive_type):
                                    key=lambda hist: (hist["group"]["sample_name"], hist["group"]["index"]))
 
         # transform to list of list
-        for hist in histograms_sorted:
-            histograms.append([
-                hist["group"],
-                None,
-                hist["histogram_data"],
-                hist["inline_path"]
-            ])
+        histograms = [[
+            hist["group"],
+            None,
+            hist["histogram_data"],
+            hist["inline_path"]
+        ] for hist in histograms_sorted]
 
         inline_controls_source_path = os.path.join(
             archive_path, "CSA/outputs/BaseCallingActor-00/inline_control_stats.json")
@@ -162,6 +199,8 @@ def execute(archive_path, output_path, archive_type):
             logger.exception("Error linking inline_controls", exc_info=exp)
             inline_control_stats = False
     else:
+        prefixes = get_read_group_file_prefixes(datasets_object)
+
         for group in groups:
             prefix = prefixes[group["group"]]
             src_image_path = os.path.join(
