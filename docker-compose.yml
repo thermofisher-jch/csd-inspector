@@ -6,7 +6,6 @@ services:
 
   celery:
     user: inspector
-    build: ./
     working_dir: /opt/inspector
     command: python -m celery -A IonInspector.celeryconfig worker -l info
     links:
@@ -15,19 +14,14 @@ services:
 
   django:
     user: inspector
-    build: ./
     working_dir: /opt/inspector
-    command: bash -c "service ssh start && python -u wait_for_postgres.py && python ./manage.py migrate --noinput && python ./manage.py runserver 0.0.0.0:8000"
+    command: bash -c "python -u wait_for_postgres.py && python ./manage.py migrate --noinput && python ./manage.py runserver 0.0.0.0:8000"
     links:
       - postgres
       - celery
       - rabbitmq
 
   nginx:
-    build:
-      context: .
-      dockerfile: ./nginx/Dockerfile
-    image: thf/nginx-uploader:latest
     environment:
       - NGINX_HTTP_PORT_NUMBER=8080
     links:

@@ -2,7 +2,10 @@
 version: '3'
 services:
   celery:
-    image: thf/inspector-celery:latest
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    image: vulcan.itw:5000/inspector_celery:latest
     environment:
       - DATABASE_PASSWORD=docker
       - DATABASE_USERNAME=docker
@@ -16,7 +19,10 @@ services:
       - inspector-media:/var/lib/inspector/media
 
   django:
-    image: thf/inspector-django:latest
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    image: vulcan.itw:5000/inspector_django:latest
     environment:
       - DATABASE_PASSWORD=docker
       - DATABASE_USERNAME=docker
@@ -28,10 +34,12 @@ services:
       - ./.local/logs:/var/log/inspector:delegated
       - inspector-media:/var/lib/inspector/media
       - nginx-temp:/var/lib/inspector/nginxTemp
-    ports:
-      - "8099:22"
 
   nginx:
+    build:
+      context: ./
+      dockerfile: ./nginx/Dockerfile
+    image: vulcan.itw:5000/inspector_uploader:latest
     volumes:
       - .:/opt/inspector:ro
       - ./nginx/nginx.conf:/opt/bitnami/nginx/conf/nginx.conf:ro
@@ -40,7 +48,6 @@ services:
       - nginx-logs:/opt/bitnami/nginx/logs
     ports:
       - "8090:8080"
-
 
   postgres:
     volumes:
@@ -57,7 +64,6 @@ volumes:
   postgresql-data:
   postgresql-log:
   inspector-media:
-  celery-workspace:
   rabbit-data:
   nginx-logs:
   nginx-temp:
