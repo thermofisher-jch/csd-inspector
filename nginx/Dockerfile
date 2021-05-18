@@ -9,8 +9,6 @@ ARG UPLOAD_PLUGIN_VERSION=2.3.0
 ARG NGINX_OPENTRACING_PLUGIN_VERSION=v0.14.0
 
 USER root
-ARG NGINX_VERSION
-ARG UPLOAD_PLUGIN_VERSION
 
 # Install required packages and build dependencies
 # Add trusted NGINX PGP key for tarball integrity verification
