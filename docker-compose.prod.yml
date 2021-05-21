@@ -8,6 +8,12 @@ services:
 
   celery:
     restart: always
+    environment:
+      - DATABASE_PASSWORD=docker
+      - DATABASE_USERNAME=docker
+      - DEBUG=False
+      - ALLOWED_HOSTS='inspector.itw,inspectordev.sigproc.itw'
+      - SECRET_KEY="@0gi@=8!#@w!g8d6vibm9+576!rhe949a#w)unk+3s5f4fe0x2"
     volumes:
       - /var/lib/inspector/celery:/var/log/celery
       - /mnt/raid/inspector/media:/var/lib/inspector/media
@@ -16,6 +22,12 @@ services:
   django:
     command: bash -c "wait-for-it postgres:5432 -- python ./manage.py migrate --noinput && gunicorn -w 16 --timeout 900 -b 0.0.0.0:8000 IonInspector.wsgi"
     restart: always
+    environment:
+      - DATABASE_PASSWORD=docker
+      - DATABASE_USERNAME=docker
+      - DEBUG=False
+      - ALLOWED_HOSTS='inspector.itw,inspectordev.sigproc.itw'
+      - SECRET_KEY="@0gi@=8!#@w!g8d6vibm9+576!rhe949a#w)unk+3s5f4fe0x2"
     volumes:
       - /mnt/raid/inspector/media:/var/lib/inspector/media
       - /var/lib/inspector/nginxTemp:/var/lib/inspector/nginxTemp
