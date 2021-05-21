@@ -55,12 +55,10 @@ def batch_upload(request):
             # Django's FileField wrapper so we can attach it to the Archive model and save it with this change.  We
             # have to do this rename rather than just pass the file path as created by nginx because the archive
             # origin device detection logic in large part relies upon the arhive having its original filename
-            new_file_path = os.path.join(
-                settings.MEDIA_ROOT,
-                get_file_path(archive, form.data["doc_file_source_name"]),
-            )
+            relative_file_path = get_file_path(archive, form.data["doc_file_source_name"])
+            new_file_path = os.path.join(settings.MEDIA_ROOT, relative_file_path)
             shutil.move(form.data["doc_file_path_saved"], new_file_path)
-            archive.doc_file = FieldFile(archive, Archive.doc_file.field, new_file_path)
+            archive.doc_file = FieldFile(archive, Archive.doc_file.field, relative_file_path)
             archive.save()
             archive.archive_type = archive.detect_archive_type()
             archive.save()
