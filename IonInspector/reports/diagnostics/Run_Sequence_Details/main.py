@@ -52,12 +52,30 @@ def get_system_type(explog, archive_type):
 
 def get_flow_time(flow_data):
     time_stamp = []
-    last_time = parse_flow_time(flow_data[0])
-    for i in range(1, len(flow_data)):
-        next_time = parse_flow_time(flow_data[i])
-        time_delta = next_time - last_time
-        last_time = next_time
-        time_stamp.append([i, time_delta.seconds])
+    if 0 in flow_data:
+        """Accumulate each delta between consecutive time points, but
+           until IO-445 is resolved, also be careful to work around
+           any data points potentially overwritten by ErrorLogOutput
+           near end-of-file."""
+        row_count = len(flow_data)
+        ii = 0
+        last_time = None
+        while ii < (row_count - 1) and last_time is None:
+            last_time = parse_flow_time(flow_data[ii])
+            ii = ii + 1
+        # The ii counter may have gaps after any overwritten datapoints
+        # have been dropped from consideration.  Keep a second counter, jj,
+        # that is only incremented when a data point is used so it may
+        # be used for a sequence counter with no gaps.
+        jj = 1
+        for ii in range(ii, row_count):
+            next_time = parse_flow_time(flow_data[ii])
+            if next_time is None:
+                continue
+            time_delta = next_time - last_time
+            last_time = next_time
+            time_stamp.append([jj, time_delta.seconds])
+            jj = jj + 1
     return time_stamp
 
 
@@ -65,16 +83,19 @@ def parse_flow_time(flow_item):
     time_format = "%H:%M:%S"
     raw_value = flow_item.get("time")
     token_count = len(raw_value)
-    if token_count > 0:
+    if token_count == 1:
         return datetime.strptime(raw_value[token_count - 1], time_format)
+    if token_count == 2:
+        """This indicates the datapoint was overwritten by an error log entry
+           and we don't actually know what the correct value was."""
+        return None
     raise ValueError("Every flow record must have a timestamp")
 
 
 def get_disk_perc(flow_data):
-    disk_perc = []
-    for i in range(len(flow_data)):
-        disk_perc.append([i, int(flow_data[i].get("diskPerFree")[0])])
-    return disk_perc
+    return [[ii, int(flow_data[ii].get("diskPerFree")[0])]
+            for ii in flow_data
+            if "diskPerFree" in flow_data[ii]]
 
 
 def execute(archive_path, output_path, archive_type):
