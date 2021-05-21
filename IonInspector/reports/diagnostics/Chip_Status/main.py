@@ -94,23 +94,28 @@ def parse_base_caller_stats(archive_path):
 def copy_chipDiagnosticsReportfiles(archive_path, output_path):
     chipDiagnosticsReportfiles = ["pix_offset_spatial.png", "pix_offset_histogram.png", "chip_dac.png",  "calibration.html", "gain_spatial.png",
                                   "chip_thermometer_temperature.png", "gain_histogram.png", "noise_spatial.png", "noise_histogram.png"]
+    chip_images_found = {}
     for image in chipDiagnosticsReportfiles:
         imagePath = os.path.join(archive_path, "chipDiagnostics", image)
         if os.path.exists(imagePath):
             shutil.copy(imagePath, output_path)
-    return True
+            chip_images_found[image] = True
+        else:
+            chip_images_found[image] = False
+    return chip_images_found
 
 
 def copy_chip_images(archive_path, output_path):
     chip_images_html_path = os.path.join(archive_path, "ValkyrieWorkflow/chipImages.html")
-    copy_chipDiagnosticsReportfiles(archive_path, output_path)
+    chip_images_found = copy_chipDiagnosticsReportfiles(archive_path, output_path)
     if os.path.exists(chip_images_html_path):
         shutil.copy(chip_images_html_path, os.path.join(output_path, "chip_images.html"))
         for image in glob.glob(archive_path + "/ValkyrieWorkflow/*.jpg"):
             shutil.copy(image, output_path)
-        return True
+        chip_images_found["chip_images.html"] = True
     else:
-        return False
+        chip_images_found["chip_images.html"] = False
+    return chip_images_found
 
 
 def get_total_reads(archive_path, archive_type):
@@ -244,6 +249,7 @@ def get_chip_status(archive_path, output_path, archive_type):
 
     # total reads
     total_reads = None
+    full_candidate = None
     total_reads_message = None
     try:
         total_reads = get_total_reads(archive_path, archive_type)
@@ -278,10 +284,14 @@ def get_chip_status(archive_path, output_path, archive_type):
     elif total_reads_message:
         message += " | " + total_reads_message
 
+    chip_images_found = copy_chip_images(archive_path, output_path)
     context = {
         "bead_loading": bead_loading,
         "total_reads": total_reads,
-        "chip_images": copy_chip_images(archive_path, output_path),
+        "chip_images_found": chip_images_found["chip_images.html"],
+        "calibration_found": chip_images_found["calibration.html"],
+        "pix_offset_spatial_found": chip_images_found["pix_offset_spatial.png"],
+        "pix_offset_histogram_found": chip_images_found["pix_offset_histogram.png"],
         "noise_report": noise_report,
         "gain_report": gain_report,
         "electrode_report": electrode_report,

@@ -1,4 +1,5 @@
 {% load humanize %}
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -32,15 +33,25 @@
                 {{ total_reads_message }}
                 <hr/>
             </div>
-        {% if chip_images %}
+        {% if calibration_found or pix_offset_spatial_found or pix_offset_histogram_found %}
         <div class="container">
             <header align="center">
                 <h3 style="display: inline-block;">Relative Offset</h3>
+                {% if calibration_found %}
                 <span style="margin-left: 5px;"><a href="calibration.html">Click to view Calibration Report</a></span>
+                {% else %}
+                <span style="margin-left: 5px;">Calibration Report not found</span>
+                {% endif %}
             </header>
+            {% if pix_offset_spatial_found %}
             <div class="link"><img src="pix_offset_spatial.png" /></div>
+            {% endif %}
+            {% if pix_offset_histogram_found %}
             <div class="link"><img src="pix_offset_histogram.png" /></div>
+            {% endif %}
         </div>
+        {% endif %}
+        {% if chip_images_found %}
         <iframe src="chip_images.html"></iframe>
         {% endif %}
         </div>
