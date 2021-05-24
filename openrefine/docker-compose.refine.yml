@@ -2,7 +2,7 @@
 version: '3'
 services:
   openrefine:
-    image: tf-sci/inspector-openrefine:3.4.1
+    image: vulcan.itw:5000/inspector_openrefine:3.4.1
     build:
       context: ./openrefine/
       args: 

@@ -5,7 +5,7 @@ ARG RELEASE=3.4.1
 ENV RELEASE=$RELEASE
  
 #Get distribution archive file, unpack it, create mount point for project directory, and expose service port
-RUN apk update && apk add --no-cache wget && \
+RUN apk update && apk add --no-cache bash wget && \
     wget --no-check-certificate https://github.com/OpenRefine/OpenRefine/releases/download/$RELEASE/openrefine-linux-$RELEASE.tar.gz && \
     tar -xzf openrefine-linux-$RELEASE.tar.gz  && \
     rm openrefine-linux-$RELEASE.tar.gz && \
