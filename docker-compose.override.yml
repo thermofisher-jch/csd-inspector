@@ -3,6 +3,12 @@ version: '3'
 services:
   celery:
     image: thf/inspector-celery:latest
+    environment:
+      - DATABASE_PASSWORD=docker
+      - DATABASE_USERNAME=docker
+      - DEBUG=True
+      - ALLOWED_HOSTS=''
+      - SECRET_KEY="@0gi@=8!#@w!g8d6vibm9+576!rhe949a#w)unk+3s5f4fe0x2"
     volumes:
       - .:/opt/inspector:ro
       - ./.local/celery:/var/log/celery:delegated
@@ -11,6 +17,12 @@ services:
 
   django:
     image: thf/inspector-django:latest
+    environment:
+      - DATABASE_PASSWORD=docker
+      - DATABASE_USERNAME=docker
+      - DEBUG=True
+      - ALLOWED_HOSTS=''
+      - SECRET_KEY="@0gi@=8!#@w!g8d6vibm9+576!rhe949a#w)unk+3s5f4fe0x2"
     volumes:
       - .:/opt/inspector:ro
       - ./.local/logs:/var/log/inspector:delegated

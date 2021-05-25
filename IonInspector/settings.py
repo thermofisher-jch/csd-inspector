@@ -18,12 +18,12 @@ BASE_DIR = os.path.dirname(__file__)
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '@0gi@=8!#@w!g8d6vibm9+576!rhe949a#w)unk+3s5f4fe0x2'
+SECRET_KEY = os.getenv('SECRET_KEY', '@0gi@=8!#@w!g8d6vibm9+576!rhe949a#w)unk+3s5f4fe0x2')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', False)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '' if DEBUG else 'localhost,127.0.0.1').split(',')
 
 # Application definition
 INSTALLED_APPS = (
@@ -63,8 +63,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'IonInspector',
-        'USER': 'docker',
-        'PASSWORD': 'docker',
+        'USER': os.getenv('DATABASE_USERNAME', 'docker'),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD', 'docker'),
         'HOST': 'postgres',
         'PORT': ''
     }
