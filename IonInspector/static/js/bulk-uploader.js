@@ -296,7 +296,7 @@
                     handler: (envelope, payload) => {
                         // A default handler that just discards previous save state.
                         this._files = [];
-                    }
+                        }
                 },
                 {
                     from: "1.6.4",
@@ -334,7 +334,7 @@
                  * @type {LoaderRegistration}
                  */
                 {
-                    from: "1.7.0-rc.3",
+                    from: "1.7.0",
                     handler: (envelope, payload) => {
                         let rowState;
                         for (rowState of payload) {
@@ -346,6 +346,25 @@
                         }
                     }
                 },
+                /**
+                 * Fake entry to ensure we don't skip unpacking the client workspace if changes are published
+                 * before this feature is reparired.  See IO-467 for more context.
+                 *
+                 * @type {LoaderRegistration}
+                 */
+                {
+                    from: "999",
+                    handler: (envelope, payload) => {
+                        let rowState;
+                        for (rowState of payload) {
+                            const rowId = rowState[PROP_LOCAL_KEY];
+                            rowState[PROP_STATUS_MESSAGE] = ON_RELOAD_STATE_MAP[rowState[PROP_STATUS_MESSAGE]];
+                            this._files[rowId] = new UploadableArchive(
+                                rowId, this._emitter, null, rowState, this._csrfUrl, this._batchUploadUrl
+                            );
+                        }
+                    }
+                }
             ];
 
             this.initialDataLoader = (data, callback) => {
@@ -429,8 +448,10 @@
                         const bestMatch = this._supportedVersions.find(registryItem => {
                             return(semver.lte(savedAtVersion, registryItem.from));
                         });
+                        if (!!bestMatch) {
                         console.log("Bootstrapping saved data with handler from " + bestMatch.from);
                         bestMatch.handler(envelope, payload);
+                        }
                     } else {
                         console.warn("Discarding saved data that predates versioning: " + serializedState);
                     }
