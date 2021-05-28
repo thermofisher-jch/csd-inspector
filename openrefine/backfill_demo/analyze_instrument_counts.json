@@ -1,0 +1,140 @@
+[
+  {
+    "op": "core/text-transform",
+    "engineConfig": {
+      "facets": [],
+      "mode": "record-based"
+    },
+    "columnName": "count",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10,
+    "description": "Text transform on cells in column count using expression value.toNumber()"
+  },
+  {
+    "op": "core/text-transform",
+    "engineConfig": {
+      "facets": [],
+      "mode": "record-based"
+    },
+    "columnName": "count",
+    "expression": "jython:used = [str(ii) for ii in range(1,value+1)]\nblank = range(value+1,101)\nused.extend(['' for ii in blank])\nreturn ','.join(used)",
+    "onError": "store-error",
+    "repeat": false,
+    "repeatCount": 10,
+    "description": "Text transform on cells in column count using expression jython:used = [str(ii) for ii in range(1,value+1)]\nblank = range(value+1,101)\nused.extend(['' for ii in blank])\nreturn ','.join(used)"
+  },
+  {
+    "op": "core/multivalued-cell-split",
+    "columnName": "count",
+    "keyColumnName": "serial_number",
+    "mode": "separator",
+    "separator": ",",
+    "regex": false,
+    "description": "Split multi-valued cells in column count"
+  },
+  {
+    "op": "core/fill-down",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "serial_number",
+    "description": "Fill down cells in column serial_number"
+  },
+  {
+    "op": "core/text-transform",
+    "engineConfig": {
+      "facets": [],
+      "mode": "record-based"
+    },
+    "columnName": "count",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10,
+    "description": "Text transform on cells in column count using expression value.toNumber()"
+  },
+  {
+    "op": "core/text-transform",
+    "engineConfig": {
+      "facets": [],
+      "mode": "record-based"
+    },
+    "columnName": "count",
+    "expression": "grel:if( value != '', cross(row.cells['serial_number'], 'prod_archive_backfill', 'serial_number')[toNumber(value)-1].cells['site'].value, '---')",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10,
+    "description": "Text transform on cells in column count using expression grel:if( value != '', cross(row.cells['serial_number'], 'prod_archive_backfill', 'serial_number')[toNumber(value)-1].cells['site'].value, '---')"
+  },
+  {
+    "op": "core/blank-down",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "serial_number",
+    "description": "Blank down cells in column serial_number"
+  },
+  {
+    "op": "core/transpose-rows-into-columns",
+    "columnName": "count",
+    "rowCount": 100,
+    "description": "Transpose every 100 cells in column count into separate columns"
+  },
+  {
+    "op": "core/text-transform",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "count 1",
+    "expression": "grel:split(join([cells['count 1'].value,cells['count 2'].value,cells['count 3'].value,cells['count 4'].value,cells['count 5'].value,cells['count 6'].value,cells['count 7'].value,cells['count 8'].value,cells['count 9'].value,cells['count 10'].value,cells['count 11'].value,cells['count 12'].value,cells['count 13'].value,cells['count 14'].value,cells['count 15'].value,cells['count 16'].value,cells['count 17'].value,cells['count 18'].value,cells['count 19'].value,cells['count 20'].value,cells['count 21'].value,cells['count 22'].value,cells['count 23'].value,cells['count 24'].value,cells['count 25'].value,cells['count 26'].value,cells['count 27'].value,cells['count 28'].value,cells['count 29'].value,cells['count 30'].value,cells['count 31'].value,cells['count 32'].value,cells['count 33'].value,cells['count 34'].value,cells['count 35'].value,cells['count 36'].value,cells['count 37'].value,cells['count 38'].value,cells['count 39'].value,cells['count 40'].value,cells['count 41'].value,cells['count 42'].value,cells['count 43'].value,cells['count 44'].value,cells['count 45'].value,cells['count 46'].value,cells['count 47'].value,cells['count 48'].value,cells['count 49'].value,cells['count 50'].value,cells['count 51'].value,cells['count 52'].value,cells['count 53'].value,cells['count 54'].value,cells['count 55'].value,cells['count 56'].value,cells['count 57'].value,cells['count 58'].value,cells['count 59'].value,cells['count 60'].value,cells['count 61'].value,cells['count 62'].value,cells['count 63'].value,cells['count 64'].value,cells['count 65'].value,cells['count 66'].value,cells['count 67'].value,cells['count 68'].value,cells['count 69'].value,cells['count 70'].value,cells['count 71'].value,cells['count 72'].value,cells['count 73'].value,cells['count 74'].value,cells['count 75'].value,cells['count 76'].value,cells['count 77'].value,cells['count 78'].value,cells['count 79'].value,cells['count 80'].value,cells['count 81'].value,cells['count 82'].value,cells['count 83'].value,cells['count 84'].value,cells['count 85'].value,cells['count 86'].value,cells['count 87'].value,cells['count 88'].value,cells['count 89'].value,cells['count 90'].value,cells['count 91'].value,cells['count 92'].value,cells['count 93'].value,cells['count 94'].value,cells['count 95'].value,cells['count 96'].value,cells['count 97'].value,cells['count 98'].value,cells['count 99'].value,cells['count 100'].value],';'), ';---')[0]",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10,
+    "description": "Text transform on cells in column count 1 using expression grel:split(join([cells['count 1'].value,cells['count 2'].value,cells['count 3'].value,cells['count 4'].value,cells['count 5'].value,cells['count 6'].value,cells['count 7'].value,cells['count 8'].value,cells['count 9'].value,cells['count 10'].value,cells['count 11'].value,cells['count 12'].value,cells['count 13'].value,cells['count 14'].value,cells['count 15'].value,cells['count 16'].value,cells['count 17'].value,cells['count 18'].value,cells['count 19'].value,cells['count 20'].value,cells['count 21'].value,cells['count 22'].value,cells['count 23'].value,cells['count 24'].value,cells['count 25'].value,cells['count 26'].value,cells['count 27'].value,cells['count 28'].value,cells['count 29'].value,cells['count 30'].value,cells['count 31'].value,cells['count 32'].value,cells['count 33'].value,cells['count 34'].value,cells['count 35'].value,cells['count 36'].value,cells['count 37'].value,cells['count 38'].value,cells['count 39'].value,cells['count 40'].value,cells['count 41'].value,cells['count 42'].value,cells['count 43'].value,cells['count 44'].value,cells['count 45'].value,cells['count 46'].value,cells['count 47'].value,cells['count 48'].value,cells['count 49'].value,cells['count 50'].value,cells['count 51'].value,cells['count 52'].value,cells['count 53'].value,cells['count 54'].value,cells['count 55'].value,cells['count 56'].value,cells['count 57'].value,cells['count 58'].value,cells['count 59'].value,cells['count 60'].value,cells['count 61'].value,cells['count 62'].value,cells['count 63'].value,cells['count 64'].value,cells['count 65'].value,cells['count 66'].value,cells['count 67'].value,cells['count 68'].value,cells['count 69'].value,cells['count 70'].value,cells['count 71'].value,cells['count 72'].value,cells['count 73'].value,cells['count 74'].value,cells['count 75'].value,cells['count 76'].value,cells['count 77'].value,cells['count 78'].value,cells['count 79'].value,cells['count 80'].value,cells['count 81'].value,cells['count 82'].value,cells['count 83'].value,cells['count 84'].value,cells['count 85'].value,cells['count 86'].value,cells['count 87'].value,cells['count 88'].value,cells['count 89'].value,cells['count 90'].value,cells['count 91'].value,cells['count 92'].value,cells['count 93'].value,cells['count 94'].value,cells['count 95'].value,cells['count 96'].value,cells['count 97'].value,cells['count 98'].value,cells['count 99'].value,cells['count 100'].value],';'), ';---')[0]"
+  },
+  {
+    "op": "core/column-reorder",
+    "columnNames": [
+      "serial_number",
+      "count 1"
+    ],
+    "description": "Reorder columns"
+  },
+  {
+    "op": "core/column-addition",
+    "engineConfig": {
+      "facets": [],
+      "mode": "record-based"
+    },
+    "baseColumnName": "serial_number",
+    "expression": "grel:cross(row.cells['serial_number'], 'prod_archive_backfill', 'serial_number').cells['instrument_name'][0].value",
+    "onError": "set-to-blank",
+    "newColumnName": "instrument_name",
+    "columnInsertIndex": 1,
+    "description": "Create column instrument_name at index 1 based on column serial_number using expression grel:cross(row.cells['serial_number'], 'prod_archive_backfill', 'serial_number').cells['instrument_name'][0].value"
+  },
+  {
+    "op": "core/column-rename",
+    "oldColumnName": "count 1",
+    "newColumnName": "Site Names Seen",
+    "description": "Rename column count 1 to Site Names Seen"
+  },
+  {
+    "op": "core/column-addition",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "baseColumnName": "Site Names Seen",
+    "expression": "jython:tokens = value.split(';')\nd = {}\nfor token in tokens:\n    if (token in d):\n        d[token] = d[token] + 1;\n    else:\n        d[token] = 1;\nval = '';\nbest = 0;\nfor token in d:\n    if d[token] > best:\n        best = d[token];\n        val = token;\nreturn val;",
+    "onError": "store-error",
+    "newColumnName": "site",
+    "columnInsertIndex": 3,
+    "description": "Create column site at index 3 based on column Site Names Seen using expression jython:tokens = value.split(';')\nd = {}\nfor token in tokens:\n    if (token in d):\n        d[token] = d[token] + 1;\n    else:\n        d[token] = 1;\nval = '';\nbest = 0;\nfor token in d:\n    if d[token] > best:\n        best = d[token];\n        val = token;\nreturn val;"
+  }
+]
