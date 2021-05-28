@@ -1,2 +1,15 @@
+README.md
+.git
+tasks.py
+prod.py
+Pipfile
+openrefine
+link.sh
+lemontesy
+Jenkinsfile
+fabfile.py
+fabfile.v1.py
+docker-compose*
+.*.sw*
 .local
 .vagrant

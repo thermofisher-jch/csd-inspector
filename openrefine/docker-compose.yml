@@ -2,17 +2,19 @@
 version: '3'
 services:
   openrefine:
-    image: tf-sci/inspector-openrefine:3.4.1
+    image: vulcan.itw:5000/inspector_openrefine:3.4.1
     build:
       context: ./
       args: 
         - RELEASE=3.4.1
     restart: always
+    command: openrefine-3.4.1/refine -i 0.0.0.0 -d /mnt/refine
     environment:
-      - REFINE_MEMORY=2048m
-      - REFINE_MIN_MEMORY=2048m
+      - REFINE_MEMORY=4096m
+      - REFINE_MIN_MEMORY=4096m
     volumes:
       - refine-data:/mnt/refine
+      - /mnt/raid/inspector/media:/var/lib/inspector/media:ro
     ports:
       - "3333:3333"
 

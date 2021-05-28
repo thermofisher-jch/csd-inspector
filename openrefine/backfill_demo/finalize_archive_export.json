@@ -1,0 +1,174 @@
+[
+  {
+    "op": "core/column-addition",
+    "engineConfig": {
+      "facets": [
+        {
+          "type": "list",
+          "name": "serial_number",
+          "expression": "value",
+          "columnName": "serial_number",
+          "invert": true,
+          "omitBlank": false,
+          "omitError": false,
+          "selection": [],
+          "selectBlank": true,
+          "selectError": false
+        }
+      ],
+      "mode": "row-based"
+    },
+    "baseColumnName": "serial_number",
+    "expression": "grel:cross(row.cells['serial_number'], 'production_instruments_actual', 'serial_number')[0].cells['id'].value",
+    "onError": "set-to-blank",
+    "newColumnName": "instrument",
+    "columnInsertIndex": 1,
+    "description": "Create column instrument at index 1 based on column serial_number using expression grel:cross(row.cells['serial_number'], 'production_instruments_actual', 'serial_number')[0].cells['id'].value"
+  },
+  {
+    "op": "core/text-transform",
+    "engineConfig": {
+      "facets": [
+        {
+          "type": "list",
+          "name": "serial_number",
+          "expression": "value",
+          "columnName": "serial_number",
+          "invert": true,
+          "omitBlank": false,
+          "omitError": false,
+          "selection": [],
+          "selectBlank": true,
+          "selectError": false
+        }
+      ],
+      "mode": "record-based"
+    },
+    "columnName": "instrument",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10,
+    "description": "Text transform on cells in column instrument using expression value.toNumber()"
+  },
+  {
+    "op": "core/text-transform",
+    "engineConfig": {
+      "facets": [
+        {
+          "type": "list",
+          "name": "serial_number",
+          "expression": "value",
+          "columnName": "serial_number",
+          "invert": true,
+          "omitBlank": false,
+          "omitError": false,
+          "selection": [],
+          "selectBlank": true,
+          "selectError": false
+        }
+      ],
+      "mode": "record-based"
+    },
+    "columnName": "id",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10,
+    "description": "Text transform on cells in column id using expression value.toNumber()"
+  },
+  {
+    "op": "core/text-transform",
+    "engineConfig": {
+      "facets": [
+        {
+          "type": "list",
+          "name": "serial_number",
+          "expression": "value",
+          "columnName": "serial_number",
+          "invert": true,
+          "omitBlank": false,
+          "omitError": false,
+          "selection": [],
+          "selectBlank": true,
+          "selectError": false
+        }
+      ],
+      "mode": "record-based"
+    },
+    "columnName": "start_time",
+    "expression": "value.toDate()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10,
+    "description": "Text transform on cells in column start_time using expression value.toDate()"
+  },
+  {
+    "op": "core/column-rename",
+    "oldColumnName": "start_time",
+    "newColumnName": "run_start_at",
+    "description": "Rename column start_time to run_start_at"
+  },
+  {
+    "op": "core/column-rename",
+    "oldColumnName": "lane1_assay_type",
+    "newColumnName": "lane1_assay",
+    "description": "Rename column lane1_assay_type to lane1_assay"
+  },
+  {
+    "op": "core/column-rename",
+    "oldColumnName": "lane2_assay_type",
+    "newColumnName": "lane2_assay",
+    "description": "Rename column lane2_assay_type to lane2_assay"
+  },
+  {
+    "op": "core/column-rename",
+    "oldColumnName": "lane3_assay_type",
+    "newColumnName": "lane3_assay",
+    "description": "Rename column lane3_assay_type to lane3_assay"
+  },
+  {
+    "op": "core/column-rename",
+    "oldColumnName": "lane4_assay_type",
+    "newColumnName": "lane4_assay",
+    "description": "Rename column lane4_assay_type to lane4_assay"
+  },
+  {
+    "op": "core/text-transform",
+    "engineConfig": {
+      "facets": [
+        {
+          "type": "list",
+          "name": "serial_number",
+          "expression": "value",
+          "columnName": "serial_number",
+          "invert": true,
+          "omitBlank": false,
+          "omitError": false,
+          "selection": [],
+          "selectBlank": true,
+          "selectError": false
+        },
+        {
+          "type": "range",
+          "name": "lane_emphasis_flag",
+          "expression": "value",
+          "columnName": "lane_emphasis_flag",
+          "from": 0,
+          "to": 1,
+          "selectNumeric": false,
+          "selectNonNumeric": true,
+          "selectBlank": true,
+          "selectError": true
+        }
+      ],
+      "mode": "record-based"
+    },
+    "columnName": "lane_emphasis_flag",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10,
+    "description": "Text transform on cells in column lane_emphasis_flag using expression value.toNumber()"
+  }
+]

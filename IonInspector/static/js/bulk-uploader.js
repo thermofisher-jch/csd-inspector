@@ -248,19 +248,21 @@
 
             // TODO: This should work like a chain of command.  Each handler from an older revision should
             //       produce the output that its successor expects as input instead of transforming all the
-            //       way to the latest version.  Until then, each new revision will require editting each older
-            //       handler, which will not scale
+            //       way to the latest version.  Until then, each new revision will require editing each older
+            //       handlers, which will not scale.
+            // NOTE: Handlers are now registered in increasing order of last version they consume, which
+            //       establishes the correct sort order for a chain of command.
             /**
              * @callback loaderCallback - Method used to bootstrap store's _files property using
              *                            content serialized during a previous execution.  Registered
-             *                            by an instance of {UpgradeRegistration} to establish a lower
+             *                            by an instance of {UpgradeRegistration} to establish an upper
              *                            bound on the range of saved payload objects it may accept.
              *                            These should be implemented as arrow methods created during
              *                            UploadConfigStore's constructor function call so they will
-             *                            have implicitly bound this to that UploadConfigStore object.
+             *                            have implicitly bound `this` to that UploadConfigStore object.
              *                            Such arrow methods can optionally further delegate to methods
-             *                            on UploadConfigStore's prototype that will bind this by object
-             *                            dereferencing.
+             *                            on UploadConfigStore's prototype that will bind `this` by what
+             *                            object context they are invoked from.
              * @param {Object.<string, string>} envelope - Metadata envelope attached to saved state
              * @param {string} envelope.savedAtVersion - Version at time of last save
              * @param {Object[]} payload - Content of payload array with data to restore.
@@ -268,21 +270,20 @@
 
             /**
              * @typedef LoaderRegistration - Record in the list of loader registrations, which associates
-             *                               a handler method with the first version of saved state it is
-             *                               capable of loading into the current release's in memory state
-             *                               model.
+             *                               a handler method with most recent version of saved state it is
+             *                               designed for adapting to current release's in memory state model.
              * @type {{handler: loaderCallback, from: string}}
-             * @property {string} from - The earliest release of Inspector this handler method can accept
-             *                           payload objects from.  Must be earlier than all previous LoaderRegistrations,
-             *                           and later than all subsequent LoaderRegistrations.
+             * @property {string} from - Most recent release of Inspector this handler method may accept
+             *                           payload objects from.  Must be later than all previous LoaderRegistrations,
+             *                           and earlier than all subsequent LoaderRegistrations.
              * @property {loaderCallback} handler - The handler method to call if this record is selected as
              *                                      most compatible given previously saved state.
              */
 
             /**
              * @type {LoaderRegistration[]} List of loader registration records in sorted with their from
-             *                              values in decreasing order, such that the first LoaderRegistration
-             *                              to have a from value less than or equal to that of a given candidate
+             *                              values in increasing order, such that the first LoaderRegistration
+             *                              to have a from value greater than or equal to that of a given candidate
              *                              input has a handler for that candidate's persisted payload.
              * @private
              */
@@ -291,17 +292,11 @@
                  * @type {LoaderRegistration}
                  */
                 {
-                    from: "1.7.0-rc.3",
+                    from: "0.0.1",
                     handler: (envelope, payload) => {
-                        let rowState;
-                        for (rowState of payload) {
-                            const rowId = rowState[PROP_LOCAL_KEY];
-                            rowState[PROP_STATUS_MESSAGE] = ON_RELOAD_STATE_MAP[rowState[PROP_STATUS_MESSAGE]];
-                            this._files[rowId] = new UploadableArchive(
-                                rowId, this._emitter, null, rowState, this._csrfUrl, this._batchUploadUrl
-                            );
+                        // A default handler that just discards previous save state.
+                        this._files = [];
                         }
-                    }
                 },
                 {
                     from: "1.6.4",
@@ -339,10 +334,35 @@
                  * @type {LoaderRegistration}
                  */
                 {
-                    from: "0.0.1",
+                    from: "1.7.0",
                     handler: (envelope, payload) => {
-                        // A default handler that just discards previous save state.
-                        this._files = [];
+                        let rowState;
+                        for (rowState of payload) {
+                            const rowId = rowState[PROP_LOCAL_KEY];
+                            rowState[PROP_STATUS_MESSAGE] = ON_RELOAD_STATE_MAP[rowState[PROP_STATUS_MESSAGE]];
+                            this._files[rowId] = new UploadableArchive(
+                                rowId, this._emitter, null, rowState, this._csrfUrl, this._batchUploadUrl
+                            );
+                        }
+                    }
+                },
+                /**
+                 * Fake entry to ensure we don't skip unpacking the client workspace if changes are published
+                 * before this feature is reparired.  See IO-467 for more context.
+                 *
+                 * @type {LoaderRegistration}
+                 */
+                {
+                    from: "999",
+                    handler: (envelope, payload) => {
+                        let rowState;
+                        for (rowState of payload) {
+                            const rowId = rowState[PROP_LOCAL_KEY];
+                            rowState[PROP_STATUS_MESSAGE] = ON_RELOAD_STATE_MAP[rowState[PROP_STATUS_MESSAGE]];
+                            this._files[rowId] = new UploadableArchive(
+                                rowId, this._emitter, null, rowState, this._csrfUrl, this._batchUploadUrl
+                            );
+                        }
                     }
                 }
             ];
@@ -426,13 +446,12 @@
                     if (!!envelope) {
                         const {savedAtVersion} = envelope;
                         const bestMatch = this._supportedVersions.find(registryItem => {
-                            // TODO: Use browserify to make semver library accessible.  String comparsion
-                            //       will inevitably fail to produce the correct result eventually!!
-                            // if (! semver.lt(savedAtVersion, registryItem.from)) {
-                            return (savedAtVersion >= registryItem.from);
+                            return(semver.lte(savedAtVersion, registryItem.from));
                         });
+                        if (!!bestMatch) {
                         console.log("Bootstrapping saved data with handler from " + bestMatch.from);
                         bestMatch.handler(envelope, payload);
+                        }
                     } else {
                         console.warn("Discarding saved data that predates versioning: " + serializedState);
                     }

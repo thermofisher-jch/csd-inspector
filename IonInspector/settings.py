@@ -21,7 +21,7 @@ BASE_DIR = os.path.dirname(__file__)
 SECRET_KEY = os.getenv('SECRET_KEY', '@0gi@=8!#@w!g8d6vibm9+576!rhe949a#w)unk+3s5f4fe0x2')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', False)
+DEBUG = (os.getenv('DEBUG', 'False') == 'True')
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '' if DEBUG else 'localhost,127.0.0.1').split(',')
 
@@ -146,7 +146,7 @@ CELERY_RESULT_SERIALIZER = 'pickle'
 SITE_ROOT = os.path.dirname(os.path.dirname(__file__))
 
 
-VERSION = '1.7.0-rc.9'
+VERSION = '1.7.0-rc.12'
 
 RAVEN_CONFIG = {
     'dsn': 'http://d8a6a72730684575afc834c95ebbdc60:1e5b396140654efd9b3361401f530204@sentry.itw//11',

@@ -1,0 +1,235 @@
+[
+  {
+    "op": "core/column-addition-by-fetching-urls",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "baseColumnName": "id",
+    "urlExpression": "grel:\"http://inspector.itw/media/archive_files/\" + value + \"/CSA/explog_final.json\"",
+    "onError": "store-error",
+    "newColumnName": "extract1",
+    "columnInsertIndex": 1,
+    "delay": 50,
+    "cacheResponses": false,
+    "httpHeadersJson": [
+      {
+        "name": "authorization",
+        "value": ""
+      },
+      {
+        "name": "user-agent",
+        "value": "OpenRefine 3.4.1 [437dc4d]"
+      },
+      {
+        "name": "accept",
+        "value": "*/*"
+      }
+    ],
+    "description": "Create column explog_final at index 1 by fetching URLs based on column id using expression grel:\"http://inspector.itw/media/archive_files/\" + value + \"/CSA/explog_final.json\""
+  },
+  {
+    "op": "core/text-transform",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "extract1",
+    "expression": "grel:with(\n    value.parseJson(),\n    rec,\n    [\nrec[\"Genexus Release_version\"],        rec[\"Serial Number\"], rec[\"DeviceName\"], \n        rec[\"Start Time\"], rec[\"runName\"],\n        if (rec[\"LanesActive1\"] == \"yes\", rec[\"LanesAssay1\"], \"\"),\nif (rec[\"LanesActive2\"] == \"yes\", rec[\"LanesAssay2\"], \"\"),\nif (rec[\"LanesActive3\"] == \"yes\", rec[\"LanesAssay3\"], \"\"),\nif (rec[\"LanesActive4\"] == \"yes\", rec[\"LanesAssay4\"], \"\")\n]\n).join(\"; \")",
+    "onError": "store-error",
+    "repeat": false,
+    "repeatCount": 1,
+    "description": "Text transform on cells in column run_number using expression grel:with(\n    value.parseJson(),\n    rec,\n    [\nrec[\"Genexus Release_version\"],        rec[\"Serial Number\"], rec[\"DeviceName\"], \n        rec[\"Start Time\"], rec[\"runName\"],\n        if (rec[\"LanesActive1\"] == \"yes\", rec[\"LanesAssay1\"], \"\"),\nif (rec[\"LanesActive2\"] == \"yes\", rec[\"LanesAssay2\"], \"\"),\nif (rec[\"LanesActive3\"] == \"yes\", rec[\"LanesAssay3\"], \"\"),\nif (rec[\"LanesActive4\"] == \"yes\", rec[\"LanesAssay4\"], \"\")\n]\n).join(\"; \")"
+  },
+  {
+    "op": "core/column-split",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "extract1",
+    "guessCellType": true,
+    "removeOriginalColumn": true,
+    "mode": "separator",
+    "separator": "; ",
+    "regex": false,
+    "maxColumns": 9,
+    "description": "Split column extract1 by separator"
+  },
+  {
+    "op": "core/column-rename",
+    "oldColumnName": "extract1 1",
+    "newColumnName": "genexus_release_version",
+    "description": "Rename column extract1 1 to genexus_release_version"
+  },
+  {
+    "op": "core/column-rename",
+    "oldColumnName": "extract1 2",
+    "newColumnName": "serial_number",
+    "description": "Rename column extract1 2 to serial_number"
+  },
+  {
+    "op": "core/column-rename",
+    "oldColumnName": "extract1 3",
+    "newColumnName": "instrument_name",
+    "description": "Rename column extract1 3 to instrument_name"
+  },
+  {
+    "op": "core/column-rename",
+    "oldColumnName": "extract1 4",
+    "newColumnName": "start_time",
+    "description": "Rename column extract1 4 to start_time"
+  },
+  {
+    "op": "core/column-rename",
+    "oldColumnName": "extract1 5",
+    "newColumnName": "run_name",
+    "description": "Rename column extract1 5 to run_name"
+  },
+  {
+    "op": "core/column-rename",
+    "oldColumnName": "extract1 6",
+    "newColumnName": "lane1_assay_type",
+    "description": "Rename column extract1 6 to lane1_assay_type"
+  },
+  {
+    "op": "core/column-rename",
+    "oldColumnName": "extract1 7",
+    "newColumnName": "lane2_assay_type",
+    "description": "Rename column extract1 7 to lane2_assay_type"
+  },
+  {
+    "op": "core/column-rename",
+    "oldColumnName": "extract1 8",
+    "newColumnName": "lane3_assay_type",
+    "description": "Rename column extract1 8 to lane3_assay_type"
+  },
+  {
+    "op": "core/column-rename",
+    "oldColumnName": "extract1 9",
+    "newColumnName": "lane4_assay_type",
+    "description": "Rename column extract1 9 to lane4_assay_type"
+  },
+  {
+    "op": "core/column-addition",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "baseColumnName": "run_name",
+    "expression": "grel:value.substring(length(row.cells[\"instrument_name\"].value) + 1).split('-')[0]",
+    "onError": "set-to-blank",
+    "newColumnName": "run_number",
+    "columnInsertIndex": 6,
+    "description": "Create column run_number at index 7 based on column run_name using expression grel:value.substring(length(row.cells[\"instrument_name\"].value) + 1).split('-')[0]"
+  },
+  {
+    "op": "core/text-transform",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "start_time",
+    "expression": "value.toDate()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10,
+    "description": "Text transform on cells in column start_time using expression value.toDate()"
+  },
+  {
+    "op": "core/text-transform",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "run_number",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10,
+    "description": "Text transform on cells in column run_number using expression value.toNumber()"
+  },
+  {
+    "op": "core/column-addition-by-fetching-urls",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "baseColumnName": "id",
+    "urlExpression": "grel:\"http://inspector.itw/media/archive_files/\" + value + \"/rawTrace/\"",
+    "onError": "store-error",
+    "newColumnName": "raw_trace_dir",
+    "columnInsertIndex": 1,
+    "delay": 50,
+    "cacheResponses": false,
+    "httpHeadersJson": [
+      {
+        "name": "authorization",
+        "value": ""
+      },
+      {
+        "name": "user-agent",
+        "value": "OpenRefine 3.4.1 [437dc4d]"
+      },
+      {
+        "name": "accept",
+        "value": "*/*"
+      }
+    ],
+    "description": "Create column raw_trace_dir at index 1 by fetching URLs based on column id using expression grel:\"http://inspector.itw/media/archive_files/\" + value + \"/rawTrace/\""
+  },
+  {
+    "op": "core/text-transform",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "raw_trace_dir",
+    "expression": "grel:round(sum(filter(\n    forEach(\n        value.parseHtml().select(\"ul a\"), \n        entry, \n        pow(2, toNumber(htmlText(entry).match(/rawTrace_lane_(\\d).html/)[0]) - 1)\n    ),\n    entry, entry > 0\n)))",
+    "onError": "store-error",
+    "repeat": false,
+    "repeatCount": 10,
+    "description": "Text transform on cells in column raw_trace_dir using expression grel:round(sum(filter(\n    forEach(\n        value.parseHtml().select(\"ul a\"), \n        entry, \n        pow(2, toNumber(htmlText(entry).match(/rawTrace_lane_(\\d).html/)[0]) - 1)\n    ),\n    entry, entry > 0\n)))"
+  },
+  {
+    "op": "core/column-rename",
+    "oldColumnName": "raw_trace_dir",
+    "newColumnName": "lane_emphasis_flag",
+    "description": "Rename column raw_trace_dir to lane_emphasis_flag"
+  },
+  {
+    "op": "core/column-move",
+    "columnName": "serial_number",
+    "index": 0,
+    "description": "Move column serial_number to position 0"
+  },
+  {
+    "op": "core/row-reorder",
+    "mode": "record-based",
+    "sorting": {
+      "criteria": [
+        {
+          "valueType": "number",
+          "column": "id",
+          "blankPosition": 2,
+          "errorPosition": 1,
+          "reverse": false
+        }
+      ]
+    },
+    "description": "Reorder rows"
+  },
+  {
+    "op": "core/text-transform",
+    "engineConfig": {
+      "facets": [],
+      "mode": "record-based"
+    },
+    "columnName": "serial_number",
+    "expression": "value.toString()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10,
+    "description": "Text transform on cells in column serial_number using expression value.toString()"
+  }
+]

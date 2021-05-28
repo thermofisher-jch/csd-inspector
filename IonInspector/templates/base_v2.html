@@ -60,6 +60,7 @@
     <script>Raven.config('http://51cb8fb27c3b495aaa4f6a40c0575967@sentry.itw//12', {
         release: "{{ version }}"
     }).install()</script>
+    <script src="{% static 'vendor/Semver-7.3.5/semver.js' %}"></script>
     {% if use_datatables %}
         <script src="{% static 'vendor/DataTables-1.10.24/js/jquery.dataTables.js' %}"></script>
         <script src="{% static 'vendor/DataTables-1.10.24/js/dataTables.bootstrap.js' %}"></script>
