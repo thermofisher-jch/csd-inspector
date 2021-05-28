@@ -24,6 +24,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', '@0gi@=8!#@w!g8d6vibm9+576!rhe949a#w)unk+3s
 DEBUG = (os.getenv('DEBUG', 'False') == 'True')
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '' if DEBUG else 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = [] if not any(ALLOWED_HOSTS) else ALLOWED_HOSTS
 
 # Application definition
 INSTALLED_APPS = (
@@ -146,7 +147,7 @@ CELERY_RESULT_SERIALIZER = 'pickle'
 SITE_ROOT = os.path.dirname(os.path.dirname(__file__))
 
 
-VERSION = '1.7.0-rc.12'
+VERSION = '1.7.0'
 
 RAVEN_CONFIG = {
     'dsn': 'http://d8a6a72730684575afc834c95ebbdc60:1e5b396140654efd9b3361401f530204@sentry.itw//11',
