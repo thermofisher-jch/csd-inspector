@@ -353,7 +353,7 @@
                  * @type {LoaderRegistration}
                  */
                 {
-                    from: "999",
+                    from: "999.0.0",
                     handler: (envelope, payload) => {
                         let rowState;
                         for (rowState of payload) {
