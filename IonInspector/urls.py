@@ -72,6 +72,4 @@ urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 v1_api = Api(api_name="v1")
 v1_api.register(ArchiveResource())
 
-archive_resource = ArchiveResource()
-
 urlpatterns.extend([url(r"^api/", include(v1_api.urls))])
