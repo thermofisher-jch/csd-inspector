@@ -1,23 +1,32 @@
 CATEGORY_SEQUENCING = "SEQ"
 CATEGORY_SAMPLE_PREP = "PRE"
+CATEGORY_LIBRARY_PREP = "LIB"
 CATEGORY_CHOICES = (
     (CATEGORY_SEQUENCING, "SEQUENCING"),
     (CATEGORY_SAMPLE_PREP, "SAMPLE_PREP"),
+    (CATEGORY_LIBRARY_PREP, "LIBRARY_PREP"),
 )
 
 # define constants
 PGM_RUN = "PGM_Run"
 PROTON = "Proton"
+PURE = "Purification"
 S5 = "S5"
 OT_LOG = "OT_Log"
 ION_CHEF = "Ion_Chef"
 VALK = "Valkyrie"
 UNKNOWN_PLATFORM = "Unknown Platform"
 
+# Well known explog keys and values
+PURIFICATION_BATCH_ID = "Purification Batch ID"
+EXTRACTION_KIT = "ExtractionKit"
+PROTOCOL_NAME = "ProtocolName"
+
 # define a list of archive types
 ARCHIVE_TYPES = (
     (PGM_RUN, "PGM"),
     (PROTON, "PROTON"),
+    (PURE, "Purification"),
     (S5, "S5"),
     (VALK, "Genexus"),
     (OT_LOG, "OT"),
@@ -55,6 +64,7 @@ UPLOAD_TYPES = (
     (UNKNOWN, "UNKNOWN"),
     (PGM_RUN, "PGM"),
     (PROTON, "PROTON"),
+    (PURE, "Purification"),
     (S5, "S5"),
     (VALK, "Genexus"),
     (OT_LOG, "OT"),
@@ -64,6 +74,7 @@ UPLOAD_TYPES = (
 TEST_RUN_TYPES = (
     (PGM_RUN, "PGM"),
     (PROTON, "PROTON"),
+    (PURE, "Purification"),
     (S5, "S5"),
     (VALK, "Genexus"),
     (OT_LOG, "OT"),

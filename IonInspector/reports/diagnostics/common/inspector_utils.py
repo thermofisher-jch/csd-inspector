@@ -14,7 +14,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 import semver
 from bs4 import BeautifulSoup
 from django.template import Context, Template
-from reports.values import PGM_RUN, PROTON, S5, VALK, UNKNOWN_PLATFORM
+from reports.values import PGM_RUN, PROTON, S5, VALK, UNKNOWN_PLATFORM, PURIFICATION_BATCH_ID, PURE
 from IonInspector.reports.diagnostics.common.inspector_errors import FileNotFoundError
 
 
@@ -638,6 +638,9 @@ def get_platform_and_systemtype(explog):
     # system type for Valkyrie is Dx
     if platform == VALK:
         return VALK, "Genexus"
+
+    if PURIFICATION_BATCH_ID in explog:
+        return PURE, "Genexus"
 
     return platform, systemtype
 

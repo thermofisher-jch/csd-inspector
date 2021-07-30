@@ -46,7 +46,7 @@ var diagnosticsTableApp = {
             if (!previousCategory) {
                 previousCategory = this.resource.diagnostics[i].category;
             }
-            else if (previousCategory && this.resource.diagnostics[i].category !== previousCategory) {
+            else if (this.resource.diagnostics[i].category !== previousCategory) {
                 $("#category-chooser").show();
                 break;
             }

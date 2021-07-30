@@ -24,10 +24,12 @@ from reports.utils import force_symlink, get_file_path, UnusableArchiveError, is
     ensure_all_diagnostics_namespace
 from reports.values import (
     ARCHIVE_TYPES,
+    CATEGORY_LIBRARY_PREP,
     CATEGORY_SEQUENCING,
     CATEGORY_SAMPLE_PREP,
     PGM_RUN,
     PROTON,
+    PURE,
     S5,
     OT_LOG,
     ION_CHEF,
@@ -41,6 +43,7 @@ from reports.values import (
 from reports.tags.chef import get_chef_tags
 from reports.tags.pgm import get_pgm_tags
 from reports.tags.proton import get_proton_tags
+from reports.tags.purification import get_pure_tags
 from reports.tags.s5 import get_s5_tags
 from reports.tags.ot import get_ot_tags
 from reports.tags.valkyrie import get_valk_tags
@@ -79,6 +82,28 @@ TEST_MANIFEST = {
         ("Experiment_Errors", CATEGORY_SEQUENCING),
         ("Barcode_Report", CATEGORY_SEQUENCING),
         ("Run_Sequence_Details", CATEGORY_SEQUENCING),
+    ],
+    PURE: [
+        ("Purification_Quant_Summary", CATEGORY_SAMPLE_PREP),
+        ("Purification_Run_Log", CATEGORY_SAMPLE_PREP),
+        ("Purification_Reagent_Lot_Summary", CATEGORY_SAMPLE_PREP),
+        ("Experiment_Errors", CATEGORY_SAMPLE_PREP),
+        ("Genexus_Library_Prep_Log", CATEGORY_LIBRARY_PREP),
+        ("Genexus_Library_Details", CATEGORY_LIBRARY_PREP),
+        # ("Genexus_Vacuum_Log", CATEGORY_LIBRARY_PREP),
+        # ("Genexus_Reagent_Lot_Summary", CATEGORY_SEQUENCING),
+        # ("Genexus_QC_Status", CATEGORY_SEQUENCING),
+        # ("Genexus_Raw_Trace", CATEGORY_SEQUENCING),
+        # ("Genexus_Instrument_Status", CATEGORY_SEQUENCING),
+        # ("Genexus_Filter_Metrics", CATEGORY_SEQUENCING),
+        # ("Chip_Status", CATEGORY_SEQUENCING),
+        # ("Chip_Type", CATEGORY_SEQUENCING),
+        # ("Genexus_Test_Fragments", CATEGORY_SEQUENCING),
+        # # ("Pressure_And_Temperature", CATEGORY_SEQUENCING), #IO-413
+        # ("Barcode_Report", CATEGORY_SEQUENCING),
+        # ("Run_Sequence_Details", CATEGORY_SEQUENCING),
+        # ("Run_Type", CATEGORY_SEQUENCING),
+        # ("Genexus_Reagent_Lot_Summary", CATEGORY_SEQUENCING),
     ],
     S5: [
         ("Filter_Metrics", CATEGORY_SEQUENCING),
@@ -258,7 +283,12 @@ class Archive(models.Model):
 
 
     def extract_archive(self):
-        """This will extract all of the data from the archive to the folder for evaluation"""
+        """
+        Extract all content from archive to the root archive folder, which also same folder holding
+        archive file.  If archive's contents are all nested within a single subdirectory, pull all
+        that content up to its parent, the root archive folder and eliminate the nested
+        subdirectory.
+        """
         # if the file is not there then there is nothing we can do
         if not os.path.exists(self.doc_file.path):
             raise ArchiveWorkspaceError("The archive file is not present at: " + self.doc_file.path)
@@ -266,11 +296,13 @@ class Archive(models.Model):
         archive_dir = os.path.dirname(self.doc_file.path)
         if self.doc_file.path.endswith(".zip"):
             self.extract_zip_fallback_tar(self.doc_file.path, archive_dir)
+            self.attempt_root_directory_uplift(self.doc_file.path, archive_dir)
             self.check_for_double_packing(archive_dir)
         # Some chef archives contains files with no read permission. This seems to kill the
         # python tar library.  So instead we are using a subprocess to extract then chmod
-        elif (is_likely_tar_file(self.doc_file.path)):
+        elif is_likely_tar_file(self.doc_file.path):
             self.extract_tar_fallback_zip(self.doc_file.path, archive_dir)
+            self.attempt_root_directory_uplift(self.doc_file.path, archive_dir)
             self.check_for_double_packing(archive_dir)
         # Watch out. Some ot logs are are .log and some are .csv
         elif self.doc_file.path.endswith(".log") or self.doc_file.path.endswith(
@@ -280,11 +312,16 @@ class Archive(models.Model):
             if not os.path.exists(target_path):
                 shutil.copy(self.doc_file.path, target_path)
 
-
     def attempt_zip_extraction(self, file_path, archive_dir):
         with zipfile.ZipFile(file_path) as doc_archive:
             doc_archive.extractall(path=archive_dir)
             doc_archive.close()
+
+    def attempt_tar_extraction(self, file_path, archive_dir):
+        check_call(["tar", "-xf", file_path, "--directory", archive_dir])
+        check_call(["chmod", "-R", "u=r,u+w,u-x,g=r,g+w,g-x,g+s,o-r,o-w,o-x,a+X", archive_dir])
+
+    def attempt_root_directory_uplift(self, file_path, archive_dir):
         base_filename = os.path.basename(file_path)
         for candidate in os.listdir(archive_dir):
             if candidate != base_filename and base_filename.startswith(candidate):
@@ -298,12 +335,6 @@ class Archive(models.Model):
                     os.rmdir(full_candidate)
                     break
 
-
-    def attempt_tar_extraction(self, file_path, archive_dir):
-        check_call(["tar", "-xf", file_path, "--directory", archive_dir])
-        check_call(["chmod", "-R", "u=r,u+w,u-x,g=r,g+w,g-x,g+s,o-r,o-w,o-x,a+X", archive_dir])
-
-
     def extract_tar_fallback_zip(self, file_path, archive_dir):
         try:
             self.attempt_tar_extraction(file_path, archive_dir)
@@ -314,7 +345,6 @@ class Archive(models.Model):
                 logger.exception("Initial tar archive unpack error", exc_info=err1)
                 logger.exception("Fallback zip archive unpack error", exc_info=err2)
                 raise err1
-
 
     def extract_zip_fallback_tar(self, file_path, archive_dir):
         try:
@@ -471,6 +501,8 @@ class Archive(models.Model):
             search_tags = get_s5_tags(self.archive_root)
         elif self.archive_type == VALK:
             search_tags = get_valk_tags(self.archive_root)
+        elif self.archive_type == PURE:
+            search_tags = get_pure_tags(self.archive_root)
         else:
             search_tags = []
         self.search_tags = sorted(list(set([tag.strip() for tag in search_tags])))
