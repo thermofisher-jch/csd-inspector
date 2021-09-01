@@ -1,161 +1,321 @@
-<html>
-<head>
-    <title>Chef Run Log</title>
-    <link href="{% static 'vendor/Bootstrap-3.3.7/css/bootstrap.css' %}" rel="stylesheet"/>
-    <script src="{% static 'vendor/jQuery-3.3.1/jquery-3.3.1.js' %}"></script>
-    <script src="{% static 'vendor/Bootstrap-3.3.7/js/bootstrap.js' %}"></script>
-    <script type="text/javascript"
-            src="http://cdnjs.cloudflare.com/ajax/libs/dygraph/1.1.1/dygraph-combined.js"></script>
-    <script type="text/javascript"
-            src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.2/moment.min.js"></script>
-    <style>
-        .graph {
-            width: 100%;
-            height: 620px;
-        }
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <link href="https://fonts.googleapis.com/css?family=Montserrat:500,700" rel="stylesheet" type="text/css">
 
-        .labels {
-            font-size: 14px;
-            font-weight: bold;
-            height: 240px;
-        }
+	<link href="{% static 'vendor/Bootstrap-4.6.0/css/bootstrap.min.css' %}" rel="stylesheet"/>
+        <link href="{% static 'vendor/Bootstrap-4.6.0/css/bootstrap-grid.min.css' %}" rel="stylesheet"/>
+        <link href="{% static 'vendor/Bootstrap-4.6.0/css/bootstrap-reboot.min.css' %}" rel="stylesheet"/>
+        <link href="{% static 'vendor/Dygraph-2.1.0/css/dygraph.min.css' %}" rel="stylesheet"/>
 
-        .labels > span {
-            font-size: 12px;
-        }
+	<script src="{% static 'vendor/jQuery-3.3.1/jquery-3.3.1.min.js' %}"></script>
+	<script src="{% static 'vendor/Bootstrap-4.6.0/js/bootstrap.bundle.min.js' %}"></script>
+	<script src="{% static 'vendor/Dygraph-2.1.0/js/dygraph.min.js' %}"></script>
+	<script src="{% static 'vendor/Moment-2.29.1/js/moment.min.js' %}"></script>
 
-        .loading {
-            left: 50%;
-            top: 30%;
-            position: absolute;
-        }
+        <style>
+            body {
+                font-family: "Montserrat", sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+            }
 
-        .chooser label {
-            font-size: 12px;
-            font-weight: bold;
-            margin-left: 4px;
-        }
-    </style>
-</head>
-<body>
-<div class="container-fluid">
-    <h3 class="lead">Chef Run Log</h3>
-    <h4 class="lead">Temperature</h4>
-    <div class="row">
-        <div class="col-sm-9">
-            <div id="temp-graph" class="graph">
-                <h3 class="loading lead text-muted">Loading Data</h3>
-            </div>
-            <br>
-            <div class="text-center text-muted">The plot can be zoomed by clicking and dragging vertically or
-                horizontally.<br>
-                Double click to reset. Shift and drag to pan.
-            </div>
-        </div>
-        <div class="col-sm-3">
-            <h4 class="lead">Legend</h4>
-            <div id="temp-labels" class="labels"></div>
-            <br><br>
-            <div id="temp-chooser" class="chooser">
-                <h4 class="lead">Visibility</h4>
-            </div>
-        </div>
-    </div>
-    <h4 class="lead">Fans and Flow</h4>
-    <div class="row">
-        <div class="col-sm-9">
-            <div id="fan-graph" class="graph">
-                <h3 class="loading lead text-muted">Loading Data</h3>
-            </div>
-            <br>
-            <div class="text-center text-muted">The plot can be zoomed by clicking and dragging vertically or
-                horizontally.<br>
-                Double click to reset. Shift and drag to pan.
-            </div>
-        </div>
-        <div class="col-sm-3">
-            <h4 class="lead">Legend</h4>
-            <div id="fan-labels" class="labels"></div>
-            <br><br>
-            <div id="fan-chooser" class="chooser">
-                <h4 class="lead">Visibility</h4>
-            </div>
-        </div>
-    </div>
-    <br><br><br>
-</div>
-<script type="text/javascript">
-    function initGraph(graphElement, chooserElement, labelsElement, data) {
-        var g = new Dygraph(
-            graphElement,
-            data.rows,
-            {
-                labels: data.labels,
-                labelsSeparateLines: true,
-                legend: 'always',
-                labelsDiv: labelsElement.id,
-                xlabel: 'Time (Seconds)',
-                axes: {
-                    x: {
-                        valueFormatter: function (s) {
-                            var tempTime = moment.duration(s * 1000);
-                            return s.toFixed(2) + " Seconds <br> or " + tempTime.hours() + "h " + tempTime.minutes() + "m " + tempTime.seconds() + "s "
-                        }
-                    }
-                },
-                // Draw stage lines
-                underlayCallback: function (canvas, area, g) {
-                    data.stages.map(function (stage, i) {
-                        var bottom_left = g.toDomCoords(stage.start, -20);
-                        var top_right = g.toDomCoords(stage.end, +20);
+            .chart-container {
+                display: flex;
+                width: inherit;
+                height: inherit;
+            }
 
-                        var left = bottom_left[0];
-                        var right = top_right[0];
-                        if (i % 2) {
-                            canvas.fillStyle = "rgba(250, 250, 250, 1.0)";
-                        } else {
-                            canvas.fillStyle = "rgba(235, 235, 235, 1.0)";
-                        }
-                        canvas.fillRect(left, area.y, right - left, area.h);
-                    });
-                },
-                // Add stage to legend
-                highlightCallback: function (event, x, points, row, seriesName) {
-                    data.stages.map(function (stage, i) {
-                        if (x > stage.start && x < stage.end) {
-                            var content = document.createTextNode("Stage: " + stage.name);
-                            labelsElement.appendChild(document.createElement("br"));
-                            labelsElement.appendChild(content);
-                        }
-                    });
+            .chart-left-side {
+                display: flex;
+                flex-direction: column;
+                flex: 1 1 auto;
+                min-width: 0px;
+                height: inherit;
+                width: fit-content;
+            }
+
+            .chart-right-side {
+                display: flex;
+                flex-direction: column;
+            }
+
+            @media(max-width: 767px) {
+                .chart-graph {
+                    flex: 0 0 auto;
+                }
+
+                .chart-legend {
+                    display: flex;
+                    height: fit-content;
+                    flex: 0 0 auto;
+                    flex-direction: row;
+                    flex-wrap: wrap;
                 }
             }
-        );
-        // Draw visibility chooser
-        var chooser = $(chooserElement);
-        data.labels.map(function (label, i) {
-            if (i > 0) { //No checkbox for time
-                chooser.append($("<input/>", {
-                    id: "checkbox-" + i,
-                    checked: "checked",
-                    type: "checkbox"
-                }).change(function () {
-                    g.setVisibility(i - 1, $(this).is(":checked"))
-                }));
-                chooser.append($("<label/>", {
-                    text: label,
-                    for: "checkbox-" + i
-                }));
-                chooser.append($("<br/>"));
+
+            @media(min-width: 768px) {
+                .chart-graph {
+                    flex: 1 0 auto;
+                    width: calc(100vw - 300px);
+                    margin-bottom: auto;
+                }
+
+                .chart-legend {
+                    display: flex;
+                    width: 260px;
+                    flex: 0 0 auto;
+                    flex-direction: column;
+                    flex-wrap: nowrap;
+                }
             }
-        });
-    }
-    initGraph(
-        document.getElementById("fan-graph"),
-        document.getElementById("fan-chooser"),
-        document.getElementById("fan-labels"),
-        "%raw_fan_data%"
-    );
-</script>
-</body>
+
+            .chart-legend, .chart-sublegend {;
+                color: #FFFFFF;
+                white-space: nowrap;
+                font-weight: 500;
+                font-size: 12px;
+                background-color: #444444;
+                border: 2px solid #000000;
+                border-radius: 6px;
+                padding: 8px;
+                margin-bottom: 6px;
+            }
+
+            .chart-legend-highlight {
+                font-weight: 600;
+                font-size: 12px;
+                font-style: italic;
+                border: 2px solid #E0B050;
+                border-radius: 4px;
+                background-color: #010101;
+            }
+
+            .chart-legend-item {
+                margin-bottom: 2px;
+            }
+
+            .chart-legend-time {
+                font-size: 14px;
+                font-weight: 700;
+                margin-top: -2px;
+                align-self: center;
+            }
+
+            .chart-legend-duration {
+                margin-bottom: 2px;
+                align-self: center;
+            }
+
+            .chart-legend-visibility > label, .chart-sublegend > label {
+                margin-left: 4px;
+                margin-bottom: 2px;
+            }
+
+            .chart-loading {
+                left: 50%;
+                top: 30%;
+                position: absolute;
+            }
+
+            .chart-usage {
+                margin-top: 24px;
+            }
+
+            .dygraph-xlabel {
+                margin-top: 18px;
+            }
+        </style>
+        <title>Purification Run Log</title>
+    </head>
+    <body>
+    <div class="container-fluid">
+        <h1 class="lead">Purification Run Log</h1>
+    {% for chart in charts %}
+        <br>
+        <h4 class="lead">{{ chart.title }}</h4>
+        <div id="{{ chart.id_prefix }}-container" class="chart-container flex-row flex-wrap flex-md-nowrap">
+            <div class="chart-left-side">
+                <div id="{{ chart.id_prefix }}-graph" class="chart-graph">
+                    <h3 class="chart-loading lead text-muted">Loading Data</h3>
+                </div>
+                <div class="chart-usage text-center text-muted">
+                    The plot can be zoomed by clicking and dragging vertically or horizontally.
+                    <br>
+                    Double click to reset. Shift and drag to pan.
+                </div>
+            </div>
+            <div class="chart-right-side">
+                <div id="{{ chart.id_prefix }}-legend" class="chart-legend"></div>
+                <div class="chart-sublegend">
+                    <h4 class="lead d-none d-md-block">Options</h4>
+                    <h4 class="lead d-md-none" style="margin-right: 100vw">Options</h4>
+                    <input id="{{ chart.id_prefix }}-interpol-toggle" type="checkbox"
+                           onchange="$('#{{ chart.id_prefix }}-graph').data('dygraph').updateOptions({'connectSeparatedPoints': $(this).is(':checked') });">
+                    <label for="{{ chart.id_prefix }}-interpol-toggle" data-toggle="tooltip" data-placement="left" title="Interpolation draws estimated lines between neighboring measurements separated by more than {{ gap_tolerance }} seconds.">Enable Gap Interpolation</label>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+    <script type="text/javascript">
+        const LEGEND_HEADER =
+            '<h4 class="lead d-none d-md-block">Legend</h4>' +
+            '<h4 class="lead d-md-none" style="margin-right: 100vw">Legend</h4>\n';
+        function pointAwareLegend(data, timestampValueFormatter) {
+            const html = data.series.filter(
+                (item) => item.isVisible
+            ).sort(
+                (itemOne, itemTwo) => itemTwo.y - itemOne.y
+            ).reduce(
+                (html, series) => {
+                    let legendItemClass = 'chart-legend-item';
+                    if (series.isHighlighted) {
+                        legendItemClass = legendItemClass + ' chart-legend-highlight';
+                    }
+                    return html + `<span class="${legendItemClass}"><span class="chart-legend-label" style="color: ${series.color};">${series.labelHTML}</span>: ${series.yHTML}</span>`;
+                }, LEGEND_HEADER + timestampValueFormatter(data.x)
+            );
+            return html;
+        }
+
+        const VISIBILITY_HEADER =
+            '<h4 class="lead d-none d-md-block">Visibility</h4>' +
+            '<h4 class="lead d-md-none" style="margin-right: 100vw">Visibility</h4>\n';
+        function pointAgnosticLegend(data) {
+            const graphElementId = $(data.dygraph.graphDiv).parents(".chart-graph").attr('id');
+            const result = data.series.reduce(
+                (html, series, ii) => {
+                    const checkedState = series.isVisible ? 'checked' : false;
+                    const buttonId = `${graphElementId}-checkbox-${ii}`;
+                    const eventExpr = `$("#${graphElementId}").data("dygraph").setVisibility(${ii}, $(this).is(":checked"));`;
+                    const groupDiv = $('<div/>', {
+                        class: "chart-legend-visibility d-flex",
+                        style: `color: ${series.color}`
+                    });
+                    groupDiv.append($('<input/>', {
+                        id: buttonId,
+                        checked: checkedState,
+                        type: "checkbox",
+                        onchange: eventExpr
+                    }));
+                    groupDiv.append($("<label/>", {
+                        text: series.label,
+                        for: buttonId
+                    }));
+                    return html.append(groupDiv);
+                }, $(`<div>${VISIBILITY_HEADER}</div>`)
+            );
+            return result.html();
+        }
+
+        function prepareAxisLabelFormatter(timeZero, resampleUnit) {
+            function timestampAxisLabelFormatter(s) {
+                const utcTime = moment.unix(timeZero + s).utc();
+                return `<span>${utcTime.format("LTS")}</span>`;
+            }
+            return timestampAxisLabelFormatter;
+        }
+
+        function prepareValueFormatter(timeZero) {
+            function timestampValueFormatter(s) {
+                const utcTime = moment.unix(timeZero + s).utc();
+                const duration = moment.unix(s).utc();
+                return `<span class="chart-legend-time">${utcTime.format("LTS")}</span><span class="chart-legend-duration">${duration.hours()}h, ${duration.minutes()}m, ${duration.seconds()}s (${s.toFixed(2)} seconds)</span>`;
+            }
+            return timestampValueFormatter;
+        }
+
+        function prepareLegendFormatter(timestampValueFormatter) {
+            function legendFormatter(data) {
+                if (data.x == null) {
+                    // This happens when there's no selection because {legend: 'always'} is set.
+                    return pointAgnosticLegend(data);
+                } else {
+                    return pointAwareLegend(data, timestampValueFormatter);
+                }
+            }
+            return legendFormatter;
+        }
+
+        function underlayCallback(canvas, area, g) {
+            var max_x = g.xAxisExtremes()[1];
+            var bottom_left = g.toDomCoords(0, -20);
+            var top_right = g.toDomCoords(max_x, +20);
+            var left = bottom_left[0];
+            var right = top_right[0];
+            canvas.fillStyle = "rgba(235, 235, 235, 255)";
+            canvas.fillRect(left, area.y, right - left, area.h);
+        }
+
+        function expandPallete(srcPallete, colorsRequired) {
+            const colorsProvided = srcPallete.length
+            let newPallete = [...srcPallete];
+            if (colorsProvided < colorsRequired) {
+                const repeatCount = Math.ceil(colorsRequired / colorsProvided);
+                let ii;
+                for( ii=1; ii<repeatCount; ii++ ) {
+                    newPallete = [...newPallete, srcPallete];
+                }
+            }
+            return newPallete.slice(0, colorsRequired);
+        }
+
+        function initGraph(graphHeight, colorPalette, graphElement, legendElement, timeZero, rawData) {
+            const newPalette = expandPallete(colorPalette, rawData.labels.length - 1);
+            const timestampAxisLabelFormatter = prepareAxisLabelFormatter(timeZero);
+            const timestampValueFormatter = prepareValueFormatter(timeZero);
+            const legendFormatter = prepareLegendFormatter(timestampValueFormatter);
+
+            const g = new Dygraph(
+                graphElement,
+                rawData.rows,
+                {
+                    colors: newPalette,
+                    labels: rawData.labels,
+                    labelsDiv: legendElement.id,
+                    labelsSeparateLines: false,
+                    connectSeparatedPoints: false,
+                    drawGapEdgePoints: true,
+                    drawPoints: false,
+                    strokeWidth: 2,
+                    pointSize: 2,
+                    highlightSeriesOpts: {
+                        strokeWidth: 2,
+                        highlightCircleSize: 3,
+                    },
+                    legend: 'always',
+                    height: graphHeight,
+                    xlabel: rawData.labels[0],
+                    axes: {
+                        x: {
+                            axisLabelFormatter: timestampAxisLabelFormatter,
+                            valueFormatter: timestampValueFormatter
+                        }
+                    },
+                    legendFormatter: legendFormatter,
+                    underlayCallback: underlayCallback
+                }
+            );
+
+            $(graphElement).data('dygraph', g);
+            g.resize();
+
+            // Enable the interpolation tooltip
+            $('[data-toggle="tooltip"]').tooltip();
+        }
+
+{% autoescape off %}
+    {% for chart in charts %}
+        initGraph(
+            {{ chart.height }},
+            {{ chart.colors }},
+            document.getElementById("{{ chart.id_prefix }}-graph"),
+            document.getElementById("{{ chart.id_prefix }}-legend"),
+            {{ time_zero }},
+            {{ chart.raw_data }}
+        );
+    {% endfor %}
+{% endautoescape %}
+    </script>
+    </body>
 </html>

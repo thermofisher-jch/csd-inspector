@@ -1,0 +1,21 @@
+INPUTS:
+/libPrep_log.csv (Purification instrument variety content)
+
+This report renders three time series graphs.   
+* The large upper graph is for temperature reading
+* The middle smaller graph reports on three fans (one System, two Cooling) and a Cooling pump
+* The bottom smaller graph reports the remaining three time series, which as of yet seem to mostly consist of a long run of zero's.
+  Sometimes one or two values will appear.  Thesee cover (allegedly) "Light", "Quant", and "Stepper" metrics.
+
+-- It is not quite clear what the distinction is between Ambient 1 and Ambient 2 in the temperature measurements.
+
+* It was recently observed that there are occasional runs up to several minutes long where the source for this report has no data.
+  Changes were made in the 1.8 release to surface that obseration for this report.  Generally, the default graph will show discontinuity 
+  between line segments when more than 25 seconds have gone by without a value reported between two adjacent data points.  There is a checkbox
+  in the lower-right corner of the graph that may be used to restore an earlier interpolated view that provides line connectivity between
+  any adjacent data points, regardless of their distance.
+
+* Visibility of inidividual instrument feeds can be enabled or disabled usign the checkboxes on the far right.  When the mouse is placed over
+  the graph itself, the visibility controls are replaced with a legend that reports the time and currenet values for all visible feeds closest
+  to the mouse's currenet position.  While in this view, the color labels are sorted to match the order of the lines from top to bottom.  The
+  line closests to the mouse cursor is highlighted and should stand out from the rest.  It's legend label is also highlit for easy correlation.

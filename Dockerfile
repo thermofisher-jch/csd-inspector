@@ -29,6 +29,7 @@ python-cached-property \
 python-dateutil \
 python-magic \
 python-lzma \
+python-pandas \
 python-semver \
 python-raven \
 python-tblib \

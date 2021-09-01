@@ -1,40 +1,40 @@
 # -*- coding: utf-8 -*-
 # !/usr/bin/env python
-import itertools
-import os
-import csv
-import fnmatch
-import copy
-import re
-from IonInspector.reports.diagnostics.common.inspector_utils import (
-    print_info,
-    write_results_from_template,
-)
+import os.path
+import sys
 
-barcode_parser = re.compile("^ (.*) for 91(\d{5,9})10(\d{4,15})17(\d{6})$")
+from IonInspector.reports.diagnostics.common.inspector_utils import (
+    print_info, write_results_from_template
+)
+from IonInspector.reports.diagnostics.common.quantum_data_source import inject_quant_data_source
+from IonInspector.reports.diagnostics.Purification_Quant_Summary.pure_utility import \
+    find_purification_files
+
 
 def execute(archive_path, output_path, _archive_type):
-    with open(os.path.join(archive_path, "debug"), "rb") as fp:
-        parts = set(line.rsplit(b":", 1)[1] for line in filter(select_matching_lines, fp))
-    details = [parse_row(row) for row in set(
-        line.rsplit(b":", 1)[1] for line in filter(select_matching_lines, fp)
-    )]
-    run_details = { "Consumable Information": details }
-
+    files_config = find_purification_files(archive_path)
+    quant_source = inject_quant_data_source(files_config)
     write_results_from_template(
-        {"other_runDetails": run_details },
+        {
+            "header_data": quant_source.quant_header_record.to_html(
+                bold_rows=True, classes="header-table table table-bordered table-sm",
+                header=False, columns=["value"], justify="left", col_space=400,
+                index_names=False
+            ),
+            "quant_data": quant_source.quant_samples_table.to_html(
+                justify="center", bold_rows=False, header=True, index=False,
+                classes="quant-table card-body table table-bordered table-striped",
+                columns=["Sample Plate  Well", "Well Name", "Archive Plate Well",
+                         "Creation Date", "Type", "Concentration"],
+            )
+        },
         output_path,
         os.path.dirname(os.path.realpath(__file__)),
-    )
+    );
 
-    return print_info("See results for details.")
+    return print_info("See results for details.");
 
 
-def select_matching_lines(line):
-    return line.index(b"doesPatternMatch") > 0
-
-def parse_row(row):
-    tokens = barcode_parser.split(row)
-    date_src = tokens[3]
-    date_src = "%s-%s-%s" % (date_src[0:2], date_src[2:4], date_src[4:6])
-    return [tokens[0], row, tokens[1], date_src, tokens[2]]
+if __name__ == "__main__":
+    archive_path_arg, output_path_arg, archive_type_arg = sys.argv[1:4]
+    execute(archive_path_arg, output_path_arg, archive_type_arg)

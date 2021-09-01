@@ -45,6 +45,9 @@ var diagnosticsTableApp = {
         for (var i = 0; i < this.resource.diagnostics.length; i++) {
             if (!previousCategory) {
                 previousCategory = this.resource.diagnostics[i].category;
+                // TODO: This seems like the right spot to set the default "enabled"
+                //       flag on the first listed category's button.  Also a better
+                //       way to set the initial value for `selectedCategoryChoice`.
             }
             else if (this.resource.diagnostics[i].category !== previousCategory) {
                 $("#category-chooser").show();

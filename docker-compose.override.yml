@@ -45,7 +45,7 @@ services:
       - nginx-temp:/var/lib/inspector/nginxTemp
       - nginx-logs:/opt/bitnami/nginx/logs
     ports:
-      - "8090:8080"
+      - "8080:8080"
 
   postgres:
     volumes:
