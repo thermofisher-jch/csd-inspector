@@ -146,5 +146,9 @@ DIAGNOSTICS_ROOT_ROLE = "Diagnostics Root Namespace"
 DIAGNOSTICS_NAMESPACE_ROOT = "test_results"
 GENEXUS_INSTRUMENT_TRACKER_DIAGNOSTIC_NAME = "GenexusInstrumentTracker"
 BEAD_DENSITY_FILE_NAME = "Bead_density_1000.png"
-NESTED_ARCHIVE = ".inner_archive.tgz"
+
+WELL_KNOWN_ARCHIVE = ".inner_archive.tgz"
+AMBIGUOUS_MARKER = 'AmBiguOus.zzz'
+PLANNED_RUN_AUDIT_TRAIL_PDF = "PlannedRun-AuditTrail.pdf"
 RUN_REPORT_PDF = "report.pdf"
+NOT_RUN_REPORT_LINK_TARGETS = {PLANNED_RUN_AUDIT_TRAIL_PDF, RUN_REPORT_PDF}
