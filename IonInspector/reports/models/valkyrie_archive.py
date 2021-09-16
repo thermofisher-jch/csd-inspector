@@ -12,10 +12,19 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from reports.diagnostics.common.inspector_utils import read_explog, get_filePath
-from reports.values import VALK, LANE_META_OBJECTS, GENEXUS_INSTRUMENT_TRACKER_DIAGNOSTIC_NAME, \
-    BEAD_DENSITY_FILE_NAME, DIAGNOSTICS_NAMESPACE_ROOT
-from reports.utils import Concat_WS, ensure_all_diagnostics_namespace, \
-    ensure_namespace_for_diagnostic, force_symlink
+from reports.values import (
+    VALK,
+    LANE_META_OBJECTS,
+    GENEXUS_INSTRUMENT_TRACKER_DIAGNOSTIC_NAME,
+    BEAD_DENSITY_FILE_NAME,
+    DIAGNOSTICS_NAMESPACE_ROOT,
+)
+from reports.utils import (
+    Concat_WS,
+    ensure_all_diagnostics_namespace,
+    ensure_namespace_for_diagnostic,
+    force_symlink,
+)
 from .instrument import Instrument
 from .archive import Archive
 
@@ -24,6 +33,7 @@ if not settings.configured:
     settings.configure()
 
 logger = logging.getLogger(__name__)
+
 
 def lane_with_emphasis(lane_number):
     bit_mask = 1 << (lane_number - 1)
@@ -44,7 +54,8 @@ def lane_with_emphasis(lane_number):
 class ValkyrieArchiveQuerySet(models.QuerySet):
     def with_tracker(self):
         tracker_namespace_root = os.path.join(
-            DIAGNOSTICS_NAMESPACE_ROOT, GENEXUS_INSTRUMENT_TRACKER_DIAGNOSTIC_NAME)
+            DIAGNOSTICS_NAMESPACE_ROOT, GENEXUS_INSTRUMENT_TRACKER_DIAGNOSTIC_NAME
+        )
         tracker_image_ref = os.path.join(tracker_namespace_root, BEAD_DENSITY_FILE_NAME)
 
         return self.annotate(
@@ -61,13 +72,13 @@ class ValkyrieArchiveQuerySet(models.QuerySet):
                 lane_with_emphasis(3),
                 lane_with_emphasis(4),
             ),
-            loading_density = Concat_WS(
+            loading_density=Concat_WS(
                 Value("/"),
                 Value(settings.MEDIA_URL),
                 Value("archive_files"),
                 F("id"),
-                Value(tracker_image_ref)
-            )
+                Value(tracker_image_ref),
+            ),
         )
 
 
@@ -269,17 +280,22 @@ def on_archive_update(sender, instance, **_):
         # plugged in with the Genexus instrument type.  Artistic license taken for the moment
         # to use diagnostic as the closest term available to mean instrument type extension.
         archive_source_path = get_filePath(
-            valkyrie_archive.archive_root, BEAD_DENSITY_FILE_NAME)
+            valkyrie_archive.archive_root, BEAD_DENSITY_FILE_NAME
+        )
         if archive_source_path is not None:
             tracker_root_path = ensure_namespace_for_diagnostic(
-                valkyrie_archive.archive_root, GENEXUS_INSTRUMENT_TRACKER_DIAGNOSTIC_NAME)
+                valkyrie_archive.archive_root,
+                GENEXUS_INSTRUMENT_TRACKER_DIAGNOSTIC_NAME,
+            )
             tracker_ref_path = os.path.join(tracker_root_path, BEAD_DENSITY_FILE_NAME)
             try:
                 force_symlink(archive_source_path, tracker_ref_path)
             except IOError as exp:
                 """Failure to store this reference is worth logging, but not sufficiently
-                   critical to justify rejecting archive import altogether."""
+                critical to justify rejecting archive import altogether."""
                 logger.exception(exp)
         else:
-            logger.warn("No %s file found under %s" % (BEAD_DENSITY_FILE_NAME,
-                                                       valkyrie_archive.archive_root))
+            logger.warn(
+                "No %s file found under %s"
+                % (BEAD_DENSITY_FILE_NAME, valkyrie_archive.archive_root)
+            )

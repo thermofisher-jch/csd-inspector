@@ -35,11 +35,13 @@ def add_stages(lines):
             curr_start = convert_time_script_stage(row["time"])
 
         elif row["status"] == "completed":
-            run_log_data["stages"].append({
-                "name": curr_stage,
-                "start": curr_start,
-                "end": convert_time_script_stage(row["time"])
-            })
+            run_log_data["stages"].append(
+                {
+                    "name": curr_stage,
+                    "start": curr_start,
+                    "end": convert_time_script_stage(row["time"]),
+                }
+            )
 
     return run_log_data
 
@@ -61,7 +63,7 @@ def get_valk_lib_prep_data(lines, fields=[]):
                     fake_row.append(None)
 
                 run_log_data["rows"].append(fake_row)
-            
+
             continue
         # Add data
         new_row = []
@@ -136,8 +138,8 @@ def execute(archive_path, output_path, archive_type):
         with open(results_path, "w") as results_file:
             results_file.write(
                 template_file.read()
-                    .replace('"%raw_temp_data%"', json.dumps(run_log_temp_data))
-                    .replace('"%raw_fan_data%"', json.dumps(run_log_fan_data))
+                .replace('"%raw_temp_data%"', json.dumps(run_log_temp_data))
+                .replace('"%raw_fan_data%"', json.dumps(run_log_fan_data))
             )
 
     # Write out status

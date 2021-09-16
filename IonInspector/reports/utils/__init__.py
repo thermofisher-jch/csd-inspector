@@ -4,8 +4,11 @@ import logging
 import os
 
 from IonInspector import settings
-from reports.values import DIAGNOSTICS_NAMESPACE_ROOT, GENEXUS_INSTRUMENT_TRACKER_DIAGNOSTIC_NAME, \
-    DIAGNOSTICS_ROOT_ROLE
+from reports.values import (
+    DIAGNOSTICS_NAMESPACE_ROOT,
+    GENEXUS_INSTRUMENT_TRACKER_DIAGNOSTIC_NAME,
+    DIAGNOSTICS_ROOT_ROLE,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -40,14 +43,16 @@ def force_symlink(source, link):
 
 def _check_for_workspace_dir(dir_path, role_label):
     """Private method used to assert the existence of a workspace directory entry.  Whereas
-     _ensure_workspace_dir() supports provisioning directories when a workspace is first imported
-     or when its diagnostic suite is re-evaluated at bootstrap, this method exists to re-assert
-     constraints expected of such directories.  It raises or reports discrepancies, but does not
-     attempt to correct them itself so that task is entirely managed by code designed to be used
-     for that specific funcitonal role.
-     """
+    _ensure_workspace_dir() supports provisioning directories when a workspace is first imported
+    or when its diagnostic suite is re-evaluated at bootstrap, this method exists to re-assert
+    constraints expected of such directories.  It raises or reports discrepancies, but does not
+    attempt to correct them itself so that task is entirely managed by code designed to be used
+    for that specific funcitonal role.
+    """
     if not os.path.exists(dir_path):
-        raise ArchiveWorkspaceError("%s not found in bootstrapped archive workspace" % role_label)
+        raise ArchiveWorkspaceError(
+            "%s not found in bootstrapped archive workspace" % role_label
+        )
     elif not (os.stat(dir_path).st_mode & 02775) == 02775:
         logger.warn("%s exists with incorrect permission: " % role_label)
     return dir_path
@@ -93,7 +98,7 @@ def ensure_namespace_for_diagnostic(archive_root, diagnostic_name):
 
 
 def get_file_path(instance, filename):
-    """Used for determining a path for the file to be saved to :param instance: This archive instance :param filename: The name of the file to be saved :return: The path to save the archive file to """
+    """Used for determining a path for the file to be saved to :param instance: This archive instance :param filename: The name of the file to be saved :return: The path to save the archive file to"""
     media_dir = settings.MEDIA_ROOT
     if not os.path.exists(media_dir):
         os.mkdir(media_dir, 02775)
@@ -116,21 +121,28 @@ def get_file_path(instance, filename):
 
 
 def is_likely_tar_file(file_path):
-    return file_path.endswith(".tar") \
-        or file_path.endswith(".tar.gz") \
-        or file_path.endswith(".tar.xz") \
+    return (
+        file_path.endswith(".tar")
+        or file_path.endswith(".tar.gz")
+        or file_path.endswith(".tar.xz")
         or file_path.endswith(".txz")
+    )
 
 
 class UnusableArchiveError(AssertionError):
-    """ Exception class for errors preventing archive recognition """
-    def __init__(self, archive_file_path, message): # real signature unknown
+    """Exception class for errors preventing archive recognition"""
+
+    def __init__(self, archive_file_path, message):  # real signature unknown
         super(UnusableArchiveError, self).__init__(
-            str(archive_file_path) + " could not be recognized as a support archive: " + message)
+            str(archive_file_path)
+            + " could not be recognized as a support archive: "
+            + message
+        )
 
 
 class ArchiveWorkspaceError(AssertionError):
-    """ Exception class for errors preventing preventing Inspector from managing its own
+    """Exception class for errors preventing preventing Inspector from managing its own
     local state in its archive-specific storage workspace."""
-    def __init__(self,  message=""): # real signature unknown
+
+    def __init__(self, message=""):  # real signature unknown
         super(ArchiveWorkspaceError, self).__init__(message)

@@ -8,22 +8,29 @@ import django.views.static
 # Need alphabetical order on dir listings
 # django/views/static.py#L102
 
+
 def directory_index(path, fullpath):
     try:
-        t = loader.select_template(['static/directory_index.html',
-                                    'static/directory_index'])
+        t = loader.select_template(
+            ["static/directory_index.html", "static/directory_index"]
+        )
     except TemplateDoesNotExist:
-        t = Template(django.views.static.DEFAULT_DIRECTORY_INDEX_TEMPLATE, name='Default directory index template')
+        t = Template(
+            django.views.static.DEFAULT_DIRECTORY_INDEX_TEMPLATE,
+            name="Default directory index template",
+        )
     files = []
     for f in sorted(os.listdir(fullpath), key=lambda s: s.lower()):
-        if not f.startswith('.'):
+        if not f.startswith("."):
             if os.path.isdir(os.path.join(fullpath, f)):
-                f += '/'
+                f += "/"
             files.append(f)
-    c = Context({
-        'directory': path + '/',
-        'file_list': files,
-    })
+    c = Context(
+        {
+            "directory": path + "/",
+            "file_list": files,
+        }
+    )
     return HttpResponse(t.render(c))
 
 

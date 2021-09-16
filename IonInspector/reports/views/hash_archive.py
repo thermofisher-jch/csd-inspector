@@ -24,9 +24,15 @@ def hash_archive(request):
         # that replaces those .'s with underscores.
         form = CaptureArchiveHashesForm(data=request.POST, files=request.FILES)
         archive = Archive.objects.get(form.data["id"])
-        archive.sha1_hash = b64encode(form.data["doc_file_sha1"].decode("hex"))[:27]  # Strips one trailing =
-        archive.md5_hash = b64encode(form.data["doc_file_md5"].decode("hex"))[:22]  # Strips two trailing ==
-        archive.crc32_sum = b64encode(form.data["doc_file_crc32"].decode("hex"))[:6]  # Strips two trailing ==
+        archive.sha1_hash = b64encode(form.data["doc_file_sha1"].decode("hex"))[
+            :27
+        ]  # Strips one trailing =
+        archive.md5_hash = b64encode(form.data["doc_file_md5"].decode("hex"))[
+            :22
+        ]  # Strips two trailing ==
+        archive.crc32_sum = b64encode(form.data["doc_file_crc32"].decode("hex"))[
+            :6
+        ]  # Strips two trailing ==
         archive.save()
 
         return JsonResponse(

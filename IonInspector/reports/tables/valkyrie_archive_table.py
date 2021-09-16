@@ -22,7 +22,7 @@ class ValkyrieInstrumentArchiveTable(tables.Table):
         attrs=width_attrs("52px"),
         orderable=False,
         accessor=A("loading_density"),
-        template_name="partials/loading_density_thumbnail.html"
+        template_name="partials/loading_density_thumbnail.html",
     )
     run_started_at = tables.DateColumn(
         verbose_name="Run Start Date",

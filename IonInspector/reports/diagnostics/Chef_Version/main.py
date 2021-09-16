@@ -17,11 +17,11 @@ def find_summary(gui_log_paths):
     for gui_log_path in gui_log_paths:
         with open(gui_log_path) as guil_log_handle:
             for line in guil_log_handle.readlines():
-                if 'chefPackageVer' in line:
+                if "chefPackageVer" in line:
                     # we expect this to be a json output and will split on it primary delimiter
-                    json_text = '{' + line.split('{', 1)[1]
+                    json_text = "{" + line.split("{", 1)[1]
                     info = json.loads(json_text)
-                    return info['chefPackageVer']
+                    return info["chefPackageVer"]
     return "Could not find any gui log to look up the chef version."
 
 
@@ -34,8 +34,10 @@ def execute(archive_path, output_path, archive_type):
         }
 
         gui_log_path_matches = list()
-        for root, dirnames, filenames in os.walk(os.path.join(archive_path, 'var', 'log', 'IonChef', 'ICS')):
-            for filename in fnmatch.filter(filenames, 'gui-*.log'):
+        for root, dirnames, filenames in os.walk(
+            os.path.join(archive_path, "var", "log", "IonChef", "ICS")
+        ):
+            for filename in fnmatch.filter(filenames, "gui-*.log"):
                 gui_log_path_matches.append(os.path.join(root, filename))
 
         root = get_xml_from_run_log(archive_path)
@@ -43,11 +45,17 @@ def execute(archive_path, output_path, archive_type):
         is_name = name_tag.text
         name_tag = root.find("Versions/scripts")
         scripts_name = name_tag.text
-        context['versions'] = [(t.tag, t.text) for t in root.findall("Versions/*")]
-        context['serial'] = root.find("Instrument/serial").text
+        context["versions"] = [(t.tag, t.text) for t in root.findall("Versions/*")]
+        context["serial"] = root.find("Instrument/serial").text
         release_version_node = root.find("Versions/release")
-        summary = release_version_node.text if release_version_node is not None else find_summary(gui_log_path_matches)
-        write_results_from_template(context, output_path, os.path.dirname(os.path.realpath(__file__)))
+        summary = (
+            release_version_node.text
+            if release_version_node is not None
+            else find_summary(gui_log_path_matches)
+        )
+        write_results_from_template(
+            context, output_path, os.path.dirname(os.path.realpath(__file__))
+        )
         return print_info(summary)
     except Exception as exc:
         return handle_exception(exc, output_path)

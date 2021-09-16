@@ -16,11 +16,7 @@ from IonInspector.reports.diagnostics.common.inspector_utils import (
 def parse_sigproc_stats(archive_path):
     stats = {}
     config = ConfigParser.RawConfigParser()
-    config.read(
-        get_filePath(
-            archive_path, "analysis.bfmask.stats"
-        )
-    )
+    config.read(get_filePath(archive_path, "analysis.bfmask.stats"))
     for name, value in config.items("global"):
         stats[name] = float(value)
     return stats
@@ -47,20 +43,25 @@ def check_total_wells(data):
 
 def execute(archive_path, output_path, archive_type):
     sigproc_stats = parse_sigproc_stats(archive_path)
-    base_caller_read_stats, base_caller_base_stats = parse_base_caller_stats(archive_path)
+    base_caller_read_stats, base_caller_base_stats = parse_base_caller_stats(
+        archive_path
+    )
     summary = {
-        "loading_per": 100 * (sigproc_stats["bead wells"] / (sigproc_stats["total wells"] - sigproc_stats["excluded wells"])),
+        "loading_per": 100
+        * (
+            sigproc_stats["bead wells"]
+            / (sigproc_stats["total wells"] - sigproc_stats["excluded wells"])
+        ),
         "loading": sigproc_stats["bead wells"],
-
-        "enrichment_per": 100 * (sigproc_stats["live beads"] / sigproc_stats["bead wells"]),
+        "enrichment_per": 100
+        * (sigproc_stats["live beads"] / sigproc_stats["bead wells"]),
         "enrichment": sigproc_stats["live beads"],
-
-        "library_per": 100 * (sigproc_stats["library beads"] / sigproc_stats["live beads"]),
+        "library_per": 100
+        * (sigproc_stats["library beads"] / sigproc_stats["live beads"]),
         "library": sigproc_stats["library beads"],
-
-        "final_reads_per": 100 * (base_caller_read_stats["valid"] / sigproc_stats["library beads"]),
+        "final_reads_per": 100
+        * (base_caller_read_stats["valid"] / sigproc_stats["library beads"]),
         "final_reads": base_caller_read_stats["valid"],
-
         "total_bases": base_caller_base_stats["final"],
     }
     data = {
@@ -147,9 +148,11 @@ def execute(archive_path, output_path, archive_type):
 
     warning = None
     if total_wells != active_wells:
-        warning = "Well totals inconsistent! {:,.0f} vs {:,.0f} This requires a fix on the TS software." \
-                  "The totals below do not include any wells categorized as 'Barcode Trim'!".format(
-            total_wells, active_wells
+        warning = (
+            "Well totals inconsistent! {:,.0f} vs {:,.0f} This requires a fix on the TS software."
+            "The totals below do not include any wells categorized as 'Barcode Trim'!".format(
+                total_wells, active_wells
+            )
         )
 
     write_results_from_template(

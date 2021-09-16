@@ -5,8 +5,14 @@ import json
 import os
 import sys
 
-from IonInspector.reports.diagnostics.common.inspector_utils import write_results_from_template, \
-    read_explog, get_explog_path, print_warning, print_alert, print_info
+from IonInspector.reports.diagnostics.common.inspector_utils import (
+    write_results_from_template,
+    read_explog,
+    get_explog_path,
+    print_warning,
+    print_alert,
+    print_info,
+)
 
 INFO = 0
 WARN = 1
@@ -15,26 +21,23 @@ ALARM = 2
 PRESSURE_LIMITS = {
     "PGM_Run": {
         "keys": ["pressure"],
-        "ranges": [(9.5, 11, "Pressure is low", "Pressure is high", ALARM)]
+        "ranges": [(9.5, 11, "Pressure is low", "Pressure is high", ALARM)],
     },
     "Proton": {
         "keys": ["manifoldPressure", "regulatorPressure"],
         "ranges": [
             (10.0, 11.0, "Pressure is very low", "Pressure is very high", ALARM),
-            (10.2, 10.8, "Pressure is low", "Pressure is high", WARN)
-        ]},
+            (10.2, 10.8, "Pressure is low", "Pressure is high", WARN),
+        ],
+    },
     "S5": {
         "keys": ["manifoldPressure", "regulatorPressure"],
-        "ranges": [
-            (7.2, 8.8, "Pressure is low", "Pressure is high", ALARM)
-        ]
+        "ranges": [(7.2, 8.8, "Pressure is low", "Pressure is high", ALARM)],
     },
     "Valkyrie": {
         "keys": ["manifoldPressure", "regulatorPressure"],
-        "ranges": [
-            (9.5, 10, "Pressure is low", "Pressure is high", ALARM)
-        ]
-    }
+        "ranges": [(9.5, 10, "Pressure is low", "Pressure is high", ALARM)],
+    },
 }
 
 TEMP_LIMITS = {
@@ -42,22 +45,26 @@ TEMP_LIMITS = {
         "keys": ["internalTemperature"],
         "ranges": [
             (26, 34, "Temperature is cold", "Temperature is hot", ALARM),
-        ]},
+        ],
+    },
     "Proton": {
         "keys": ["chipBayTemperature", "ambientTemperature", "ambientWasteTemperature"],
         "ranges": [
             (20, 34, "Temperature is cold", "Temperature is hot", ALARM),
-        ]},
+        ],
+    },
     "S5": {
         "keys": ["wasteTemperature", "ambientTemperature", "manifoldTemperature"],
         "ranges": [
             (20, 35, "Temperature is cold", "Temperature is hot", ALARM),
-        ]},
+        ],
+    },
     "Valkyrie": {
         "keys": ["wasteTemperature", "ambientTemperature"],
         "ranges": [
             (20, 35, "Temperature is cold", "Temperature is hot", ALARM),
-        ]},
+        ],
+    },
 }
 
 
@@ -73,24 +80,30 @@ def validate_data_within_limits(values, limit, start_at_flow=0):
             lower_bound, upper_bound, lower_message, upper_message, level = range
             for flow, y in values[key]["data"][start_at_flow:]:
                 if y > upper_bound:
-                    e = OutOfRangeError(upper_message + " (%.2f) at flow %i" % (y, flow), level)
+                    e = OutOfRangeError(
+                        upper_message + " (%.2f) at flow %i" % (y, flow), level
+                    )
                     raise e
                 if y < lower_bound:
-                    e = OutOfRangeError(lower_message + " (%.2f) at flow %i" % (y, flow), level)
+                    e = OutOfRangeError(
+                        lower_message + " (%.2f) at flow %i" % (y, flow), level
+                    )
                     raise e
 
 
 # Shared parser. Used by proton and s5 to parse some strange log lines
 def parse_experiment_info_log_line(line):
-    """ ExperimentInfoLog: is in a very odd format with line like
-        acq_0272.dat: Pressure=7.91 7.95 Temp=39.99 31.19 30.01 26.64 dac_start_sig=1724
-        """
+    """ExperimentInfoLog: is in a very odd format with line like
+    acq_0272.dat: Pressure=7.91 7.95 Temp=39.99 31.19 30.01 26.64 dac_start_sig=1724
+    """
     if ":" not in line:
         raise ValueError("Could not parse explog line: {}".format(line))
     dat_meta = collections.OrderedDict()
     dat_name, dat_meta_string = line.strip().split(":", 1)
     for token in dat_meta_string.strip().split(" "):
-        if "=" in token:  # After tokenizing by spaces, some token are values, and some are keys and values
+        if (
+            "=" in token
+        ):  # After tokenizing by spaces, some token are values, and some are keys and values
             key, value = token.split("=")
             dat_meta[key] = [value]
         else:  # If there is no = this token is a value
@@ -113,11 +126,17 @@ def get_pressure_and_temp(archive_path, archive_type):
             "temperature": {
                 "internalTemperature": {"data": [], "label": "Internal Temperature"},
                 "chipTemperature": {"data": [], "label": "Chip Temperature"},
-            }
+            },
         }
         if new_pgm_format:  # PGM 1.1
-            data["temperature"]["restrictorTemperature"] = {"data": [], "label": "Restrictor Temperature"}
-            data["temperature"]["chipHeatsinkTemperature"] = {"data": [], "label": "Chip Heatsink Temperature"}
+            data["temperature"]["restrictorTemperature"] = {
+                "data": [],
+                "label": "Restrictor Temperature",
+            }
+            data["temperature"]["chipHeatsinkTemperature"] = {
+                "data": [],
+                "label": "Chip Heatsink Temperature",
+            }
 
         reached_target_section = False
         flow_count = 0
@@ -129,15 +148,31 @@ def get_pressure_and_temp(archive_path, archive_type):
                 dat_meta = line.strip().split()
                 # Now we need to coerce some values
                 if new_pgm_format:  # PGM 1.1
-                    data["pressure"]["pressure"]["data"].append([flow_count, float(dat_meta[1])])
-                    data["temperature"]["internalTemperature"]["data"].append([flow_count, float(dat_meta[2])])
-                    data["temperature"]["restrictorTemperature"]["data"].append([flow_count, float(dat_meta[3])])
-                    data["temperature"]["chipHeatsinkTemperature"]["data"].append([flow_count, float(dat_meta[4])])
-                    data["temperature"]["chipTemperature"]["data"].append([flow_count, float(dat_meta[5])])
+                    data["pressure"]["pressure"]["data"].append(
+                        [flow_count, float(dat_meta[1])]
+                    )
+                    data["temperature"]["internalTemperature"]["data"].append(
+                        [flow_count, float(dat_meta[2])]
+                    )
+                    data["temperature"]["restrictorTemperature"]["data"].append(
+                        [flow_count, float(dat_meta[3])]
+                    )
+                    data["temperature"]["chipHeatsinkTemperature"]["data"].append(
+                        [flow_count, float(dat_meta[4])]
+                    )
+                    data["temperature"]["chipTemperature"]["data"].append(
+                        [flow_count, float(dat_meta[5])]
+                    )
                 else:  # PGM 1.0
-                    data["pressure"]["pressure"]["data"].append([flow_count, float(dat_meta[1])])
-                    data["temperature"]["internalTemperature"]["data"].append([flow_count, float(dat_meta[2])])
-                    data["temperature"]["chipTemperature"]["data"].append([flow_count, float(dat_meta[3])])
+                    data["pressure"]["pressure"]["data"].append(
+                        [flow_count, float(dat_meta[1])]
+                    )
+                    data["temperature"]["internalTemperature"]["data"].append(
+                        [flow_count, float(dat_meta[2])]
+                    )
+                    data["temperature"]["chipTemperature"]["data"].append(
+                        [flow_count, float(dat_meta[3])]
+                    )
                 flow_count += 1
         return data
 
@@ -153,10 +188,12 @@ def get_pressure_and_temp(archive_path, archive_type):
             "temperature": {
                 "chipBayTemperature": {"data": [], "label": "Chip Bay Temperature"},
                 "ambientTemperature": {"data": [], "label": "Ambient Temperature"},
-                "ambientWasteTemperature": {"data": [], "label": "Ambient Waste Temperature"},
-
-                "chipTemperature": {"data": [], "label": "Chip Temperature"}
-            }
+                "ambientWasteTemperature": {
+                    "data": [],
+                    "label": "Ambient Waste Temperature",
+                },
+                "chipTemperature": {"data": [], "label": "Chip Temperature"},
+            },
         }
         reached_target_section = False
         flow_count = 0
@@ -170,16 +207,27 @@ def get_pressure_and_temp(archive_path, archive_type):
                 # Now we have a line we want
                 dat_name, dat_meta = parse_experiment_info_log_line(line)
                 # Now we need to coerce some values
-                data["pressure"]["manifoldPressure"]["data"].append([flow_count, float(dat_meta["Pressure"][1])])
-                data["pressure"]["regulatorPressure"]["data"].append([flow_count, float(dat_meta["Pressure"][0])])
+                data["pressure"]["manifoldPressure"]["data"].append(
+                    [flow_count, float(dat_meta["Pressure"][1])]
+                )
+                data["pressure"]["regulatorPressure"]["data"].append(
+                    [flow_count, float(dat_meta["Pressure"][0])]
+                )
                 # https://stash.amer.thermo.com/projects/TS/repos/rndplugins/browse/autoCal/autoCal.R
                 # 'Chip Bay','Ambient','Under Chip'
-                data["temperature"]["chipBayTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][0])])
-                data["temperature"]["ambientTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][1])])
+                data["temperature"]["chipBayTemperature"]["data"].append(
+                    [flow_count, float(dat_meta["Temp"][0])]
+                )
+                data["temperature"]["ambientTemperature"]["data"].append(
+                    [flow_count, float(dat_meta["Temp"][1])]
+                )
                 data["temperature"]["ambientWasteTemperature"]["data"].append(
-                    [flow_count, float(dat_meta["Temp"][3])])
+                    [flow_count, float(dat_meta["Temp"][3])]
+                )
                 # Chip temp
-                data["temperature"]["chipTemperature"]["data"].append([flow_count, float(dat_meta["chipTemp"][0])])
+                data["temperature"]["chipTemperature"]["data"].append(
+                    [flow_count, float(dat_meta["chipTemp"][0])]
+                )
                 # Track flow types
                 if dat_name:
                     flow_type, _ = dat_name.rsplit("_", 1)
@@ -190,7 +238,7 @@ def get_pressure_and_temp(archive_path, archive_type):
                         # Create a new record for this flow type
                         data["flowTypes"][flow_type] = {
                             "start": flow_count,
-                            "end": None
+                            "end": None,
                         }
                         last_flow_type = flow_type
                 flow_count += 1
@@ -208,14 +256,16 @@ def get_pressure_and_temp(archive_path, archive_type):
                 "regulatorPressure": {"data": [], "label": "Regulator Pressure"},
             },
             "temperature": {
-                "manifoldHeaterTemperature": {"data": [], "label": "Manifold Heater Temperature"},
+                "manifoldHeaterTemperature": {
+                    "data": [],
+                    "label": "Manifold Heater Temperature",
+                },
                 "wasteTemperature": {"data": [], "label": "Waste Temperature"},
                 "tecTemperature": {"data": [], "label": "TEC Temperature"},
                 "ambientTemperature": {"data": [], "label": "Ambient Temperature"},
-
                 "chipTemperature": {"data": [], "label": "Chip Temperature"},
                 "manifoldTemperature": {"data": [], "label": "Manifold Temperature"},
-            }
+            },
         }
         reached_target_section = False
         flow_count = 0
@@ -229,19 +279,33 @@ def get_pressure_and_temp(archive_path, archive_type):
                 # Now we have a line we want
                 dat_name, dat_meta = parse_experiment_info_log_line(line)
                 # Now we need to coerce some values
-                data["pressure"]["manifoldPressure"]["data"].append([flow_count, float(dat_meta["Pressure"][1])])
-                data["pressure"]["regulatorPressure"]["data"].append([flow_count, float(dat_meta["Pressure"][0])])
+                data["pressure"]["manifoldPressure"]["data"].append(
+                    [flow_count, float(dat_meta["Pressure"][1])]
+                )
+                data["pressure"]["regulatorPressure"]["data"].append(
+                    [flow_count, float(dat_meta["Pressure"][0])]
+                )
 
                 data["temperature"]["manifoldHeaterTemperature"]["data"].append(
-                    [flow_count, float(dat_meta["Temp"][0])])
-                data["temperature"]["wasteTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][1])])
-                data["temperature"]["tecTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][2])])
-                data["temperature"]["ambientTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][3])])
+                    [flow_count, float(dat_meta["Temp"][0])]
+                )
+                data["temperature"]["wasteTemperature"]["data"].append(
+                    [flow_count, float(dat_meta["Temp"][1])]
+                )
+                data["temperature"]["tecTemperature"]["data"].append(
+                    [flow_count, float(dat_meta["Temp"][2])]
+                )
+                data["temperature"]["ambientTemperature"]["data"].append(
+                    [flow_count, float(dat_meta["Temp"][3])]
+                )
                 # Chip temp
-                data["temperature"]["chipTemperature"]["data"].append([flow_count, float(dat_meta["chipTemp"][0])])
+                data["temperature"]["chipTemperature"]["data"].append(
+                    [flow_count, float(dat_meta["chipTemp"][0])]
+                )
                 # Man temp
                 data["temperature"]["manifoldTemperature"]["data"].append(
-                    [flow_count, float(dat_meta["ManTemp"][0])])
+                    [flow_count, float(dat_meta["ManTemp"][0])]
+                )
                 # Track flow types
                 if dat_name:
                     flow_type, _ = dat_name.rsplit("_", 1)
@@ -252,7 +316,7 @@ def get_pressure_and_temp(archive_path, archive_type):
                         # Create a new record for this flow type
                         data["flowTypes"][flow_type] = {
                             "start": flow_count,
-                            "end": None
+                            "end": None,
                         }
                         last_flow_type = flow_type
                 flow_count += 1
@@ -279,13 +343,15 @@ def get_pressure_and_temp(archive_path, archive_type):
                 "regulatorPressure": {"data": [], "label": "Regulator Pressure"},
             },
             "temperature": {
-                "manifoldHeaterTemperature": {"data": [], "label": "Manifold Heater Temperature"},
+                "manifoldHeaterTemperature": {
+                    "data": [],
+                    "label": "Manifold Heater Temperature",
+                },
                 "wasteTemperature": {"data": [], "label": "Waste Temperature"},
                 "tecTemperature": {"data": [], "label": "TEC Temperature"},
                 "ambientTemperature": {"data": [], "label": "Ambient Temperature"},
-
                 "chipTemperature": {"data": [], "label": "Chip Temperature"},
-            }
+            },
         }
         reached_target_section = False
         flow_count = 0
@@ -305,16 +371,29 @@ def get_pressure_and_temp(archive_path, archive_type):
                 # Now we have a line we want
                 dat_name, dat_meta = parse_experiment_info_log_line(line)
                 # Now we need to coerce some values
-                data["pressure"]["manifoldPressure"]["data"].append([flow_count, float(dat_meta["Pressure"][0])])
-                data["pressure"]["regulatorPressure"]["data"].append([flow_count, float(dat_meta["Pressure"][1])])
+                data["pressure"]["manifoldPressure"]["data"].append(
+                    [flow_count, float(dat_meta["Pressure"][0])]
+                )
+                data["pressure"]["regulatorPressure"]["data"].append(
+                    [flow_count, float(dat_meta["Pressure"][1])]
+                )
 
                 data["temperature"]["manifoldHeaterTemperature"]["data"].append(
-                    [flow_count, float(dat_meta["Temp"][0])])
-                data["temperature"]["wasteTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][1])])
-                data["temperature"]["tecTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][2])])
-                data["temperature"]["ambientTemperature"]["data"].append([flow_count, float(dat_meta["Temp"][3])])
+                    [flow_count, float(dat_meta["Temp"][0])]
+                )
+                data["temperature"]["wasteTemperature"]["data"].append(
+                    [flow_count, float(dat_meta["Temp"][1])]
+                )
+                data["temperature"]["tecTemperature"]["data"].append(
+                    [flow_count, float(dat_meta["Temp"][2])]
+                )
+                data["temperature"]["ambientTemperature"]["data"].append(
+                    [flow_count, float(dat_meta["Temp"][3])]
+                )
                 # Chip temp
-                data["temperature"]["chipTemperature"]["data"].append([flow_count, float(dat_meta["chipTemp"][0])])
+                data["temperature"]["chipTemperature"]["data"].append(
+                    [flow_count, float(dat_meta["chipTemp"][0])]
+                )
 
                 # Track flow types
                 if dat_name:
@@ -326,7 +405,7 @@ def get_pressure_and_temp(archive_path, archive_type):
                         # Create a new record for this flow type
                         data["flowTypes"][flow_type] = {
                             "start": flow_count,
-                            "end": None
+                            "end": None,
                         }
                         last_flow_type = flow_type
                 flow_count += 1
@@ -361,14 +440,18 @@ def get_pressure_and_temp(archive_path, archive_type):
     # Check pressure and temp bounds
     pressure_message = None
     try:
-        validate_data_within_limits(flow_data["pressure"], PRESSURE_LIMITS[archive_type], start_at_flow)
+        validate_data_within_limits(
+            flow_data["pressure"], PRESSURE_LIMITS[archive_type], start_at_flow
+        )
     except OutOfRangeError as e:
         pressure_message = e.message
         level = e.level if e.level > level else level
 
     temperature_message = None
     try:
-        validate_data_within_limits(flow_data["temperature"], TEMP_LIMITS[archive_type], start_at_flow)
+        validate_data_within_limits(
+            flow_data["temperature"], TEMP_LIMITS[archive_type], start_at_flow
+        )
     except OutOfRangeError as e:
         temperature_message = e.message
         level = e.level if e.level > level else level
@@ -381,13 +464,22 @@ def get_pressure_and_temp(archive_path, archive_type):
 
 
 def execute(archive_path, output_path, archive_type):
-    pressure_message, temperature_message, message_level, flow_data = get_pressure_and_temp(archive_path, archive_type)
+    (
+        pressure_message,
+        temperature_message,
+        message_level,
+        flow_data,
+    ) = get_pressure_and_temp(archive_path, archive_type)
 
-    write_results_from_template({
-        "pressure_message": pressure_message,
-        "temperature_message": temperature_message,
-        "raw_data": json.dumps(flow_data),
-    }, output_path, os.path.dirname(os.path.realpath(__file__)))
+    write_results_from_template(
+        {
+            "pressure_message": pressure_message,
+            "temperature_message": temperature_message,
+            "raw_data": json.dumps(flow_data),
+        },
+        output_path,
+        os.path.dirname(os.path.realpath(__file__)),
+    )
 
     message = ["See results for details."]
     if temperature_message:

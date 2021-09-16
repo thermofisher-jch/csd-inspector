@@ -6,7 +6,7 @@ from reports.diagnostics.common.inspector_utils import (
     get_ts_version,
     parse_ts_version,
     get_s5_lot_info,
-    get_serial_no
+    get_serial_no,
 )
 
 
@@ -62,7 +62,7 @@ def get_s5_tags(archive_path):
     version = get_ts_version(archive_path)
     if version:
         tags.append("TS " + parse_ts_version(version))
-        
+
     tags.append(get_serial_no(archive_path))
 
     return tags

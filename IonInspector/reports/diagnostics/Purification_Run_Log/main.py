@@ -7,21 +7,29 @@ import sys
 from django.utils.safestring import SafeString
 import pandas as pd
 
-from reports.diagnostics.Purification_Run_Log.pure_utility import find_purification_files
-from reports.diagnostics.common.inspector_errors import FileNotFoundError, FilesNotFoundError
-from reports.diagnostics.common.inspector_utils import print_alert, print_info, \
-    write_results_from_template
+from reports.diagnostics.Purification_Run_Log.pure_utility import (
+    find_purification_files,
+)
+from reports.diagnostics.common.inspector_errors import (
+    FileNotFoundError,
+    FilesNotFoundError,
+)
+from reports.diagnostics.common.inspector_utils import (
+    print_alert,
+    print_info,
+    write_results_from_template,
+)
 
 
 class ColumnMeta:
-    def __init__( self, header, legend, parser ):
+    def __init__(self, header, legend, parser):
         self.header = header
         self.legend = legend
         self.parser = parser
 
 
 def parse_norm_temp(temp_str):
-    return float(temp_str) / 10.0;
+    return float(temp_str) / 10.0
 
 
 # TIMESTAMP_COLUMN_META = ColumnMeta(
@@ -72,31 +80,33 @@ NO_DATE = pd.Timestamp(0)
 
 def gen_left_only_split(threshold):
     def left_short_split(x):
-        left_delta = x['time'] - x['interval'].left
+        left_delta = x["time"] - x["interval"].left
         if left_delta.seconds > threshold:
-            return x['interval'].left + (left_delta / 2)
+            return x["interval"].left + (left_delta / 2)
         else:
             return NO_DATE
+
     return left_short_split
 
 
 def gen_right_only_split(threshold):
     def right_short_split(x):
-        right_delta = x['interval'].right - x['time']
+        right_delta = x["interval"].right - x["time"]
         if right_delta.seconds > threshold:
-            return x['time'] + (right_delta / 2)
+            return x["time"] + (right_delta / 2)
         else:
             return NO_DATE
+
     return right_short_split
 
 
 def short_split(x):
-    left_delta = x['time'] - x['interval'].left
-    right_delta = x['interval'].right - x['time']
+    left_delta = x["time"] - x["interval"].left
+    right_delta = x["interval"].right - x["time"]
     if left_delta > right_delta:
-        return x['interval'].left + (left_delta / 2)
+        return x["interval"].left + (left_delta / 2)
     else:
-        return x['time'] + (right_delta / 2)
+        return x["time"] + (right_delta / 2)
 
 
 def load_plan_log_csv(run_log_csv_path):
@@ -115,10 +125,10 @@ def load_plan_log_csv(run_log_csv_path):
     only includes our desired data set.
     """
     raw_df = pd.read_csv(run_log_csv_path)
-    last_to_skip = pd.Series(range(len(raw_df))) \
-        .where(raw_df['time'] == 'time', -1) \
-        .max()
-    trimmed_df = raw_df.iloc[(last_to_skip+1):, :]
+    last_to_skip = (
+        pd.Series(range(len(raw_df))).where(raw_df["time"] == "time", -1).max()
+    )
+    trimmed_df = raw_df.iloc[(last_to_skip + 1) :, :]
 
     # There is a variable time distance between consecutive timestamps, and no points with null
     # values in between any two points, no matter how far apart their timestamps are.  If no null
@@ -130,24 +140,30 @@ def load_plan_log_csv(run_log_csv_path):
     # threshold.  Examine each of these records to test whether its point is more than threshold
     # from the left and/or right boundaries.  Insert a gap point halfway between that point and
     # each boundary that is more than threshold distant.
-    trimmed_df.loc[:, 'time'] = pd.to_datetime(trimmed_df['time'])
-    trimmed_df = trimmed_df.set_index('time', drop=False)
-    trimmed_df['interval'] = pd.qcut(trimmed_df['time'], q=len(trimmed_df))
-    trimmed_df['span_duration'] = trimmed_df['interval'].apply(lambda x: (x.right - x.left).seconds)
+    trimmed_df.loc[:, "time"] = pd.to_datetime(trimmed_df["time"])
+    trimmed_df = trimmed_df.set_index("time", drop=False)
+    trimmed_df["interval"] = pd.qcut(trimmed_df["time"], q=len(trimmed_df))
+    trimmed_df["span_duration"] = trimmed_df["interval"].apply(
+        lambda x: (x.right - x.left).seconds
+    )
 
-    large_df = trimmed_df[trimmed_df['span_duration'] > GAP_TOLERANCE]
+    large_df = trimmed_df[trimmed_df["span_duration"] > GAP_TOLERANCE]
 
     left_split = gen_left_only_split(GAP_TOLERANCE)
     large_left_nulls = large_df.apply(left_split, axis=1)
     large_left_index = pd.DatetimeIndex(large_left_nulls)
-    large_left_nulls = pd.DataFrame({'time': large_left_nulls.tolist()}, index=large_left_index)
-    large_left_nulls = large_left_nulls[large_left_nulls['time'] != NO_DATE]
+    large_left_nulls = pd.DataFrame(
+        {"time": large_left_nulls.tolist()}, index=large_left_index
+    )
+    large_left_nulls = large_left_nulls[large_left_nulls["time"] != NO_DATE]
 
     right_split = gen_right_only_split(GAP_TOLERANCE)
     large_right_nulls = large_df.apply(right_split, axis=1)
     large_right_index = pd.DatetimeIndex(large_right_nulls)
-    large_right_nulls = pd.DataFrame({'time': large_right_nulls.tolist()}, index=large_right_index)
-    large_right_nulls = large_right_nulls[large_right_nulls['time'] != NO_DATE]
+    large_right_nulls = pd.DataFrame(
+        {"time": large_right_nulls.tolist()}, index=large_right_index
+    )
+    large_right_nulls = large_right_nulls[large_right_nulls["time"] != NO_DATE]
 
     # Concatenate the null records to the original data frame, resort, and return
     merged_df = pd.concat([trimmed_df, large_left_nulls, large_right_nulls])
@@ -167,7 +183,7 @@ def get_run_log_data_rows(raw_df, picked_columns, time_data):
 
 def get_run_log_data_labels(picked_columns):
     ret_val = [meta.legend for meta in picked_columns]
-    ret_val.insert(0, 'Time (seconds)')
+    ret_val.insert(0, "Time (seconds)")
     return ret_val
 
 
@@ -180,15 +196,15 @@ def execute(archive_path, output_path, archive_type):
 
     run_log_temp_data = {
         "rows": get_run_log_data_rows(raw_df, TARGET_TEMP_FIELDS, time_axis),
-        "labels": get_run_log_data_labels(TARGET_TEMP_FIELDS)
+        "labels": get_run_log_data_labels(TARGET_TEMP_FIELDS),
     }
     run_log_fan_data = {
         "rows": get_run_log_data_rows(raw_df, TARGET_FAN_FIELDS, time_axis),
-        "labels": get_run_log_data_labels(TARGET_FAN_FIELDS)
+        "labels": get_run_log_data_labels(TARGET_FAN_FIELDS),
     }
     run_log_misc_data = {
         "rows": get_run_log_data_rows(raw_df, TARGET_MISC_FIELDS, time_axis),
-        "labels": get_run_log_data_labels(TARGET_MISC_FIELDS)
+        "labels": get_run_log_data_labels(TARGET_MISC_FIELDS),
     }
 
     write_results_from_template(
@@ -200,36 +216,52 @@ def execute(archive_path, output_path, archive_type):
                     "height": 640,
                     "id_prefix": "temp",
                     "title": SafeString("Temperature (&deg;C)"),
-                    "colors":  [
-                        "rgb(178,152,106)", "rgb(209,147,232)", "rgb(230,210,40)",
-                        "rgb(109,200,196)", "rgb(159,233,65)", "rgb(200,69,232)",
-                        "rgb(88,227,157)", "rgb(209,242,88)", "rgb(36,213,110)",
-                        "rgb(205,162,227)", "rgb(79,136,240)", "rgb(52,167,78)",
-                        "rgb(208,150,69)", "rgb(47,152,194)", "rgb(213,59,179)",
-                        "rgb(176,199,102)", "rgb(248,23,124)", "rgb(124,138,216)",
+                    "colors": [
+                        "rgb(178,152,106)",
+                        "rgb(209,147,232)",
+                        "rgb(230,210,40)",
+                        "rgb(109,200,196)",
+                        "rgb(159,233,65)",
+                        "rgb(200,69,232)",
+                        "rgb(88,227,157)",
+                        "rgb(209,242,88)",
+                        "rgb(36,213,110)",
+                        "rgb(205,162,227)",
+                        "rgb(79,136,240)",
+                        "rgb(52,167,78)",
+                        "rgb(208,150,69)",
+                        "rgb(47,152,194)",
+                        "rgb(213,59,179)",
+                        "rgb(176,199,102)",
+                        "rgb(248,23,124)",
+                        "rgb(124,138,216)",
                     ],
-                    "raw_data": json.dumps(run_log_temp_data).replace('NaN', 'null'),
+                    "raw_data": json.dumps(run_log_temp_data).replace("NaN", "null"),
                 },
                 {
                     "height": 280,
                     "id_prefix": "fan",
                     "title": "Fan (rpm) and Flow (spm) Rates",
                     "colors": [
-                        "rgb(220,68,185)", "rgb(57,146,151)",
-                        "rgb(31,199,104)", "rgb(100,167,236)",
+                        "rgb(220,68,185)",
+                        "rgb(57,146,151)",
+                        "rgb(31,199,104)",
+                        "rgb(100,167,236)",
                     ],
-                    "raw_data": json.dumps(run_log_fan_data).replace('NaN', 'null'),
+                    "raw_data": json.dumps(run_log_fan_data).replace("NaN", "null"),
                 },
                 {
                     "height": 280,
                     "id_prefix": "misc",
                     "title": "Miscellaneous",
                     "colors": [
-                        "rgb(54,196,102)", "rgb(220,64,182)", "rgb(110,172,232)",
+                        "rgb(54,196,102)",
+                        "rgb(220,64,182)",
+                        "rgb(110,172,232)",
                     ],
-                    "raw_data": json.dumps(run_log_misc_data).replace('NaN', 'null'),
+                    "raw_data": json.dumps(run_log_misc_data).replace("NaN", "null"),
                 },
-            ]
+            ],
         },
         output_path,
         os.path.dirname(os.path.realpath(__file__)),

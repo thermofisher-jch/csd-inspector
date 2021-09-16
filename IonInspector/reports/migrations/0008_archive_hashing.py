@@ -8,23 +8,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('reports', '0007_instrument_tracking'),
+        ("reports", "0007_instrument_tracking"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='archive',
-            name='crc32_sum',
+            model_name="archive",
+            name="crc32_sum",
             field=models.CharField(max_length=6, null=True),
         ),
         migrations.AddField(
-            model_name='archive',
-            name='md5_hash',
+            model_name="archive",
+            name="md5_hash",
             field=models.CharField(max_length=22, null=True),
         ),
         migrations.AddField(
-            model_name='archive',
-            name='sha1_hash',
+            model_name="archive",
+            name="sha1_hash",
             field=models.CharField(max_length=27, null=True),
         ),
     ]

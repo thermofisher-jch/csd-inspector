@@ -26,7 +26,12 @@ def execute(archive_path, output_path, archive_type):
             compressed_archive_path = None
             # We need to guess at the path to the uncompressed archives
             for filename in os.listdir(archive_path):
-                if filename.endswith(".tar") or filename.endswith(".tar.gz") or filename.endswith(".zip") or filename.endswith(".tar.xz"):
+                if (
+                    filename.endswith(".tar")
+                    or filename.endswith(".tar.gz")
+                    or filename.endswith(".zip")
+                    or filename.endswith(".tar.xz")
+                ):
                     compressed_archive_path = os.path.join(archive_path, filename)
             if compressed_archive_path:
                 _, file_extension = os.path.splitext(compressed_archive_path)
@@ -34,22 +39,31 @@ def execute(archive_path, output_path, archive_type):
                 file_mime_type = magic_parser.from_file(compressed_archive_path)
 
                 if file_extension not in EXTENSION_MIME_TYPES.keys():
-                    return print_failed("Unknown archive file extension: %s" % file_extension)
+                    return print_failed(
+                        "Unknown archive file extension: %s" % file_extension
+                    )
 
                 if file_mime_type not in EXTENSION_MIME_TYPES.values():
-                    return print_failed("Unknown archive file type: %s" % file_mime_type)
+                    return print_failed(
+                        "Unknown archive file type: %s" % file_mime_type
+                    )
 
                 if EXTENSION_MIME_TYPES[file_extension] != file_mime_type:
-                    return print_failed("Archive extension '%s' does not match file type '%s'" % (os.path.basename(compressed_archive_path), file_mime_type))
+                    return print_failed(
+                        "Archive extension '%s' does not match file type '%s'"
+                        % (os.path.basename(compressed_archive_path), file_mime_type)
+                    )
 
             else:
                 return print_failed("Cannot find compressed archive!")
 
             # Check the chef run log xml for validity
             xml_path = None
-            run_log_directory = os.path.join(archive_path, 'var', 'log', 'IonChef', 'RunLog')
+            run_log_directory = os.path.join(
+                archive_path, "var", "log", "IonChef", "RunLog"
+            )
             for run_log in os.listdir(run_log_directory):
-                if run_log.endswith('.xml'):
+                if run_log.endswith(".xml"):
                     xml_path = os.path.join(run_log_directory, run_log)
                     break
 
@@ -58,10 +72,14 @@ def execute(archive_path, output_path, archive_type):
             try:
                 xml.etree.ElementTree.parse(xml_path)
             except Exception as e:
-                with open(os.path.join(output_path, "results.html"), 'w') as output_file:
+                with open(
+                    os.path.join(output_path, "results.html"), "w"
+                ) as output_file:
                     traceback.print_exc(file=output_file)
                 if getattr(e, "code", None) == 4:
-                    return print_failed("Run log contains invalid characters. Possibly a known issue with IC before v5.4.")
+                    return print_failed(
+                        "Run log contains invalid characters. Possibly a known issue with IC before v5.4."
+                    )
                 else:
                     return print_failed("Invalid run log xml: %s" % str(e))
 

@@ -41,7 +41,7 @@ gain_ranges = {
     "550": PROTON_S5_GAIN_RANGE,
     "PQ": (1.1, 1.4),
     "GX5": VALKYRIE_GAIN_RANGE,
-    "GX7": VALKYRIE_GX7_GAIN_RANGE
+    "GX7": VALKYRIE_GX7_GAIN_RANGE,
 }
 
 noise_thresholds = {
@@ -88,12 +88,24 @@ def parse_base_caller_stats(archive_path):
         raise FileNotFoundError(path)
     with open(path) as fp:
         stats = json.load(fp)
-        return stats["Filtering"]["ReadDetails"]["lib"], stats["Filtering"]["BaseDetails"]
+        return (
+            stats["Filtering"]["ReadDetails"]["lib"],
+            stats["Filtering"]["BaseDetails"],
+        )
 
 
 def copy_chipDiagnosticsReportfiles(archive_path, output_path):
-    chipDiagnosticsReportfiles = ["pix_offset_spatial.png", "pix_offset_histogram.png", "chip_dac.png",  "calibration.html", "gain_spatial.png",
-                                  "chip_thermometer_temperature.png", "gain_histogram.png", "noise_spatial.png", "noise_histogram.png"]
+    chipDiagnosticsReportfiles = [
+        "pix_offset_spatial.png",
+        "pix_offset_histogram.png",
+        "chip_dac.png",
+        "calibration.html",
+        "gain_spatial.png",
+        "chip_thermometer_temperature.png",
+        "gain_histogram.png",
+        "noise_spatial.png",
+        "noise_histogram.png",
+    ]
     chip_images_found = {}
     for image in chipDiagnosticsReportfiles:
         imagePath = os.path.join(archive_path, "chipDiagnostics", image)
@@ -106,10 +118,14 @@ def copy_chipDiagnosticsReportfiles(archive_path, output_path):
 
 
 def copy_chip_images(archive_path, output_path):
-    chip_images_html_path = os.path.join(archive_path, "ValkyrieWorkflow/chipImages.html")
+    chip_images_html_path = os.path.join(
+        archive_path, "ValkyrieWorkflow/chipImages.html"
+    )
     chip_images_found = copy_chipDiagnosticsReportfiles(archive_path, output_path)
     if os.path.exists(chip_images_html_path):
-        shutil.copy(chip_images_html_path, os.path.join(output_path, "chip_images.html"))
+        shutil.copy(
+            chip_images_html_path, os.path.join(output_path, "chip_images.html")
+        )
         for image in glob.glob(archive_path + "/ValkyrieWorkflow/*.jpg"):
             shutil.copy(image, output_path)
         chip_images_found["chip_images.html"] = True
@@ -179,9 +195,9 @@ def get_chip_status(archive_path, output_path, archive_type):
     # so we lost the noise information for these sets
     invalid_noise = False
     release_version = (
-            data.get("S5 Release_version")
-            or data.get("Proton Release_version")
-            or data.get("PGM SW Release")
+        data.get("S5 Release_version")
+        or data.get("Proton Release_version")
+        or data.get("PGM SW Release")
     )
     if release_version:
         if release_version.count(".") < 2:
@@ -191,9 +207,9 @@ def get_chip_status(archive_path, output_path, archive_type):
 
     noise_alert = noise > noise_thresholds[chip_type]
     noise_report = (
-            "Chip noise "
-            + str(noise)
-            + (" is too high." if noise_alert else " is low enough.")
+        "Chip noise "
+        + str(noise)
+        + (" is too high." if noise_alert else " is low enough.")
     )
     if noise_alert and not invalid_noise:
         report_level = max(report_level, REPORT_LEVEL_ALERT)
@@ -241,7 +257,7 @@ def get_chip_status(archive_path, output_path, archive_type):
         if stats_path:
             data = load_ini(stats_path)
             bead_loading = float(data["Bead Wells"]) / (
-                    float(data["Total Wells"]) - float(data["Excluded Wells"])
+                float(data["Total Wells"]) - float(data["Excluded Wells"])
             )
             isp_report = "{:.1%} of wells found ISPs".format(bead_loading)
         else:
@@ -253,9 +269,11 @@ def get_chip_status(archive_path, output_path, archive_type):
     total_reads_message = None
     try:
         total_reads = get_total_reads(archive_path, archive_type)
-        total_reads_message, full_chip_reads, full_chip_reads_spec = get_total_reads_message(
-            chip_type, total_reads
-        )
+        (
+            total_reads_message,
+            full_chip_reads,
+            full_chip_reads_spec,
+        ) = get_total_reads_message(chip_type, total_reads)
     except FileNotFoundError:
         total_reads_message = "Total Reads not known"
 
@@ -263,7 +281,9 @@ def get_chip_status(archive_path, output_path, archive_type):
     final_reads_message = None
     if archive_type == "Valkyrie":
         try:
-            base_caller_read_stats, base_caller_base_stats = parse_base_caller_stats(archive_path)
+            base_caller_read_stats, base_caller_base_stats = parse_base_caller_stats(
+                archive_path
+            )
             final_reads = base_caller_read_stats["valid"]
             final_reads_message = "Final Reads {}".format(format_reads(final_reads))
         except FileNotFoundError:
@@ -304,7 +324,9 @@ def get_chip_status(archive_path, output_path, archive_type):
 
 
 def execute(archive_path, output_path, archive_type):
-    message, report_level, context = get_chip_status(archive_path, output_path, archive_type)
+    message, report_level, context = get_chip_status(
+        archive_path, output_path, archive_type
+    )
 
     write_results_from_template(
         context, output_path, os.path.dirname(os.path.realpath(__file__))

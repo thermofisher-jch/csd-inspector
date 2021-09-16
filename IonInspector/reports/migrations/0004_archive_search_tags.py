@@ -9,13 +9,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('reports', '0003_diagnostic_category'),
+        ("reports", "0003_diagnostic_category"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='archive',
-            name='search_tags',
-            field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=255), default=list, size=None, db_index=True),
+            model_name="archive",
+            name="search_tags",
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=models.CharField(max_length=255),
+                default=list,
+                size=None,
+                db_index=True,
+            ),
         ),
     ]

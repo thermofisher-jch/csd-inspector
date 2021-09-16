@@ -2,7 +2,10 @@
 # -*- coding: UTF-8 -*-
 
 import sys
-from IonInspector.reports.diagnostics.common.inspector_utils import print_info, get_sequencer_kits
+from IonInspector.reports.diagnostics.common.inspector_utils import (
+    print_info,
+    get_sequencer_kits,
+)
 
 
 def execute(archive_path, output_path, archive_type):

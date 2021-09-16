@@ -4,12 +4,7 @@ NUC_STEP_FILES = [
     ["Outlet", "NucStep_outlet_step.txt"],
 ]
 
-NUC_ORDER = {
-    "A": 0,
-    "C": 1,
-    "T": 2,
-    "G": 3
-}
+NUC_ORDER = {"A": 0, "C": 1, "T": 2, "G": 3}
 
 
 def parse_nuc_step_lines(lines):
@@ -43,5 +38,5 @@ def get_nuc_step_dygraphs_data(archive_path):
         "dygraphs_nuc_step_titles": dygraphs_nuc_step_titles,
         "dygraphs_nuc_step_data": dygraphs_nuc_step_data,
         "dygraphs_nuc_step_labels": dygraphs_nuc_step_labels,
-        "dygraphs_nuc_step_max": dygraphs_nuc_step_max
+        "dygraphs_nuc_step_max": dygraphs_nuc_step_max,
     }

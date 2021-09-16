@@ -8,11 +8,16 @@ import time
 
 from datetime import datetime
 
-from IonInspector.reports.diagnostics.common.inspector_utils import print_info, handle_exception
+from IonInspector.reports.diagnostics.common.inspector_utils import (
+    print_info,
+    handle_exception,
+)
 
 
 def parse_timestamp(value):
-    return time.mktime(datetime.strptime(value.replace("  ", " "), "%a %b %d %H:%M:%S %Y").timetuple())
+    return time.mktime(
+        datetime.strptime(value.replace("  ", " "), "%a %b %d %H:%M:%S %Y").timetuple()
+    )
 
 
 # Plots  csv header , display header, formatter
@@ -31,24 +36,24 @@ TARGET_FAN_FIELDS = [
     ["Timestamp", "Time (s)", parse_timestamp],
     # Flow
     ["P_Sensor- Cur. Pressure", "Pressure Sensor (psi)", float],
-    ["Motor Power- Oscillation", "Motor Power Oscillation (1000x)", lambda x: float(x) / 1000],
+    [
+        "Motor Power- Oscillation",
+        "Motor Power Oscillation (1000x)",
+        lambda x: float(x) / 1000,
+    ],
     ["Flowmeter0", "Flowmeter (lpm)", float],
 ]
 
 
 def get_ot_log_data(path, fields):
     # Read csv
-    ot_log_data = {
-        "stages": [],
-        "labels": [],
-        "rows": []
-    }
+    ot_log_data = {"stages": [], "labels": [], "rows": []}
 
     with open(path, "rb") as ot_log_csv_file:
         # This csv has a bogus header line
         _ = ot_log_csv_file.readline()
 
-        csv_file = csv.DictReader(ot_log_csv_file, delimiter=',', quotechar='"')
+        csv_file = csv.DictReader(ot_log_csv_file, delimiter=",", quotechar='"')
         # Get rows
         for row in csv_file:
             # Add data
@@ -61,7 +66,9 @@ def get_ot_log_data(path, fields):
             ot_log_data["rows"].append(new_row)
 
         # Make labels
-        ot_log_data["labels"] = [display_name for field, display_name, formatter in fields]
+        ot_log_data["labels"] = [
+            display_name for field, display_name, formatter in fields
+        ]
 
     return ot_log_data
 
@@ -69,7 +76,9 @@ def get_ot_log_data(path, fields):
 def execute(archive_path, output_path, archive_type):
     """Executes the test"""
 
-    template_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "results.html")
+    template_path = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), "results.html"
+    )
     results_path = os.path.join(output_path, "results.html")
 
     # Find the csv path
@@ -87,10 +96,11 @@ def execute(archive_path, output_path, archive_type):
     # Write out results html
     with open(template_path, "r") as template_file:
         with open(results_path, "w") as results_file:
-            results_file.write(template_file.read()
-                               .replace("\"%raw_temp_data%\"", json.dumps(ot_log_temp_data))
-                               .replace("\"%raw_fan_data%\"", json.dumps(ot_log_fan_data))
-                               )
+            results_file.write(
+                template_file.read()
+                .replace('"%raw_temp_data%"', json.dumps(ot_log_temp_data))
+                .replace('"%raw_fan_data%"', json.dumps(ot_log_fan_data))
+            )
 
     # Write out status
     return print_info("See results for flow, fan, and temperature plots.")

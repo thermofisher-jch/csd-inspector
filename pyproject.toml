@@ -1,0 +1,11 @@
+[tool.black]
+line-length = 88
+target-version = ['py27']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    \.git
+  | \.local
+  | \.pytest_cache
+)/
+'''

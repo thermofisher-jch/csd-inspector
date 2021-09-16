@@ -100,7 +100,7 @@ def get_libPrepProtocal(archive_path):
 
     # Find the csv path
     for file_name in glob(
-            os.path.join(archive_path, "var", "log", "IonChef", "Data", "lc_runlog.csv")
+        os.path.join(archive_path, "var", "log", "IonChef", "Data", "lc_runlog.csv")
     ):
         run_log_csv_filepath = file_name
         break

@@ -80,7 +80,7 @@ def execute(archive_path, output_path, archive_type):
             "bead_image_url": bead_image_url,
             "total_reads": total_reads,
             "active_lanes": active_lanes,
-            "average_reads_per_lane": total_reads / active_lanes
+            "average_reads_per_lane": total_reads / active_lanes,
         },
         output_path,
         os.path.dirname(os.path.realpath(__file__)),

@@ -18,13 +18,13 @@ def get_chef_notifications(xml_root, run_start):
             continue
 
         notification = {
-            'time': '',
-            'usr': '',
-            'sys': '',
-            'sys_name': '',
-            'usr_msg': '',
-            'resolution': '',
-            'msg': '',
+            "time": "",
+            "usr": "",
+            "sys": "",
+            "sys_name": "",
+            "usr_msg": "",
+            "resolution": "",
+            "msg": "",
         }
 
         for node in notification_element.getiterator():
@@ -33,11 +33,16 @@ def get_chef_notifications(xml_root, run_start):
         # to compensate for an error in the chef software sometimes warnings are added which are prior to the run
         # so we are going to have to parse the time and compare the start time from the xml file name
         try:
-            notification['time'] = datetime.strptime(notification['time'], '%Y%m%d_%H%M%S')
+            notification["time"] = datetime.strptime(
+                notification["time"], "%Y%m%d_%H%M%S"
+            )
         except ValueError:
             pass
 
-        if isinstance(notification['time'], datetime) and notification['time'] > alarms_after:
+        if (
+            isinstance(notification["time"], datetime)
+            and notification["time"] > alarms_after
+        ):
             notifications.append(notification)
 
     return notifications
@@ -55,7 +60,9 @@ def execute(archive_path, output_path, archive_type):
         notifications = get_chef_notifications(root, run_start)
 
         context = {"notifications": notifications}
-        write_results_from_template(context, output_path, os.path.dirname(os.path.realpath(__file__)))
+        write_results_from_template(
+            context, output_path, os.path.dirname(os.path.realpath(__file__))
+        )
 
         if notifications:
             return print_warning("There were notifications, please see results page.")

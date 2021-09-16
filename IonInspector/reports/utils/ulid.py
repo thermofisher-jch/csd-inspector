@@ -40,12 +40,12 @@ def convert(chars):
 
 
 def seconds(ulid):
-    """ return the timestamp from a ulid """
+    """return the timestamp from a ulid"""
     return 0.001 * convert(ulid[:10])
 
 
 def sharding(ulid, partitions):
-    """ return a sharting partition where to store the ulid"""
+    """return a sharting partition where to store the ulid"""
     return convert(ulid[-16:]) % partitions
 
 

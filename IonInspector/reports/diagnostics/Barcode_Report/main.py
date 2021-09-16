@@ -53,7 +53,7 @@ def get_read_groups(datasets_basecaller_object, barcode_to_nucleotide_types):
             "read_count": read_group.get("read_count", 0),
             "index": read_group.get("index", -1),
             "group": read_key,
-            "nuc_type": nucleotide_type
+            "nuc_type": nucleotide_type,
         }
 
     groups = [
@@ -112,10 +112,12 @@ def genexus_map_barcode_to_nucleotide_type(archive_path):
 def execute(archive_path, output_path, archive_type):
     if archive_type == "Valkyrie":
         datasets_path = "CSA/outputs/BaseCallingActor-00/datasets_basecaller.json"
-        barcodes_to_nucleotide_types = genexus_map_barcode_to_nucleotide_type(archive_path)
+        barcodes_to_nucleotide_types = genexus_map_barcode_to_nucleotide_type(
+            archive_path
+        )
     else:
         datasets_path = "basecaller_results/datasets_basecaller.json"
-        barcodes_to_nucleotide_types = { }
+        barcodes_to_nucleotide_types = {}
 
     with open(os.path.join(archive_path, datasets_path)) as datasets_file:
         datasets_object = json.load(datasets_file)
@@ -137,7 +139,10 @@ def execute(archive_path, output_path, archive_type):
         for group in groups:
             barcode_name = group["name"]
             src_image_path = os.path.join(
-                archive_path, "CSA/outputs/BaseCallingActor-00/{}_rawlib.inline_control.png".format(barcode_name)
+                archive_path,
+                "CSA/outputs/BaseCallingActor-00/{}_rawlib.inline_control.png".format(
+                    barcode_name
+                ),
             )
             dst_image_path = os.path.join(
                 output_path, "{}.inline_control.png".format(barcode_name)
@@ -157,8 +162,10 @@ def execute(archive_path, output_path, archive_type):
             histograms_first_pass.append(
                 {
                     "group": group,
-                    "histogram_data": json.dumps(get_histogram_data(archive_path, group["name"])),
-                    "inline_path": inline_path
+                    "histogram_data": json.dumps(
+                        get_histogram_data(archive_path, group["name"])
+                    ),
+                    "inline_path": inline_path,
                 }
             )
 
@@ -172,8 +179,10 @@ def execute(archive_path, output_path, archive_type):
 
         # first sort by sample name, then by index
         # combined barcode has index of -1, so it would go first
-        histograms_sorted = sorted(histograms_first_pass,
-                                   key=lambda hist: (hist["group"]["sample_name"], hist["group"]["index"]))
+        histograms_sorted = sorted(
+            histograms_first_pass,
+            key=lambda hist: (hist["group"]["sample_name"], hist["group"]["index"]),
+        )
 
         # transform to list of list
         # for hist in histograms_sorted:
@@ -183,17 +192,17 @@ def execute(archive_path, output_path, archive_type):
         #         hist["histogram_data"],
         #         hist["inline_path"]
         #     ])
-        histograms = [[
-            hist["group"],
-            None,
-            hist["histogram_data"],
-            hist["inline_path"]
-        ] for hist in histograms_sorted]
+        histograms = [
+            [hist["group"], None, hist["histogram_data"], hist["inline_path"]]
+            for hist in histograms_sorted
+        ]
 
         inline_controls_source_path = os.path.join(
-            archive_path, "CSA/outputs/BaseCallingActor-00/inline_control_stats.json")
+            archive_path, "CSA/outputs/BaseCallingActor-00/inline_control_stats.json"
+        )
         inline_controls_diag_path = os.path.join(
-            output_path, "inline_control_stats.json")
+            output_path, "inline_control_stats.json"
+        )
         try:
             # If a link exists from a previous execution, delete and re-create it.
             if os.path.exists(inline_controls_diag_path):

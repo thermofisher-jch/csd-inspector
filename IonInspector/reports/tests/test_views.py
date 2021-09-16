@@ -8,14 +8,17 @@ class SingleUploadTestCase(TestCase):
     def test_upload_archive(self):
         c = Client()
         with open("/opt/inspector/.local/test_archives/ot.log") as fp:
-            response = c.post("/upload/", {
-                "name": "Alex",
-                "site_name": "Michigan",
-                "archive_identifier": "Test Archive",
-                "taser_ticket_number": "444",
-                "upload_another": "no",
-                "doc_file": fp
-            })
+            response = c.post(
+                "/upload/",
+                {
+                    "name": "Alex",
+                    "site_name": "Michigan",
+                    "archive_identifier": "Test Archive",
+                    "taser_ticket_number": "444",
+                    "upload_another": "no",
+                    "doc_file": fp,
+                },
+            )
         self.assertEquals(response.status_code, 302)
         archive = Archive.objects.latest("id")
         self.assertEquals(response["Location"], "/report/{}/".format(archive.id))
@@ -30,27 +33,33 @@ class MultipleUploadTestCase(TestCase):
     def test_upload_archive(self):
         c = Client()
         with open("/opt/inspector/.local/test_archives/ot.log") as fp:
-            response = c.post("/upload/", {
-                "name": "Alex",
-                "site_name": "Michigan",
-                "archive_identifier": "Test Archive",
-                "taser_ticket_number": "444",
-                "upload_another": "yes",
-                "doc_file": fp
-            })
+            response = c.post(
+                "/upload/",
+                {
+                    "name": "Alex",
+                    "site_name": "Michigan",
+                    "archive_identifier": "Test Archive",
+                    "taser_ticket_number": "444",
+                    "upload_another": "yes",
+                    "doc_file": fp,
+                },
+            )
         self.assertEquals(response.status_code, 200)
         archive1 = Archive.objects.latest("id")
         self.assertEquals(archive1.submitter_name, "Alex")
 
         with open("/opt/inspector/.local/test_archives/ot.log") as fp:
-            response = c.post("/upload/", {
-                "name": "Brad",
-                "site_name": "Michigan",
-                "archive_identifier": "Test Archive",
-                "taser_ticket_number": "444",
-                "upload_another": "no",
-                "doc_file": fp
-            })
+            response = c.post(
+                "/upload/",
+                {
+                    "name": "Brad",
+                    "site_name": "Michigan",
+                    "archive_identifier": "Test Archive",
+                    "taser_ticket_number": "444",
+                    "upload_another": "no",
+                    "doc_file": fp,
+                },
+            )
         self.assertEquals(response.status_code, 302)
         archive2 = Archive.objects.latest("id")
         self.assertEquals(archive2.submitter_name, "Brad")

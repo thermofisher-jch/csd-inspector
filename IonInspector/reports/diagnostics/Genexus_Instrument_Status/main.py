@@ -22,9 +22,9 @@ def execute(archive_path, output_path, archive_type):
     html_file_path = os.path.join(auto_cal_path, "autoCal.html")
     if os.path.exists(html_file_path):
         link_path = (
-                settings.MEDIA_URL
-                + os.path.relpath(archive_path, settings.MEDIA_ROOT)
-                + "/autoCal/autoCal.html"
+            settings.MEDIA_URL
+            + os.path.relpath(archive_path, settings.MEDIA_ROOT)
+            + "/autoCal/autoCal.html"
         )
         message += " <a target='_blank' href='{}'>Report</a>".format(link_path)
 

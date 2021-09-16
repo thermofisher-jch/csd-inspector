@@ -7,7 +7,7 @@ from reports.diagnostics.common.inspector_utils import (
     parse_ts_version,
     get_genexus_kit_info,
     get_genexus_lot_number,
-    get_serial_no
+    get_serial_no,
 )
 
 

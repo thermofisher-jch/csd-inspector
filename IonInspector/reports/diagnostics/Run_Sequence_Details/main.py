@@ -14,7 +14,7 @@ from IonInspector.reports.diagnostics.common.inspector_utils import (
     write_results_from_template,
     handle_exception,
     print_info,
-    read_flow_info_from_explog
+    read_flow_info_from_explog,
 )
 
 OK_STRING = "TS Version is acceptable at <strong>%s</strong>"
@@ -54,9 +54,9 @@ def get_flow_time(flow_data):
     time_stamp = []
     if 0 in flow_data:
         """Accumulate each delta between consecutive time points, but
-           until IO-445 is resolved, also be careful to work around
-           any data points potentially overwritten by ErrorLogOutput
-           near end-of-file."""
+        until IO-445 is resolved, also be careful to work around
+        any data points potentially overwritten by ErrorLogOutput
+        near end-of-file."""
         row_count = len(flow_data)
         ii = 0
         last_time = None
@@ -87,15 +87,17 @@ def parse_flow_time(flow_item):
         return datetime.strptime(raw_value[token_count - 1], time_format)
     if token_count == 2:
         """This indicates the datapoint was overwritten by an error log entry
-           and we don't actually know what the correct value was."""
+        and we don't actually know what the correct value was."""
         return None
     raise ValueError("Every flow record must have a timestamp")
 
 
 def get_disk_perc(flow_data):
-    return [[ii, int(flow_data[ii].get("diskPerFree")[0])]
-            for ii in flow_data
-            if "diskPerFree" in flow_data[ii]]
+    return [
+        [ii, int(flow_data[ii].get("diskPerFree")[0])]
+        for ii in flow_data
+        if "diskPerFree" in flow_data[ii]
+    ]
 
 
 def execute(archive_path, output_path, archive_type):
@@ -156,7 +158,7 @@ def execute(archive_path, output_path, archive_type):
             "serial_number": serial_number,
             "system_type": system_type,
             "flow_time_seconds": flow_time_secs,
-            "disk_free_perc": disk_free_perc
+            "disk_free_perc": disk_free_perc,
         }
         write_results_from_template(
             template_context, output_path, os.path.dirname(os.path.realpath(__file__))

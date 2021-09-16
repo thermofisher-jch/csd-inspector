@@ -11,6 +11,7 @@ from IonInspector.reports.diagnostics.common.inspector_utils import (
     write_results_from_template,
 )
 
+
 def get_other_details(rows):
     other_runDetails = {}
     consumable = "Consumable Information"
@@ -19,16 +20,21 @@ def get_other_details(rows):
         if reagent in row:
             other_runDetails[reagent] = []
             continue
-        if reagent in other_runDetails and consumable  not in row and consumable not in other_runDetails:
+        if (
+            reagent in other_runDetails
+            and consumable not in row
+            and consumable not in other_runDetails
+        ):
             other_runDetails[reagent].append(row)
         if consumable in row:
             other_runDetails[consumable] = []
             continue
-        if consumable in other_runDetails and 'Analysis' not in row:
+        if consumable in other_runDetails and "Analysis" not in row:
             other_runDetails[consumable].append(row)
-        if 'Analysis' in row:
+        if "Analysis" in row:
             break
     return other_runDetails
+
 
 def execute(archive_path, output_path, archive_type):
     infoRowsForOtherDetails = None
@@ -37,7 +43,7 @@ def execute(archive_path, output_path, archive_type):
             with open(os.path.join(root, filename), "rb") as fp:
                 info_rows = list(csv.reader(fp, delimiter=","))
                 infoRowsForOtherDetails = copy.deepcopy(info_rows)
-    
+
     write_results_from_template(
         {"other_runDetails": get_other_details(infoRowsForOtherDetails)},
         output_path,

@@ -6,7 +6,7 @@ from reports.diagnostics.common.inspector_utils import (
     get_sequencer_kits,
     format_kit_tag,
     get_s5_lot_info,
-    get_serial_no
+    get_serial_no,
 )
 
 
@@ -22,16 +22,17 @@ def generate_lot_info_tags(lot_info, key_name, tag_name):
 
     return ""
 
+
 EXTRACTION_KIT_SEARCH_ORDER = [
-    (re.compile('Cell-Free Total Nucleic Acid'), 'cfTNA'),
-    (re.compile('FFPE DNA RNA'), 'FFPE'),
-    (re.compile('Total RNA'), 'RNA'),
-    (re.compile('Multisample DNA'), 'DNA')
+    (re.compile("Cell-Free Total Nucleic Acid"), "cfTNA"),
+    (re.compile("FFPE DNA RNA"), "FFPE"),
+    (re.compile("Total RNA"), "RNA"),
+    (re.compile("Multisample DNA"), "DNA"),
 ]
 
 
 def get_kit_type_tag(explog):
-    kit_name = explog['ExtractionKit']
+    kit_name = explog["ExtractionKit"]
     for (pattern, label) in EXTRACTION_KIT_SEARCH_ORDER:
         if not pattern.search(kit_name) is None:
             return label + " Extraction Kit"
@@ -82,8 +83,6 @@ def get_pure_tags(archive_path):
     #     tags.append("TS " + parse_ts_version(version))
 
     tags.append(get_serial_no(archive_path))
-    tags.append(
-        get_kit_type_tag(explog)
-    )
+    tags.append(get_kit_type_tag(explog))
 
     return tags

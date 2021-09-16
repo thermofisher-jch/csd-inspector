@@ -100,11 +100,12 @@ class ArchiveTable(tables.Table):
     )
 
     def render_time(self, value, record):
-        PST = pytz.timezone('US/Pacific')
+        PST = pytz.timezone("US/Pacific")
         return mark_safe(
-            "<a href='%s' class='no-underline' target='_blank'>%s</a>" % (
+            "<a href='%s' class='no-underline' target='_blank'>%s</a>"
+            % (
                 reverse("report", args=[record.id]),
-                value.astimezone(PST).strftime("%d %b %Y, %H:%M %p %Z")
+                value.astimezone(PST).strftime("%d %b %Y, %H:%M %p %Z"),
             )
         )
 
@@ -146,7 +147,7 @@ class ArchiveTable(tables.Table):
             "failure_mode",
             "sha1_hash",
             "md5_hash",
-            "crc32_sum"
+            "crc32_sum",
         )
         show_header = True
         orderable = True

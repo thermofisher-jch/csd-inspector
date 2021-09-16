@@ -6,7 +6,8 @@ import sys
 from IonInspector.reports.diagnostics.common.inspector_utils import *
 
 import matplotlib
-matplotlib.use('Agg')
+
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 
@@ -24,20 +25,22 @@ def execute(archive_path, output_path, archive_type):
 
         # get the paths
 
-        init_log_path = os.path.join(archive_path, 'InitLog.txt')
+        init_log_path = os.path.join(archive_path, "InitLog.txt")
         if not os.path.exists(init_log_path):
             raise Exception("InitLog.txt is not present so test cannot be run.")
 
         # read in the init log lines
         init_log = list()
-        with open(init_log_path, 'r') as init_log_handle:
+        with open(init_log_path, "r") as init_log_handle:
             init_log = init_log_handle.readlines()
 
         # TODO: perhaps move this to a template
-        with open(results_path, 'w') as html_handle:
-            html_handle.write("<html><link rel=stylesheet href=some.css type=text/css>\n")
+        with open(results_path, "w") as html_handle:
+            html_handle.write(
+                "<html><link rel=stylesheet href=some.css type=text/css>\n"
+            )
             html_handle.write("</head><body>")
-            html_handle.write("<h1 align=\"center\">AutopH plot</h1>")
+            html_handle.write('<h1 align="center">AutopH plot</h1>')
 
             if "Proton" == archive_type:
                 for line in init_log:
@@ -55,7 +58,7 @@ def execute(archive_path, output_path, archive_type):
                         # TODO: report the amount it undershot by
                         failure = "Undershot the pH."
                     elif line.startswith("Initial W2 pH="):
-                        starting_ph = float(line.split('=')[1])
+                        starting_ph = float(line.split("=")[1])
                     elif line.startswith("Rawtrace:"):
                         reagent_check = line.split(": ")[1]
                     elif re.search("[WR]\dpH", line):
@@ -66,15 +69,19 @@ def execute(archive_path, output_path, archive_type):
                 step_lines = dict()
                 for line in init_log:
                     if re.search("^\d+\)", line):
-                        line_split = line.split(')', 1)
+                        line_split = line.split(")", 1)
                         step_number = int(line_split[0])
                         step_line = line_split[1].strip()
                         if step_number not in step_lines:
                             step_lines[step_number] = dict()
-                        if step_line.startswith('W2'):
-                            step_lines[step_number]['W2'] = float(step_line.split('=', 1)[1])
-                        if step_line.startswith('Adding'):
-                            step_lines[step_number]['Adding'] = float(step_line.split(' ')[1])
+                        if step_line.startswith("W2"):
+                            step_lines[step_number]["W2"] = float(
+                                step_line.split("=", 1)[1]
+                            )
+                        if step_line.startswith("Adding"):
+                            step_lines[step_number]["Adding"] = float(
+                                step_line.split(" ")[1]
+                            )
                     elif line.startswith("FAILEDUNDERSHOT"):
                         failure = "Undershot the pH."
                     elif line.startswith("RawTraces:"):
@@ -82,17 +89,17 @@ def execute(archive_path, output_path, archive_type):
                     elif line.startswith("RawTraces "):
                         raw_traces.append(line.split(" ", 1)[1])
 
-                starting_ph = float(step_lines[1]['W2'])
+                starting_ph = float(step_lines[1]["W2"])
 
                 # parse the lines for information
                 for step_number in step_lines.keys():
                     step_values = step_lines[step_number]
-                    if 'W2' in step_values:
+                    if "W2" in step_values:
                         volume_added = 0
                         for i in range(step_number):
-                            volume_added += step_lines[i + 1].get('Adding', 0.0)
+                            volume_added += step_lines[i + 1].get("Adding", 0.0)
                         x.append(volume_added)
-                        y.append(step_values['W2'])
+                        y.append(step_values["W2"])
 
             # check to make sure we get all of the required information
             if len(x) == 0 or len(y) == 0:
@@ -115,29 +122,33 @@ def execute(archive_path, output_path, archive_type):
 
             # generate the plot data stuff...
             if os.path.exists(image_path):
-                html_handle.write("<p style=\"text-align:center;\">")
-                html_handle.write("<img src=\"" + image_name + "\" />")
+                html_handle.write('<p style="text-align:center;">')
+                html_handle.write('<img src="' + image_name + '" />')
                 html_handle.write("</p>")
 
             # write out raw init image tag
-            if os.path.exists(os.path.join(archive_path, 'RawInit.jpg')):
+            if os.path.exists(os.path.join(archive_path, "RawInit.jpg")):
                 html_handle.write("<br />")
-                html_handle.write("<h2 align=\"center\">Raw Init Plot</h2>")
-                html_handle.write("<p style=\"text-align:center;\">")
-                html_handle.write("<img src=\"../../RawInit.jpg\" />")
+                html_handle.write('<h2 align="center">Raw Init Plot</h2>')
+                html_handle.write('<p style="text-align:center;">')
+                html_handle.write('<img src="../../RawInit.jpg" />')
                 html_handle.write("</p>")
-            elif os.path.exists(os.path.join(archive_path, 'InitRawTrace0.png')):
+            elif os.path.exists(os.path.join(archive_path, "InitRawTrace0.png")):
                 html_handle.write("<br />")
-                html_handle.write("<h2 align=\"center\">Raw Init Plot</h2>")
-                html_handle.write("<p style=\"text-align:center;\">")
-                html_handle.write("<img src=\"../../InitRawTrace0.png\" />")
+                html_handle.write('<h2 align="center">Raw Init Plot</h2>')
+                html_handle.write('<p style="text-align:center;">')
+                html_handle.write('<img src="../../InitRawTrace0.png" />')
                 html_handle.write("</p>")
 
             # write the raw traces
             html_handle.write("<br>")
-            html_handle.write("<h2 align=\"center\">Reagent Check: {}</h2>".format(failure or reagent_check))
+            html_handle.write(
+                '<h2 align="center">Reagent Check: {}</h2>'.format(
+                    failure or reagent_check
+                )
+            )
             if len(raw_traces) > 0:
-                html_handle.write("<p style=\"text-align:center;\">")
+                html_handle.write('<p style="text-align:center;">')
                 html_handle.write("<br />".join(raw_traces))
                 html_handle.write("</p>")
 
@@ -146,7 +157,11 @@ def execute(archive_path, output_path, archive_type):
             if failure:
                 return print_failed(failure)
             else:
-                return print_info("Starting pH: {} | W1 added (ml): {} | Reagent Check: {}".format(starting_ph, x[-1], reagent_check))
+                return print_info(
+                    "Starting pH: {} | W1 added (ml): {} | Reagent Check: {}".format(
+                        starting_ph, x[-1], reagent_check
+                    )
+                )
     except Exception as exc:
         return handle_exception(exc, output_path)
 

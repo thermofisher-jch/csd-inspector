@@ -7,8 +7,14 @@ def parse_key_traces(lines):
                 [
                     int(flow),
                     nuc,
-                    {"xmin": int(xmin), "xmax": int(xmax), "ymin": int(ymin), "ymax": int(ymax), "count": int(count)},
-                    [float(i) for i in vals.split()]
+                    {
+                        "xmin": int(xmin),
+                        "xmax": int(xmax),
+                        "ymin": int(ymin),
+                        "ymax": int(ymax),
+                        "count": int(count),
+                    },
+                    [float(i) for i in vals.split()],
                 ]
             )
         if len(data) == 8:
@@ -16,7 +22,9 @@ def parse_key_traces(lines):
     return sorted(data, key=lambda x: x[0])
 
 
-def get_nuc_flows(target_nuc, key="TCAG", flow_order="TACGTACGTCTGAGCATCGATCGATGTACAGC"):
+def get_nuc_flows(
+    target_nuc, key="TCAG", flow_order="TACGTACGTCTGAGCATCGATCGATGTACAGC"
+):
     first_incorp_flow = None
     first_non_incorp_flow = None
     current_key_nuc = 0
@@ -58,12 +66,25 @@ def get_key_traces_dygraphs_data(key_trace_regions, frame_starts):
             empty_well_non_incrop_flow = empty_well_data[first_non_incorp_flow_index]
 
             # Based on the flow order we already know what nuc each flow should be in these files. Make sure it matches.
-            assert bead_well_incorp_flow[1] == nuc, "%s in file vs %s" % (bead_well_incorp_flow[0], nuc)
+            assert bead_well_incorp_flow[1] == nuc, "%s in file vs %s" % (
+                bead_well_incorp_flow[0],
+                nuc,
+            )
 
-            incorp_diff = [a - b for a, b in zip(bead_well_incorp_flow[3], empty_well_incorp_flow[3])]
-            non_incorp_diff = [a - b for a, b in zip(bead_well_non_incrop_flow[3], empty_well_non_incrop_flow[3])]
+            incorp_diff = [
+                a - b
+                for a, b in zip(bead_well_incorp_flow[3], empty_well_incorp_flow[3])
+            ]
+            non_incorp_diff = [
+                a - b
+                for a, b in zip(
+                    bead_well_non_incrop_flow[3], empty_well_non_incrop_flow[3]
+                )
+            ]
 
-            for j, value in enumerate([round(a - b, 3) for a, b in zip(incorp_diff, non_incorp_diff)]):
+            for j, value in enumerate(
+                [round(a - b, 3) for a, b in zip(incorp_diff, non_incorp_diff)]
+            ):
                 data[j][i + 1] = value
 
         dygraphs_key_trace_data.append(data)
@@ -79,5 +100,5 @@ def get_key_traces_dygraphs_data(key_trace_regions, frame_starts):
         "dygraphs_key_trace_titles": dygraphs_key_trace_titles,
         "dygraphs_key_trace_labels": dygraphs_key_trace_labels,
         "dygraphs_key_trace_data": dygraphs_key_trace_data,
-        "dygraphs_key_trace_max": dygraphs_key_trace_max
+        "dygraphs_key_trace_max": dygraphs_key_trace_max,
     }

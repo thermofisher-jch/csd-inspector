@@ -8,13 +8,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('reports', '0002_auto_20180418_1623'),
+        ("reports", "0002_auto_20180418_1623"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='diagnostic',
-            name='category',
-            field=models.CharField(choices=[(b'SEQ', b'SEQUENCING'), (b'PRE', b'SAMPLE_PREP')], default=b'SEQ', max_length=3),
+            model_name="diagnostic",
+            name="category",
+            field=models.CharField(
+                choices=[(b"SEQ", b"SEQUENCING"), (b"PRE", b"SAMPLE_PREP")],
+                default=b"SEQ",
+                max_length=3,
+            ),
         ),
     ]

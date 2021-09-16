@@ -5,7 +5,13 @@ import os
 import json
 import glob
 
-from IonInspector.reports.diagnostics.common.inspector_utils import print_alert, print_info, print_warning, get_kit_from_element_tree, get_xml_from_run_log
+from IonInspector.reports.diagnostics.common.inspector_utils import (
+    print_alert,
+    print_info,
+    print_warning,
+    get_kit_from_element_tree,
+    get_xml_from_run_log,
+)
 
 # Plots  csv header , display header, formatter
 from reports.diagnostics.common.inspector_utils import get_run_log_data
@@ -37,19 +43,27 @@ TARGET_FAN_FIELDS = [
     ["tach_chiller", "Reagents Cartridge (Back Zone) Fan (rev/s)", float],
     ["tach_zone1", "Above Deck Fan 1 (rev/s)", float],
     ["tach_zone2", "Above Deck Fan 2 (rev/s)", float],
-    ["tach_cfg", "Recovery Centrifuge Motor Fan (10x rev/s)", lambda x: float(x) / 10.0],  # Scaled down so it fits
+    [
+        "tach_cfg",
+        "Recovery Centrifuge Motor Fan (10x rev/s)",
+        lambda x: float(x) / 10.0,
+    ],  # Scaled down so it fits
 ]
 
 
 def execute(archive_path, output_path, archive_type):
     """Executes the test"""
 
-    template_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "results.html")
+    template_path = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), "results.html"
+    )
     results_path = os.path.join(output_path, "results.html")
     run_log_csv_path = None
 
     # Find the csv path
-    for file_name in glob.glob(os.path.join(archive_path, 'var', 'log', 'IonChef', 'RunLog', "*.csv")):
+    for file_name in glob.glob(
+        os.path.join(archive_path, "var", "log", "IonChef", "RunLog", "*.csv")
+    ):
         run_log_csv_path = file_name
         break
     if not run_log_csv_path:
@@ -69,10 +83,11 @@ def execute(archive_path, output_path, archive_type):
         # Write out results html
         with open(template_path, "r") as template_file:
             with open(results_path, "w") as results_file:
-                results_file.write(template_file.read()
-                                   .replace("\"%raw_temp_data%\"", json.dumps(run_log_temp_data))
-                                   .replace("\"%raw_fan_data%\"", json.dumps(run_log_fan_data))
-                                   )
+                results_file.write(
+                    template_file.read()
+                    .replace('"%raw_temp_data%"', json.dumps(run_log_temp_data))
+                    .replace('"%raw_fan_data%"', json.dumps(run_log_fan_data))
+                )
     else:
         return print_warning("Run log has no rows.")
 
@@ -81,11 +96,19 @@ def execute(archive_path, output_path, archive_type):
     for sublist in run_log_temp_data.get("rows"):
         if kitName:
             if "Ion AmpliSeq Kit for Chef DL8" in kitName:
-                if all(i >=29 for i in sublist[-2:]):
-                    return print_alert(" %s : Ambient Below or Above deck temperature hit >= 29C" % kitName)
-            if int(sublist[0]) > int(firstTimeStamp) + 300 and int(sublist[0]) < int(lastTimeStamp) - 900:
-                if all(i >=10 for i in sublist[-3:]):
-                    return print_alert(" %s : Reagent Bay temperature hit >= 10C" % kitName)
+                if all(i >= 29 for i in sublist[-2:]):
+                    return print_alert(
+                        " %s : Ambient Below or Above deck temperature hit >= 29C"
+                        % kitName
+                    )
+            if (
+                int(sublist[0]) > int(firstTimeStamp) + 300
+                and int(sublist[0]) < int(lastTimeStamp) - 900
+            ):
+                if all(i >= 10 for i in sublist[-3:]):
+                    return print_alert(
+                        " %s : Reagent Bay temperature hit >= 10C" % kitName
+                    )
 
     # Write out status
     return print_info("See results for flow, fan, and temperature plots.")

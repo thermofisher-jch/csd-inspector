@@ -1,7 +1,13 @@
 import os.path
 
-from reports.diagnostics.common.inspector_errors import FileNotFoundError, FilesNotFoundError
-from reports.diagnostics.common.quantum_data_source import QuantFeatureEvaluator, QuantDataSource
+from reports.diagnostics.common.inspector_errors import (
+    FileNotFoundError,
+    FilesNotFoundError,
+)
+from reports.diagnostics.common.quantum_data_source import (
+    QuantFeatureEvaluator,
+    QuantDataSource,
+)
 
 
 def find_purification_files(archive_path, required=set()):
@@ -26,4 +32,3 @@ def find_purification_files(archive_path, required=set()):
             raise FilesNotFoundError(errors)
     files["present"] = present
     return files
-

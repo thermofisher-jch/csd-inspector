@@ -20,8 +20,13 @@ from reports.diagnostics.common.inspector_utils import (
     get_platform_and_systemtype,
 )
 from .diagnostic import Diagnostic
-from reports.utils import force_symlink, get_file_path, UnusableArchiveError, is_likely_tar_file, \
-    ensure_all_diagnostics_namespace
+from reports.utils import (
+    force_symlink,
+    get_file_path,
+    UnusableArchiveError,
+    is_likely_tar_file,
+    ensure_all_diagnostics_namespace,
+)
 from reports.values import (
     ARCHIVE_TYPES,
     CATEGORY_LIBRARY_PREP,
@@ -286,7 +291,6 @@ class Archive(models.Model):
         # should be considered an error condition
         raise Exception("Cannot determine the archive type.")
 
-
     def extract_archive(self):
         """
         Extract all content from archive to the root archive folder, which also same folder holding
@@ -296,13 +300,15 @@ class Archive(models.Model):
         """
         # if the file is not there then there is nothing we can do
         if not os.path.exists(self.doc_file.path):
-            raise ArchiveWorkspaceError("The archive file is not present at: " + self.doc_file.path)
+            raise ArchiveWorkspaceError(
+                "The archive file is not present at: " + self.doc_file.path
+            )
 
         well_known_archive = os.path.join(self.archive_root, WELL_KNOWN_ARCHIVE)
         if not os.path.exists(well_known_archive):
             next_archive = self.doc_file.path
             last_archive = next_archive
-            previous_archives = set( )
+            previous_archives = set()
             while next_archive is not None and len(previous_archives) < 5:
                 if next_archive.endswith(".zip"):
                     self.extract_zip_fallback_tar(next_archive)
@@ -310,36 +316,38 @@ class Archive(models.Model):
                     self.extract_tar_fallback_zip(next_archive)
                 self.attempt_root_directory_uplift(next_archive)
                 last_archive = next_archive
-                next_archive = self.check_for_nested_packing(next_archive, previous_archives)
+                next_archive = self.check_for_nested_packing(
+                    next_archive, previous_archives
+                )
             if next_archive is not None:
-                logger.error("{} contains more than 5 layers of nested archives".format(
-                    self.doc_file.path))
+                logger.error(
+                    "{} contains more than 5 layers of nested archives".format(
+                        self.doc_file.path
+                    )
+                )
             self.cleanup_intermediate_archives(last_archive, previous_archives)
         self.check_for_run_report()
 
-
     def cleanup_intermediate_archives(self, last_archive, previous_archives):
         # Clean up intermediate archives, if any, for space efficiency
-        previous_archives.discard(
-            os.path.basename(self.doc_file.path)
-        )
+        previous_archives.discard(os.path.basename(self.doc_file.path))
         if last_archive is not None:
             previous_archives.discard(last_archive)
             try:
                 force_symlink(
-                    last_archive,
-                    os.path.join(self.archive_root, WELL_KNOWN_ARCHIVE)
+                    last_archive, os.path.join(self.archive_root, WELL_KNOWN_ARCHIVE)
                 )
             except OSError as exp:
                 # Don't fail archive import just because we failed to link
                 # its nested archive.
                 logger.exception(
                     "Nested archive {} unpacked, but failed to symlink for later ".format(
-                        last_archive), exc_info=exp)
+                        last_archive
+                    ),
+                    exc_info=exp,
+                )
         for temp_archive in previous_archives:
-            os.remove(
-                os.path.join(self.archive_root, temp_archive)
-            )
+            os.remove(os.path.join(self.archive_root, temp_archive))
 
     def attempt_zip_extraction(self, file_path):
         with zipfile.ZipFile(file_path) as doc_archive:
@@ -350,7 +358,14 @@ class Archive(models.Model):
         # Some chef archives contains files with no read permission. This seems to kill the
         # python tar library.  So instead we are using a subprocess to extract then chmod
         check_call(["tar", "-xf", file_path, "--directory", self.archive_root])
-        check_call(["chmod", "-R", "u=r,u+w,u-x,g=r,g+w,g-x,g+s,o-r,o-w,o-x,a+X", self.archive_root])
+        check_call(
+            [
+                "chmod",
+                "-R",
+                "u=r,u+w,u-x,g=r,g+w,g-x,g+s,o-r,o-w,o-x,a+X",
+                self.archive_root,
+            ]
+        )
 
     def attempt_root_directory_uplift(self, file_path):
         base_filename = os.path.basename(file_path)
@@ -362,7 +377,7 @@ class Archive(models.Model):
             for nested_child in os.listdir(full_candidate):
                 shutil.move(
                     os.path.join(full_candidate, nested_child),
-                    os.path.join(self.archive_root, nested_child)
+                    os.path.join(self.archive_root, nested_child),
                 )
             os.rmdir(full_candidate)
 
@@ -401,50 +416,59 @@ class Archive(models.Model):
     def check_for_run_report(self):
         report_pdf = None
         for child_path in os.listdir(self.archive_root):
-            if child_path.endswith(".pdf") and child_path not in NOT_RUN_REPORT_LINK_TARGETS:
+            if (
+                child_path.endswith(".pdf")
+                and child_path not in NOT_RUN_REPORT_LINK_TARGETS
+            ):
                 if report_pdf is None:
                     report_pdf = os.path.join(self.archive_root, child_path)
                 else:
-                    logger.warning("{} contains too many PDFs to identify a run report".format(
-                        self.doc_file.path))
+                    logger.warning(
+                        "{} contains too many PDFs to identify a run report".format(
+                            self.doc_file.path
+                        )
+                    )
                     report_pdf = None
                     break
         if report_pdf is not None:
-            logger.info("{} contained a run report PDF to symlink".format(self.doc_file.path))
+            logger.info(
+                "{} contained a run report PDF to symlink".format(self.doc_file.path)
+            )
             try:
                 force_symlink(
-                    report_pdf,
-                    os.path.join(self.archive_root, RUN_REPORT_PDF)
+                    report_pdf, os.path.join(self.archive_root, RUN_REPORT_PDF)
                 )
             except OSError as exp:
                 # Don't fail archive import just beccause we failed to link
                 # its report PDF.
                 logger.exception(
                     "Failed to symlink report PDF {} at well-known path".format(
-                        report_pdf), exc_info=exp)
+                        report_pdf
+                    ),
+                    exc_info=exp,
+                )
 
     def check_for_nested_packing(self, file_path, previous_archives):
         """Check whether we unpacked fewer than 6 files.  If so, look for another nested archive
-           file and a run report PDF file.  If found, this is a Genexus 6.6 archive with
-           RunReport PDF and a nested pre-6.6 format CSA archive.  In that case, we must also
-           unpack the nested archive to achieve an end state consistent with earlier versions
-           and we symlink the run report with a well defined name for easier access by reports."""
+        file and a run report PDF file.  If found, this is a Genexus 6.6 archive with
+        RunReport PDF and a nested pre-6.6 format CSA archive.  In that case, we must also
+        unpack the nested archive to achieve an end state consistent with earlier versions
+        and we symlink the run report with a well defined name for easier access by reports."""
         chef_marker = os.path.join(self.archive_root, "var")
         csa_marker = os.path.join(self.archive_root, "CSA")
         if os.path.isdir(chef_marker) or os.path.isdir(csa_marker):
             return None
         nested_archive = None
-        previous_archives.add(
-            os.path.basename(file_path)
-        )
+        previous_archives.add(os.path.basename(file_path))
         for child_path in os.listdir(self.archive_root):
             if is_likely_tar_file(child_path) and child_path not in previous_archives:
                 if nested_archive is None:
                     nested_archive = os.path.join(self.archive_root, child_path)
                 else:
                     logger.error(
-                        "{} contained too many nested archives to proceed unambiguously"
-                            .format(file_path)
+                        "{} contained too many nested archives to proceed unambiguously".format(
+                            file_path
+                        )
                     )
                     nested_archive = None
                     break

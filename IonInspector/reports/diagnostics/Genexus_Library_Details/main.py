@@ -27,9 +27,9 @@ def execute(archive_path, output_path, archive_type):
         if "sampleBarcodeMapping" in config:
             for sample in config["sampleBarcodeMapping"]:
                 sample["sampleInput"] = (
-                        float(sample["sampleVolume"])
-                        * float(sample["sampleConcentration"])
-                        / float(sample["sampleDilutionFactor"])
+                    float(sample["sampleVolume"])
+                    * float(sample["sampleConcentration"])
+                    / float(sample["sampleDilutionFactor"])
                 )
             sample_maps.extend(config["sampleBarcodeMapping"])
 

@@ -16,11 +16,13 @@ def get_tf_details(tf_stats, basecaller_stats):
 
     if cf_1 == "Unknown":
         return "CF-1: {cf_1} | Total Valid Reads: {total_valid_cf}".format(
-            cf_1=cf_1, total_valid_cf=total_valid_cf,
+            cf_1=cf_1,
+            total_valid_cf=total_valid_cf,
         )
 
     return "CF-1: {cf_1:.1f}% | Total Valid Reads: {total_valid_cf}".format(
-        cf_1=cf_1, total_valid_cf=total_valid_cf,
+        cf_1=cf_1,
+        total_valid_cf=total_valid_cf,
     )
 
 

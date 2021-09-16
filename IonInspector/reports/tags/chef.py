@@ -5,7 +5,7 @@ from reports.diagnostics.common.inspector_utils import (
     format_kit_tag,
     get_lines_from_chef_gui_logs,
     get_parsed_loadcheck_data,
-    get_serial_no
+    get_serial_no,
 )
 
 
@@ -33,5 +33,5 @@ def get_chef_tags(archive_path):
         tags.append("ChefSln: {}".format(solutions_lot))
     if reagents_lot:
         tags.append("ChefRgt: {}".format(reagents_lot))
-    
+
     return tags

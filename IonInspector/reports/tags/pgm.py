@@ -6,7 +6,7 @@ from reports.diagnostics.common.inspector_utils import (
     get_ts_version,
     parse_ts_version,
     get_kit_lot_info,
-    get_serial_no
+    get_serial_no,
 )
 
 
@@ -23,7 +23,9 @@ def get_pgm_tags(archive_path):
     if inspector_seq_kit:
         tags.append(format_kit_tag(inspector_seq_kit))
 
-    chef_solution_lot, chef_reagent_lot, sequencer_lot, chip_lot = get_kit_lot_info(archive_path)
+    chef_solution_lot, chef_reagent_lot, sequencer_lot, chip_lot = get_kit_lot_info(
+        archive_path
+    )
     if chef_solution_lot:
         tags.append("ChefSln: {}".format(chef_solution_lot))
     if chef_reagent_lot:

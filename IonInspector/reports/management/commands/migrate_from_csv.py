@@ -17,7 +17,9 @@ class Command(BaseCommand):
         cursor.execute("TRUNCATE reports_tag, reports_diagnostic, reports_archive;")
 
         self.stdout.write("LOADING")
-        input_rows = list(csv.DictReader(open(os.path.join(settings.MEDIA_ROOT, "archives.csv"))))
+        input_rows = list(
+            csv.DictReader(open(os.path.join(settings.MEDIA_ROOT, "archives.csv")))
+        )
 
         largest_pk = 0
 
@@ -45,7 +47,7 @@ class Command(BaseCommand):
                 submitter_name=row["submitter_name"],
                 archive_type=archive_type,
                 summary=row["summary"],
-                doc_file=path
+                doc_file=path,
             )
 
             if id > largest_pk:
@@ -53,6 +55,8 @@ class Command(BaseCommand):
 
         # Update the postgres seq
         largest_pk += 1
-        cursor.execute("ALTER SEQUENCE reports_archive_id_seq RESTART WITH %i;" % largest_pk)
+        cursor.execute(
+            "ALTER SEQUENCE reports_archive_id_seq RESTART WITH %i;" % largest_pk
+        )
 
         self.stdout.write("DONE")

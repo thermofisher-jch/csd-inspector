@@ -21,16 +21,16 @@ scripts = {
     "tuv_testing.txt": u"TUV Test",
     "initialize_factory.txt": u"System test: Prime",
     "system_test.txt": u"System test: Factory Test",
-    "purge.txt": u"System test: Purge"
+    "purge.txt": u"System test: Purge",
 }
 
 kit_times = {
-    u"Ion PGM™ Template OT2 200 Kit"            : "5 hr 30 min",
-    u"Ion PGM™ Template OT2 400 Kit"            : "8 hr",
-    u"Ion Proton™ I Template OT2 Kit"           : "6 hr 15 min",
-    u"Ion PI™ Template OT2 200 Kit v2"          : "6 hr 30 min",
-    u"Ion PI™ Template OT2 200 Kit v2 with XT"  : "9 hr",
-    u"Ion PI™ Template OT2 200 Kit v3"          : "6 hr 30 min"
+    u"Ion PGM™ Template OT2 200 Kit": "5 hr 30 min",
+    u"Ion PGM™ Template OT2 400 Kit": "8 hr",
+    u"Ion Proton™ I Template OT2 Kit": "6 hr 15 min",
+    u"Ion PI™ Template OT2 200 Kit v2": "6 hr 30 min",
+    u"Ion PI™ Template OT2 200 Kit v2 with XT": "9 hr",
+    u"Ion PI™ Template OT2 200 Kit v3": "6 hr 30 min",
 }
 
 
@@ -41,7 +41,7 @@ def execute(archive_path, output_path, archive_type):
         with open(path) as log:
             script_line = log.readline()
 
-        columns = script_line.split(',')
+        columns = script_line.split(",")
         script = os.path.basename(columns[0])
         if script in scripts:
             script = scripts[script]
@@ -63,7 +63,9 @@ def execute(archive_path, output_path, archive_type):
             "rows": rows,
             "time": time,
         }
-        write_results_from_template(context, output_path, os.path.dirname(os.path.realpath(__file__)))
+        write_results_from_template(
+            context, output_path, os.path.dirname(os.path.realpath(__file__))
+        )
 
         return print_info(summary.encode("UTF-8"))
     except Exception as exc:

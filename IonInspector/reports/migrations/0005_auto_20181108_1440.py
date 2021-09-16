@@ -8,15 +8,15 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('reports', '0004_archive_search_tags'),
+        ("reports", "0004_archive_search_tags"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='tag',
-            name='archive',
+            model_name="tag",
+            name="archive",
         ),
         migrations.DeleteModel(
-            name='Tag',
+            name="Tag",
         ),
     ]

@@ -23,5 +23,5 @@ while not connected:
         host=DATABASES["default"]["HOST"],
         user=DATABASES["default"]["USER"],
         password=DATABASES["default"]["PASSWORD"],
-        dbname=DATABASES["default"]["NAME"]
+        dbname=DATABASES["default"]["NAME"],
     )

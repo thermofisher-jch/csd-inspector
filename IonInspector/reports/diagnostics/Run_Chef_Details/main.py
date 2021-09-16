@@ -25,7 +25,7 @@ def execute(archive_path, output_path, archive_type):
         explog = read_explog(archive_path)
         check_supported(explog)
 
-        ion_params_path = os.path.join(archive_path, 'ion_params_00.json')
+        ion_params_path = os.path.join(archive_path, "ion_params_00.json")
         if not os.path.exists(ion_params_path):
             return print_na("Could not find ion_params_00.json.")
 
@@ -33,52 +33,83 @@ def execute(archive_path, output_path, archive_type):
             ion_params = json.load(ion_params_handle)
 
         # get the reagent and solution lots and experation dates
-        run_date = parse(explog.get('Start Time', 'Unknown'))
-        chef_reagents_lot = ion_params.get('exp_json', dict()).get('chefReagentsLot', '')
-        chef_reagents_expiration = ion_params.get('exp_json', dict()).get('chefReagentsExpiration', '')
+        run_date = parse(explog.get("Start Time", "Unknown"))
+        chef_reagents_lot = ion_params.get("exp_json", dict()).get(
+            "chefReagentsLot", ""
+        )
+        chef_reagents_expiration = ion_params.get("exp_json", dict()).get(
+            "chefReagentsExpiration", ""
+        )
         try:
-            chef_reagents_expiration = datetime.strptime(chef_reagents_expiration,
-                                                     '%y%m%d') if chef_reagents_expiration else None
+            chef_reagents_expiration = (
+                datetime.strptime(chef_reagents_expiration, "%y%m%d")
+                if chef_reagents_expiration
+                else None
+            )
         except:
             chef_reagents_expiration = None
-        chef_solutions_lot = ion_params.get('exp_json', dict()).get('chefSolutionsLot', '')
-        chef_solutions_expiration = ion_params.get('exp_json', dict()).get('chefSolutionsExpiration', '')
+        chef_solutions_lot = ion_params.get("exp_json", dict()).get(
+            "chefSolutionsLot", ""
+        )
+        chef_solutions_expiration = ion_params.get("exp_json", dict()).get(
+            "chefSolutionsExpiration", ""
+        )
         try:
-            chef_solutions_expiration = datetime.strptime(chef_solutions_expiration,
-                                                      '%y%m%d') if chef_solutions_expiration else None
+            chef_solutions_expiration = (
+                datetime.strptime(chef_solutions_expiration, "%y%m%d")
+                if chef_solutions_expiration
+                else None
+            )
         except:
             chef_solutions_expiration = None
 
-        planDict = ion_params.get('plan', dict())
-        categories = planDict.get('categories', '')
+        planDict = ion_params.get("plan", dict())
+        categories = planDict.get("categories", "")
         category = None
-        if 'ocav4' in categories:
+        if "ocav4" in categories:
             category = "2 Library Pools - OCA Plus"
-        elif 'myeloid' in categories:
+        elif "myeloid" in categories:
             category = "Myeloid"
-         
-        libPoolId =  planDict.get('libraryPool', '')
 
-        datetime_output_format = '%Y/%m/%d'
+        libPoolId = planDict.get("libraryPool", "")
+
+        datetime_output_format = "%Y/%m/%d"
         template_context = {
-            'run_date': run_date.strftime(datetime_output_format),
-            'chef_name': ion_params.get('exp_json', dict()).get('chefInstrumentName', ''),
-            'sample_pos': ion_params.get('exp_json', dict()).get('chefSamplePos', ''),
-            'chef_reagents_lot': chef_reagents_lot,
-            'chef_reagents_expiration': chef_reagents_expiration.strftime(
-                datetime_output_format) if chef_reagents_expiration else '',
-            'chef_solutions_lot': chef_solutions_lot,
-            'chef_solutions_expiration': chef_solutions_expiration.strftime(
-                datetime_output_format) if chef_solutions_expiration else '',
-            'libPrepProtocol': category if category else '',
-            'libraryPool': "Pool " + libPoolId if libPoolId else ''
+            "run_date": run_date.strftime(datetime_output_format),
+            "chef_name": ion_params.get("exp_json", dict()).get(
+                "chefInstrumentName", ""
+            ),
+            "sample_pos": ion_params.get("exp_json", dict()).get("chefSamplePos", ""),
+            "chef_reagents_lot": chef_reagents_lot,
+            "chef_reagents_expiration": chef_reagents_expiration.strftime(
+                datetime_output_format
+            )
+            if chef_reagents_expiration
+            else "",
+            "chef_solutions_lot": chef_solutions_lot,
+            "chef_solutions_expiration": chef_solutions_expiration.strftime(
+                datetime_output_format
+            )
+            if chef_solutions_expiration
+            else "",
+            "libPrepProtocol": category if category else "",
+            "libraryPool": "Pool " + libPoolId if libPoolId else "",
         }
-        write_results_from_template(template_context, output_path, os.path.dirname(os.path.realpath(__file__)))
+        write_results_from_template(
+            template_context, output_path, os.path.dirname(os.path.realpath(__file__))
+        )
 
-        message = template_context["chef_name"] + " Sample " + \
-                  template_context["sample_pos"] + " | " + \
-                  "Reagents Lot " + template_context["chef_reagents_lot"] + " | " + \
-                  "Solutions Lot " + template_context["chef_solutions_lot"]
+        message = (
+            template_context["chef_name"]
+            + " Sample "
+            + template_context["sample_pos"]
+            + " | "
+            + "Reagents Lot "
+            + template_context["chef_reagents_lot"]
+            + " | "
+            + "Solutions Lot "
+            + template_context["chef_solutions_lot"]
+        )
 
         if not chef_reagents_expiration or not chef_solutions_expiration:
             return print_alert(message + " | Could not parse expiration dates.")

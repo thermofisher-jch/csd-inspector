@@ -16,7 +16,7 @@ class OTPlotsTestCase(SimpleTestCase):
         "partNumber: 100031090",
         "lotNumber: 013080",
         "expDate: 2015/02/14",
-        "remainingUses: 1"
+        "remainingUses: 1",
     ]
 
     def test_parse_timestamp(self):

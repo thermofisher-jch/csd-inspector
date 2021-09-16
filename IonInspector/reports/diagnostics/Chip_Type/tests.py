@@ -28,4 +28,3 @@ class ParseEfuseTestCase(SimpleTestCase):
                 "ExpirationMonth": 1,
             },
         )
-

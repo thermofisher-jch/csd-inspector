@@ -8,13 +8,25 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('reports', '0008_archive_hashing'),
+        ("reports", "0008_archive_hashing"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='archive',
-            name='archive_type',
-            field=models.CharField(choices=[(b'PGM_Run', b'PGM'), (b'Proton', b'PROTON'), (b'Purification', b'Purification'), (b'S5', b'S5'), (b'Valkyrie', b'Genexus'), (b'OT_Log', b'OT'), (b'Ion_Chef', b'CHEF')], max_length=255, null=True),
+            model_name="archive",
+            name="archive_type",
+            field=models.CharField(
+                choices=[
+                    (b"PGM_Run", b"PGM"),
+                    (b"Proton", b"PROTON"),
+                    (b"Purification", b"Purification"),
+                    (b"S5", b"S5"),
+                    (b"Valkyrie", b"Genexus"),
+                    (b"OT_Log", b"OT"),
+                    (b"Ion_Chef", b"CHEF"),
+                ],
+                max_length=255,
+                null=True,
+            ),
         ),
     ]

@@ -14,7 +14,15 @@ from django.core.serializers.json import DjangoJSONEncoder
 import semver
 from bs4 import BeautifulSoup
 from django.template import Context, Template
-from reports.values import PGM_RUN, PROTON, S5, VALK, UNKNOWN_PLATFORM, PURIFICATION_BATCH_ID, PURE
+from reports.values import (
+    PGM_RUN,
+    PROTON,
+    S5,
+    VALK,
+    UNKNOWN_PLATFORM,
+    PURIFICATION_BATCH_ID,
+    PURE,
+)
 from IonInspector.reports.diagnostics.common.inspector_errors import FileNotFoundError
 
 

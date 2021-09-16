@@ -14,7 +14,7 @@ def parse_start_time(start_time_string):
 def reagents_expired(run_date, reagent_exp_dates):
     for exp_date in reagent_exp_dates:
         if isinstance(exp_date, date) and exp_date.replace(day=1) < run_date.replace(
-                day=1
+            day=1
         ):
             return True
 
@@ -132,12 +132,12 @@ def execute(archive_path, output_path, archive_type):
         # determine if reagents were expired when the run was executed
         if run_date and cleaning_dict and wash_dict and sequencing_dict:
             if reagents_expired(
-                    run_date,
-                    [
-                        cleaning_dict["expDate"],
-                        sequencing_dict["expDate"],
-                        wash_dict["expDate"],
-                    ],
+                run_date,
+                [
+                    cleaning_dict["expDate"],
+                    sequencing_dict["expDate"],
+                    wash_dict["expDate"],
+                ],
             ):
                 return print_alert(message + " | EXPIRED")
             else:

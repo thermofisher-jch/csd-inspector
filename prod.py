@@ -58,7 +58,9 @@ def setup_cron_tasks(rc):
     for src, dst in destination_files:
         rc.sudo(
             "cp -fvp {root}/{src} {dst}".format(
-                root=GIT_CHECKOUT_DIR, src=src, dst=dst,
+                root=GIT_CHECKOUT_DIR,
+                src=src,
+                dst=dst,
             )
         )
         rc.sudo("chmod 755 {dst}".format(dst=dst))

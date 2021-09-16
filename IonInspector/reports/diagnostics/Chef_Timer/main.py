@@ -3,7 +3,11 @@
 import sys
 import glob
 import os
-from IonInspector.reports.diagnostics.common.inspector_utils import print_info, get_run_log_data, print_alert
+from IonInspector.reports.diagnostics.common.inspector_utils import (
+    print_info,
+    get_run_log_data,
+    print_alert,
+)
 
 
 def seconds_to_hours_minutes(total_seconds):
@@ -51,7 +55,9 @@ def execute(archive_path, output_path, archive_type):
     run_log_csv_path = None
 
     # Find the csv path
-    for file_name in glob.glob(os.path.join(archive_path, 'var', 'log', 'IonChef', 'RunLog', "*.csv")):
+    for file_name in glob.glob(
+        os.path.join(archive_path, "var", "log", "IonChef", "RunLog", "*.csv")
+    ):
         run_log_csv_path = file_name
         break
     if not run_log_csv_path:

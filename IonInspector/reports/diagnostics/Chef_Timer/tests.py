@@ -11,7 +11,7 @@ class ChefTimerTestCase(SimpleTestCase):
             "23.25025606,10555,load,NOT_SPECIFIED,NOT_SPECIFIED,NONE,100",
             "28.7172451,10557,prep,NOT_SPECIFIED,NOT_SPECIFIED,NONE,80",
             "34.27806306,10558,prep,NOT_SPECIFIED,NOT_SPECIFIED,NONE,128",
-            "10939.27806306,10558,prep,NOT_SPECIFIED,NOT_SPECIFIED,NONE,128"
+            "10939.27806306,10558,prep,NOT_SPECIFIED,NOT_SPECIFIED,NONE,128",
         ]
         message = get_chef_pause_info(run_log_lines)
         self.assertEquals(message, "Total Time: 3h 2m")

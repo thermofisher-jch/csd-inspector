@@ -1,7 +1,11 @@
 from django.test import SimpleTestCase
 from datetime import date
 
-from reports.diagnostics.S5_Reagents.main import parse_init_log, parse_start_time, reagents_expired
+from reports.diagnostics.S5_Reagents.main import (
+    parse_init_log,
+    parse_start_time,
+    reagents_expired,
+)
 
 
 class S5ReagentsTestCase(SimpleTestCase):
@@ -22,23 +26,35 @@ class S5ReagentsTestCase(SimpleTestCase):
         "partNumber: 100049484",
         "lotNumber: 1943228",
         "expDate: 2018/11/30",
-        "remainingUses: 4"
+        "remainingUses: 4",
     ]
     test_start_time = "02/28/2017 12:48:49"
 
     def test_parse_init_log_keys(self):
         results = parse_init_log(self.test_log)
-        self.assertItemsEqual(results.keys(), ["Ion S5 Cleaning Solution", "Ion S5 Wash Solution", "Precision ID Cleaning Solution"])
+        self.assertItemsEqual(
+            results.keys(),
+            [
+                "Ion S5 Cleaning Solution",
+                "Ion S5 Wash Solution",
+                "Precision ID Cleaning Solution",
+            ],
+        )
 
     def test_parse_init_log_strings(self):
         results = parse_init_log(self.test_log)
         self.assertEqual(results["Ion S5 Cleaning Solution"]["lotNumber"], "013080")
-        self.assertEqual(results["Ion S5 Cleaning Solution"]["productDesc"], "Ion S5 Cleaning Solution")
+        self.assertEqual(
+            results["Ion S5 Cleaning Solution"]["productDesc"],
+            "Ion S5 Cleaning Solution",
+        )
         self.assertEqual(results["Ion S5 Cleaning Solution"]["remainingUses"], "3")
 
     def test_parse_init_log_dates(self):
         results = parse_init_log(self.test_log)
-        self.assertEqual(results["Ion S5 Cleaning Solution"]["expDate"], date(2017, 03, 11))
+        self.assertEqual(
+            results["Ion S5 Cleaning Solution"]["expDate"], date(2017, 03, 11)
+        )
         self.assertEqual(results["Ion S5 Wash Solution"]["expDate"], date(2015, 02, 14))
 
     def test_parse_start_time(self):
