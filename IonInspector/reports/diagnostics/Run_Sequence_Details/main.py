@@ -7,7 +7,7 @@ import json
 from dateutil.parser import parse
 from datetime import datetime
 
-from IonInspector.reports.diagnostics.common.inspector_utils import (
+from reports.diagnostics.common.inspector_utils import (
     read_explog,
     check_supported,
     get_ts_version,

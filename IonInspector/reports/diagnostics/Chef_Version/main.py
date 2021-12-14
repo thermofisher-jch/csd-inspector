@@ -5,7 +5,7 @@ import json
 import os
 import sys
 from django.template import Context, Template
-from IonInspector.reports.diagnostics.common.inspector_utils import *
+from reports.diagnostics.common.inspector_utils import *
 
 
 def find_summary(gui_log_paths):

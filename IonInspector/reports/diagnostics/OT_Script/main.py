@@ -5,7 +5,7 @@ import csv
 import sys
 import os.path
 from django.template import Context, Template
-from IonInspector.reports.diagnostics.common.inspector_utils import *
+from reports.diagnostics.common.inspector_utils import *
 
 
 scripts = {

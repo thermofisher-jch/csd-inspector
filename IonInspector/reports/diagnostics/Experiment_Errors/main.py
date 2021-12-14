@@ -6,7 +6,7 @@ import re
 from collections import namedtuple
 from datetime import datetime
 
-from IonInspector.reports.diagnostics.common.inspector_utils import (
+from reports.diagnostics.common.inspector_utils import (
     get_explog_path,
     get_debug_path,
     read_explog,

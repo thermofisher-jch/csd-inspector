@@ -5,12 +5,35 @@
     <link href="https://fonts.googleapis.com/css?family=Montserrat:500,700" rel="stylesheet" type="text/css">
     <link href="{% static 'vendor/Bootstrap-4.6.0/css/bootstrap.min.css' %}" rel="stylesheet"/>
     <link rel="stylesheet" href="{% static 'vendor/DataTables-1.10.24/css/dataTables.bootstrap4.min.css' %}"/>
-    <link rel="stylesheet" href="{% static 'vendor/AutoFill-2.3.5/css/autoFill.bootstrap4.min.css' %}"/>
     <link rel="stylesheet" href="{% static 'vendor/Buttons-1.7.0/css/buttons.bootstrap4.min.css' %}"/>
     <link rel="stylesheet" href="{% static 'vendor/DateTime-1.0.2/css/dataTables.dateTime.min.css' %}"/>
     <link rel="stylesheet" href="{% static 'vendor/FixedHeader-3.1.8/css/fixedHeader.bootstrap4.min.css' %}"/>
     <link rel="stylesheet" href="{% static 'vendor/Responsive-2.2.7/css/responsive.bootstrap4.min.css' %}"/>
     <link rel="stylesheet" href="{% static 'vendor/Select-1.3.2/css/select.bootstrap4.min.css' %}"/>
+
+    <style>
+        body {
+            font-family: "Montserrat", sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+            background-color: #FEFEFE;
+        }
+
+        .card-deck {
+            margin-top: 64px;
+        }
+
+        tbody > tr > td {
+            padding: 2px;
+            font-size: smaller;
+        }
+
+        thead > tr > td {
+            padding: 4px;
+            font-size: medium;
+        }
+    </style>
+
+    {% block extra_head_css %}
+    {% endblock extra_head_css %}
 
     <link rel="shortcut icon" href="{% static 'img/inspector-icon.png' %}" type="image/x-icon">
 
@@ -25,55 +48,20 @@
     <script src="{% static 'vendor/Responsive-2.2.7/js/dataTables.responsive.min.js' %}"></script>
     <script src="{% static 'vendor/Responsive-2.2.7/js/responsive.bootstrap4.min.js' %}"></script>
     <script src="{% static 'vendor/Select-1.3.2/js/dataTables.select.min.js' %}"></script>
-    <style>
-        .qcHeading {
-          padding: 0rem;
-          background: #31688f52;
-          text-align: left;
-        }
-        #qcMetrics>tbody>tr>td {
-          padding: 2;
-          font-size: smaller;
-        }
-        #qcMetrics>thead>tr>td {
-          padding: 4px;
-          font-size: medium;
-        }
-        .failed {
-            display: inline-block;
-            vertical-align: middle;
-        }
-    </style>
-    <title>Genexus Purification Reagent Lot Summary Report</title>
+
+    {% block extra_head_js %}
+    {% endblock extra_head_js %}
+
+    {% block page_title %}
+    <title>Page Title</title>
+    {% endblock page_title %}
 </head>
 <body>
-<div class="container-fluid">
-    <h1 class="lead">Genexus Purification Reagent Lot Summary Report</h1>
-    <div class="d-flex flex-row">
-        <div class="col-md-12">           
-            <br>
-            <div>
-            {% for key, values in other_runDetails.items %}
-            <div class="panel panel-default">
-                <div class="panel-heading text-center lead">{{ key }}</div>
-                <table class="table table-bordered table-striped table-hover" id="qcMetrics">
-                        {% for row in values %}
-                            {% if row %}
-                                <tr>
-                                    {% for col in row %}
-                                        {% ifnotequal col "" %}
-                                            <td>{{ col }}</td>
-                                        {% endifnotequal %}
-                                    {% endfor %}
-                                </tr>
-                            {% endif %}
-                        {% endfor %}
-                </table>
-            </div>
-            {% endfor %}        
-            </div>
+    <div class="container-fluid">
+        {% block page_content %}
+        <div class="card-deck">
+            <!--No content in template -->
         </div>
+        {% endblock page_content %}
     </div>
-</div>
 </body>
-</html>

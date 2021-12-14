@@ -3,7 +3,7 @@
 import sys
 import glob
 import os
-from IonInspector.reports.diagnostics.common.inspector_utils import (
+from reports.diagnostics.common.inspector_utils import (
     print_info,
     get_run_log_data,
     print_alert,

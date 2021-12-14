@@ -2,7 +2,7 @@
 import os
 import sys
 
-from IonInspector.reports.diagnostics.common.inspector_utils import (
+from reports.diagnostics.common.inspector_utils import (
     get_xml_from_run_log,
     print_na,
     print_alert,

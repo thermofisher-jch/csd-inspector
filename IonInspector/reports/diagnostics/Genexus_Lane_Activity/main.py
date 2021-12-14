@@ -5,7 +5,7 @@ import shutil
 from collections import OrderedDict
 from django.conf import settings
 
-from IonInspector.reports.diagnostics.common.inspector_utils import (
+from reports.diagnostics.common.inspector_utils import (
     read_ionstats_basecaller_json,
     read_explog,
     print_info,

@@ -8,7 +8,7 @@ import time
 
 from datetime import datetime
 
-from IonInspector.reports.diagnostics.common.inspector_utils import (
+from reports.diagnostics.common.inspector_utils import (
     print_info,
     handle_exception,
 )

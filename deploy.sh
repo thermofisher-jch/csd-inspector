@@ -52,6 +52,6 @@ fi
 
 export DOCKER_HOST="ssh://${deploy_host}"
 export VERSION="${deploy_version}"
-docker-compose -f docker-compose.prod.yml -f docker-compose.yml rm -f -s django celery nginx
-docker-compose -f docker-compose.prod.yml -f docker-compose.yml up -d &
+docker-compose -f docker-compose.yml -f docker-compose.prod.yml rm -f -s django celery nginx
+docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d &
 

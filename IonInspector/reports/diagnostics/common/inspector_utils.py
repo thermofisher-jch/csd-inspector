@@ -8,12 +8,14 @@ import traceback
 import warnings
 from glob import glob
 from datetime import datetime
-from xml.etree import ElementTree
-from django.core.serializers.json import DjangoJSONEncoder
 
 import semver
+from xml.etree import ElementTree
 from bs4 import BeautifulSoup
+
+from django.core.serializers.json import DjangoJSONEncoder
 from django.template import Context, Template
+from django.template.backends.django import DjangoTemplates
 from reports.values import (
     PGM_RUN,
     PROTON,
@@ -23,8 +25,10 @@ from reports.values import (
     PURIFICATION_BATCH_ID,
     PURE,
 )
-from IonInspector.reports.diagnostics.common.inspector_errors import FileNotFoundError
-
+from reports.diagnostics.common.inspector_errors import (
+    FileNotFoundError,
+    FilesNotFoundError,
+)
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 MAX_MESSAGE_LENGTH = 1040
@@ -66,7 +70,7 @@ def get_explog_path(archive_path):
         if os.path.exists(path):
             return path
 
-    raise Exception("explog_final.txt and explog.txt are missing.")
+    raise FilesNotFoundError(paths)
 
 
 def get_ion_param_path(archive_path):
@@ -114,7 +118,6 @@ def read_explog_from_handle(explog_handle):
     exp_error = False
     exp_error_log = []
     for line in explog_handle:
-        # Trying extra hard to accommodate formatting issues in explog
         datum = line.split(":", 1)
         if len(datum) == 2:
             key, value = datum
@@ -182,6 +185,14 @@ def handle_exception(exc, output_path):
         return print_failed(str(exc))
     except:
         pass
+
+
+def write_uncaught_error(output_path, formatted_trace):
+    results_path = os.path.join(output_path, "exception.dat")
+    if os.path.exists(results_path):
+        os.remove(results_path)
+    with open(results_path, "w") as results_path:
+        results_path.write(formatted_trace)
 
 
 def write_error_html(output_path):
@@ -458,15 +469,43 @@ def run_used_chef(archive_path):
 
 
 def write_results_from_template(data_dict, output_dir, diagnostic_script_dir):
-    template_path = os.path.join(diagnostic_script_dir, "results.html")
+    # Legacy diagnostics expect a single results.html file to be located in the same directory
+    # as the main.py executable.  Allow this to remain the common convention for existing
+    # diagnostics, while also allowing newer diagnostics to provide a full path to a template file
+    # so that multiple related reports can exist in the same directory or use feature flags to
+    # select between alternative templates that are used for similar, but distinct use cases, such
+    # as a template that displays one instance of a set of charts and another that offers tabs and
+    # supports an arbitrary number of instances of the same set of charts.
+    template_options = {
+        "NAME": "UtilsDiagnostics",
+        "DIRS": (diagnostic_script_dir,),
+        "APP_DIRS": False,
+        "OPTIONS": {
+            "autoescape": True,
+            "file_charset": u"utf-8",
+            "context_processors": [
+                # 'django.template.context_processors.debug',
+                # 'django.contrib.messages.context_processors.messages',
+                # 'IonInspector.reports.context_processors.version_number',
+                # 'IonInspector.reports.context_processors.use_datatables'
+            ],
+            "libraries": {
+                # 'tz': 'django.templatetags.tz',
+                # 'cache': 'django.templatetags.cache',
+                # 'humanize': 'django.contrib.humanize.templatetags.humanize',
+                # 'staticfiles': 'django.contrib.staticfiles.templatetags.staticfiles'
+                # 'inspector_taglib': 'reports.templatetags.inspector_taglib'
+            },
+        },
+    }
     try:
-        template = Template(open(template_path).read())
-        result = template.render(Context(data_dict))
+        template_engine = DjangoTemplates(template_options)
+        template = template_engine.get_template("results.html")
+        result = template.render(data_dict)
         with open(os.path.join(output_dir, "results.html"), "w") as out:
             out.write(result.encode("UTF-8"))
     except IOError:
-        raise Exception("Could not find template file at: " + template_path)
-
+        raise RuntimeError("Could not find template file at: " + diagnostic_script_dir)
     with open(os.path.join(output_dir, "main.json"), "w") as fp:
         assert type(data_dict) in {list, dict}
         json.dump(data_dict, fp, cls=DjangoJSONEncoder)

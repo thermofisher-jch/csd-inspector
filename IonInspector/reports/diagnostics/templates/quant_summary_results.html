@@ -1,0 +1,55 @@
+{% extends "page_styles/table_report.html" %}
+
+{% block extra_head_css %}
+    <style>
+        body {
+            padding-top: 60px;
+            padding-bottom: 50px;
+        }
+    </style>
+{% endblock extra_head_css %}
+
+{% block page_title %}
+    <title>Genexus Purification Quant Summary Report</title>
+{% endblock page_title %}
+
+{% block page_content %}
+    <h1 class="lead">Genexus Purification Quant Summary Report</h1>
+    <div class="card-deck d-flex flex-column">
+        <div id="header-card" class="card card-default">
+            <div class="card-header text-center lead">Summary</div>
+            <div class="card-body">{{ header_data | safe }}</div>
+        </div>
+        {% for quant_item in quant_data %}
+        <div id="quant-card-{{ forloop.counter0 }}" class="card card-default">
+            <div class="card-header text-center lead">Details for {{ quant_item.label }}</div>
+            <div class="card-body">{{ quant_item.table | safe }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    <script>
+        $(document).ready(function () {
+            const headerTable = $('.header-table').DataTable({
+                "paging": false,
+                "ordering": false,
+                "info": false,
+                "filtering": false,
+                "searching": false,
+            });
+
+            const quantTable = $('.quant-table').DataTable({
+                columns: [
+                    {title: "Sample Plate Well"},
+                    {title: "Well Name"},
+                    {title: "Archive Plate Well"},
+                    {title: "Creation Date"},
+                    {title: "Type"},
+                    {title: "Concentration"},
+                ],
+                "paging": false,
+                "ordering": true,
+                "info": false
+            });
+        });
+    </script>
+{% endblock page_content %}

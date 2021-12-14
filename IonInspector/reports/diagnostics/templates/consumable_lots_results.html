@@ -1,0 +1,17 @@
+{% extends "page_styles/table_report.html" %}
+
+{% block page_title %}
+    <title>Genexus Purification Reagent Lot Summary Report</title>
+{% endblock page_title %}
+
+{% block page_content %}
+    <h1 class="lead">Genexus Purification Reagent Lot Summary Report</h1>
+    <div class="card-deck d-flex flex-column">
+    {% for batch_data in consumable_data %}
+        <div id="header-card-{{ forloop.counter0 }}" class="card card-default">
+            <div class="card-header text-center lead">{{ batch_data.label }}</div>
+            <div class="card-body">{{ batch_data.table | safe }}</div>
+        </div>
+    {% endfor %}
+    </div>
+{% endblock page_content %}

@@ -3,7 +3,7 @@ import os
 import csv
 import fnmatch
 import copy
-from IonInspector.reports.diagnostics.common.inspector_utils import (
+from reports.diagnostics.common.inspector_utils import (
     print_info,
     print_alert,
     print_ok,

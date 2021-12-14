@@ -2,7 +2,7 @@
 import sys
 import os.path
 from datetime import datetime, timedelta
-from IonInspector.reports.diagnostics.common.inspector_utils import *
+from reports.diagnostics.common.inspector_utils import *
 
 
 def get_chef_notifications(xml_root, run_start):

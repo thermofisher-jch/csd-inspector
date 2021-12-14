@@ -1,0 +1,6 @@
+<h2>{{ deck_label }}</h2>
+<div id="{{ id_prefix }}-deck" class="card-deck d-flex flex-column">
+    {% for data_set in deck_of_tables %}
+        {% include "partials/_single_table_card.html" with id_prefix=data_set.id_prefix card_label=data_set.table_label column_labels=data_set.column_labels table_html=data_set.table_html only %}
+    {% endfor %}
+</div

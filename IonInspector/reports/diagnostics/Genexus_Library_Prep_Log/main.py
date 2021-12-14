@@ -6,7 +6,7 @@ import json
 import os
 import sys
 
-from IonInspector.reports.diagnostics.common.inspector_utils import (
+from reports.diagnostics.common.inspector_utils import (
     print_alert,
     print_info,
 )

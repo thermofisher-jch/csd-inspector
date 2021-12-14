@@ -13,8 +13,7 @@ services:
       - SECRET_KEY="@0gi@=8!#@w!g8d6vibm9+576!rhe949a#w)unk+3s5f4fe0x2"
     volumes:
       - .:/opt/inspector:ro
-      - ./.local/celery:/var/log/celery:delegated
-      - ./.local/logs:/var/log/inspector:delegated
+      - ./.local/logs/celery:/var/log/inspector:delegated
       - inspector-media:/var/lib/inspector/media
 
   django:
@@ -22,6 +21,8 @@ services:
       context: ./
       dockerfile: ./Dockerfile
     image: vulcan.itw:5000/inspector_django:latest
+    ports:
+      - "8090:8000"
     environment:
       - DATABASE_PASSWORD=docker
       - DATABASE_USERNAME=docker
@@ -29,7 +30,7 @@ services:
       - SECRET_KEY="@0gi@=8!#@w!g8d6vibm9+576!rhe949a#w)unk+3s5f4fe0x2"
     volumes:
       - .:/opt/inspector:ro
-      - ./.local/logs:/var/log/inspector:delegated
+      - ./.local/logs/django:/var/log/inspector:delegated
       - inspector-media:/var/lib/inspector/media
       - nginx-temp:/var/lib/inspector/nginxTemp
 

@@ -5,7 +5,7 @@ from datetime import datetime
 
 from dateutil.parser import parse
 
-from IonInspector.reports.diagnostics.common.inspector_utils import *
+from reports.diagnostics.common.inspector_utils import *
 
 OK_STRING = "TS Version is acceptable at <strong>%s</strong>"
 ALERT_STRING = "Advise customer to upgrade their Torrent Server.  Their version is out-dated at <strong>%s</strong>"

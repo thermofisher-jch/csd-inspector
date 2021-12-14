@@ -1,57 +1,30 @@
 # -*- coding: utf-8 -*-
 # !/usr/bin/env python
-import os.path
-import sys
-
-from IonInspector.reports.diagnostics.common.inspector_utils import (
-    print_info,
-    write_results_from_template,
-)
-from IonInspector.reports.diagnostics.common.quantum_data_source import (
-    inject_quant_data_source,
-)
-from IonInspector.reports.diagnostics.Purification_Quant_Summary.pure_utility import (
-    find_purification_files,
-)
+from reports.diagnostics.common.inspector_utils import print_info
+from reports.diagnostics.common.reporting import PURIFICATION_QUANT_SUMMARY
 
 
-def execute(archive_path, output_path, _archive_type):
-    files_config = find_purification_files(archive_path)
-    quant_source = inject_quant_data_source(files_config)
-    write_results_from_template(
-        {
-            "header_data": quant_source.quant_header_record.to_html(
-                bold_rows=True,
-                classes="header-table table table-bordered table-sm",
-                header=False,
-                columns=["value"],
-                justify="left",
-                col_space=400,
-                index_names=False,
-            ),
-            "quant_data": quant_source.quant_samples_table.to_html(
-                justify="center",
-                bold_rows=False,
-                header=True,
-                index=False,
-                classes="quant-table card-body table table-bordered table-striped",
-                columns=[
-                    "Sample Plate  Well",
-                    "Well Name",
-                    "Archive Plate Well",
-                    "Creation Date",
-                    "Type",
-                    "Concentration",
-                ],
-            ),
-        },
-        output_path,
-        os.path.dirname(os.path.realpath(__file__)),
+def execute(archive_path, output_path, archive_type):
+    from reports.diagnostics.di.instrument_types import get_instrument_type_container
+
+    # TOOO: Apply configurable properties while loading container instead of
+    #       repeating it in each test
+    instrument_container = get_instrument_type_container(archive_type)
+    instrument_container.config.purification.gap_tolerance.from_value(30)
+    instrument_container.config.csa_core.archive_root.from_value(archive_path)
+    instrument_container.config.csa_core.output_directory.from_value(output_path)
+    instrument_container.config.csa_core.selected_report_name.from_value(
+        PURIFICATION_QUANT_SUMMARY
     )
-
-    return print_info("See results for details.")
+    return instrument_container.process_report()
 
 
 if __name__ == "__main__":
+    import os
+    import sys
+    from django import setup
+
+    os.environ["DJANGO_SETTINGS_MODULE"] = "settings"
+    setup()
     archive_path_arg, output_path_arg, archive_type_arg = sys.argv[1:4]
     execute(archive_path_arg, output_path_arg, archive_type_arg)

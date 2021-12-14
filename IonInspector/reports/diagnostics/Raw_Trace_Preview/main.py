@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import sys
-from IonInspector.reports.diagnostics.common.inspector_utils import *
+from reports.diagnostics.common.inspector_utils import *
 from plots.nuc_step import get_nuc_step_dygraphs_data
 from plots.key_trace import get_key_traces_dygraphs_data
 

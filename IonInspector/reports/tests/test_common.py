@@ -2,7 +2,7 @@ from django.test import SimpleTestCase
 import tarfile
 import StringIO
 import datetime
-from IonInspector.reports.diagnostics.common.inspector_utils import (
+from reports.diagnostics.common.inspector_utils import (
     parse_ts_version,
     get_xml_from_run_log,
     get_lines_from_chef_gui_logs,

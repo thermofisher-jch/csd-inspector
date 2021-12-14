@@ -4,7 +4,7 @@ import os.path
 
 from django.conf import settings
 
-from IonInspector.reports.diagnostics.common.inspector_utils import (
+from reports.diagnostics.common.inspector_utils import (
     print_failed,
     print_info,
 )

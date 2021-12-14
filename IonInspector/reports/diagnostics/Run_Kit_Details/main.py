@@ -2,7 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 import sys
-from IonInspector.reports.diagnostics.common.inspector_utils import (
+from reports.diagnostics.common.inspector_utils import (
     print_info,
     get_sequencer_kits,
 )

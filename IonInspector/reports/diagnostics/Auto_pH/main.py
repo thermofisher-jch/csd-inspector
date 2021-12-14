@@ -3,7 +3,7 @@
 import os
 import re
 import sys
-from IonInspector.reports.diagnostics.common.inspector_utils import *
+from reports.diagnostics.common.inspector_utils import *
 
 import matplotlib
 

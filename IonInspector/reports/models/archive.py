@@ -93,7 +93,7 @@ TEST_MANIFEST = {
         ("Purification_Quant_Summary", CATEGORY_SAMPLE_PREP),
         ("Purification_Run_Log", CATEGORY_SAMPLE_PREP),
         ("Purification_Reagent_Lot_Summary", CATEGORY_SAMPLE_PREP),
-        ("Experiment_Errors", CATEGORY_SAMPLE_PREP),
+        ("Purification_Logged_Errors", CATEGORY_SAMPLE_PREP),
         # ("Genexus_Library_Prep_Log", CATEGORY_LIBRARY_PREP),
         # ("Genexus_Library_Details", CATEGORY_LIBRARY_PREP),
         # ("Genexus_Vacuum_Log", CATEGORY_LIBRARY_PREP),
@@ -127,9 +127,13 @@ TEST_MANIFEST = {
         ("Run_Sequence_Details", CATEGORY_SEQUENCING),
     ],
     VALK: [
-        ("Genexus_Vacuum_Log", CATEGORY_SAMPLE_PREP),
-        ("Genexus_Library_Prep_Log", CATEGORY_SAMPLE_PREP),
-        ("Genexus_Library_Details", CATEGORY_SAMPLE_PREP),
+        ("Genexus_Vacuum_Log", CATEGORY_LIBRARY_PREP),
+        ("Genexus_Library_Prep_Log", CATEGORY_LIBRARY_PREP),
+        ("Genexus_Library_Details", CATEGORY_LIBRARY_PREP),
+        ("Purification_Quant_Summary", CATEGORY_SAMPLE_PREP),
+        ("Purification_Run_Log", CATEGORY_SAMPLE_PREP),
+        ("Purification_Reagent_Lot_Summary", CATEGORY_SAMPLE_PREP),
+        ("Purification_Logged_Errors", CATEGORY_SAMPLE_PREP),
         ("Genexus_QC_Status", CATEGORY_SEQUENCING),
         ("Genexus_Raw_Trace", CATEGORY_SEQUENCING),
         ("Genexus_Instrument_Status", CATEGORY_SEQUENCING),
@@ -362,7 +366,7 @@ class Archive(models.Model):
             [
                 "chmod",
                 "-R",
-                "u=r,u+w,u-x,g=r,g+w,g-x,g+s,o-r,o-w,o-x,a+X",
+                "u=r,u+w,u-x,g=r,g+w,g-x,g+s,o+r,o-w,o-x,a+X",
                 self.archive_root,
             ]
         )

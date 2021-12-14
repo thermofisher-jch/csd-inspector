@@ -3,7 +3,7 @@
 import csv
 import sys
 import os.path
-from IonInspector.reports.diagnostics.common.inspector_utils import *
+from reports.diagnostics.common.inspector_utils import *
 
 COLUMN_HEADER = "Sample Pump Status"
 
@@ -56,7 +56,7 @@ def execute(archive_path, output_path, archive_type):
         return print_ok("")
     else:
         return print_alert(
-            "<br/>\n".join("%s: %s" % (error_codes[e]) for e in sorted(errors))
+            "<br/>\n".join("%s: %s" % (e, error_codes[e]) for e in sorted(errors))
         )
 
 

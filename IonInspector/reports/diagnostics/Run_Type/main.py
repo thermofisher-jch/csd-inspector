@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from IonInspector.reports.diagnostics.common.inspector_utils import (
+from reports.diagnostics.common.inspector_utils import (
     read_explog,
     shutil,
     os,

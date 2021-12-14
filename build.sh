@@ -12,6 +12,7 @@ project_namespace=""
 image_name=""
 extra_tags_arg="latest"
 image_tag="$(whoami)-$(date +%Y%m%d_%H%M%S)"
+add_local_dev=0
 add_latest=0
 add_githash=0
 
@@ -27,17 +28,19 @@ print_usage() {
     echo "  -i <image_name>: Name of image, relative to project namespace.  Required"
     echo "  -n <project_namespace>: Project namespace image is tagged under.  Optional."
     echo "  -t <image_tags>: Comma separated addtional tags.  Defaults to 'latest'"
+    echo "  -D : Shorthand to add 'local-dev' tag"
     echo "  -L : Shorthand to add 'latest' tag"
     echo "  -G : Add git commit hash tag"
 }
 
-while getopts 'c:f:i:n:t:LGh:' flag; do
+while getopts 'c:f:i:n:t:DLGh:' flag; do
     case "${flag}" in
     c) readonly build_context_arg="${OPTARG}" ;;
     f) readonly dockerfile_path_arg="${OPTARG}" ;;
     i) readonly image_name="${OPTARG}" ;;
     n) readonly project_namespace="${OPTARG}" ;;
     t) readonly extra_tags_arg="${OPTARG}" ;;
+    D) readonly add_local_dev=1 ;;
     L) readonly add_latest=1 ;;
     G) readonly add_githash=1 ;;
     h)
@@ -83,9 +86,9 @@ if [[ ! -f "${dockerfile_path}" ]]; then
     print_usage
     exit 1
 fi
-if [[ ! "${extra_tags_arg}" ]]; then
-    readonly extra_tags=latest
-fi
+# if [[ ! "${extra_tags_arg}" ]]; then
+#     readonly extra_tags=local-dev
+# fi
 
 
 if [[ ! ${project_namespace} ]]; then
@@ -102,18 +105,16 @@ if command -v buildah > /dev/null; then
     # image inside another image.
     # buildah login --username ${username} --password "$(oc whoami -t)" "${IMAGE_REGISTRY}"
     buildah build --tag "${full_tagged_name}" -f "${dockerfile_path}" "$@" "${build_context}/."
-    buildah push "${full_tagged_name}"
+    # buildah push "${full_tagged_name}"
     build_cmd="buildah"
 else
     # docker login --username ${username} --password "${password}" "${IMAGE_REGISTRY}"
     docker build --tag "${full_tagged_name}" -f "${dockerfile_path}" "$@" "${build_context}/."
-    docker push "${full_tagged_name}"
+    # docker push "${full_tagged_name}"
     build_cmd="docker"
 fi
 
-IFS=","
-
-read -ra arr <<< "${extra_tags}"
+IFS="," read -ra arr <<< "${extra_tags}"
 
 # Print each value of the array by using the loop
 for extra_tag in "${arr[@]}";
@@ -121,21 +122,25 @@ do
 	echo "Adding ${extra_tag} tag"
 
 	${build_cmd} tag "${full_tagged_name}" "${full_untagged_name}:${extra_tag}"
-	${build_cmd} push "${full_untagged_name}:${extra_tag}"
+	# ${build_cmd} push "${full_untagged_name}:${extra_tag}"
 
 	if [[ "x${extra_tag}" == "xlatest" ]]; then
 		add_latest=0
 	fi
 done
 
+if [[ ${add_local_dev} -eq 1 ]]; then
+	echo "Adding local-dev tag"
+
+	${build_cmd} tag "${full_tagged_name}" "${full_untagged_name}:local-dev"
+fi
+
 if [[ ${add_latest} -eq 1 ]]; then
 	echo "Adding latest tag"
 
 	${build_cmd} tag "${full_tagged_name}" "${full_untagged_name}:latest"
-	${build_cmd} push "${full_untagged_name}:latest"
+	# ${build_cmd} push "${full_untagged_name}:latest"
 fi
-
-echo "Check ${add_githash}"
 
 if [[ ${add_githash} -eq 1 ]]; then
 	githash=$(git rev-parse --short --verify HEAD)
@@ -143,7 +148,7 @@ if [[ ${add_githash} -eq 1 ]]; then
 	echo "Adding ${extra_tag} tag"
 
 	${build_cmd} tag "${full_tagged_name}" "${full_untagged_name}:${extra_tag}"
-	${build_cmd} push "${full_untagged_name}:${extra_tag}"
+	# ${build_cmd} push "${full_untagged_name}:${extra_tag}"
 fi
 	
 echo "Done!"

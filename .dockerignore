@@ -13,3 +13,4 @@ docker-compose*
 .*.sw*
 .local
 .vagrant
+.venv

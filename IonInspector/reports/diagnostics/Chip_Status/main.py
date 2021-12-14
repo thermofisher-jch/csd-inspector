@@ -6,7 +6,7 @@ import os
 import shutil
 import glob
 import json
-from IonInspector.reports.diagnostics.common.inspector_utils import (
+from reports.diagnostics.common.inspector_utils import (
     read_explog,
     check_supported,
     get_chip_type_from_exp_log,
@@ -17,7 +17,7 @@ from IonInspector.reports.diagnostics.common.inspector_utils import (
     read_ionstats_basecaller_json,
     format_reads,
 )
-from IonInspector.reports.diagnostics.common.inspector_errors import FileNotFoundError
+from reports.diagnostics.common.inspector_errors import FileNotFoundError
 
 REPORT_LEVEL_INFO = 0
 REPORT_LEVEL_WARN = 1

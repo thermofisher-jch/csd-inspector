@@ -5,7 +5,7 @@ import sys
 import json
 import ConfigParser
 
-from IonInspector.reports.diagnostics.common.inspector_utils import (
+from reports.diagnostics.common.inspector_utils import (
     write_results_from_template,
     print_info,
     print_warning,

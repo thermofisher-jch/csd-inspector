@@ -3,7 +3,7 @@
 import semver
 import sys
 import os.path
-from IonInspector.reports.diagnostics.common.inspector_utils import *
+from reports.diagnostics.common.inspector_utils import *
 from math import floor
 
 

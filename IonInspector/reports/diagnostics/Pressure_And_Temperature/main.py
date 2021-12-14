@@ -5,7 +5,7 @@ import json
 import os
 import sys
 
-from IonInspector.reports.diagnostics.common.inspector_utils import (
+from reports.diagnostics.common.inspector_utils import (
     write_results_from_template,
     read_explog,
     get_explog_path,

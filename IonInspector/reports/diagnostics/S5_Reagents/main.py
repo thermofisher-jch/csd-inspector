@@ -3,7 +3,7 @@
 import sys
 from datetime import datetime, date
 
-from IonInspector.reports.diagnostics.common.inspector_utils import *
+from reports.diagnostics.common.inspector_utils import *
 
 
 def parse_start_time(start_time_string):

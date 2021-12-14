@@ -3,6 +3,7 @@ import importlib
 import json
 import os
 import shutil
+# import traceback
 
 from cached_property import cached_property
 from django.conf import settings
@@ -13,7 +14,10 @@ from django.dispatch import receiver
 
 from django.utils import timezone
 
-from reports.diagnostics.common.inspector_utils import write_error_html
+from reports.diagnostics.common.inspector_utils import (
+    write_error_html,
+    write_uncaught_error,
+)
 from reports.values import (
     CATEGORY_SEQUENCING,
     DIAGNOSTIC_STATUSES,
@@ -125,6 +129,13 @@ class Diagnostic(models.Model):
 
         except Exception as exc:
             self.details = str(exc)
+            # traceback.print_exc()
+            # trace = traceback.format_exc()
+            # write_uncaught_error(self.diagnostic_root, trace)
+            # if len(trace) > 500:
+            #      # Trim to fit by cutting out the middle part of stack trace--most value is at the head and tail...
+            #     trace = trace[:120] + "\n...\n" + trace[-375:]
+            # self.details = "<pre>" + trace + "</pre>"
             # record the exception in the details and rely on the finally statement to call save
             write_error_html(self.diagnostic_root)
             self.status = FAILED

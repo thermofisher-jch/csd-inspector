@@ -4,15 +4,15 @@
     <head>
         <link href="https://fonts.googleapis.com/css?family=Montserrat:500,700" rel="stylesheet" type="text/css">
 
-	<link href="{% static 'vendor/Bootstrap-4.6.0/css/bootstrap.min.css' %}" rel="stylesheet"/>
+        <link href="{% static 'vendor/Bootstrap-4.6.0/css/bootstrap.min.css' %}" rel="stylesheet"/>
         <link href="{% static 'vendor/Bootstrap-4.6.0/css/bootstrap-grid.min.css' %}" rel="stylesheet"/>
         <link href="{% static 'vendor/Bootstrap-4.6.0/css/bootstrap-reboot.min.css' %}" rel="stylesheet"/>
         <link href="{% static 'vendor/Dygraph-2.1.0/css/dygraph.min.css' %}" rel="stylesheet"/>
 
-	<script src="{% static 'vendor/jQuery-3.3.1/jquery-3.3.1.min.js' %}"></script>
-	<script src="{% static 'vendor/Bootstrap-4.6.0/js/bootstrap.bundle.min.js' %}"></script>
-	<script src="{% static 'vendor/Dygraph-2.1.0/js/dygraph.min.js' %}"></script>
-	<script src="{% static 'vendor/Moment-2.29.1/js/moment.min.js' %}"></script>
+        <script src="{% static 'vendor/jQuery-3.3.1/jquery-3.3.1.min.js' %}"></script>
+        <script src="{% static 'vendor/Bootstrap-4.6.0/js/bootstrap.bundle.min.js' %}"></script>
+        <script src="{% static 'vendor/Dygraph-2.1.0/js/dygraph.min.js' %}"></script>
+        <script src="{% static 'vendor/Moment-2.29.1/js/moment.min.js' %}"></script>
 
         <style>
             body {
@@ -70,7 +70,7 @@
             }
 
             .chart-legend, .chart-sublegend {;
-                color: #FFFFFF;
+                color: #F1FEFA;
                 white-space: nowrap;
                 font-weight: 500;
                 font-size: 12px;
@@ -87,7 +87,7 @@
                 font-style: italic;
                 border: 2px solid #E0B050;
                 border-radius: 4px;
-                background-color: #010101;
+                background-color: #000804;
             }
 
             .chart-legend-item {
@@ -130,12 +130,22 @@
     <body>
     <div class="container-fluid">
         <h1 class="lead">Purification Run Log</h1>
-    {% for chart in charts %}
+{% for instance in instances %}
+    {% if not forloop.first %}
         <br>
+    {% endif %}
+    {% if instances|length > 1 %}
+        <h2 class="lead">{{ instance.title }}</h2>
+    {%  endif %}
+    {% for chart in instance.charts %}
+        {%  if instances|length > 1 %}
+        <h4 class="lead">{{ chart.title }} for {{ instance.title }}</h4>
+        {%  else %}
         <h4 class="lead">{{ chart.title }}</h4>
-        <div id="{{ chart.id_prefix }}-container" class="chart-container flex-row flex-wrap flex-md-nowrap">
+        {%  endif %}
+        <div id="{{ chart.id_prefix }}-{{ instance.instance_label }}-container" class="chart-container flex-row flex-wrap flex-md-nowrap">
             <div class="chart-left-side">
-                <div id="{{ chart.id_prefix }}-graph" class="chart-graph">
+                <div id="{{ chart.id_prefix }}-{{ instance.instance_label }}-graph" class="chart-graph">
                     <h3 class="chart-loading lead text-muted">Loading Data</h3>
                 </div>
                 <div class="chart-usage text-center text-muted">
@@ -145,17 +155,18 @@
                 </div>
             </div>
             <div class="chart-right-side">
-                <div id="{{ chart.id_prefix }}-legend" class="chart-legend"></div>
+                <div id="{{ chart.id_prefix }}-{{ instance.instance_label }}-legend" class="chart-legend"></div>
                 <div class="chart-sublegend">
                     <h4 class="lead d-none d-md-block">Options</h4>
                     <h4 class="lead d-md-none" style="margin-right: 100vw">Options</h4>
-                    <input id="{{ chart.id_prefix }}-interpol-toggle" type="checkbox"
-                           onchange="$('#{{ chart.id_prefix }}-graph').data('dygraph').updateOptions({'connectSeparatedPoints': $(this).is(':checked') });">
+                    <input id="{{ chart.id_prefix }}-{{ instance.instance_label }}-interpol-toggle" type="checkbox"
+                           onchange="$('#{{ chart.id_prefix }}-{{ instance.instance_label }}-graph').data('dygraph').updateOptions({'connectSeparatedPoints': $(this).is(':checked') });">
                     <label for="{{ chart.id_prefix }}-interpol-toggle" data-toggle="tooltip" data-placement="left" title="Interpolation draws estimated lines between neighboring measurements separated by more than {{ gap_tolerance }} seconds.">Enable Gap Interpolation</label>
                 </div>
             </div>
         </div>
     {% endfor %}
+{% endfor %}
     </div>
     <script type="text/javascript">
         const LEGEND_HEADER =
@@ -305,15 +316,17 @@
         }
 
 {% autoescape off %}
-    {% for chart in charts %}
-        initGraph(
-            {{ chart.height }},
-            {{ chart.colors }},
-            document.getElementById("{{ chart.id_prefix }}-graph"),
-            document.getElementById("{{ chart.id_prefix }}-legend"),
-            {{ time_zero }},
-            {{ chart.raw_data }}
-        );
+    {% for instance in instances %}
+        {% for chart in instance.charts %}
+            initGraph(
+                {{ chart.height }},
+                {{ chart.colors }},
+                document.getElementById("{{ chart.id_prefix }}-{{ instance.instance_label }}-graph"),
+                document.getElementById("{{ chart.id_prefix }}-{{ instance.instance_label }}-legend"),
+                {{ instance.time_zero }},
+                {{ chart.raw_data }}
+            );
+        {% endfor %}
     {% endfor %}
 {% endautoescape %}
     </script>

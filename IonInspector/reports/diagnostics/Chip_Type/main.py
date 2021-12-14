@@ -5,7 +5,7 @@ from datetime import date
 
 from dateutil.parser import parse
 
-from IonInspector.reports.diagnostics.common.inspector_utils import (
+from reports.diagnostics.common.inspector_utils import (
     print_alert,
     print_info,
     read_explog,

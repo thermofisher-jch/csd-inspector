@@ -1,0 +1,23 @@
+{# Mean for rendering from inside a client_table_deck template, having received #}
+{# id_prefix, table_label, table_html, and column_labels, set as context via `with` #}
+{# before including this template #}
+<div id="{{ id_prefix }}-card" class="card card-default">
+    <div class="card-header text-center lead">{{ card_label }}</div>
+    <div class="card-body">{{ table_html | safe }}</div>
+</div>
+<script>
+    $(document).ready(function () {
+        const dataTable = $('#{{id_prefix}}-card table').DataTable({
+            columns: [
+                {% for label in column_labels %}
+                    {title: "{{label}}"},
+                {% endfor %}
+            ],
+            "paging": false,
+            "ordering": false,
+            "info": false,
+            "filtering": false,
+            "searching": false,
+        });
+    });
+</script>

@@ -2,7 +2,7 @@
 
 from django.template import Context, Template
 import json
-from IonInspector.reports.diagnostics.common.inspector_utils import *
+from reports.diagnostics.common.inspector_utils import *
 import numpy as np
 import os
 import re

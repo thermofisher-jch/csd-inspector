@@ -3,7 +3,7 @@
 import json
 import os.path
 
-from IonInspector.reports.diagnostics.common.inspector_utils import (
+from reports.diagnostics.common.inspector_utils import (
     print_failed,
     print_info,
     write_results_from_template,

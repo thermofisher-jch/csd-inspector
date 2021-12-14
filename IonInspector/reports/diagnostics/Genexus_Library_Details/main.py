@@ -2,7 +2,7 @@
 import os
 import json
 import ast
-from IonInspector.reports.diagnostics.common.inspector_utils import (
+from reports.diagnostics.common.inspector_utils import (
     print_info,
     write_results_from_template,
 )

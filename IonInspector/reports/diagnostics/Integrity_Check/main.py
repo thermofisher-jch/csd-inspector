@@ -8,7 +8,7 @@ import traceback
 import xml.etree.ElementTree
 import xml.parsers.expat
 
-from IonInspector.reports.diagnostics.common.inspector_utils import *
+from reports.diagnostics.common.inspector_utils import *
 
 
 def execute(archive_path, output_path, archive_type):

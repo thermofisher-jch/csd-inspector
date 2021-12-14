@@ -33,6 +33,7 @@ services:
     volumes:
       - /mnt/raid/inspector/media:/var/lib/inspector/media
       - /var/lib/inspector/nginxTemp:/var/lib/inspector/nginxTemp
+      - /var/lib/inspector/versions/${VERSION}:/var/lib/inspector/version
       - /var/log/inspector:/var/log/inspector
 
   nginx:

@@ -27,6 +27,7 @@ python-django-filters \
 python-django-crispy-forms \
 python-cached-property \
 python-dateutil \
+python-functools32 \
 python-magic \
 python-lzma \
 python-pandas \
@@ -44,8 +45,9 @@ RUN echo 'root:ionadmin' | chpasswd
 RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 
 # install R deps
-RUN Rscript -e "source('http://bioconductor.org/biocLite.R')"
-RUN Rscript -e "library(BiocInstaller); biocLite('rhdf5')"
+RUN Rscript -e "source('http://bioconductor.org/biocLite.R')" \
+ && Rscript -e "library(BiocInstaller); biocLite('rhdf5')" \
+ && pip install 'dependency-injector>=4.0,<5.0'
 
 # setup variables
 ENV PROJECT_DIR /opt/inspector

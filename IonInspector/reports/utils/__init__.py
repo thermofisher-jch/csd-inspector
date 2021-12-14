@@ -1,3 +1,5 @@
+import shutil
+
 from django.db.models import Func
 from django.http import HttpRequest
 import logging
@@ -37,7 +39,12 @@ def get_serialized_model(model, resource):
 
 def force_symlink(source, link):
     if os.path.exists(link):
-        os.remove(link)
+        if os.path.islink(link):
+            os.unlink(link)
+        elif os.path.isfile(link):
+            os.remove(link)
+        else:
+            shutil.rmtree(link)
     os.symlink(source, link)
 
 

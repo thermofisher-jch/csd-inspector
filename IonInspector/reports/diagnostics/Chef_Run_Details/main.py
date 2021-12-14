@@ -5,7 +5,7 @@ import glob
 import csv
 
 
-from IonInspector.reports.diagnostics.common.inspector_utils import *
+from reports.diagnostics.common.inspector_utils import *
 from reports.diagnostics.common.inspector_utils import parse_run_date_from_xml_path
 
 RUN_TYPES = {

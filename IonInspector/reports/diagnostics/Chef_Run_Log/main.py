@@ -5,7 +5,7 @@ import os
 import json
 import glob
 
-from IonInspector.reports.diagnostics.common.inspector_utils import (
+from reports.diagnostics.common.inspector_utils import (
     print_alert,
     print_info,
     print_warning,
