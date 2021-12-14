@@ -62,7 +62,17 @@ Or run these commands:
 
 ## Deployment
 
-Commit and push your changes to this repository.
+Commit and push your changes to this repository, then create a tag 
+marking the commit point with the desired deployment state.  Tags
+are expected to embed a semantic version tag formatted as follows.
+Pay close attention to use of punctuation and digits.
+
+   release-<MAJOR>.<MINOR>.<PATCH>
+
+For a pre-release test candidate, use:
+
+   release-<MAJOR>.<MINOR>.<PATCH>-rc.<RCNUM>
+
 
 ### To Staging (inspector.sigproc.itw)
 
