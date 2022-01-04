@@ -14,8 +14,6 @@ def get_ot_tags(archive_path):
 
     tags.append(script_tag)
 
-    # One Touch does not have explog, so instead of finding a serial number this just adds a search tag
-    # with the error message stating that no explog.txt file has been found.
-    # tags.append(get_serial_no(archive_path))
+    tags.append(get_serial_no(archive_path))
 
     return tags
