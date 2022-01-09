@@ -114,7 +114,7 @@ else
     build_cmd="docker"
 fi
 
-IFS="," read -ra arr <<< "${extra_tags}"
+IFS="," read -ra arr <<< "${extra_tags_arg}"
 
 # Print each value of the array by using the loop
 for extra_tag in "${arr[@]}";
