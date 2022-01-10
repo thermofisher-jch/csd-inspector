@@ -104,12 +104,12 @@ if command -v buildah > /dev/null; then
     # Jenkins uses buildah instead of docker because of the complexity of building an
     # image inside another image.
     # buildah login --username ${username} --password "$(oc whoami -t)" "${IMAGE_REGISTRY}"
-    buildah build --tag "${full_tagged_name}" -f "${dockerfile_path}" "$@" "${build_context}/."
+    buildah build --tag "${full_tagged_name}" --build-arg BUILDKIT_INLINE_CACHE=1 -f "${dockerfile_path}" "$@" "${build_context}/."
     # buildah push "${full_tagged_name}"
     build_cmd="buildah"
 else
     # docker login --username ${username} --password "${password}" "${IMAGE_REGISTRY}"
-    docker build --tag "${full_tagged_name}" -f "${dockerfile_path}" "$@" "${build_context}/."
+    docker build --tag "${full_tagged_name}" --build-arg BUILDKIT_INLINE_CACHE=1 -f "${dockerfile_path}" "$@" "${build_context}/."
     # docker push "${full_tagged_name}"
     build_cmd="docker"
 fi
