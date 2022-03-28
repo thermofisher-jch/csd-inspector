@@ -148,6 +148,7 @@ TEST_MANIFEST = {
         ("Run_Sequence_Details", CATEGORY_SEQUENCING),
         ("Run_Type", CATEGORY_SEQUENCING),
         ("Genexus_Reagent_Lot_Summary", CATEGORY_SEQUENCING),
+        ("Genexus_TroubleShooter", CATEGORY_SEQUENCING),
     ],
     OT_LOG: [
         ("OT_Plots", CATEGORY_SAMPLE_PREP),

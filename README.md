@@ -33,23 +33,22 @@ On your (dev) machine:
 
 ## Development
 
-Run `fab dev` from this directory. See [fabfile.py]().
+To setup:
+   mkdir -p .local/celery .local/media .local/logs/inspector .local/postgresql_log
+chmod -R 777 .local
 
-Or run this script with Python 3.4+. See [setup_dev_environment.py]() for more details.
+To build:
+   Run docker-compose build
 
-    python3 setup_dev_environment.py
-    docker-compose build
-    docker-compose up
+To run:
+   Run docker-compose up
 
 The inspector should be running at http://localhost:8090/. See [docker-compose.override.yml]()
 
 
 ## Tests
 
-* Run all tests with `fab test` from this directory.
-* Run one test with `fab test:IonInspector.reports.tests.test_Chef_Kit_Details.ChefChipTestCase` from this directory.
-
-Or run these commands:
+run these commands:
 
     # running all tests
     docker-compose run django python manage.py test --noinput --parallel
