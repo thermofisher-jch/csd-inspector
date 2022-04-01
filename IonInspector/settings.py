@@ -87,7 +87,6 @@ LOGGING = {
         "console": {
             "level": {True: "DEBUG", False: "INFO"}[DEBUG],
             "class": "logging.StreamHandler",
-            "stream": "sys.stdout",
         },
         "file": {
             "level": {True: "DEBUG", False: "INFO"}[DEBUG],

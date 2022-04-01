@@ -437,9 +437,7 @@ class Archive(models.Model):
                     report_pdf = None
                     break
         if report_pdf is not None:
-            logger.info(
-                "{} contained a run report PDF to symlink".format(self.doc_file.path)
-            )
+            logger.info(self.doc_file.path + " contained a run report PDF to symlink")
             try:
                 force_symlink(
                     report_pdf, os.path.join(self.archive_root, RUN_REPORT_PDF)
@@ -447,11 +445,10 @@ class Archive(models.Model):
             except OSError as exp:
                 # Don't fail archive import just because we failed to link
                 # its report PDF.
-                logger.exception(
+                logger.debug(
                     "Failed to symlink report PDF {} at well-known path".format(
                         report_pdf
-                    ),
-                    exc_info=exp,
+                    )
                 )
 
     def check_for_nested_packing(self, file_path, previous_archives):
