@@ -1,5 +1,5 @@
-import os.path
 from IonInspector import settings
+from os.path import abspath, join
 
 CATEGORY_SEQUENCING = "SEQ"
 CATEGORY_SAMPLE_PREP = "PRE"
@@ -155,6 +155,4 @@ NOT_RUN_REPORT_LINK_TARGETS = {
 }
 
 NO_BEAD_IMAGE_URL = "static/img/no-bead-density-found.png"
-NO_BEAD_IMAGE_FILE = os.path.join(
-    os.path.realpath(settings.BASE_DIR), NO_BEAD_IMAGE_URL
-)
+NO_BEAD_IMAGE_FILE = join(abspath(settings.BASE_DIR), NO_BEAD_IMAGE_URL)
