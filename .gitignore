@@ -15,3 +15,6 @@ media/archive_files
 local_settings.py
 requirements.txt
 Pipfile.lock
+.vscode/
+.history/
+devfile.yaml

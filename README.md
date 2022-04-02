@@ -43,7 +43,7 @@ To build:
 To run:
    Run docker-compose up
 
-The inspector should be running at http://localhost:8090/. See [docker-compose.override.yml]()
+The inspector should be running at http://localhost:8080/. See [docker-compose.override.yml]()
 
 
 ## Tests

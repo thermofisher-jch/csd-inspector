@@ -14,20 +14,19 @@ from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from django.urls import reverse
 
-from celeryconfig import celery_app
-from reports.diagnostics.common.inspector_utils import (
+from IonInspector.celeryconfig import celery_app
+from IonInspector.reports.diagnostics.common.inspector_utils import (
     read_explog,
     get_platform_and_systemtype,
 )
-from .diagnostic import Diagnostic
-from reports.utils import (
+from IonInspector.reports.utils import (
     force_symlink,
-    get_file_path,
-    UnusableArchiveError,
     is_likely_tar_file,
     ensure_all_diagnostics_namespace,
+    ArchiveWorkspaceError,
 )
-from reports.values import (
+from reports.utils import get_file_path
+from IonInspector.reports.values import (
     ARCHIVE_TYPES,
     CATEGORY_LIBRARY_PREP,
     CATEGORY_SEQUENCING,
@@ -45,14 +44,15 @@ from reports.values import (
     WELL_KNOWN_ARCHIVE,
     NOT_RUN_REPORT_LINK_TARGETS,
 )
+from IonInspector.reports.tags.chef import get_chef_tags
+from IonInspector.reports.tags.pgm import get_pgm_tags
+from IonInspector.reports.tags.proton import get_proton_tags
+from IonInspector.reports.tags.purification import get_pure_tags
+from IonInspector.reports.tags.s5 import get_s5_tags
+from IonInspector.reports.tags.ot import get_ot_tags
+from IonInspector.reports.tags.valkyrie import get_valk_tags
 
-from reports.tags.chef import get_chef_tags
-from reports.tags.pgm import get_pgm_tags
-from reports.tags.proton import get_proton_tags
-from reports.tags.purification import get_pure_tags
-from reports.tags.s5 import get_s5_tags
-from reports.tags.ot import get_ot_tags
-from reports.tags.valkyrie import get_valk_tags
+from .diagnostic import Diagnostic
 
 # check to see if the settings are configured
 if not settings.configured:
@@ -170,17 +170,6 @@ TEST_MANIFEST = {
 }
 
 
-class ArchiveManager(models.Manager):
-    def get_queryset(self):
-        return ArchiveQuerySet(model=self.model, using=self._db, hints=self._hints)
-
-    def with_serial_number(self):
-        return self.get_queryset().with_serial_number()
-
-    def with_taser_ticket_url(self):
-        return self.get_queryset().with_taser_ticket_url()
-
-
 class ArchiveQuerySet(models.QuerySet):
     def with_serial_number(self):
         return self.annotate(
@@ -200,6 +189,18 @@ class ArchiveQuerySet(models.QuerySet):
                 output_field=CharField(max_length=255),
             )
         )
+
+
+class ArchiveManager(models.Manager.from_queryset(ArchiveQuerySet)):
+    pass
+    # def get_queryset(self):
+    #     return ArchiveQuerySet(model=self.model, using=self._db, hints=self._hints)
+    #
+    # def with_serial_number(self):
+    #     return self.get_queryset().with_serial_number()
+    #
+    # def with_taser_ticket_url(self):
+    #     return self.get_queryset().with_taser_ticket_url()
 
 
 class Archive(models.Model):
@@ -444,7 +445,7 @@ class Archive(models.Model):
                     report_pdf, os.path.join(self.archive_root, RUN_REPORT_PDF)
                 )
             except OSError as exp:
-                # Don't fail archive import just beccause we failed to link
+                # Don't fail archive import just because we failed to link
                 # its report PDF.
                 logger.exception(
                     "Failed to symlink report PDF {} at well-known path".format(

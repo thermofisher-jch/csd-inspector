@@ -8,7 +8,6 @@ import os
 from IonInspector import settings
 from reports.values import (
     DIAGNOSTICS_NAMESPACE_ROOT,
-    GENEXUS_INSTRUMENT_TRACKER_DIAGNOSTIC_NAME,
     DIAGNOSTICS_ROOT_ROLE,
 )
 
@@ -54,7 +53,7 @@ def _check_for_workspace_dir(dir_path, role_label):
     or when its diagnostic suite is re-evaluated at bootstrap, this method exists to re-assert
     constraints expected of such directories.  It raises or reports discrepancies, but does not
     attempt to correct them itself so that task is entirely managed by code designed to be used
-    for that specific funcitonal role.
+    for that specific functional role.
     """
     if not os.path.exists(dir_path):
         raise ArchiveWorkspaceError(

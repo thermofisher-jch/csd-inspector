@@ -26,7 +26,7 @@ SECRET_KEY = os.getenv(
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = os.getenv(
-    "ALLOWED_HOSTS", "" if DEBUG else "localhost,127.0.0.1"
+    "ALLOWED_HOSTS", "localhost,127.0.0.1,.ngrok.io,.itw" if DEBUG else ""
 ).split(",")
 ALLOWED_HOSTS = [] if not any(ALLOWED_HOSTS) else ALLOWED_HOSTS
 
@@ -71,7 +71,7 @@ DATABASES = {
         "USER": os.getenv("DATABASE_USERNAME", "docker"),
         "PASSWORD": os.getenv("DATABASE_PASSWORD", "docker"),
         "HOST": "postgres",
-        "PORT": "",
+        "PORT": "5432",
     }
 }
 
@@ -84,16 +84,21 @@ LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "handlers": {
+        "console": {
+            "level": {True: "DEBUG", False: "INFO"}[DEBUG],
+            "class": "logging.StreamHandler",
+            "stream": "sys.stdout",
+        },
         "file": {
-            "level": "DEBUG",
+            "level": {True: "DEBUG", False: "INFO"}[DEBUG],
             "class": "logging.FileHandler",
             "filename": "/var/log/inspector/django.log",
         },
     },
     "loggers": {
         "": {
-            "handlers": ["file"],
-            "level": "INFO",
+            "handlers": ["console"],
+            "level": {True: "DEBUG", False: "INFO"}[DEBUG],
             "propagate": True,
         },
     },
@@ -166,7 +171,7 @@ CELERY_RESULT_SERIALIZER = "pickle"
 SITE_ROOT = os.path.dirname(os.path.dirname(__file__))
 
 
-VERSION = "1.8.2"
+VERSION = "1.9.0-rc.1"
 try:
     # Allows contextual override of displayed version tag
     with open("/var/lib/inspector/version", "r") as fd:

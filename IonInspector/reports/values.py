@@ -1,3 +1,6 @@
+import os.path
+from IonInspector import settings
+
 CATEGORY_SEQUENCING = "SEQ"
 CATEGORY_SAMPLE_PREP = "PRE"
 CATEGORY_LIBRARY_PREP = "LIB"
@@ -137,10 +140,21 @@ LANE_META_OBJECTS = [
 DIAGNOSTICS_ROOT_ROLE = "Diagnostics Root Namespace"
 DIAGNOSTICS_NAMESPACE_ROOT = "test_results"
 GENEXUS_INSTRUMENT_TRACKER_DIAGNOSTIC_NAME = "GenexusInstrumentTracker"
+GENEXUS_LANE_ACTIVITY_DIAGNOSTIC_NAME = "Genexus_Lane_Activity"
 BEAD_DENSITY_FILE_NAME = "Bead_density_1000.png"
 
 WELL_KNOWN_ARCHIVE = ".inner_archive.tgz"
 AMBIGUOUS_MARKER = "AmBiguOus.zzz"
 PLANNED_RUN_AUDIT_TRAIL_PDF = "PlannedRun-AuditTrail.pdf"
 RUN_REPORT_PDF = "report.pdf"
-NOT_RUN_REPORT_LINK_TARGETS = {PLANNED_RUN_AUDIT_TRAIL_PDF, RUN_REPORT_PDF}
+FULL_REPORT_PDF = "full_report.pdf"
+NOT_RUN_REPORT_LINK_TARGETS = {
+    PLANNED_RUN_AUDIT_TRAIL_PDF,
+    RUN_REPORT_PDF,
+    FULL_REPORT_PDF,
+}
+
+NO_BEAD_IMAGE_URL = "static/img/no-bead-density-found.png"
+NO_BEAD_IMAGE_FILE = os.path.join(
+    os.path.realpath(settings.BASE_DIR), NO_BEAD_IMAGE_URL
+)

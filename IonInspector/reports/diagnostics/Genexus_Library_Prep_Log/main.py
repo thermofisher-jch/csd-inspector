@@ -99,6 +99,10 @@ TARGET_TEMP_FIELDS = [
     ["MagSepTemp", "MagSepTemp (c)", lambda x: float(x)],
     ["ReagentBayTemp1", "Zone 1+3 Temp (c)", lambda x: float(x)],
     ["ReagentBayTemp2", "Zone 2+4 Temp (c)", lambda x: float(x)],
+    ["Ambient1", "Deck Back Temp (c)", lambda x: float(x)],
+    ["Ambient2", "Deck Front Temp (c)", lambda x: float(x)],
+    ["Ambient3", "Deck Below Temp (c)", lambda x: float(x)],
+    ["BmeHumidity", "Humidity (%)", lambda x: float(x) if not x[0].isalpha() else None],
 ]
 
 TARGET_FAN_FIELDS = [

@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 
 import os
+import logging
 import shutil
 from collections import OrderedDict
 from django.conf import settings
 
-from reports.diagnostics.common.inspector_utils import (
+from IonInspector.reports.diagnostics.common.inspector_utils import (
     read_ionstats_basecaller_json,
     read_explog,
     print_info,
@@ -13,6 +14,23 @@ from reports.diagnostics.common.inspector_utils import (
     write_results_from_template,
     get_filePath,
 )
+from IonInspector.reports.values import (
+    BEAD_DENSITY_FILE_NAME,
+    NO_BEAD_IMAGE_FILE,
+    NO_BEAD_IMAGE_URL,
+)
+
+# NO_BEAD_IMAGE_URL = "static/img/no-bead-density-found.png"
+# NO_BEAD_IMAGE_FILE = os.path.normpath(
+# os.path.join(
+# os.path.dirname(
+# os.path.realpath(__file__)
+# ),
+# "../../../" + NO_BEAD_IMAGE_URL
+# )
+# )
+
+logger = logging.getLogger(__name__)
 
 
 def get_total_reads(archive_path, archive_type):
@@ -24,54 +42,66 @@ def get_total_reads(archive_path, archive_type):
 def execute(archive_path, output_path, archive_type):
     data = read_explog(archive_path)
     lanes = OrderedDict()
-    lanes["1"] = (
-        data.get("LanesActive1", "no") == "yes",
-        data.get("LanesAssay1", "Unknown"),
-    )
-    lanes["2"] = (
-        data.get("LanesActive2", "no") == "yes",
-        data.get("LanesAssay2", "Unknown"),
-    )
-    lanes["3"] = (
-        data.get("LanesActive3", "no") == "yes",
-        data.get("LanesAssay3", "Unknown"),
-    )
-    lanes["4"] = (
-        data.get("LanesActive4", "no") == "yes",
-        data.get("LanesAssay4", "Unknown"),
-    )
-
-    total_reads = get_total_reads(archive_path, archive_type)
-    active_lanes = [active for active, assay in lanes.values()].count(True)
-
-    # copy bead density
-    fileName = "Bead_density_1000.png"
-    bead_image_path = os.path.join(output_path, fileName)
-    bead_image_url = "/media/" + os.path.relpath(bead_image_path, settings.MEDIA_ROOT)
+    image_messages = []
+    bead_messages = []
     try:
-        shutil.copy(get_filePath(archive_path, fileName), bead_image_path)
-    except IOError:
-        bead_image_url = None
-        return print_failed("Could not find bead density image!")
+        lanes["1"] = (
+            data.get("LanesActive1", "no") == "yes",
+            data.get("LanesAssay1", "Unknown"),
+        )
+        lanes["2"] = (
+            data.get("LanesActive2", "no") == "yes",
+            data.get("LanesAssay2", "Unknown"),
+        )
+        lanes["3"] = (
+            data.get("LanesActive3", "no") == "yes",
+            data.get("LanesAssay3", "Unknown"),
+        )
+        lanes["4"] = (
+            data.get("LanesActive4", "no") == "yes",
+            data.get("LanesAssay4", "Unknown"),
+        )
 
-    # copy images from lane diagnostics
-    for lane_number, lane_info in lanes.items():
-        enabled, assay_name = lane_info
-        if enabled:
-            for filename in {
-                "multilane_plot_lane_{}_aligned_rl_histogram.png".format(lane_number),
-                "multilane_plot_lane_{}_q20_rl_histogram.png".format(lane_number),
-            }:
-                try:
-                    shutil.copy(
-                        os.path.join(archive_path, "Lane_Diagnostics/" + filename),
-                        os.path.join(output_path, filename),
-                    )
-                except IOError:
-                    pass
-                    # return print_failed(
-                    #     "Could not find lane diagnostics image '{}'!".format(filename)
-                    # )
+        total_reads = get_total_reads(archive_path, archive_type)
+        active_lanes = [active for active, assay in lanes.values()].count(True)
+
+        # copy images from lane diagnostics
+        for lane_number, lane_info in lanes.items():
+            enabled, assay_name = lane_info
+            if enabled:
+                for filename in {
+                    "multilane_plot_lane_{}_aligned_rl_histogram.png".format(
+                        lane_number
+                    ),
+                    "multilane_plot_lane_{}_q20_rl_histogram.png".format(lane_number),
+                }:
+                    try:
+                        shutil.copy(
+                            os.path.join(archive_path, "Lane_Diagnostics/" + filename),
+                            os.path.join(output_path, filename),
+                        )
+                    except IOError:
+                        image_messages.append("Could not find '{}'".format(filename))
+    finally:
+        # copy bead density
+        bead_image_path = os.path.join(output_path, BEAD_DENSITY_FILE_NAME)
+        bead_image_url = NO_BEAD_IMAGE_URL
+        try:
+            bead_image_found = get_filePath(archive_path, BEAD_DENSITY_FILE_NAME)
+            if bead_image_found is None:
+                bead_messages.append("Could not find bead density image!")
+                os.symlink(NO_BEAD_IMAGE_FILE, bead_image_path)
+            else:
+                bead_image_url = settings.MEDIA_URL + os.path.relpath(
+                    bead_image_path, settings.MEDIA_ROOT
+                )
+                os.symlink(bead_image_found, bead_image_path)
+        except IOError as err:
+            bead_messages.append(
+                "I/O Error accessing bead density image: " + err.message
+            )
+            bead_image_url = NO_BEAD_IMAGE_URL
+            os.symlink(NO_BEAD_IMAGE_FILE, bead_image_path)
 
     # write template
     write_results_from_template(
@@ -86,7 +116,18 @@ def execute(archive_path, output_path, archive_type):
         os.path.dirname(os.path.realpath(__file__)),
     )
 
-    message = " <br> ".join(
-        ["<strong>L{}</strong> {}".format(k, v[1]) for k, v in lanes.items() if v[0]]
-    )
+    messages = bead_messages + [
+        "<strong>L{}</strong> {}".format(k, v[1]) for k, v in lanes.items() if v[0]
+    ]
+    # image_messages
+    if len(image_messages) > 0:
+        if len(image_messages) > 1:
+            messages.append(
+                "Could not find {} diagnostic images".format(str(len(image_messages)))
+            )
+        else:
+            messages.extend(image_messages)
+    message = "<br>".join(messages)
+    if len(bead_messages) > 0:
+        return print_failed(message)
     return print_info(message)

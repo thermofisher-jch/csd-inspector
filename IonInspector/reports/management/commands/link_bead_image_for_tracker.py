@@ -14,7 +14,8 @@ from reports.utils import (
 )
 from reports.values import (
     BEAD_DENSITY_FILE_NAME,
-    GENEXUS_INSTRUMENT_TRACKER_DIAGNOSTIC_NAME,
+    GENEXUS_LANE_ACTIVITY_DIAGNOSTIC_NAME,
+    NO_BEAD_IMAGE_FILE,
 )
 
 
@@ -47,28 +48,30 @@ class Command(BaseCommand):
                     continue
 
                 print(ensure_all_diagnostics_namespace(archive_root))
-                source_file_path = get_filePath(archive_root, BEAD_DENSITY_FILE_NAME)
-                if source_file_path is None:
-                    print(
-                        "No bead density file to link for "
-                        + str(archive_id)
-                        + " in "
-                        + archive_root
-                        + "\n"
-                    )
-                    continue
-
                 tracker_namespace_root = ensure_namespace_for_diagnostic(
-                    archive_root, GENEXUS_INSTRUMENT_TRACKER_DIAGNOSTIC_NAME
+                    archive_root, GENEXUS_LANE_ACTIVITY_DIAGNOSTIC_NAME
                 )
                 tracker_image_ref = os.path.join(
                     tracker_namespace_root, BEAD_DENSITY_FILE_NAME
                 )
-                if not os.path.exists(tracker_image_ref):
+                if os.path.exists(tracker_image_ref):
+                    print(tracker_image_ref + " is already linked\n")
+                else:
+                    source_file_path = get_filePath(
+                        archive_root, BEAD_DENSITY_FILE_NAME
+                    )
+                    if source_file_path is None:
+                        print(
+                            "No bead density file to link for "
+                            + str(archive_id)
+                            + " in "
+                            + archive_root
+                            + "\n"
+                        )
+                        source_file_path = NO_BEAD_IMAGE_FILE
+
                     os.symlink(source_file_path, tracker_image_ref)
                     print(source_file_path + " linked to " + tracker_image_ref + "\n")
-                else:
-                    print(tracker_image_ref + " is already linked\n")
             except Exception as e:
                 print("Archive #{} encountered handling error:".format(archive_id))
                 traceback.print_exc()
