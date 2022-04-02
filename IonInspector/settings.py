@@ -170,7 +170,7 @@ CELERY_RESULT_SERIALIZER = "pickle"
 SITE_ROOT = os.path.dirname(os.path.dirname(__file__))
 
 
-VERSION = "1.9.0-rc.1"
+VERSION = "1.9.0-rc.2"
 try:
     # Allows contextual override of displayed version tag
     with open("/var/lib/inspector/version", "r") as fd:
