@@ -45,13 +45,15 @@ AbortedChecks[id]={"errorReason":"Chip Shuttle failed to Home",
 id="pipette 1 returned error = Maximum volume in pipetting drive reached"  # error 54
 AbortedChecks[id]={"errorReason":"Pipette 1 error detected",
                    "evidence":["Experiment Errors", "/test_results/Experiment_Errors/results.html"],
-                   "NextSteps":["Run the Pipette factory test",
+                   "NextSteps":["A replacement of the faulty pipette may be needed",
+                                "Run deck cal, chip coupler test, pipette test"
                                                           "Retry the Run"]}
 
 id="pipette 2 returned error = Maximum volume in pipetting drive reached"  # error 54
 AbortedChecks[id]={"errorReason":"Pipette 2 error detected",
                    "evidence":["Experiment Errors", "/test_results/Experiment_Errors/results.html"],
-                   "NextSteps":["Run the Pipette factory test",
+                   "NextSteps":["A replacement of the faulty pipette may be needed",
+                                "Run deck cal, chip coupler test, pipette test",
                                                           "Retry the Run"]}
 
 id="unable to pickup tip"  # error 54
@@ -79,7 +81,7 @@ id="Chip calibration failed"
 AbortedChecks[id]={"errorReason":"Chip calibration failed",
                    "evidence":["Experiment Errors", "/test_results/Experiment_Errors/results.html"],
                    "NextSteps":["Run Post Run Clean",
-                                                    "Run the FluidicsTR TroubleShooter",
+                                                    "Run the Fluidics factory test",
                                                     "Retry the Run"]}
 
 logger = logging.getLogger(__name__)
@@ -695,13 +697,13 @@ def execute(archive_path, output_path, archive_type):
         FailReason = "Fluidic Issue Detected"
         summary["Next Steps"].append(["No Flow rate detected. The most likely cause is a crimped W2 bottle seal."])        
         summary["Next Steps"].append(["Check W2 bottle seal."])        
-        summary["Next Steps"].append(["If W2 bottle seal looks ok, Run the FluidicsTR troubleshooter. retry the run."])
+        summary["Next Steps"].append(["If W2 bottle seal looks ok, Run the Fluidics factory test. retry the run."])
         data["evidence"]=["Auto Cal", "/autoCal/autoCal.html"]
 
     elif "Flow Rate is not within range" in SeqStatus:
         FailReason = "Fluidic Issue Detected"
         summary["Next Steps"].append(["Flow rate not correct. The most likely cause is a clog."])        
-        summary["Next Steps"].append(["Run the FluidicsTR troubleshooter. retry the run."])
+        summary["Next Steps"].append(["Run the Fluidics factory test. retry the run."])
         data["evidence"]=["Auto Cal", "/autoCal/autoCal.html"]
         
     elif "array average is not within range" in SeqStatus or "array average difference" in SeqStatus:
@@ -713,7 +715,7 @@ def execute(archive_path, output_path, archive_type):
     elif (data["VacFail0"] > 0 or data["VacFail1"] > 0):
         FailReason = "Vacuum Issue Detected"
         summary["Next Steps"].append(["The most likely cause is a blocked vacuum."])
-        summary["Next Steps"].append(["Run the vacuumTR TroubleShooter."])
+        summary["Next Steps"].append(["Run the vacuum factory test."])
         data["evidence"]=["Genexus Workflow", "/ValkyrieWorkflow/ValkyrieWorkflow_block.html"]
         
     elif data["pipInCouplerFail0"] > 0 and data["pipInCouplerFail1"] > 0:
