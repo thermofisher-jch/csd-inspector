@@ -35,6 +35,7 @@ python-semver \
 python-raven \
 python-tblib \
 python-coverage \
+mupdf-tools \
 postgresql-client \
 wait-for-it && \
 rm -rf /var/lib/apt/lists/*lz4
