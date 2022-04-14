@@ -164,37 +164,6 @@ def find_sample_name(rows):
     return "Unknown Sample"
 
 
-def get_other_details(rows):
-    other_headers = [
-        "Software Version Details",
-        "Sample Details",
-        "Library Details",
-        "Run Details",
-        "Assay Details",
-        "Reagent Information",
-        "Consumable Information",
-        "Analysis",
-        "Instrument Summary",
-        "Evaluation Metrics",
-    ]
-    other_runDetails = {}
-    tempHeader = None
-    for row in rows:
-        if len(row):
-            if any(header in row[0] for header in other_headers):
-                tempHeader = row[0]
-                if "Evaluation Metrics" not in tempHeader:
-                    other_runDetails[tempHeader] = []
-                continue
-            if (
-                "Evaluation Metrics" not in tempHeader
-                and tempHeader in other_runDetails
-            ):
-                other_runDetails[tempHeader].append(row)
-
-    return other_runDetails
-
-
 def runLevelQcData(qc_detail):
     section = qc_detail.get("header")  # section header, i.e. Run QC/ Control QC Metrics
     type_name = qc_detail.get("type")
@@ -283,77 +252,9 @@ def populate_samples(sample_name, rows):
     return sample_data, failed_samples, runQc_data, controlQc_data, run_level_failedQcs
 
 
-def transform_data_for_display(sample_data):
-    """
-    qc_data:
-        list_sections:
-            section_name -> h3
-            rows -> values
-    """
-    sections = sample_data["metrics"].keys()
-    metrics_names = sample_data["keys"]
-    sections_data = []
-    for sect in sections:
-        metrics = sample_data["metrics"][sect]
-        metrics_values = []
-        for m in metrics:
-            metrics_values.append([m[k] for k in metrics_names])
-        sections_data.append(metrics_values)
-
-    return metrics_names, zip(sections, sections_data)
-
-def checkPipPressure(basename,limit,pip):
-    rc=0
-    for lane in [1,2,3,4]:
-        for attempt in [0,1]:
-            filename = '{}_lane{}_try{}_PIP{}.csv'.format(basename,lane,attempt,pip)
-            if os.path.exists(filename):
-                try:
-                    p=[]
-                    with open(filename) as csv_file:
-                        csv_reader = csv.reader(csv_file, delimiter=',')
-                        list_csv = list(csv_reader)
-                        for i,line in enumerate(list_csv):
-                            p.append(float(line[0]))
-                    if p[-1] > limit:
-                        rc+=1
-                except:
-                    logger.warn("exception happened in checkPipPressure")
-                    pass
-            #else:
-            #    logger.warn("did not find " + filename)
-       
-    return rc
-
-def checkVacuumPressure(basename,limit,pip):
-    rc=0
-    for lane in [1,2,3,4]:
-        filename = '{}Vacuum_PressureDataLANE{}_PIP{}.csv'.format(basename,lane,pip+1)
-        if os.path.exists(filename):
-            try:
-                p=[]
-                with open(filename) as csv_file:
-                    csv_reader = csv.reader(csv_file, delimiter=',')
-                    list_csv = list(csv_reader)
-                    for i,line in enumerate(list_csv):
-                        p.append(float(line[5]))
-                if p[-1] > limit:
-                    rc+=1
-            except:
-                logger.warn("exception happened in checkVacuumPressure")
-                pass
-        else:
-            logger.warn("did not find " + filename)
-       
-    return rc
-    
 def GetQCMetrics(archive_path, output_path, archive_type):    
 
     results = {"num_failed_samples": 0, "Samples_Passed": 0, "Samples_Failed": 0, "failedRunQc": 0, "failedControlQc": 0, "samples" : []}
-    info_per_sample = []
-    failed_samples = []
-    run_level_runQcdata = []
-    run_level_controlQcdata = []
     infoRowsForOtherDetails = None
     
     try:
@@ -372,27 +273,11 @@ def GetQCMetrics(archive_path, output_path, archive_type):
                             controlQc_data,
                             run_level_failedQcs,
                         ) = populate_samples(sample_name, info_rows)
-                        metrics_names, qc_data = transform_data_for_display(sample_data)
-                        _, failed_qc_data = transform_data_for_display(failed_data)
-                        _, runQc_data = transform_data_for_display(runQc_data)
-                        _, controlQc_data = transform_data_for_display(controlQc_data)
-        
-                        info_per_sample.append([sample_name, info_rows, metrics_names, qc_data])
-                        run_level_runQcdata.append([metrics_names, runQc_data])
-                        run_level_controlQcdata.append([metrics_names, controlQc_data])
-                        if failed_data["qc_status"] == FAIL:
-                            failed_samples.append(
-                                [sample_name, None, metrics_names, failed_qc_data]
-                            )
         
                         results["samples"].append(sample_data)
     except:
         logger.warn("Exception in GetQCMetrics")
                     
-
-    info_per_sample.sort(key=lambda x: x[0])
-
-    
     if run_level_failedQcs.get("failedRunQc", ""):
         results["failedRunQc"] = run_level_failedQcs["failedRunQc"]
 
@@ -404,17 +289,6 @@ def GetQCMetrics(archive_path, output_path, archive_type):
             results["Samples_Passed"] += 1
         else:
             results["Samples_Failed"] += 1
-
-    write_results_from_template(
-        {
-            "info_per_sample": info_per_sample,
-            "failed_samples": failed_samples,
-            "run_level_data": [[run_level_runQcdata[0]], [run_level_controlQcdata[0]]],
-            "other_runDetails": get_other_details(infoRowsForOtherDetails),
-        },
-        output_path,
-        os.path.dirname(os.path.realpath(__file__)),
-    )
         
     return results    
 
@@ -544,13 +418,6 @@ def checkSequencing(data):
             except:
                 logger.warn("exception with diskPer")
                     
-                
-                
-            
-#    for line in data["explog"]["ExperimentErrorLog"]:
-#        if not "The instrument must be serviced" in line:
-#            rc+=line+"\n"
-    
     return rc        
 
 
@@ -591,8 +458,6 @@ def checkValkWf(data, archive_path):
 #                                        int(laneData["suspected_leaks_count"]) + \
 #                                        int(laneData["suspected_clogs_count"])
                     data["VacFail1"] = data["VacFail0"]
-                # else:
-                #     data["VacFail0"] = 100
 
 def checkRunAborted(data, archive_path):
     data["RunAborted"]=False
@@ -611,33 +476,19 @@ def checkRunAborted(data, archive_path):
                         
     if data["RunAborted"] and data["runAbortedReason"]=="":
         # run aborted, but the reason is not known.
-        # cmd=["/bin/grep","TestLine FluidicsManifold failed to Close.  Check opto fluidMan_close",archive_path + "/CSA/debug"]
-        # try:
-        #     result=subprocess.check_output(cmd).decode()
-        #     logger.warn("got back : "+result)
-        # except:
-        #     logger.warn("exception trying to get Aborted Reason from debug")
-        #     result=""
-        # if "Check opto" in result:
-        #     data["runAbortedReason"]="FluidicsManifold failed to Close."
-        #     data["runAbortedNextSteps"].append("Run the Chip Clamp factory test")
-        #     data["runAbortedNextSteps"].append("Check opto fluidMan_close")
-        #     data["evidence"]=["Experiment Errors", "/test_results/Experiment_Errors/results.html"]
-        # else:
-        if 1:
-            # check for a generic exception
-            cmd="/bin/grep -a -B4 -A16 Traceback "+archive_path+"/CSA/debug | tail -n 20"
-            try:
-                result=subprocess.check_output(cmd,shell=True).decode()
-                logger.warn("got back : "+result)
-                if not result == "":
-                    data["runAbortedReason"]="Generic Exception"
-                    data["evidence"]=["Experiment Errors", "/test_results/Experiment_Errors/results.html"]
-                    for ln in result.splitlines():
-                        data["runAbortedNextSteps"].append(ln)
-            except:
-                logger.warn("exception trying to get Generic Aborted Reason from debug")
-                result=""
+        # check for a generic exception
+        cmd="/bin/grep -a -B4 -A16 Traceback "+archive_path+"/CSA/debug | tail -n 20"
+        try:
+            result=subprocess.check_output(cmd,shell=True).decode()
+            logger.warn("got back : "+result)
+            if not result == "":
+                data["runAbortedReason"]="Generic Exception"
+                data["evidence"]=["Experiment Errors", "/test_results/Experiment_Errors/results.html"]
+                for ln in result.splitlines():
+                    data["runAbortedNextSteps"].append(ln)
+        except:
+            logger.warn("exception trying to get Generic Aborted Reason from debug")
+            result=""
             
 
 
@@ -788,28 +639,17 @@ def execute(archive_path, output_path, archive_type):
 
     with open(os.path.join(output_path+"/output.json"), "w") as fp:
         json.dump(data,fp)
-    
-    
-    #if not FailReason == "Problem not detected.":
+        
     write_results_from_template(
         {"other_runDetails": summary,
          "support": support},
         output_path,
         os.path.dirname(os.path.realpath(__file__))
         )
-
-    #time.sleep(120)
-        
-    # with open(os.path.join(output_path+"/summary.json"), "w") as fp:
-    #     json.dump(summary,fp)        
     
     if FailReason == "Problem not detected.":
-#        message = " <a target='_blank' href='{}'>dbg_output</a> {}".format(
-#            output_link,FailReason)
         rc=print_info(FailReason)
     else:
-        # message = " <a target='_blank' href='{}'>dbg_output</a> <b>       <u>***{}***</u>   </b> See Results for more details".format(
-        #     output_link,FailReason)
         rc=print_alert("       <b><u>***{}***</u></b>    See Results for more details".format(FailReason))
         
     return rc
