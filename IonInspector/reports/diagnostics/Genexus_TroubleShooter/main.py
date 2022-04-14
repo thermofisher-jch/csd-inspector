@@ -432,7 +432,7 @@ def checkSequencing(data):
     
     upperAvgLimit=8192+400
     lowerAvgLimit=8192-400
-    avgDiffLimit=120
+    avgDiffLimit=160
     lastAvg=0
     averageDoneOnce=False
 
@@ -460,19 +460,20 @@ def checkSequencing(data):
     for lineu in data["explog"]["ExperimentInfoLog"]:
         line=str(lineu)
         if len(line) > 0 and "acq_" in line:
+            acq = int(line.split("acq_")[1].split(".dat")[0])
             # this is a experiment flow
             try:
                 if not vrefDoneOnce:
                     vrefTxt=line.split("Vref=")[1] #.split(" ")[0])
                     try:
                         vref = float(vrefTxt)
-                        if "acq_0000" in line:
+                        if acq > 0:
                             if vref > upperVrefLimit or vref < lowerVrefLimit:
-                                rc += "Reference voltage is not within range  %f <= %f <= %f\n"%(lowerVrefLimit,vref,upperVrefLimit)
+                                rc+= "Reference voltage is not within range  %f <= %f <= %f acq %d\n"%(lowerVrefLimit,vref,upperVrefLimit,acq)
                                 vrefDoneOnce=True
                         else:
                             if vref > (upperVrefLimit+300) or vref < (lowerVrefLimit-300):
-                                rc += "Reference voltage is not within range  %f <= %f <= %f\n"%(lowerVrefLimit-300,vref,upperVrefLimit+300)
+                                rc+= "Reference voltage is not within range  %f <= %f <= %f acq %d\n"%(lowerVrefLimit-300,vref,upperVrefLimit+300,acq)
                                 vrefDoneOnce=True
                             
                     except:
@@ -486,7 +487,7 @@ def checkSequencing(data):
                     try:
                         ftemp=float(ftempTxt.split(" ")[0])
                         if ftemp > upperFTempLimit or ftemp < lowerFTempLimit:
-                            rc += "Flow Temperature is not within range  %f <= %f <= %f\n"%(lowerFTempLimit,ftemp,upperFTempLimit)
+                            rc+= "Flow Temperature is not within range  %f <= %f <= %f acq %d\n"%(lowerFTempLimit,ftemp,upperFTempLimit,acq)
                             ftempDoneOnce=True
                     except:
                         logger.warn("exception with ftemp2 " + ftempTxt)
@@ -497,10 +498,10 @@ def checkSequencing(data):
                 if not frDoneOnce :
                     fr=float(line.split("FR=")[1].split(",")[0])
                     if fr < minFRLimit:
-                        rc += "No Flow Detected.\n"
+                        rc += "No Flow Detected. acq %d\n"%(acq)
                         frDoneOnce=True
                     elif fr > upperFRLimit or fr < lowerFRLimit:
-                        rc += "Flow Rate is not within range  %f <= %f <= %f\n"%(lowerFRLimit,fr,upperFRLimit)
+                        rc += "Flow Rate is not within range  %f <= %f <= %f acq %d\n"%(lowerFRLimit,fr,upperFRLimit,acq)
                         frDoneOnce=True
             except:
                 logger.warn("exception with flowrate " + line)
@@ -510,12 +511,12 @@ def checkSequencing(data):
                     averageTxt=line.split("avg=")[1]
                     try:
                         average=float(averageTxt.split(" ")[0])
-                        if not "acq_0000" in line:
+                        if acq > 0:
                             if average > upperAvgLimit or average < lowerAvgLimit:
-                                rc += "array average is not within range  %.0f <= %.0f <= %.0f\n"%(lowerAvgLimit,average,upperAvgLimit)
+                                rc += "array average is not within range  %.0f <= %.0f <= %.0f acq %d\n"%(lowerAvgLimit,average,upperAvgLimit,acq)
                                 averageDoneOnce=True
-                            elif not "acq_0001" in line and lastAvg > 0 and abs(average - lastAvg) > avgDiffLimit:
-                                rc += "array average difference %.0f > %.0f\n"%(abs(average-lastAvg),avgDiffLimit)
+                            elif acq > 2 and lastAvg > 0 and abs(average - lastAvg) > avgDiffLimit:
+                                rc += "array average difference %.0f > %.0f acq %d\n"%(abs(average-lastAvg),avgDiffLimit,acq)
                                 averageDoneOnce=True
                             lastAvg=average
                     except:
@@ -529,7 +530,7 @@ def checkSequencing(data):
                 if not dssDoneOnce:
                     dss=float(line.split("dac_start_sig=")[1].split(" ")[0])
                     if dss > upperDSSLimit or dss < lowerDSSLimit:
-                        rc += "dac_start_sig is not within range  %.0f <= %.0f <= %.0f\n"%(lowerDSSLimit,dss,upperDSSLimit)
+                        rc += "dac_start_sig is not within range  %.0f <= %.0f <= %.0f acq %d\n"%(lowerDSSLimit,dss,upperDSSLimit,acq)
                         dssDoneOnce=True
             except:
                 logger.warn("exception with dss")
@@ -538,7 +539,7 @@ def checkSequencing(data):
                 if not diskDoneOnce:
                     dpf=float(line.split("diskPerFree=")[1].split(" ")[0])
                     if dpf > upperDpfLimit:
-                        rc += "Disks are full\n"
+                        rc += "Disks are full acq %d\n"%(acq)
                         diskDoneOnce=True
             except:
                 logger.warn("exception with diskPer")
@@ -546,9 +547,9 @@ def checkSequencing(data):
                 
                 
             
-    for line in data["explog"]["ExperimentErrorLog"]:
-        if not "The instrument must be serviced" in line:
-            rc += line + "\n"
+#    for line in data["explog"]["ExperimentErrorLog"]:
+#        if not "The instrument must be serviced" in line:
+#            rc+=line+"\n"
     
     return rc        
 
@@ -590,8 +591,8 @@ def checkValkWf(data, archive_path):
 #                                        int(laneData["suspected_leaks_count"]) + \
 #                                        int(laneData["suspected_clogs_count"])
                     data["VacFail1"] = data["VacFail0"]
-                else:
-                    data["VacFail0"] = 100
+                # else:
+                #     data["VacFail0"] = 100
 
 def checkRunAborted(data, archive_path):
     data["RunAborted"]=False
@@ -610,19 +611,34 @@ def checkRunAborted(data, archive_path):
                         
     if data["RunAborted"] and data["runAbortedReason"]=="":
         # run aborted, but the reason is not known.
-        cmd=["/bin/grep","TestLine FluidicsManifold failed to Close.  Check opto fluidMan_close",archive_path + "/CSA/debug"]
-        try:
-            result=subprocess.check_output(cmd) #["echo","hello"]) #cmd)
-            #result=result.decode("utf-8")
-            logger.warn("got back : "+result)
-        except:
-            logger.warn("exception trying to get Aborted Reason from debug")
-            result=""
-        if "Check opto" in result:
-            data["runAbortedReason"]="FluidicsManifold failed to Close."
-            data["runAbortedNextSteps"].append("Run the Chip Clamp factory test")
-            data["runAbortedNextSteps"].append("Check opto fluidMan_close")
-            data["evidence"]=["Experiment Errors", "/test_results/Experiment_Errors/results.html"]
+        # cmd=["/bin/grep","TestLine FluidicsManifold failed to Close.  Check opto fluidMan_close",archive_path + "/CSA/debug"]
+        # try:
+        #     result=subprocess.check_output(cmd).decode()
+        #     logger.warn("got back : "+result)
+        # except:
+        #     logger.warn("exception trying to get Aborted Reason from debug")
+        #     result=""
+        # if "Check opto" in result:
+        #     data["runAbortedReason"]="FluidicsManifold failed to Close."
+        #     data["runAbortedNextSteps"].append("Run the Chip Clamp factory test")
+        #     data["runAbortedNextSteps"].append("Check opto fluidMan_close")
+        #     data["evidence"]=["Experiment Errors", "/test_results/Experiment_Errors/results.html"]
+        # else:
+        if 1:
+            # check for a generic exception
+            cmd="/bin/grep -a -B4 -A16 Traceback "+archive_path+"/CSA/debug | tail -n 20"
+            try:
+                result=subprocess.check_output(cmd,shell=True).decode()
+                logger.warn("got back : "+result)
+                if not result == "":
+                    data["runAbortedReason"]="Generic Exception"
+                    data["evidence"]=["Experiment Errors", "/test_results/Experiment_Errors/results.html"]
+                    for ln in result.splitlines():
+                        data["runAbortedNextSteps"].append(ln)
+            except:
+                logger.warn("exception trying to get Generic Aborted Reason from debug")
+                result=""
+            
 
 
 def execute(archive_path, output_path, archive_type):
@@ -691,10 +707,14 @@ def execute(archive_path, output_path, archive_type):
     FailReason=""
     if data["RunAborted"]:
         FailReason=data["runAbortedReason"]
+        summary["Issues Detected"].append([FailReason])
         for line in data["runAbortedNextSteps"]:
             summary["Next Steps"].append([line])
     elif "No Flow Detected" in SeqStatus:
         FailReason = "Fluidic Issue Detected"
+        summary["Issues Detected"].append([FailReason])
+        for newReason in SeqStatus.splitlines():
+            summary["Issues Detected"].append([newReason])        
         summary["Next Steps"].append(["No Flow rate detected. The most likely cause is a crimped W2 bottle seal."])        
         summary["Next Steps"].append(["Check W2 bottle seal."])        
         summary["Next Steps"].append(["If W2 bottle seal looks ok, Run the Fluidics factory test. retry the run."])
@@ -702,43 +722,53 @@ def execute(archive_path, output_path, archive_type):
 
     elif "Flow Rate is not within range" in SeqStatus:
         FailReason = "Fluidic Issue Detected"
+        summary["Issues Detected"].append([FailReason])
+        for newReason in SeqStatus.splitlines():
+            summary["Issues Detected"].append([newReason])        
         summary["Next Steps"].append(["Flow rate not correct. The most likely cause is a clog."])        
         summary["Next Steps"].append(["Run the Fluidics factory test. retry the run."])
         data["evidence"]=["Auto Cal", "/autoCal/autoCal.html"]
         
     elif "array average is not within range" in SeqStatus or "array average difference" in SeqStatus:
         FailReason = "Electrical Issue Detected"
+        summary["Issues Detected"].append([FailReason])
+        for newReason in SeqStatus.splitlines():
+            summary["Issues Detected"].append([newReason])        
         summary["Next Steps"].append(["The most likely cause is a salt bridge on the squid."])
         summary["Next Steps"].append(["Wipe salt residue from the squid and retry the run."])
         data["evidence"]=["Auto Cal", "/autoCal/autoCal.html"]
         
     elif (data["VacFail0"] > 0 or data["VacFail1"] > 0):
         FailReason = "Vacuum Issue Detected"
+        summary["Issues Detected"].append([FailReason])
         summary["Next Steps"].append(["The most likely cause is a blocked vacuum."])
         summary["Next Steps"].append(["Run the vacuum factory test."])
         data["evidence"]=["Genexus Workflow", "/ValkyrieWorkflow/ValkyrieWorkflow_block.html"]
         
     elif data["pipInCouplerFail0"] > 0 and data["pipInCouplerFail1"] > 0:
         FailReason = "Pipette 1 and 2 Issues Detected"
+        summary["Issues Detected"].append([FailReason])
         summary["Next Steps"].append(["The most likely cause is a bad pipette."])
         summary["Next Steps"].append(["Replace Pipettes 1,2 and retry the run."])
         data["evidence"]=["Genexus Workflow", "/ValkyrieWorkflow/ValkyrieWorkflow_block.html"]
         
     elif data["pipInCouplerFail0"] > 0:
         FailReason = "Pipette 1 Issue Detected   Pipette 2 ok"
+        summary["Issues Detected"].append([FailReason])
         summary["Next Steps"].append(["The most likely cause is a bad pipette 1."])
         summary["Next Steps"].append(["Replace Pipette 1 and retry the run."])
         data["evidence"]=["Genexus Workflow", "/ValkyrieWorkflow/ValkyrieWorkflow_block.html"]
 
     elif data["pipInCouplerFail1"] > 0:
         FailReason = "Pipette 2 Issues Detected   Pipette1 ok"
+        summary["Issues Detected"].append([FailReason])
         summary["Next Steps"].append(["The most likely cause is a bad pipette 2."])
         summary["Next Steps"].append(["Replace Pipette 2 and retry the run."])
         data["evidence"]=["Genexus Workflow", "/ValkyrieWorkflow/ValkyrieWorkflow_block.html"]
     else:
         FailReason = "Problem not detected."
+        summary["Issues Detected"].append([FailReason])
         
-    summary["Issues Detected"].append([FailReason])
 
     suffix_to_remove = '/test_results/Genexus_TroubleShooter'
     support=OrderedDict()
