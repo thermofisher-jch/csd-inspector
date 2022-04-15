@@ -428,13 +428,20 @@ def checkValkWf(data, archive_path):
     data["pipInCouplerFail1"]=0
     data["VacFail0"]=0
     data["VacFail1"]=0
+    data["tipPickupErrors_0"]=0
+    data["tipPickupErrors_1"]=0
+    data["pipErr52_0"]=0
+    data["pipErr52_1"]=0
+    data["bottomFail0"]=0
+    data["bottomFail1"]=0
+    
     vwfPath=os.path.join(archive_path, "ValkyrieWorkflow/results.json")
     if os.path.exists(vwfPath):
         with open(vwfPath,"r") as fp:
             data["vwfPlugin"] = json.load(fp)
             
         if not "vacLog" in data["vwfPlugin"]:
-            # 6.6 and forward compatible
+            # pre-6.6 
             data["pipWaterWellFail0"] = data["vwfPlugin"]["pipPresTest"]["waterWell_fail"]["p1_count"] #checkPipPressure(pipPath,-70,0)
             data["pipWaterWellFail1"] = data["vwfPlugin"]["pipPresTest"]["waterWell_fail"]["p2_count"] #checkPipPressure(pipPath,-70,1)
             
@@ -443,7 +450,21 @@ def checkValkWf(data, archive_path):
             
             data["VacFail0"] = data["vwfPlugin"]["pipPresTest"]["vacTest_fail"]["p1_count"] #checkVacuumPressure(vacPath,-5.5,0)
             data["VacFail1"] = data["vwfPlugin"]["pipPresTest"]["vacTest_fail"]["p1_count"] #checkVacuumPressure(vacPath,-5.5,1)
+            
         else:
+            # 6.6 and higher
+            if "bottomlog" in data["vwfPlugin"] and "missed_bottom_p1_count" in data["vwfPlugin"]["bottomlog"]:
+                data["bottomFail0"] = data["vwfPlugin"]["bottomlog"]["missed_bottom_p1_count"]
+                data["bottomFail1"] = data["vwfPlugin"]["bottomlog"]["missed_bottom_p2_count"]
+            
+            if "er52" in  data["vwfPlugin"] and "pipette_1" in data["vwfPlugin"]["er52"]:
+                data["pipErr52_0"] = data["vwfPlugin"]["er52"]["pipette_1"]
+                data["pipErr52_1"] = data["vwfPlugin"]["er52"]["pipette_2"]
+            
+            if "tip_pickup_errors" in data["vwfPlugin"] and "p1" in data["vwfPlugin"]["tip_pickup_errors"] and "struggle_count" in data["vwfPlugin"]["tip_pickup_errors"]["p1"]:
+                data["tipPickupErrors_0"] = data["vwfPlugin"]["tip_pickup_errors"]["p1"]["struggle_count"] + data["vwfPlugin"]["tip_pickup_errors"]["p1"]["unable_count"] 
+                data["tipPickupErrors_1"] = data["vwfPlugin"]["tip_pickup_errors"]["p2"]["struggle_count"] + data["vwfPlugin"]["tip_pickup_errors"]["p2"]["unable_count"] 
+            
             for lane in 0,1,2,3,4:
                 laneData=data["vwfPlugin"]["vacLog"]["lane "+str(lane)]
         
@@ -589,6 +610,25 @@ def execute(archive_path, output_path, archive_type):
         summary["Next Steps"].append(["Wipe salt residue from the squid and retry the run."])
         data["evidence"]=["Auto Cal", "/autoCal/autoCal.html"]
         
+    elif data["bottomFail0"] > 0 or data["bottomFail1"] > 0:
+        FailReason = "Bottom find Issue Detected"
+        summary["Issues Detected"].append([FailReason])
+        summary["Next Steps"].append(["The most likely causes are pipette malfunction or bad deck calibration."])
+        summary["Next Steps"].append(["Check Tip adapters."])
+        summary["Next Steps"].append(["re-run deck calibration."])
+        summary["Next Steps"].append(["Run the pipette factory test."])
+        data["evidence"]=["Genexus Workflow", "/ValkyrieWorkflow/ValkyrieWorkflow_block.html"]
+        
+    elif data["tipPickupErrors_0"] > 0 or data["tipPickupErrors_1"] > 0:
+        FailReason = "Tip Pickup Issue Detected"
+        summary["Issues Detected"].append([FailReason])
+        summary["Next Steps"].append(["The most likely causes are bad deck calibration, bad tip adapter, or mis-seated tips."])
+        summary["Next Steps"].append(["Check tip rack for mis-seated tips."])
+        summary["Next Steps"].append(["Check Tip adapters."])
+        summary["Next Steps"].append(["re-run deck calibration."])
+        summary["Next Steps"].append(["Run the pipette factory test."])
+        data["evidence"]=["Genexus Workflow", "/ValkyrieWorkflow/ValkyrieWorkflow_block.html"]
+        
     elif (data["VacFail0"] > 0 or data["VacFail1"] > 0):
         FailReason = "Vacuum Issue Detected"
         summary["Issues Detected"].append([FailReason])
@@ -603,14 +643,14 @@ def execute(archive_path, output_path, archive_type):
         summary["Next Steps"].append(["Replace Pipettes 1,2 and retry the run."])
         data["evidence"]=["Genexus Workflow", "/ValkyrieWorkflow/ValkyrieWorkflow_block.html"]
         
-    elif data["pipInCouplerFail0"] > 0:
+    elif data["pipInCouplerFail0"] or data["pipErr52_0"] > 0:
         FailReason = "Pipette 1 Issue Detected   Pipette 2 ok"
         summary["Issues Detected"].append([FailReason])
         summary["Next Steps"].append(["The most likely cause is a bad pipette 1."])
         summary["Next Steps"].append(["Replace Pipette 1 and retry the run."])
         data["evidence"]=["Genexus Workflow", "/ValkyrieWorkflow/ValkyrieWorkflow_block.html"]
 
-    elif data["pipInCouplerFail1"] > 0:
+    elif data["pipInCouplerFail1"] > 0 or data["pipErr52_1"]:
         FailReason = "Pipette 2 Issues Detected   Pipette1 ok"
         summary["Issues Detected"].append([FailReason])
         summary["Next Steps"].append(["The most likely cause is a bad pipette 2."])
