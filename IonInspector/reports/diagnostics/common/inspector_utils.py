@@ -16,7 +16,7 @@ from bs4 import BeautifulSoup
 from django.core.serializers.json import DjangoJSONEncoder
 from django.template import Context, Template
 from django.template.backends.django import DjangoTemplates
-from reports.values import (
+from IonInspector.reports.values import (
     PGM_RUN,
     PROTON,
     S5,
@@ -25,7 +25,7 @@ from reports.values import (
     PURIFICATION_BATCH_ID,
     PURE,
 )
-from reports.diagnostics.common.inspector_errors import (
+from IonInspector.reports.diagnostics.common.inspector_errors import (
     FileNotFoundError,
     FilesNotFoundError,
 )

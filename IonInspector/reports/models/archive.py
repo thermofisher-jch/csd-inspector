@@ -445,7 +445,7 @@ class Archive(models.Model):
             except OSError as exp:
                 # Don't fail archive import just because we failed to link
                 # its report PDF.
-                logger.debug(
+                logger.warning(
                     "Failed to symlink report PDF {} at well-known path".format(
                         report_pdf
                     )
