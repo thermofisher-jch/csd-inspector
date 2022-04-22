@@ -28,10 +28,13 @@ python-django-crispy-forms \
 python-cached-property \
 python-dateutil \
 python-functools32 \
-python-magic \
 python-lzma \
+python-magic \
+python-numpy \
 python-pandas \
 python-semver \
+python-skimage \
+python-scipy \
 python-raven \
 python-tblib \
 python-coverage \

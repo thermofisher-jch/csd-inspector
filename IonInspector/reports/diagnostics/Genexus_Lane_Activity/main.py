@@ -40,8 +40,8 @@ def build_alternate_density_image(archive_path, build_image_path):
     # Trim (to scale) and combine bead lane heatmaps to approximate loading density image.
     trimmed_data = [None, None, None, None]
     for ii in (0, 1, 2, 3):
-        file = "%s/Lane_Diagnostics/bead_lane_%d_heatmap.png" % (ii + 1)
-        if not os.exists(file):
+        file = "%s/Lane_Diagnostics/bead_lane_%d_heatmap.png" % (archive_path, ii + 1)
+        if not os.path.exists(file):
             logger.error("No heatmap image file found for " + file)
             return
         trimmed_data[ii] = imread(file)[3:195, 4:75, 0:3]
