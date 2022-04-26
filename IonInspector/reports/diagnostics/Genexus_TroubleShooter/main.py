@@ -6,15 +6,18 @@ import fnmatch
 import copy
 import json
 import logging
+import re
+
 from reports.diagnostics.common.inspector_utils import (
     read_explog,
+    get_debug_path,
     print_info,
     print_alert,
     print_ok,
     write_results_from_template,
 )
 from django.conf import settings
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 import subprocess
 
 PASS = "Passed"
@@ -290,7 +293,68 @@ def GetQCMetrics(archive_path, output_path, archive_type):
         else:
             results["Samples_Failed"] += 1
         
-    return results    
+    return results 
+
+def grepInDebug(error, debug_path):
+    cmd="/bin/grep -a -B4 -A16 "+ error + " "+ debug_path 
+    result = ""
+    try:
+        result=subprocess.check_output(cmd,shell=True).decode()
+    except:
+        pass
+    return result
+
+def checkDebugLog(data, archive_path):
+    DEBUG_ERROR_KEYWORDS = ["PCR lid clamping failure"]
+    DebugErrors={}
+
+    id="PCR lid clamping failure"
+    DebugErrors[id]={"errorReason":"PCR lid failed to close",
+                     "evidence":["Experiment Errors", "/test_results/Experiment_Errors/results.html"],
+                   "NextSteps":["Check PCR lid OPTO connections J14 on sample prep board"]}
+
+    data["DebugErrors"]=False
+    data["DebugErrorInfo"]=[]
+    data["DebugErrorNextSteps"]=[]
+    
+    errors = []
+    found = False
+
+
+    debug_path = get_debug_path(archive_path)
+    if not debug_path:
+        logger.warn("No debug file found")
+        return
+    
+
+    
+    for key in DEBUG_ERROR_KEYWORDS:
+        result=grepInDebug(key, debug_path)
+        if not result == "":
+            errors.append(key)
+            found = True
+
+        
+    if found:
+        data["DebugErrors"] = True
+        for error in errors:
+            for idx in DebugErrors:
+                if idx in error:
+                    logger.warn("adding error {} for {}".format(error, idx))
+                    data["DebugErrorInfo"].append(DebugErrors[idx]["errorReason"])
+                    data["DebugErrorNextSteps"].append(DebugErrors[idx]["NextSteps"])
+                    break
+                
+    # # check for errors that might not make it to explog
+    # if data["RunAborted"]==False:
+    #     for idx in AbortedChecks:
+    #         result=grepInDebug(idx, debug_path)
+    #         if not result == "":
+    #             data["DebugErrorInfo"].append(AbortedChecks[idx]["errorReason"])
+    #             data["DebugErrorNextSteps"].append(AbortedChecks[idx]["NextSteps"])
+
+    return 
+   
 
 def checkSequencing(data):
     
@@ -434,6 +498,7 @@ def checkValkWf(data, archive_path):
     data["pipErr52_1"]=0
     data["bottomFail0"]=0
     data["bottomFail1"]=0
+    data["ClogFail"]=0
     
     vwfPath=os.path.join(archive_path, "ValkyrieWorkflow/results.json")
     if os.path.exists(vwfPath):
@@ -479,6 +544,8 @@ def checkValkWf(data, archive_path):
 #                                        int(laneData["suspected_leaks_count"]) + \
 #                                        int(laneData["suspected_clogs_count"])
                     data["VacFail1"] = data["VacFail0"]
+                if "postLib_suspected_clogs_count" in laneData: 
+                    data["ClogFail"] += int(laneData["postLib_suspected_clogs_count"])
 
 def checkRunAborted(data, archive_path):
     data["RunAborted"]=False
@@ -551,6 +618,7 @@ def execute(archive_path, output_path, archive_type):
     
     checkValkWf(data, archive_path)        
     checkRunAborted(data, archive_path)
+    checkDebugLog(data,archive_path)
     
 
     data["ComponentStatus"]=[]
@@ -635,7 +703,14 @@ def execute(archive_path, output_path, archive_type):
         summary["Next Steps"].append(["The most likely cause is a blocked vacuum."])
         summary["Next Steps"].append(["Run the vacuum factory test."])
         data["evidence"]=["Genexus Workflow", "/ValkyrieWorkflow/ValkyrieWorkflow_block.html"]
-        
+    elif (data["ClogFail"] > 0):
+        FailReason = "Clog Detected"
+        summary["Issues Detected"].append([FailReason])
+        summary["Next Steps"].append(["The most likely cause is the chip coupler."])
+        summary["Next Steps"].append(["Check the chip coupler alignment."])
+        summary["Next Steps"].append(["Run the chip coupler factory test."])
+        summary["Next Steps"].append(["Run the vacuum factory test."])
+        data["evidence"]=["Genexus Workflow", "/ValkyrieWorkflow/ValkyrieWorkflow_block.html"]   
     elif data["pipInCouplerFail0"] > 0 and data["pipInCouplerFail1"] > 0:
         FailReason = "Pipette 1 and 2 Issues Detected"
         summary["Issues Detected"].append([FailReason])
@@ -656,6 +731,15 @@ def execute(archive_path, output_path, archive_type):
         summary["Next Steps"].append(["The most likely cause is a bad pipette 2."])
         summary["Next Steps"].append(["Replace Pipette 2 and retry the run."])
         data["evidence"]=["Genexus Workflow", "/ValkyrieWorkflow/ValkyrieWorkflow_block.html"]
+    
+    elif data["DebugErrors"]:
+        FailReason="Debug log errors"
+        data["evidence"]=["Experiment Errors", "/test_results/Experiment_Errors/results.html"]
+        for i in range(len(data["DebugErrorInfo"])):
+            error = data["DebugErrorInfo"][i]
+            summary["Issues Detected"].append([error])
+            for line in data["DebugErrorNextSteps"][i]:
+                summary["Next Steps"].append([line])
     else:
         FailReason = "Problem not detected."
         summary["Issues Detected"].append([FailReason])
