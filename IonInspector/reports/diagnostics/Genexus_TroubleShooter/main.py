@@ -481,7 +481,10 @@ def checkSequencing(data):
                         diskDoneOnce=True
             except:
                 logger.warn("exception with diskPer")
-                    
+                
+    if rc == "":
+        rc="Passed"
+    data["SeqStatus"]=rc
     return rc        
 
 
@@ -578,15 +581,124 @@ def checkRunAborted(data, archive_path):
             logger.warn("exception trying to get Generic Aborted Reason from debug")
             result=""
             
+def decisionLogic(data, mock):
 
+    summary=OrderedDict()
+    summary["Issues Detected"]=[]
+    summary["Next Steps"]=[]
+    FailReason=""
+    if data["RunAborted"]:
+        FailReason=data["runAbortedReason"]
+        summary["Issues Detected"].append([FailReason])
+        for line in data["runAbortedNextSteps"]:
+            summary["Next Steps"].append([line])
+    elif "No Flow Detected" in data["SeqStatus"]:
+        FailReason = "Fluidic Issue Detected"
+        summary["Issues Detected"].append([FailReason])
+        for newReason in data["SeqStatus"].splitlines():
+            summary["Issues Detected"].append([newReason])        
+        summary["Next Steps"].append(["No Flow rate detected. The most likely cause is a crimped W2 bottle seal."])        
+        summary["Next Steps"].append(["Check W2 bottle seal."])        
+        summary["Next Steps"].append(["If W2 bottle seal looks ok, Run the Fluidics factory test. retry the run."])
+        data["evidence"]=["Auto Cal", "/autoCal/autoCal.html"]
+
+    elif "Flow Rate is not within range" in data["SeqStatus"]:
+        FailReason = "Fluidic Issue Detected"
+        summary["Issues Detected"].append([FailReason])
+        for newReason in data["SeqStatus"].splitlines():
+            summary["Issues Detected"].append([newReason])        
+        summary["Next Steps"].append(["Flow rate not correct. The most likely cause is a clog."])        
+        summary["Next Steps"].append(["Run the Fluidics factory test. retry the run."])
+        data["evidence"]=["Auto Cal", "/autoCal/autoCal.html"]
+        
+    elif "array average is not within range" in data["SeqStatus"] or "array average difference" in data["SeqStatus"]:
+        FailReason = "Electrical Issue Detected"
+        summary["Issues Detected"].append([FailReason])
+        for newReason in data["SeqStatus"].splitlines():
+            summary["Issues Detected"].append([newReason])        
+        summary["Next Steps"].append(["The most likely cause is a salt bridge on the squid."])
+        summary["Next Steps"].append(["Wipe salt residue from the squid and retry the run."])
+        data["evidence"]=["Auto Cal", "/autoCal/autoCal.html"]
+        
+    elif not mock and (data["bottomFail0"] > 0 or data["bottomFail1"] > 0):
+        FailReason = "Bottom find Issue Detected"
+        summary["Issues Detected"].append([FailReason])
+        summary["Next Steps"].append(["The most likely causes are pipette malfunction or bad deck calibration."])
+        summary["Next Steps"].append(["Check Tip adapters."])
+        summary["Next Steps"].append(["re-run deck calibration."])
+        summary["Next Steps"].append(["Run the pipette factory test."])
+        data["evidence"]=["Genexus Workflow", "/ValkyrieWorkflow/ValkyrieWorkflow_block.html"]
+        
+    elif not mock and (data["tipPickupErrors_0"] > 0 or data["tipPickupErrors_1"] > 0):
+        FailReason = "Tip Pickup Issue Detected"
+        summary["Issues Detected"].append([FailReason])
+        summary["Next Steps"].append(["The most likely causes are bad deck calibration, bad tip adapter, or mis-seated tips."])
+        summary["Next Steps"].append(["Check tip rack for mis-seated tips."])
+        summary["Next Steps"].append(["Check Tip adapters."])
+        summary["Next Steps"].append(["re-run deck calibration."])
+        summary["Next Steps"].append(["Run the pipette factory test."])
+        data["evidence"]=["Genexus Workflow", "/ValkyrieWorkflow/ValkyrieWorkflow_block.html"]
+        
+    elif not mock and (data["VacFail0"] > 0 or data["VacFail1"] > 0):
+        FailReason = "Vacuum Issue Detected"
+        summary["Issues Detected"].append([FailReason])
+        summary["Next Steps"].append(["The most likely cause is a blocked vacuum."])
+        summary["Next Steps"].append(["Run the vacuum factory test."])
+        data["evidence"]=["Genexus Workflow", "/ValkyrieWorkflow/ValkyrieWorkflow_block.html"]
+    elif not mock and (data["ClogFail"] > 0):
+        FailReason = "Clog Detected"
+        summary["Issues Detected"].append([FailReason])
+        summary["Next Steps"].append(["The most likely cause is the chip coupler."])
+        summary["Next Steps"].append(["Check the chip coupler alignment."])
+        summary["Next Steps"].append(["Run the chip coupler factory test."])
+        summary["Next Steps"].append(["Run the vacuum factory test."])
+        data["evidence"]=["Genexus Workflow", "/ValkyrieWorkflow/ValkyrieWorkflow_block.html"]   
+    elif not mock and (data["pipInCouplerFail0"] > 0 and data["pipInCouplerFail1"] > 0):
+        FailReason = "Pipette 1 and 2 Issues Detected"
+        summary["Issues Detected"].append([FailReason])
+        summary["Next Steps"].append(["The most likely cause is a bad pipette."])
+        summary["Next Steps"].append(["Replace Pipettes 1,2 and retry the run."])
+        data["evidence"]=["Genexus Workflow", "/ValkyrieWorkflow/ValkyrieWorkflow_block.html"]
+        
+    elif not mock and (data["pipInCouplerFail0"] or data["pipErr52_0"] > 0):
+        FailReason = "Pipette 1 Issue Detected   Pipette 2 ok"
+        summary["Issues Detected"].append([FailReason])
+        summary["Next Steps"].append(["The most likely cause is a bad pipette 1."])
+        summary["Next Steps"].append(["Replace Pipette 1 and retry the run."])
+        data["evidence"]=["Genexus Workflow", "/ValkyrieWorkflow/ValkyrieWorkflow_block.html"]
+
+    elif not mock and (data["pipInCouplerFail1"] > 0 or data["pipErr52_1"]):
+        FailReason = "Pipette 2 Issues Detected   Pipette1 ok"
+        summary["Issues Detected"].append([FailReason])
+        summary["Next Steps"].append(["The most likely cause is a bad pipette 2."])
+        summary["Next Steps"].append(["Replace Pipette 2 and retry the run."])
+        data["evidence"]=["Genexus Workflow", "/ValkyrieWorkflow/ValkyrieWorkflow_block.html"]
+    
+    elif data["DebugErrors"]:
+        FailReason="Debug log errors"
+        data["evidence"]=["Experiment Errors", "/test_results/Experiment_Errors/results.html"]
+        for i in range(len(data["DebugErrorInfo"])):
+            error = data["DebugErrorInfo"][i]
+            summary["Issues Detected"].append([error])
+            for line in data["DebugErrorNextSteps"][i]:
+                summary["Next Steps"].append([line])
+    else:
+        if mock:
+            FailReason="Mock Run Passed"
+        else:
+            FailReason = "Problem not detected."
+        summary["Issues Detected"].append([FailReason])
+    
+    if mock and FailReason != "Mock Run Passed":
+        FailReason="Mock Run Failed"
+    
+    data["FailReason"]=FailReason
+    return summary
 
 def execute(archive_path, output_path, archive_type):
         
+        
     data={}
-    data["qc"] = GetQCMetrics(archive_path, output_path, archive_type)
-    data["qc"]["failedControlQC"]=0
-    data["evidence"]=[]
-    
     #try:
     expPath=archive_path+"/CSA/explog_final.json"
     if not os.path.exists(expPath):
@@ -595,7 +707,10 @@ def execute(archive_path, output_path, archive_type):
         data["explog"] = json.load(fp)
     #except:
     #    print_info("failed to get explog_final.json")
-    
+
+    data["qc"] = GetQCMetrics(archive_path, output_path, archive_type)
+    data["qc"]["failedControlQC"]=0
+    data["evidence"]=[]
     
     rtp = os.path.join(archive_path, "True_loading")
     #try:
@@ -615,135 +730,21 @@ def execute(archive_path, output_path, archive_type):
     data["IC"]["FailedReadRatios"]=0
     #except:
     #    print_info("failed to get inline controls")
+
+    mock=("mock" in data["explog"]["Experiment Name"] or "Mock" in data["explog"]["Experiment Name"] or data["explog"]["Flows"]==100)
     
     checkValkWf(data, archive_path)        
     checkRunAborted(data, archive_path)
     checkDebugLog(data,archive_path)
-    
-
-    data["ComponentStatus"]=[]
+    checkSequencing(data)
 
     status="Passed"
     if data["IC"]["FailedReadRatios"] > 0:   # read ratio's < 1 problematic
         status="Failed"
-    data["ComponentStatus"].append(["Library Prep",status])
-    
-    status="Passed"
     if data["qc"]["failedControlQC"] > 0:   # or total_valid_reads < 10000
         status="Failed"
-    data["ComponentStatus"].append(["Templating",status])
     
-    SeqStatus=checkSequencing(data)
-    if SeqStatus == "":
-        SeqStatus="Passed"
-    data["ComponentStatus"].append(["Sequencing",SeqStatus])
-    
-    data["ComponentStatus"].append(["Post Run Clean","Passed"])
-
-    summary=OrderedDict()
-    summary["Issues Detected"]=[]
-    summary["Next Steps"]=[]
-
-    FailReason=""
-    if data["RunAborted"]:
-        FailReason=data["runAbortedReason"]
-        summary["Issues Detected"].append([FailReason])
-        for line in data["runAbortedNextSteps"]:
-            summary["Next Steps"].append([line])
-    elif "No Flow Detected" in SeqStatus:
-        FailReason = "Fluidic Issue Detected"
-        summary["Issues Detected"].append([FailReason])
-        for newReason in SeqStatus.splitlines():
-            summary["Issues Detected"].append([newReason])        
-        summary["Next Steps"].append(["No Flow rate detected. The most likely cause is a crimped W2 bottle seal."])        
-        summary["Next Steps"].append(["Check W2 bottle seal."])        
-        summary["Next Steps"].append(["If W2 bottle seal looks ok, Run the Fluidics factory test. retry the run."])
-        data["evidence"]=["Auto Cal", "/autoCal/autoCal.html"]
-
-    elif "Flow Rate is not within range" in SeqStatus:
-        FailReason = "Fluidic Issue Detected"
-        summary["Issues Detected"].append([FailReason])
-        for newReason in SeqStatus.splitlines():
-            summary["Issues Detected"].append([newReason])        
-        summary["Next Steps"].append(["Flow rate not correct. The most likely cause is a clog."])        
-        summary["Next Steps"].append(["Run the Fluidics factory test. retry the run."])
-        data["evidence"]=["Auto Cal", "/autoCal/autoCal.html"]
-        
-    elif "array average is not within range" in SeqStatus or "array average difference" in SeqStatus:
-        FailReason = "Electrical Issue Detected"
-        summary["Issues Detected"].append([FailReason])
-        for newReason in SeqStatus.splitlines():
-            summary["Issues Detected"].append([newReason])        
-        summary["Next Steps"].append(["The most likely cause is a salt bridge on the squid."])
-        summary["Next Steps"].append(["Wipe salt residue from the squid and retry the run."])
-        data["evidence"]=["Auto Cal", "/autoCal/autoCal.html"]
-        
-    elif data["bottomFail0"] > 0 or data["bottomFail1"] > 0:
-        FailReason = "Bottom find Issue Detected"
-        summary["Issues Detected"].append([FailReason])
-        summary["Next Steps"].append(["The most likely causes are pipette malfunction or bad deck calibration."])
-        summary["Next Steps"].append(["Check Tip adapters."])
-        summary["Next Steps"].append(["re-run deck calibration."])
-        summary["Next Steps"].append(["Run the pipette factory test."])
-        data["evidence"]=["Genexus Workflow", "/ValkyrieWorkflow/ValkyrieWorkflow_block.html"]
-        
-    elif data["tipPickupErrors_0"] > 0 or data["tipPickupErrors_1"] > 0:
-        FailReason = "Tip Pickup Issue Detected"
-        summary["Issues Detected"].append([FailReason])
-        summary["Next Steps"].append(["The most likely causes are bad deck calibration, bad tip adapter, or mis-seated tips."])
-        summary["Next Steps"].append(["Check tip rack for mis-seated tips."])
-        summary["Next Steps"].append(["Check Tip adapters."])
-        summary["Next Steps"].append(["re-run deck calibration."])
-        summary["Next Steps"].append(["Run the pipette factory test."])
-        data["evidence"]=["Genexus Workflow", "/ValkyrieWorkflow/ValkyrieWorkflow_block.html"]
-        
-    elif (data["VacFail0"] > 0 or data["VacFail1"] > 0):
-        FailReason = "Vacuum Issue Detected"
-        summary["Issues Detected"].append([FailReason])
-        summary["Next Steps"].append(["The most likely cause is a blocked vacuum."])
-        summary["Next Steps"].append(["Run the vacuum factory test."])
-        data["evidence"]=["Genexus Workflow", "/ValkyrieWorkflow/ValkyrieWorkflow_block.html"]
-    elif (data["ClogFail"] > 0):
-        FailReason = "Clog Detected"
-        summary["Issues Detected"].append([FailReason])
-        summary["Next Steps"].append(["The most likely cause is the chip coupler."])
-        summary["Next Steps"].append(["Check the chip coupler alignment."])
-        summary["Next Steps"].append(["Run the chip coupler factory test."])
-        summary["Next Steps"].append(["Run the vacuum factory test."])
-        data["evidence"]=["Genexus Workflow", "/ValkyrieWorkflow/ValkyrieWorkflow_block.html"]   
-    elif data["pipInCouplerFail0"] > 0 and data["pipInCouplerFail1"] > 0:
-        FailReason = "Pipette 1 and 2 Issues Detected"
-        summary["Issues Detected"].append([FailReason])
-        summary["Next Steps"].append(["The most likely cause is a bad pipette."])
-        summary["Next Steps"].append(["Replace Pipettes 1,2 and retry the run."])
-        data["evidence"]=["Genexus Workflow", "/ValkyrieWorkflow/ValkyrieWorkflow_block.html"]
-        
-    elif data["pipInCouplerFail0"] or data["pipErr52_0"] > 0:
-        FailReason = "Pipette 1 Issue Detected   Pipette 2 ok"
-        summary["Issues Detected"].append([FailReason])
-        summary["Next Steps"].append(["The most likely cause is a bad pipette 1."])
-        summary["Next Steps"].append(["Replace Pipette 1 and retry the run."])
-        data["evidence"]=["Genexus Workflow", "/ValkyrieWorkflow/ValkyrieWorkflow_block.html"]
-
-    elif data["pipInCouplerFail1"] > 0 or data["pipErr52_1"]:
-        FailReason = "Pipette 2 Issues Detected   Pipette1 ok"
-        summary["Issues Detected"].append([FailReason])
-        summary["Next Steps"].append(["The most likely cause is a bad pipette 2."])
-        summary["Next Steps"].append(["Replace Pipette 2 and retry the run."])
-        data["evidence"]=["Genexus Workflow", "/ValkyrieWorkflow/ValkyrieWorkflow_block.html"]
-    
-    elif data["DebugErrors"]:
-        FailReason="Debug log errors"
-        data["evidence"]=["Experiment Errors", "/test_results/Experiment_Errors/results.html"]
-        for i in range(len(data["DebugErrorInfo"])):
-            error = data["DebugErrorInfo"][i]
-            summary["Issues Detected"].append([error])
-            for line in data["DebugErrorNextSteps"][i]:
-                summary["Next Steps"].append([line])
-    else:
-        FailReason = "Problem not detected."
-        summary["Issues Detected"].append([FailReason])
-        
+    summary=decisionLogic(data,mock)
 
     suffix_to_remove = '/test_results/Genexus_TroubleShooter'
     support=OrderedDict()
@@ -771,9 +772,11 @@ def execute(archive_path, output_path, archive_type):
         os.path.dirname(os.path.realpath(__file__))
         )
     
-    if FailReason == "Problem not detected.":
-        rc=print_info(FailReason)
+    if data["FailReason"] == "Problem not detected.":
+        rc=print_info(data["FailReason"])
+    elif data["FailReason"] == "Mock Run Passed":
+        rc=print_ok(data["FailReason"])
     else:
-        rc=print_alert("       <b><u>***{}***</u></b>    See Results for more details".format(FailReason))
+        rc=print_alert("       <b><u>***{}***</u></b>    See Results for more details".format(data["FailReason"]))
         
     return rc
