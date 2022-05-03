@@ -38,10 +38,10 @@ To setup:
 chmod -R 777 .local
 
 To build:
-   Run docker-compose build
+   Run make
 
 To run:
-   Run docker-compose up
+   Run make debug
 
 The inspector should be running at http://localhost:8080/. See [docker-compose.override.yml]()
 
@@ -51,7 +51,7 @@ The inspector should be running at http://localhost:8080/. See [docker-compose.o
 run these commands:
 
     # running all tests
-    docker-compose run django python manage.py test --noinput --parallel
+    make test
 
     # running one tests
     docker-compose run django python manage.py test \
@@ -75,16 +75,17 @@ For a pre-release test candidate, use:
 
 ### To Staging (inspector.sigproc.itw)
 
-Run `fab deploy:<tag name> -H sigproc.itw` from this directory.
-
-Or run these commands when logging in as `deploy@sigproc.itw`:
+ run these commands when logging in as `deploy@sigproc.itw`:
 
     cd /var/lib/inspector/inspector
     git fetch --all --tags --prune
     git checkout <tag> --force
     # if using 'master' instead of <tag>, run `git pull`
-    docker-compose -f docker-compose.yml -f docker-compose.prod.yml build
-    docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+    # make sure the settings.py VERSION is correct for the build
+    make deploy
+
+
+
     # add `--force-recreate` if starting from scratch/fresh
 
 If nginx conf has changed:
@@ -116,7 +117,7 @@ Delete the data dir and upgrade pg
 
 From the local clone direcotry, i.e. this directory:
 
-    docker-compose up
+    make debug
 
 and `Control+C` to bring down services gracefully.
 
@@ -126,9 +127,9 @@ from inspector directory (`/var/lib/inspector/inspector`)
 
 Graceful shutdown
 
-    docker-compose down
+    make down
 
 Bring up in daemon mode
 
-    docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+    make up
 
