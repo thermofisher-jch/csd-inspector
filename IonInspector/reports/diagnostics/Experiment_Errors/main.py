@@ -19,7 +19,7 @@ from reports.diagnostics.common.inspector_utils import (
     get_debug_log_datetime,
 )
 
-DEBUG_ERROR_KEYWORDS = ["ValueError","PCR lid clamping failure"]
+DEBUG_ERROR_KEYWORDS = ["PCR lid clamping failure"]
 
 
 def get_error_lines_in_debug(archive_path, start_time, end_time):
