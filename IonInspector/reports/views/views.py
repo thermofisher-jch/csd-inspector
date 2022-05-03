@@ -1,6 +1,8 @@
 import json
 import logging
 import os
+import datetime
+import pytz
 
 from dateutil.parser import parse as date_parse
 from django.conf import settings
@@ -215,6 +217,8 @@ def report(request, pk):
     relative_coverage_analysis_path = (
         "archive_files/" + str(pk) + "/coverageAnalysis/coverageAnalysis.html"
     )
+    PST = pytz.timezone("US/Pacific")
+
     ctx = dict(
         {
             "archive_type_choices_json": json.dumps(
@@ -228,6 +232,7 @@ def report(request, pk):
                 json.dumps(CATEGORY_CHOICES)
             ),
             "archive": archive,
+            "archive_time": archive.time.astimezone(PST).strftime("%d %b %Y, %I:%M %p %Z"),
             "archive_type": archive.archive_type,
             "diagnostics": diagnostics,
             "thumbnail_pdf_present": thumbnail_pdf_present,
@@ -240,7 +245,7 @@ def report(request, pk):
                 os.path.join(settings.MEDIA_ROOT, relative_coverage_analysis_path)
             )
             else "",
-            "start_time": start_time,
+            "start_time": start_time.astimezone(PST).strftime("%d %b %Y, %I:%M %p %Z"),
             "is_sequencer": json.dumps(archive.is_sequencer()),
         }
     )

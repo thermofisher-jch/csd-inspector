@@ -105,7 +105,7 @@ class ArchiveTable(tables.Table):
             "<a href='%s' class='no-underline' target='_blank'>%s</a>"
             % (
                 reverse("report", args=[record.id]),
-                value.astimezone(PST).strftime("%d %b %Y, %H:%M %p %Z"),
+                value.astimezone(PST).strftime("%d %b %Y, %I:%M %p %Z"),
             )
         )
 
