@@ -128,7 +128,8 @@ class Diagnostic(models.Model):
                     self.results = json.load(fp)
 
         except Exception as exc:
-            self.details = str(exc)
+            self.details = "Failed. <a href="+self.archive.archive_root.replace("/var/lib/inspector","")+"/test_results/"+self.name.replace(" ", "_")+"/results.html> Error Link </a> " #+str(exc)
+            #self.details = self.diagnostic_root #+"/results.html  Error Link" #</a> bb " #+str(exc)
             # traceback.print_exc()
             # trace = traceback.format_exc()
             # write_uncaught_error(self.diagnostic_root, trace)
