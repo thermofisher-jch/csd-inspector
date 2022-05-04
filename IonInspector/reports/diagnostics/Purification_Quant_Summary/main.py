@@ -1,23 +1,97 @@
 # -*- coding: utf-8 -*-
 # !/usr/bin/env python
-from reports.diagnostics.common.inspector_utils import print_info
-from reports.diagnostics.common.reporting import PURIFICATION_QUANT_SUMMARY
+import os
+import csv
+import fnmatch
+import copy
+import json
+import logging
+import subprocess
+from collections import OrderedDict
+from reports.diagnostics.common.inspector_utils import (
+    read_explog,
+    print_info,
+    print_alert,
+    print_ok,
+    write_results_from_template,
+)
 
+logger = logging.getLogger(__name__)
 
 def execute(archive_path, output_path, archive_type):
-    from reports.diagnostics.di.instrument_types import get_instrument_type_container
+    quant_sumF=os.path.join(output_path, "Quant_summary.csv")
+    quant_reagF=os.path.join(output_path, "Quant_reagent.csv")
+    quant_samplesF=os.path.join(output_path, "Quant_samples.csv")
 
-    # TOOO: Apply configurable properties while loading container instead of
-    #       repeating it in each test
-    instrument_container = get_instrument_type_container(archive_type)
-    instrument_container.config.purification.gap_tolerance.from_value(30)
-    instrument_container.config.csa_core.archive_root.from_value(archive_path)
-    instrument_container.config.csa_core.output_directory.from_value(output_path)
-    instrument_container.config.csa_core.selected_report_name.from_value(
-        PURIFICATION_QUANT_SUMMARY
-    )
-    return instrument_container.process_report()
+    cmd="find " + archive_path + " -name Quant_summary.csv | head -n 1"
+    try:
+        filename=subprocess.check_output(cmd,shell=True).decode()
+    except:
+        filename=""
+    #logger.warn("got back : "+filename)
 
+    if filename == "":
+        rc=print_info("NA")
+    else:
+        cmd="sed '/Plate Name/q' " + filename.strip() + " | grep -v 'Plate Name' | sed 's/\"//g' > "+quant_sumF
+        os.system(cmd)
+        cmd="sed -n '/Plate Name/,/Well Name/p' " + filename.strip() + " | grep -v 'Well Name' | sed 's/\"//g' > "+quant_reagF
+        os.system(cmd)
+        cmd="sed -n '/Well Name/,$p' " + filename.strip() + " | sed 's/\"//g' > "+quant_samplesF
+        os.system(cmd)
+        
+        summary=OrderedDict()
+        support=OrderedDict()
+
+        with open(quant_sumF, "rb") as fp:
+            summary["Summary"] = list(csv.reader(fp, delimiter=","))
+        logger.warn(summary)
+
+        with open(quant_reagF, "rb") as fp:
+            support["Reagent Lot"] = {}
+            tmp = list(csv.reader(fp, delimiter=","))
+            support["Reagent Lot"]["header"]=tmp[0]
+            support["Reagent Lot"]["data"]=tmp[1:]
+            smp=support["Reagent Lot"]
+            for i in range(len(smp["header"])):
+                if smp["header"][i].strip() == "expiryDate":
+                    smp["header"][i]="Expiration Date";
+                    for j in range(len(smp["data"])):
+                        if len(smp["data"][j]) > i and len(smp["data"][j][i]) == 7:
+                            smp["data"][j][i]="20"+smp["data"][j][i][1]+smp["data"][j][i][2] + "-" + smp["data"][j][i][3]+smp["data"][j][i][4] + "-" + smp["data"][j][i][5] + smp["data"][j][i][6]
+                    break
+        logger.warn(support)
+            
+        with open(quant_samplesF, "rb") as fp:
+            support["Samples"] = {}
+            tmp = list(csv.reader(fp, delimiter=","))
+            support["Samples"]["header"]=tmp[0]
+            support["Samples"]["data"]=tmp[1:]
+            
+            
+            smp=support["Samples"]
+            logger.warn(summary)
+            for i in range(len(smp["header"])):
+                logger.warn("{}: ".format(i)+smp["header"][i])
+                if smp["header"][i].strip() == "Concentration":
+                    logger.warn("{}: found match".format(i))
+                    smp["header"][i]="Concentration ng/ul";
+                    for j in range(len(smp["data"])):
+                        logger.warn("{}: {} {}".format(j,smp["data"][j][i],len(smp["data"][j][i])))
+                        if len(smp["data"][j]) > i and len(smp["data"][j][i]) > 0:
+                            smp["data"][j][i]="{:.02f}".format(float(smp["data"][j][i]))
+                    break
+        logger.warn(support)
+                
+
+        write_results_from_template(
+            {"other_runDetails": summary,
+             "support": support},
+            output_path,
+            os.path.dirname(os.path.realpath(__file__))
+            )
+        rc=print_info("See results for details")
+    return rc
 
 if __name__ == "__main__":
     import os

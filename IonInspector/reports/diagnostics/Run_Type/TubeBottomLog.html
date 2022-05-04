@@ -1,0 +1,116 @@
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<html>
+<head>
+    <title>Tube Bottom Log</title>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <style>
+        .qcHeading {
+          padding: 0rem;
+          background: #31688f52;
+          text-align: left;
+        }
+        #qcMetrics>tbody>tr>td {
+          padding: 2;
+          font-size: medium;
+        }
+        #qcMetrics>thead>tr>td {
+          padding: 4px;
+          font-size: medium;
+        }
+        .failed {
+            display: inline-block;
+            vertical-align: left;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <h1 class="lead">Tube Bottom Log</h1>
+    <div class="row">
+        <div class="col-md-12">           
+            <br>
+            <div>
+            {% for key, values in other_runDetails.items %}
+            <div class="panel panel-default">
+                <div class="panel-heading text-left lead"><b>{{ key }}</b></div>
+                <table class="table table-bordered table-striped table-hover" id="qcMetrics">
+                        {% for row in values %}
+                            {% if row %}
+                                <tr><b>
+                                    {% for col in row %}
+                                        {% ifnotequal col "" %}
+                                            <td>{{ col }}</td>
+                                        {% endifnotequal %}
+                                    {% endfor %}
+                                </b></tr>
+                            {% endif %}
+                        {% endfor %}
+                </table>
+            </div>
+            {% endfor %}        
+            {% for key, values in support.items %}
+            <div class="panel panel-default">
+                <div class="panel-heading text-center lead">{{ key }}</div>
+                <table class="table table-bordered table-striped table-hover" id="qcMetrics">
+                        {% for row in values %}
+                            {% if row %}
+                                <tr><b>
+                                    {% ifnotequal row "" %}
+                                        <td><div w3-include-html={{ row.url }}></div></td>
+                                    {% endifnotequal %}
+                                </b></tr>
+                            {% endif %}
+                        {% endfor %}
+                </table>
+            </div>
+            {% endfor %}        
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+<script>
+    $('#myTabs a').click(function (e) {
+        e.preventDefault();
+        $(this).tab('show')
+    })
+</script>
+
+<script>
+function includeHTML() {
+  var z, i, elmnt, file, xhttp;
+  /* Loop through a collection of all HTML elements: */
+  z = document.getElementsByTagName("*");
+  for (i = 0; i < z.length; i++) {
+    elmnt = z[i];
+    /*search for elements with a certain atrribute:*/
+    file = elmnt.getAttribute("w3-include-html");
+    if (file) {
+      /* Make an HTTP request using the attribute value as the file name: */
+      xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4) {
+          if (this.status == 200) {elmnt.innerHTML = this.responseText;}
+          if (this.status == 404) {elmnt.innerHTML = "Page not found.";}
+          /* Remove the attribute, and call this function once more: */
+          elmnt.removeAttribute("w3-include-html");
+          includeHTML();
+        }
+      }
+      xhttp.open("GET", file, true);
+      xhttp.send();
+      /* Exit the function: */
+      return;
+    }
+  }
+}
+includeHTML();
+</script> 
+
+</body>
+</html>

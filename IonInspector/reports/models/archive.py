@@ -92,7 +92,6 @@ TEST_MANIFEST = {
     PURE: [
         ("Purification_Quant_Summary", CATEGORY_SAMPLE_PREP),
         ("Purification_Run_Log", CATEGORY_SAMPLE_PREP),
-        ("Purification_Reagent_Lot_Summary", CATEGORY_SAMPLE_PREP),
         ("Purification_Logged_Errors", CATEGORY_SAMPLE_PREP),
         # ("Genexus_Library_Prep_Log", CATEGORY_LIBRARY_PREP),
         # ("Genexus_Library_Details", CATEGORY_LIBRARY_PREP),
@@ -132,7 +131,6 @@ TEST_MANIFEST = {
         ("Genexus_Library_Details", CATEGORY_LIBRARY_PREP),
         ("Purification_Quant_Summary", CATEGORY_SAMPLE_PREP),
         ("Purification_Run_Log", CATEGORY_SAMPLE_PREP),
-        ("Purification_Reagent_Lot_Summary", CATEGORY_SAMPLE_PREP),
         ("Purification_Logged_Errors", CATEGORY_SAMPLE_PREP),
         ("Genexus_QC_Status", CATEGORY_SEQUENCING),
         ("Genexus_Raw_Trace", CATEGORY_SEQUENCING),

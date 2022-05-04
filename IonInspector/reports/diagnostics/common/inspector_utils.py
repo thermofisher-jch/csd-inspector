@@ -468,7 +468,8 @@ def run_used_chef(archive_path):
     return len(ion_params_object.get("exp_json", {}).get("chefInstrumentName", "")) > 0
 
 
-def write_results_from_template(data_dict, output_dir, diagnostic_script_dir):
+
+def write_results_from_template(data_dict, output_dir, diagnostic_script_dir, fileName="results.html"):
     # Legacy diagnostics expect a single results.html file to be located in the same directory
     # as the main.py executable.  Allow this to remain the common convention for existing
     # diagnostics, while also allowing newer diagnostics to provide a full path to a template file
@@ -500,9 +501,9 @@ def write_results_from_template(data_dict, output_dir, diagnostic_script_dir):
     }
     try:
         template_engine = DjangoTemplates(template_options)
-        template = template_engine.get_template("results.html")
+        template = template_engine.get_template(fileName)
         result = template.render(data_dict)
-        with open(os.path.join(output_dir, "results.html"), "w") as out:
+        with open(os.path.join(output_dir, fileName), "w") as out:
             out.write(result.encode("UTF-8"))
     except IOError:
         raise RuntimeError("Could not find template file at: " + diagnostic_script_dir)
