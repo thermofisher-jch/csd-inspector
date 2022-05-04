@@ -274,7 +274,7 @@ def get_chip_status(archive_path, output_path, archive_type):
             full_chip_reads,
             full_chip_reads_spec,
         ) = get_total_reads_message(chip_type, total_reads)
-    except FileNotFoundError:
+    except:
         total_reads_message = "Total Reads not known"
 
     # final reads

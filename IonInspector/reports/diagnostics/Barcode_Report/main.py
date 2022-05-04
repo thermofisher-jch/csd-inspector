@@ -12,6 +12,7 @@ import numpy
 from reports.diagnostics.common.inspector_utils import (
     write_results_from_template,
     print_info,
+    print_alert,
     handle_exception,
 )
 
@@ -118,6 +119,9 @@ def execute(archive_path, output_path, archive_type):
     else:
         datasets_path = "basecaller_results/datasets_basecaller.json"
         barcodes_to_nucleotide_types = {}
+
+    if not os.path.exists(os.path.join(archive_path, datasets_path)):
+        return print_alert("no basecaller info available.")
 
     with open(os.path.join(archive_path, datasets_path)) as datasets_file:
         datasets_object = json.load(datasets_file)

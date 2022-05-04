@@ -9,6 +9,7 @@ from reports.diagnostics.common.inspector_utils import (
     write_results_from_template,
     print_info,
     print_warning,
+    print_alert,
     get_filePath,
 )
 
@@ -42,6 +43,10 @@ def check_total_wells(data):
 
 
 def execute(archive_path, output_path, archive_type):
+    
+    if not os.path.exists( os.path.join(archive_path, "CSA", "outputs", "BaseCallingActor-00", "BaseCaller.json")):
+        return print_alert("No bfstats available.")
+
     sigproc_stats = parse_sigproc_stats(archive_path)
     base_caller_read_stats, base_caller_base_stats = parse_base_caller_stats(
         archive_path

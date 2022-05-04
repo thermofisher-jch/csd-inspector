@@ -26,7 +26,7 @@ test:
 	docker-compose run django python manage.py test --noinput --parallel
 		
 # for development environment.. won't return, needs to be ^C to stop		
-debug:
+debug: build
 	docker-compose up
 
 # for production environment.  will return
