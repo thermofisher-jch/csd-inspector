@@ -46,7 +46,6 @@ deploy:
 	docker build -t vulcan.itw:5000/inspector_celery:$(VERSION) -f Dockerfile .
 	docker build -t vulcan.itw:5000/inspector_uploader:$(VERSION) -f ./nginx/Dockerfile .
 	
-	# launch the docker images locally
-	export VERSION=$(VERSION) 
+	# launch the docker images locally 
 	docker-compose down
-	docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+	export VERSION=$(VERSION); docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
