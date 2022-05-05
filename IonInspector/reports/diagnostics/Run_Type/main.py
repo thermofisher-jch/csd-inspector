@@ -104,7 +104,7 @@ def CheckValkWf(archive_path):
                                 badBottomCnt+=1 
                             else:
                                 goodBottomCnt+=1
-                logger.warn("badCnt: {} goodCnt: {}".format(badBottomCnt,goodBottomCnt))
+                #logger.warn("badCnt: {} goodCnt: {}".format(badBottomCnt,goodBottomCnt))
                 if badBottomCnt > 0:
                     rc += " check tube bottom"
 

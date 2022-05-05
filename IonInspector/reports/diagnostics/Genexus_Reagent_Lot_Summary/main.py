@@ -78,26 +78,26 @@ def execute(archive_path, output_path, archive_type):
         
         
     if runDateTxt != "" and os.path.exists(os.path.join(archive_path, "CSA/DeckStatus.json")):
-        logger.warn("runDateTxt "+runDateTxt)
+        #logger.warn("runDateTxt "+runDateTxt)
         runDateObj = datetime.datetime.strptime(runDateTxt,"%m/%d/%Y %H:%M:%S")
         runDate = int(runDateObj.strftime("%y%m%d"))
         
         lastInitDate=0
         if lastInitDateTxt != "":
-            logger.warn("lastInitDateTxt "+lastInitDateTxt)
+            #logger.warn("lastInitDateTxt "+lastInitDateTxt)
             lastInitDateObj = datetime.datetime.strptime(lastInitDateTxt,"%Y/%m/%d %H:%M:%S")
             lastInitDate = int(lastInitDateObj.strftime("%y%m%d"))
             firstInitThr=int((lastInitDateObj+datetime.timedelta(days=14)).strftime("%y%m%d"))
             secondInitThr=int((lastInitDateObj+datetime.timedelta(days=28)).strftime("%y%m%d"))
-            logger.warn("thr1: {}".format(firstInitThr))
-            logger.warn("thr2: {}".format(secondInitThr))
+            #logger.warn("thr1: {}".format(firstInitThr))
+            #logger.warn("thr2: {}".format(secondInitThr))
             if runDate > secondInitThr:
                 InitMsg="Init more than 28 days old"
             elif runDate > firstInitThr:
                 InitMsg="Init more than 14 days old"
             
         
-        logger.warn("run:  {}".format(runDate))
+        #logger.warn("run:  {}".format(runDate))
         with open(os.path.join(archive_path, "CSA/DeckStatus.json"), "rb") as fp:
             cons = json.load(fp)
             for consItem in cons:
@@ -105,7 +105,7 @@ def execute(archive_path, output_path, archive_type):
                     for bcItem in consItem["barcodeList"]:
                         if "expiryDate" in bcItem:
                             expDate=int(bcItem["expiryDate"])
-                            logger.warn("found {} < {}".format(expDate,runDate))
+                            #logger.warn("found {} < {}".format(expDate,runDate))
                             if expDate < runDate:
                                 expired=True
                                     

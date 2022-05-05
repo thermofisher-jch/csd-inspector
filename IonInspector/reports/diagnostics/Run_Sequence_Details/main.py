@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 import sys
 import os
@@ -7,13 +10,8 @@ import csv
 
 from dateutil.parser import parse
 from datetime import datetime
-import matplotlib
-if os.environ.get('DISPLAY','') == '':
-    print('no display found. Using non-interactive Agg backend')
-    matplotlib.use('Agg')
 import logging
 import fnmatch
-import matplotlib.pyplot as plt
 from reports.diagnostics.common.inspector_utils import (
     read_explog,
     check_supported,
@@ -192,6 +190,8 @@ def execute(archive_path, output_path, archive_type):
         CreateInitFillGraphs(archive_path,output_path)
         # except:
         #     logger.warn("failed to create init fill graphs")
+
+        os.system("ln -s "+archive_path+ "/autoCal/* "+output_path+"/")
         
         datetime_output_format = "%Y/%m/%d"
         template_context = {
@@ -204,6 +204,7 @@ def execute(archive_path, output_path, archive_type):
             "system_type": system_type,
             "flow_time_seconds": flow_time_secs,
             "disk_free_perc": disk_free_perc,
+            "autocal_html" : "autoCal.html",
         }
         write_results_from_template(
             template_context, output_path, os.path.dirname(os.path.realpath(__file__))

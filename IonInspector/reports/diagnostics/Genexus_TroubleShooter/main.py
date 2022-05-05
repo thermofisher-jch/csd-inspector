@@ -296,7 +296,7 @@ def GetQCMetrics(archive_path, output_path, archive_type):
     return results 
 
 def grepInDebug(error, debug_path):
-    cmd="/bin/grep -a -B4 -A16 "+ error + " "+ debug_path 
+    cmd="/bin/grep -a -B4 -A16 \""+ error + "\" "+ debug_path 
     result = ""
     try:
         result=subprocess.check_output(cmd,shell=True).decode()
@@ -340,7 +340,7 @@ def checkDebugLog(data, archive_path):
         for error in errors:
             for idx in DebugErrors:
                 if idx in error:
-                    logger.warn("adding error {} for {}".format(error, idx))
+                    #logger.warn("adding error {} for {}".format(error, idx))
                     data["DebugErrorInfo"].append(DebugErrors[idx]["errorReason"])
                     data["DebugErrorNextSteps"].append(DebugErrors[idx]["NextSteps"])
                     break
@@ -571,7 +571,7 @@ def checkRunAborted(data, archive_path):
         cmd="/bin/grep -a -B4 -A16 Traceback "+archive_path+"/CSA/debug | tail -n 20"
         try:
             result=subprocess.check_output(cmd,shell=True).decode()
-            logger.warn("got back : "+result)
+            #logger.warn("got back : "+result)
             if not result == "":
                 data["runAbortedReason"]="Generic Exception"
                 data["evidence"]=["Experiment Errors", "/test_results/Experiment_Errors/results.html"]

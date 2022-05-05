@@ -18,11 +18,14 @@
     </style>
 </head>
 <body>
+
+<div w3-include-html={{ autocal_html }}></div>
+
 <div class="container">
     <div class="row">
         <div class="col-xs-12">
             <h2 class="lead">Summary</h2> <br/>
-            <table class="table table-striped table-bordered">
+            <table class="table table-striped table-bordered"  align="left">
                 <tr>
                     <td>Torrent Suite Version</td>
                     <td>{{ tss_version }}</td>
@@ -52,17 +55,6 @@
                     <td>{{ serial_number }}</td>
                 </tr>
             </table>
-        </div>
-    </div>
-</div>
-<div class="container">
-    <div class="row">
-        <div class="col-xs-12">
-            <h2 class="lead">Flow Time (seconds)</h2> <br/>
-            <div class="flowtime" data-values="{{ flow_time_seconds|safe }}"></div>
-
-            <h2 class="lead">Disk Usage (percentage)</h2> <br/>
-            <div class="diskperc" data-values="{{ disk_free_perc|safe }}"></div>
         </div>
     </div>
 </div>
@@ -123,5 +115,37 @@ The limit that should trigger a conical replacement is still being determined.
         }
     });
 </script>
+
+<script>
+function includeHTML() {
+  var z, i, elmnt, file, xhttp;
+  /* Loop through a collection of all HTML elements: */
+  z = document.getElementsByTagName("*");
+  for (i = 0; i < z.length; i++) {
+    elmnt = z[i];
+    /*search for elements with a certain atrribute:*/
+    file = elmnt.getAttribute("w3-include-html");
+    if (file) {
+      /* Make an HTTP request using the attribute value as the file name: */
+      xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4) {
+          if (this.status == 200) {elmnt.innerHTML = this.responseText;}
+          if (this.status == 404) {elmnt.innerHTML = "Page not found.";}
+          /* Remove the attribute, and call this function once more: */
+          elmnt.removeAttribute("w3-include-html");
+          includeHTML();
+        }
+      }
+      xhttp.open("GET", file, true);
+      xhttp.send();
+      /* Exit the function: */
+      return;
+    }
+  }
+}
+includeHTML();
+</script> 
+
 </body>
 </html>

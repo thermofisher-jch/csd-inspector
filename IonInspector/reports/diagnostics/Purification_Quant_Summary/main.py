@@ -46,20 +46,20 @@ def execute(archive_path, output_path, archive_type):
         
         cmd="sed '/Plate Name/q' " + filename.strip() + " | grep -v 'Plate Name' | sed 's/\"//g' > "+quant_sumF
         os.system(cmd)
-        logger.warn(cmd)
+        #logger.warn(cmd)
         cmd="sed -n '/Plate Name/,/" + WN + "/p' " + filename.strip() + " | grep -v '"+WN+"' | sed 's/\"//g' > "+quant_reagF
         os.system(cmd)
-        logger.warn(cmd)
+        #logger.warn(cmd)
         cmd="sed -n '/"+WN+"/,$p' " + filename.strip() + " | sed 's/\"//g' > "+quant_samplesF
         os.system(cmd)
-        logger.warn(cmd)
+        #logger.warn(cmd)
         
         summary=OrderedDict()
         support=OrderedDict()
 
         with open(quant_sumF, "rb") as fp:
             summary["Summary"] = list(csv.reader(fp, delimiter=","))
-        logger.warn(summary)
+        #logger.warn(summary)
 
         with open(quant_reagF, "rb") as fp:
             support["Reagent Lot"] = {}
@@ -74,30 +74,30 @@ def execute(archive_path, output_path, archive_type):
                         if len(smp["data"][j]) > i and len(smp["data"][j][i]) == 7:
                             smp["data"][j][i]="20"+smp["data"][j][i][1]+smp["data"][j][i][2] + "-" + smp["data"][j][i][3]+smp["data"][j][i][4] + "-" + smp["data"][j][i][5] + smp["data"][j][i][6]
                     break
-        logger.warn(support)
+        #logger.warn(support)
             
         with open(quant_samplesF, "rb") as fp:
             support["Samples"] = {}
             tmp = list(csv.reader(fp, delimiter=","))
-            logger.warn(tmp)
-            logger.warn(tmp[1:])
+            #logger.warn(tmp)
+            #logger.warn(tmp[1:])
             support["Samples"]["header"]=tmp[0]
             support["Samples"]["data"]=tmp[1:]
             
             
             smp=support["Samples"]
-            logger.warn(summary)
+            #logger.warn(summary)
             for i in range(len(smp["header"])):
-                logger.warn("{}: ".format(i)+smp["header"][i])
+                #logger.warn("{}: ".format(i)+smp["header"][i])
                 if smp["header"][i].strip() == "Concentration":
-                    logger.warn("{}: found match".format(i))
+                    #logger.warn("{}: found match".format(i))
                     smp["header"][i]="Concentration ng/ul";
                     for j in range(len(smp["data"])):
-                        logger.warn("{}: {} {}".format(j,smp["data"][j][i],len(smp["data"][j][i])))
+                        #logger.warn("{}: {} {}".format(j,smp["data"][j][i],len(smp["data"][j][i])))
                         if len(smp["data"][j]) > i and len(smp["data"][j][i]) > 0:
                             smp["data"][j][i]="{:.02f}".format(float(smp["data"][j][i]))
                     break
-        logger.warn(support)
+        #logger.warn(support)
                 
 
         write_results_from_template(
