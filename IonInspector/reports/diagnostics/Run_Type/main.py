@@ -10,6 +10,7 @@ from reports.diagnostics.common.inspector_utils import (
     shutil,
     print_info,
     print_ok,
+    print_alert,
     write_results_from_template
 )
 logger = logging.getLogger(__name__)
@@ -120,6 +121,16 @@ def execute(archive_path, output_path, archive_type):
     explog = read_explog(archive_path)
     run_type = explog.get("RunType", "Unknown")
     message = "Run Type: {}  (".format(run_type)
+
+    complete=False
+    files = os.listdir(archive_path)
+    for file in files:
+        if ".CSA.txz" in file:
+            complete=True
+
+    if not complete:
+        message = "****CSA downloaded before plugins completed. Please re-download the CSA for a more complete report.****"
+        return print_alert(message)
 
     valkyrie_workflow_path = os.path.join(archive_path, "ValkyrieWorkflow") + "/"
 
