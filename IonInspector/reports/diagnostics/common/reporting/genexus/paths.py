@@ -156,7 +156,13 @@ class GenexusArchiveFeatures(IPathLocator, IFeatureAvailability):
     def genexus_release(self):
         version_str = self._explog.get("Genexus Release_version", "")
         if version_str != "":
-            return semver.parse(version_str)
+            versions=version_str.split(".")
+            rc = {}
+            if len(versions) >= 1:
+                rc["major"]=int(versions[0])
+            if len(versions) >= 2:
+                rc["minor"]=int(versions[1])
+            return rc
 
     @property
     @functools32.lru_cache(maxsize=1)

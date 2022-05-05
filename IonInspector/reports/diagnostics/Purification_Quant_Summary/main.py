@@ -33,12 +33,26 @@ def execute(archive_path, output_path, archive_type):
     if filename == "":
         rc=print_info("NA")
     else:
+        cmd="grep 'Well Name' " + filename.strip()
+        result = ""
+        try:
+            result=subprocess.check_output(cmd,shell=True).decode()
+        except:
+            pass
+        
+        WN="Well Name"
+        if result == "":
+            WN="Sample Name"
+        
         cmd="sed '/Plate Name/q' " + filename.strip() + " | grep -v 'Plate Name' | sed 's/\"//g' > "+quant_sumF
         os.system(cmd)
-        cmd="sed -n '/Plate Name/,/Well Name/p' " + filename.strip() + " | grep -v 'Well Name' | sed 's/\"//g' > "+quant_reagF
+        logger.warn(cmd)
+        cmd="sed -n '/Plate Name/,/" + WN + "/p' " + filename.strip() + " | grep -v '"+WN+"' | sed 's/\"//g' > "+quant_reagF
         os.system(cmd)
-        cmd="sed -n '/Well Name/,$p' " + filename.strip() + " | sed 's/\"//g' > "+quant_samplesF
+        logger.warn(cmd)
+        cmd="sed -n '/"+WN+"/,$p' " + filename.strip() + " | sed 's/\"//g' > "+quant_samplesF
         os.system(cmd)
+        logger.warn(cmd)
         
         summary=OrderedDict()
         support=OrderedDict()
@@ -65,6 +79,8 @@ def execute(archive_path, output_path, archive_type):
         with open(quant_samplesF, "rb") as fp:
             support["Samples"] = {}
             tmp = list(csv.reader(fp, delimiter=","))
+            logger.warn(tmp)
+            logger.warn(tmp[1:])
             support["Samples"]["header"]=tmp[0]
             support["Samples"]["data"]=tmp[1:]
             
