@@ -108,35 +108,7 @@ def execute(archive_path, output_path, archive_type):
                             logger.warn("found {} < {}".format(expDate,runDate))
                             if expDate < runDate:
                                 expired=True
-                        
-    for file in "initFill_R1","initFill_R2","initFill_R3","initFill_R4","initFill_RW1":
-        fileName=os.path.join(os.path.join(archive_path, "CSA"),file)+".csv"
-        if os.path.exists(fileName):
-            x = []
-            y1 = []
-            y2 = []
-  
-            with open(fileName,'r') as csvfile:
-                lines = csv.reader(csvfile, delimiter=',')
-                for row in lines:
-                    x.append(float(row[5]))
-                    y1.append(float(row[9]))
-                    y2.append(float(row[13]))
-                fig=plt.figure()
-                fig1 = fig.add_subplot(111)
-                plt.plot(x, y1, color = 'g', linestyle = 'dashed',
-                   marker = 'o',label = "WD1")
-                plt.plot(x, y2, color = 'r', linestyle = 'dashed',
-                   marker = 'o',label = "WD2")
-
-                plt.xticks(rotation = 25)
-                plt.xlabel('Time')
-                plt.ylabel('FlowRate')
-                plt.title(file, fontsize = 20)
-                plt.grid()
-                plt.legend()
-                plt.savefig(os.path.join(output_path,file)+".png")
-            
+                                    
     write_results_from_template(
         {"other_runDetails": get_other_details(infoRowsForOtherDetails)},
         output_path,

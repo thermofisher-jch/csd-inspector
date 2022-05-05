@@ -3,10 +3,17 @@
 import sys
 import os
 import json
+import csv
 
 from dateutil.parser import parse
 from datetime import datetime
-
+import matplotlib
+if os.environ.get('DISPLAY','') == '':
+    print('no display found. Using non-interactive Agg backend')
+    matplotlib.use('Agg')
+import logging
+import fnmatch
+import matplotlib.pyplot as plt
 from reports.diagnostics.common.inspector_utils import (
     read_explog,
     check_supported,
@@ -16,6 +23,9 @@ from reports.diagnostics.common.inspector_utils import (
     print_info,
     read_flow_info_from_explog,
 )
+
+logger = logging.getLogger(__name__)
+
 
 OK_STRING = "TS Version is acceptable at <strong>%s</strong>"
 ALERT_STRING = "Advise customer to upgrade their Torrent Server.  Their version is out-dated at <strong>%s</strong>"
@@ -99,6 +109,36 @@ def get_disk_perc(flow_data):
         if "diskPerFree" in flow_data[ii]
     ]
 
+def CreateInitFillGraphs(archive_path,output_path):
+    for file in "initFill_R1","initFill_R2","initFill_R3","initFill_R4","initFill_RW1":
+        fileName=os.path.join(os.path.join(archive_path, "CSA"),file)+".csv"
+        if os.path.exists(fileName):
+            x = []
+            y1 = []
+            y2 = []
+        
+            with open(fileName,'r') as csvfile:
+                lines = csv.reader(csvfile, delimiter=',')
+                for row in lines:
+                    x.append(float(row[5]))
+                    y1.append(float(row[9]))
+                    y2.append(float(row[13]))
+                slope=y2[-1]/x[-1]
+                fig=plt.figure()
+                fig1 = fig.add_subplot(111)
+                plt.plot(x, y1, color = 'g', linestyle = 'solid',
+                   marker = 'o',label = "WD1")
+                plt.plot(x, y2, color = 'r', linestyle = 'solid',
+                   marker = 'o',label = "WD2")
+        
+                plt.xticks(rotation = 15)
+                plt.xlabel('Time')
+                plt.ylabel('FlowRate')
+                plt.title(file+" Rate={:.2f}mL/s".format(slope), fontsize = 20)
+                plt.grid()
+                plt.legend()
+                plt.savefig(os.path.join(output_path,file)+".png")
+
 
 def execute(archive_path, output_path, archive_type):
     """Executes the test"""
@@ -148,6 +188,11 @@ def execute(archive_path, output_path, archive_type):
         flow_time_secs = get_flow_time(flow_data)
         disk_free_perc = get_disk_perc(flow_data)
 
+        # try:
+        CreateInitFillGraphs(archive_path,output_path)
+        # except:
+        #     logger.warn("failed to create init fill graphs")
+        
         datetime_output_format = "%Y/%m/%d"
         template_context = {
             "tss_version": version,
