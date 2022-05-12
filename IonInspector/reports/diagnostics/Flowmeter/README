@@ -1,4 +1,8 @@
 This will check the Flowmeter0 column of the onetouch log and check to see if there  are any non-zero values.
+A flat line is a result from a broken sensor. 
+A flat line rarely indicates that coolant is not being pumped through the system. 
+T3- Internal case temperature plot should be reviewed. 
+If normal, coolant is still flowing through the system.
 
 INPUTS:
 onetouch.log

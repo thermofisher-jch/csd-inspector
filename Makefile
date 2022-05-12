@@ -18,7 +18,7 @@ all: build
 VERSION=$(shell grep "VERSION = \"" IonInspector/settings.py | sed 's/VERSION = \"//g' | sed 's/\"//g')
 
 build:
-	-@mkdir -p .local/celery .local/media .local/logs/inspector .local/postgresql_log; sudo chmod -R 777 .local
+	-@mkdir -p .local/celery .local/media .local/logs/inspector .local/postgresql_log; chmod -R 777 .local
 	docker-compose build
 	
 test:

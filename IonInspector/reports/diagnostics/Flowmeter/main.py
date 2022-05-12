@@ -24,7 +24,7 @@ def execute(archive_path, output_path, archive_type):
             if flowmeter_has_non_zero:
                 return print_ok("Flow meter appears to be functioning.")
             else:
-                return print_alert("Flow meter is not functioning.")
+                return print_alert("No reading from Flow meter.")
 
     except Exception as exc:
         return handle_exception(exc, output_path)

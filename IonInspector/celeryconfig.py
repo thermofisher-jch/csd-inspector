@@ -5,7 +5,7 @@ from celery import Celery
 
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "IonInspector.settings")
-
+os.environ.setdefault("MPLBACKEND","Agg")
 from django.conf import settings
 
 celery_app = Celery(

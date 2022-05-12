@@ -4,6 +4,7 @@ import os
 import json
 import logging
 import csv
+import pandas as pd
 
 from reports.diagnostics.common.inspector_utils import (
     read_explog,
@@ -15,7 +16,7 @@ from reports.diagnostics.common.inspector_utils import (
 )
 logger = logging.getLogger(__name__)
 
-def CheckValkWf(archive_path):
+def CheckValkWf(archive_path,output_path):
     rc = ""
     vwfPath=os.path.join(archive_path, "ValkyrieWorkflow/results.json")
     if os.path.exists(vwfPath):
@@ -97,17 +98,30 @@ def CheckValkWf(archive_path):
                 blog = list(csv.reader(fp, delimiter=","))
                 for line in blog:
                     if len(line) >= 5 and "[" in line[5]:
-                        numberstxt=line[5].replace("[","").replace("]","").split()
-                        numbers=[float(bb) for bb in numberstxt]
+                        line[5]=line[5].replace("[","").replace("]","")
+                        numbers=[float(bb) for bb in line[5].split()]
                         for number in numbers:
                             if number >= 1.0 or number <= -1.0:
                                 badBottomCnt+=1 
                             else:
                                 goodBottomCnt+=1
+                    for j in range(len(line)):
+                        if line[j]=="":
+                            line[j]="na"
+                            
                 #logger.warn("badCnt: {} goodCnt: {}".format(badBottomCnt,goodBottomCnt))
                 if badBottomCnt > 0:
                     rc += " check tube bottom"
-
+                summary={}
+                support={}
+                summary["BottomLog"] = blog
+                write_results_from_template(
+                {"other_runDetails": summary,
+                 "support": support},
+                output_path,
+                os.path.dirname(os.path.realpath(__file__)),
+                "TubeBottomLog.html"
+                )
 
    
                 
@@ -144,7 +158,7 @@ def execute(archive_path, output_path, archive_type):
 
     if os.path.exists(valkyrie_workflow_path + "ValkyrieWorkflow_block.html"):
         # we should check to see if there are any errors in the valkyrie workflow plugin
-        message += CheckValkWf(archive_path)
+        message += CheckValkWf(archive_path,output_path)
         shutil.copy(
             valkyrie_workflow_path + "ValkyrieWorkflow_block.html",
             os.path.join(output_path, "results.html"),
@@ -159,19 +173,6 @@ def execute(archive_path, output_path, archive_type):
                 pass
     message += ")"
     
-    if os.path.exists(os.path.join(output_path, "TubeBottomLog.csv")):
-        with open(os.path.join(output_path, "TubeBottomLog.csv"), "rb") as fp:
-            summary={}
-            support={}
-            summary["BottomLog"] = list(csv.reader(fp, delimiter=","))
-            write_results_from_template(
-            {"other_runDetails": summary,
-             "support": support},
-            output_path,
-            os.path.dirname(os.path.realpath(__file__)),
-            "TubeBottomLog.html"
-            )
-
 
         
     if "(ok) in message":
