@@ -68,12 +68,24 @@ def execute(archive_path, output_path, archive_type):
             support["Reagent Lot"]["data"]=tmp[1:]
             smp=support["Reagent Lot"]
             for i in range(len(smp["header"])):
+                if smp["header"][i].strip() == "Barcode":
+                    smp["header"][i] = "Lot"
+                    for j in range(len(smp["data"])):
+                        if len(smp["data"][j]) > i and len(smp["data"][j][i]) > 29:
+                            smp["data"][j][i] = smp["data"][j][i][16:23] 
                 if smp["header"][i].strip() == "expiryDate":
-                    smp["header"][i]="Expiration Date";
+                    smp["header"][i]="Expiration Date"
                     for j in range(len(smp["data"])):
                         if len(smp["data"][j]) > i and len(smp["data"][j][i]) == 7:
                             smp["data"][j][i]="20"+smp["data"][j][i][1]+smp["data"][j][i][2] + "-" + smp["data"][j][i][3]+smp["data"][j][i][4] + "-" + smp["data"][j][i][5] + smp["data"][j][i][6]
                     break
+            for j in range(len(smp["data"])):
+                if len(smp["data"][j]) > 0:
+                    if smp["data"][j][0].strip() == "Archive Plate":
+                        smp["data"][j][0]= "Archive Plate Barcode"
+                    if smp["data"][j][0].strip() == "Output Plate":
+                        smp["data"][j][0]= "Output Plate Barcode"
+             
         #logger.warn(support)
             
         with open(quant_samplesF, "rb") as fp:

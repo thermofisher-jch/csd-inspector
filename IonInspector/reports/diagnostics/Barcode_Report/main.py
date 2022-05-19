@@ -138,6 +138,32 @@ def execute(archive_path, output_path, archive_type):
     histograms = []
     # group, sparkline_path, histogram_data, inline_control
     if archive_type == "Valkyrie":
+        inline_controls_source_path = os.path.join(
+            archive_path, "CSA/outputs/BaseCallingActor-00/inline_control_stats.json"
+        )
+        inline_controls_diag_path = os.path.join(
+            output_path, "inline_control_stats.json"
+        )
+        try:
+            # If a link exists from a previous execution, delete and re-create it.
+            if os.path.exists(inline_controls_diag_path):
+                os.unlink(inline_controls_diag_path)
+            os.symlink(inline_controls_source_path, inline_controls_diag_path)
+            inline_control_stats = True
+        except OSError as exp:
+            # Not a severe enough error to halt the report, but log it and prevent
+            # rendering a broken link.
+            logger.exception("Error linking inline_controls", exc_info=exp)
+            inline_control_stats = False
+            
+        data={}
+        data["inline"]={}
+        try:
+            with open(inline_controls_source_path, "r") as fp:
+                data["inline"]=json.load(fp)
+        except:
+            pass
+        
         histograms_first_pass = []
         sample_mapping = {}
         for group in groups:
@@ -163,6 +189,52 @@ def execute(archive_path, output_path, archive_type):
             if sample_name != "N/A":  # single barcode
                 sample_mapping[barcode_name] = sample_name
 
+            nameKey=barcode_name+"_rawlib.basecaller.bam"
+            group["icvals"]=""
+            try:
+                inlineData=[""]*len(data["inline"][nameKey]["ratio"])
+                if nameKey in data["inline"]: 
+                    for key in data["inline"][nameKey]["ratio"]:     
+                        keys=key.strip().split("/")
+                        keysTxt="("+keys[0].strip() + ") "  + " / " "("+keys[1].strip() + ") "
+                        inlineIndex=-1
+                        if keys[1] == "ASC_Siz10:154-210":
+                            keysTxt="100bp:"
+                            inlineIndex=1
+                        if keys[1] == "ASC_Siz10:687-902":
+                            keysTxt="266bp:"
+                            inlineIndex=4
+                        if keys[1] == "ASC_Siz10:473-596":
+                            keysTxt="178bp:"
+                            inlineIndex=3
+                        if keys[1] == "ASC_Siz10:996-1315":
+                            keysTxt="374bp:"
+                            inlineIndex=5
+                        if keys[1] == "ASC_Siz10:51-82":
+                            keysTxt="70bp:"
+                            inlineIndex=0
+                        if keys[1] == "ASC_Siz10:310-372":
+                            keysTxt="125bp:"
+                            inlineIndex=2
+                        keysTxt+= "   "
+                        
+                        if inlineIndex == -1:
+                            for tmpIdx in range(len(data["inline"][nameKey]["ratio"])):
+                                if inlineData[tmpIdx] == "":
+                                    inlineIndex=tmpIdx
+                                    break
+
+                        if inlineIndex >= 0:    
+                            inlineData[inlineIndex]=keysTxt + str(data["inline"][nameKey]["counts"][keys[0]]) + " / " 
+                            inlineData[inlineIndex]+=str(data["inline"][nameKey]["counts"][keys[1]])                            
+                            inlineData[inlineIndex]+= " = "+ data["inline"][nameKey]["ratio"][key][:4] + "\n"
+                        
+                    for inlineIndex in range(len(data["inline"][nameKey]["ratio"])):
+                        group["icvals"]+=inlineData[inlineIndex]            
+            except:
+                pass
+            
+            
             histograms_first_pass.append(
                 {
                     "group": group,
@@ -199,25 +271,8 @@ def execute(archive_path, output_path, archive_type):
         histograms = [
             [hist["group"], None, hist["histogram_data"], hist["inline_path"]]
             for hist in histograms_sorted
-        ]
-
-        inline_controls_source_path = os.path.join(
-            archive_path, "CSA/outputs/BaseCallingActor-00/inline_control_stats.json"
-        )
-        inline_controls_diag_path = os.path.join(
-            output_path, "inline_control_stats.json"
-        )
-        try:
-            # If a link exists from a previous execution, delete and re-create it.
-            if os.path.exists(inline_controls_diag_path):
-                os.unlink(inline_controls_diag_path)
-            os.symlink(inline_controls_source_path, inline_controls_diag_path)
-            inline_control_stats = True
-        except OSError as exp:
-            # Not a severe enough error to halt the report, but log it and prevent
-            # rendering a broken link.
-            logger.exception("Error linking inline_controls", exc_info=exp)
-            inline_control_stats = False
+        ]        
+            
     else:
         prefixes = get_read_group_file_prefixes(datasets_object)
 

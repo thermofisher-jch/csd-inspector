@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <style>
         .histogram {
-            width: 700px;
+            width: 350px;
             height: 120px;
         }
     </style>
@@ -67,6 +67,7 @@
                     {%else%}
                         Inline Controls
                     {%endif%}</th>
+                    <th>Inline Values</th>
                 </tr>
                 {% for group, img_path, data, inline_path in histograms %}
                     <tr class="histogram-row {% if group.filtered %}filtered{% endif %}"
@@ -84,9 +85,10 @@
                         </td>
                         <td>
                             {% if inline_path %}
-                                <img src="{{ inline_path }}" width=500>
+                                <img src="{{ inline_path }}" width=350>
                             {% endif %}
                         </td>
+                        <td> <pre> {{ group.icvals }} </pre></td>
                     </tr>
                 {% endfor %}
             </table>
