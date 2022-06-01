@@ -101,7 +101,7 @@ def CheckValkWf(archive_path,output_path):
                         line[5]=line[5].replace("[","").replace("]","")
                         numbers=[float(bb) for bb in line[5].split()]
                         for number in numbers:
-                            if number >= 1.0 or number <= -1.0:
+                            if number >= 1.1 or number <= -1.1:
                                 badBottomCnt+=1 
                             else:
                                 goodBottomCnt+=1

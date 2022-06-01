@@ -71,7 +71,7 @@ def execute(archive_path, output_path, archive_type):
                 if smp["header"][i].strip() == "Barcode":
                     smp["header"][i] = "Lot"
                     for j in range(len(smp["data"])):
-                        if len(smp["data"][j]) > i and len(smp["data"][j][i]) > 29:
+                        if len(smp["data"][j]) > i and len(smp["data"][j][i]) > 28:
                             smp["data"][j][i] = smp["data"][j][i][16:23] 
                 if smp["header"][i].strip() == "expiryDate":
                     smp["header"][i]="Expiration Date"
