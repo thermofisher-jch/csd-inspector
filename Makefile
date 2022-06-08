@@ -16,7 +16,7 @@ all: build
 #endif
 
 VERSION=$(shell grep "VERSION = \"" IonInspector/settings.py | sed 's/VERSION = \"//g' | sed 's/\"//g')
-
+BLDSVR=vulcan.itw:5000/
 build:
 	-@mkdir -p .local/celery .local/media .local/logs/inspector .local/postgresql_log; chmod -R 777 .local
 	docker-compose build
@@ -30,22 +30,39 @@ debug: build
 	docker-compose up
 
 # for production environment.  will return
-up:
-	docker-compose down	
-	docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+up: down
+	export VERSION=$(VERSION); docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 	
 # to stop inspector	
 down:
-	docker-compose down	
+	export VERSION=$(VERSION); docker-compose -f docker-compose.yml -f docker-compose.prod.yml stop
 
+
+
+
+deploy_prod:
+	docker pull ${BLDSVR}inspector_django:$(VERSION)
+	docker pull ${BLDSVR}inspector_celery:$(VERSION)
+	docker pull ${BLDSVR}inspector_uploader:$(VERSION)
+  
+	# launch the docker images locally 
+	export VERSION=$(VERSION); docker-compose -f docker-compose.yml -f docker-compose.prod.yml stop
+	export VERSION=$(VERSION); docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
 deploy:
 	@echo $(VERSION)
 	# tag the release in git
-	docker build -t vulcan.itw:5000/inspector_django:$(VERSION) -f Dockerfile .
-	docker build -t vulcan.itw:5000/inspector_celery:$(VERSION) -f Dockerfile .
-	docker build -t vulcan.itw:5000/inspector_uploader:$(VERSION) -f ./nginx/Dockerfile .
 	
+	# build the images
+	docker build -t ${BLDSVR}inspector_django:$(VERSION) -f Dockerfile .
+	docker build -t ${BLDSVR}inspector_celery:$(VERSION) -f Dockerfile .
+	docker build -t ${BLDSVR}inspector_uploader:$(VERSION) -f ./nginx/Dockerfile .
+	
+	# push the images to vulcan
+	docker push ${BLDSVR}inspector_django:$(VERSION)
+	docker push ${BLDSVR}inspector_celery:$(VERSION)
+	docker push ${BLDSVR}inspector_uploader:$(VERSION)
+  
 	# launch the docker images locally 
-	docker-compose down
+	export VERSION=$(VERSION); docker-compose -f docker-compose.yml -f docker-compose.prod.yml stop
 	export VERSION=$(VERSION); docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
