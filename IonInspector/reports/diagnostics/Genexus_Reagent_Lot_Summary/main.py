@@ -98,16 +98,19 @@ def execute(archive_path, output_path, archive_type):
             
         
         #logger.warn("run:  {}".format(runDate))
-        with open(os.path.join(archive_path, "CSA/DeckStatus.json"), "rb") as fp:
-            cons = json.load(fp)
-            for consItem in cons:
-                if "barcodeList" in consItem:
-                    for bcItem in consItem["barcodeList"]:
-                        if "expiryDate" in bcItem:
-                            expDate=int(bcItem["expiryDate"])
-                            #logger.warn("found {} < {}".format(expDate,runDate))
-                            if expDate < runDate:
-                                expired=True
+        try:
+            with open(os.path.join(archive_path, "CSA/DeckStatus.json"), "rb") as fp:
+                cons = json.load(fp)
+                for consItem in cons:
+                    if "barcodeList" in consItem:
+                        for bcItem in consItem["barcodeList"]:
+                            if "expiryDate" in bcItem and bcItem["expiryDate"].isnumeric():
+                                expDate=int(bcItem["expiryDate"])
+                                #logger.warn("found {} < {}".format(expDate,runDate))
+                                if expDate < runDate:
+                                    expired=True
+        except:
+            logger.warn("failed to parse expiryDate")
                                     
     write_results_from_template(
         {"other_runDetails": get_other_details(infoRowsForOtherDetails)},
