@@ -18,7 +18,7 @@ all: build
 VERSION=$(shell grep "VERSION = \"" IonInspector/settings.py | sed 's/VERSION = \"//g' | sed 's/\"//g')
 BLDSVR=vulcan.itw:5000/
 build:
-	-@mkdir -p .local/celery .local/media .local/logs/inspector .local/postgresql_log; chmod -R 777 .local
+	-@ if [ ! -e .local ]; then mkdir -p .local/celery .local/media .local/logs/inspector .local/postgresql_log; chmod -R 777 .local; fi
 	docker-compose build
 	
 test:
