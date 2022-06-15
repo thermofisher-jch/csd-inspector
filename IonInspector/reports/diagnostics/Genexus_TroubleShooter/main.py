@@ -697,7 +697,6 @@ def decisionLogic(data, mock):
 
 def execute(archive_path, output_path, archive_type):
         
-        
     data={}
     #try:
     expPath=archive_path+"/CSA/explog_final.json"
@@ -760,11 +759,14 @@ def execute(archive_path, output_path, archive_type):
         support["Supporting Data"].append(row)
         # copy the image files for the supporting web page to our output_path
         img_dir = (data["evidence"][1].rsplit("/", 1))[0]
-        os.system("ln -s "+archive_path+ img_dir + "/* "+output_path+"/")
+        # remove the links for files we are about to generate.  Otherwise we will just corrupt the evidence directory
+        os.system("ln -s "+archive_path+ img_dir + "/* "+output_path+"/; rm "+output_path+"/results.html "+output_path+"/main.json "+output_path+"/output.json")
 
     with open(os.path.join(output_path+"/output.json"), "w") as fp:
         json.dump(data,fp)
         
+    logger.warn("output_path={} dirname={}".format(output_path,os.path.dirname(os.path.realpath(__file__))))
+
     write_results_from_template(
         {"other_runDetails": summary,
          "support": support},
