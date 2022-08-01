@@ -102,39 +102,66 @@ components:
 commands:
   - id: maven-build
     exec:
-        component: django-svc
-        commandLine: "mvn clean install"
-        workingDir: ${CHE_PROJECTS_ROOT}/console-java-simple
+      component: django-svc
+      commandLine: "mvn clean install"
+      workingDir: ${CHE_PROJECTS_ROOT}/console-java-simple
   - id: maven-build-and-run
     exec:
-        component: django-svc
-        commandLine: "mvn clean install && java -jar ./target/*.jar"
-        workingDir: ${CHE_PROJECTS_ROOT}/console-java-simple
+      component: django-svc
+      commandLine: "mvn clean install && java -jar ./target/*.jar"
+      workingDir: ${CHE_PROJECTS_ROOT}/console-java-simple
+  - id: upgrade-pip
+    exec:
+      component: django-svc
+      commandLine: 'python -m pip install --upgrade pip'
+      workingDir: '${HOME}'
+  - id: install-virtualenv
+    exec:
+      component: django-svc
+      commandLine: 'python -m pip install --user virtualenv'
+      workingDir: '${HOME}'
+  - id: create-virtualenv
+    exec:
+      component: django-svc
+      commandLine: 'virtualenv ~/.venv'
+      workingDir: '${HOME}'
   - id: install-dependencies
     exec:
-      workingDir: '${CHE_PROJECTS_ROOT}/old-django-canary/OldCanary'
+      workingDir: '${CHE_PROJECTS_ROOT}/csd-inspector'
       commandLine: '. ${HOME}/.venv/bin/activate && pip install -r requirements.txt'
       component: django-svc
+  - id: bootstrap-project
+    composite:
+      commands:
+        - upgrade-pip
+        - install-virtualenv
+        - create-virtualenv
+        - install-dependencies
   - id: migrate
     exec:
-      workingDir: '${CHE_PROJECTS_ROOT}/old-django-canary/OldCanary'
+      workingDir: '${CHE_PROJECTS_ROOT}/csd-inspector'
       commandLine: '. ${HOME}/.venv/bin/activate && python manage.py migrate'
       component: django-svc
   - id: make-migrations-1
     exec:
-      workingDir: '${CHE_PROJECTS_ROOT}/old-django-canary/OldCanary'
+      workingDir: '${CHE_PROJECTS_ROOT}/csd-inspector'
       commandLine: '. ${HOME}/.venv/bin/activate && python manage.py makemigrations'
       component: django-svc
   - id: run-server
     exec:
-      workingDir: '${CHE_PROJECTS_ROOT}/old-django-canary/OldCanary'
+      workingDir: '${CHE_PROJECTS_ROOT}/csd-inspector'
       commandLine: '. ${HOME}/.venv/bin/activate && export DEBUG_MODE=False && python manage.py runserver 0.0.0.0:7000'
       component: django-svc
   - id: run-server-in-debug-mode
     exec:
-      workingDir: '${CHE_PROJECTS_ROOT}/old-django-canary/OldCanary'
+      workingDir: '${CHE_PROJECTS_ROOT}/csd-inspector'
       commandLine: '. ${HOME}/.venv/bin/activate && export DEBUG_MODE=True && python -m pydebug --wait-for-client --listen 5678 manage.py runserver 0.0.0.0:7000 --noreload --nothreading'
       component: django-svc
+# events:
+#   preStart:
+#     - upgrade-pip
+#     - install-virtualenv
+#     - create-virtualenv
 #   - id: debug
 #     vscode-tasks:
 #       referenceContent: |

@@ -13,8 +13,6 @@ venv
 media/archive_files
 .local
 local_settings.py
-requirements.txt
 Pipfile.lock
 .vscode/
 .history/
-devfile.yaml
