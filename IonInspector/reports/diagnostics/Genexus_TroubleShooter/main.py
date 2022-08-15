@@ -7,6 +7,7 @@ import copy
 import json
 import logging
 import re
+import image_tests
 
 from reports.diagnostics.common.inspector_utils import (
     read_explog,
@@ -356,7 +357,7 @@ def checkDebugLog(data, archive_path):
     return 
    
 
-def checkSequencing(data):
+def checkSequencing(data, archive_path, output_path):
     
     lanes=0
     if data["explog"]["LanesActive1"] == "yes":
@@ -481,11 +482,97 @@ def checkSequencing(data):
                         diskDoneOnce=True
             except:
                 logger.warn("exception with diskPer")
+             
+    # lane=2
+    # rc += image_tests.test_rawTrace(archive_path, output_path)
+    # imgArg=archive_path+"/rawTrace/plots_lane_"+str(lane)+"/stepSize.middle.bead.png"
+    # rc += image_tests.NucStepSize_test(imgArg)
+    for lane in range(1,5):
+        if data["explog"]["LanesActive"+str(lane)] == "yes":    
+            imgArg=archive_path+"/rawTrace/plots_lane_"+str(lane)+"/keyBkgSub.middle.json"
+            BKQrc= image_tests.test_BKQ(imgArg)
+            rc += BKQrc
+            
+            NSSrc = ""
+            imgArg=archive_path+"/NucStepSpatialV2/results.json"
+            NSSrc = image_tests.NucStepSize_test(imgArg,lane)
+            rc += NSSrc
+            if NSSrc != "" or BKQrc != "":
+                break
+    
+    #     ValkWF_path =os.path.join(archive_path, "ValkyrieWorkflow")
+    # if os.path.exists(ValkWF_path): 
+    #     for filename in os.listdir(ValkWF_path):
+    #         if ("deckImage_Before_Seq_3" in filename) and (".png" in filename):
+    #             deck_image_path = os.path.join(ValkWF_path,filename)
+    #             break
+    #     if ".png" in deck_image_path:
+    #         sample_plate_position_report = sample_plate_position(deck_image_path)
+    #         if not sample_plate_position_report == "":
+    #             return print_alert(sample_plate_position_report)
                 
+
+       
     if rc == "":
         rc="Passed"
     data["SeqStatus"]=rc
     return rc        
+
+def FailedSampleLogic(data,summary):
+    # here because everything else is ok...
+    # first, check inline controls.
+    #logger.warn("FailedSampleLogic")
+    inlineControlRslt="Passed"
+    for name in data["IC"]:
+        if "nomatch" in name:
+            continue
+        item=data["IC"][name]
+        if isinstance(item,dict) and "ratio" in item:
+            foundInline="Failed"
+            for ratio in item["ratio"]:
+                if item["ratio"][ratio] and item["ratio"][ratio] != "NA" and float(item["ratio"][ratio]) > 1.0:
+                    foundInline="Passed"
+            summary["Next Steps"].append([name + ": Inline Controls " + foundInline])
+            if foundInline=="Failed":
+                inlineControlRslt="Failed"
+                
+    summary["Next Steps"].append(["Inline Controls " + inlineControlRslt])
+                 
+    #if inlineControlRslt == "Passed":
+            
+    
+def checkVacLog(data, archive_path):
+    data["ChipCouplerFail"]=0
+    data["ChipCouplerFail1"]=0
+    data["ChipCouplerFail2"]=0
+    data["ChipCouplerFail3"]=0
+    data["ChipCouplerFail4"]=0
+    filename=os.path.join(archive_path, "CSA/vacuum_log.csv")
+    if os.path.exists(filename):
+        with open(filename, "rb") as fp:
+            info_rows = list(csv.reader(fp, delimiter=","))
+            for row in info_rows:
+                use=False
+                lane="0"
+                for col in row:
+                    if "TEMPLATE: PostTemplating SDS Wash " in col:
+                        use=True
+                        lane=col.split("TEMPLATE: PostTemplating SDS Wash ")[1]
+                if use:
+                    Amp=0
+                    Duty=0
+                    
+                    for colNum in range(0,len(row)):
+                        if row[colNum] == "AmplitudeOfOscillation":
+                            Amp=float(row[colNum+1])
+                        elif row[colNum] == "PumpDutyCycle":
+                            Duty=float(row[colNum+1])
+                    if Amp > 0 and Duty > 0 and lane != "0":
+                        if Amp < 0.2 and Duty > 15:
+                            data["ChipCouplerFail"] = 1
+                            data["ChipCouplerFail"+lane] = 1
+                    else:
+                        logger.warn("failed to get values " + row)
 
 
 def checkValkWf(data, archive_path):
@@ -611,14 +698,23 @@ def decisionLogic(data, mock):
         summary["Next Steps"].append(["Run the Fluidics factory test. retry the run."])
         data["evidence"]=["Auto Cal", "/autoCal/autoCal.html"]
         
-    elif "array average is not within range" in data["SeqStatus"] or "array average difference" in data["SeqStatus"]:
+    elif "array average is not within range" in data["SeqStatus"] or "array average difference" in data["SeqStatus"] or "RawTrace:" in data["SeqStatus"]:
         FailReason = "Electrical Issue Detected"
         summary["Issues Detected"].append([FailReason])
         for newReason in data["SeqStatus"].splitlines():
             summary["Issues Detected"].append([newReason])        
         summary["Next Steps"].append(["The most likely cause is a salt bridge on the squid."])
         summary["Next Steps"].append(["Wipe salt residue from the squid and retry the run."])
-        data["evidence"]=["Auto Cal", "/autoCal/autoCal.html"]
+        if "RawTrace: Lane 1" in data["SeqStatus"]:
+            data["evidence"]=["rawTrace", "/rawTrace/html_plots_lane_1/region.middle.html"]
+        elif "RawTrace: Lane 2" in data["SeqStatus"]:
+            data["evidence"]=["rawTrace", "/rawTrace/html_plots_lane_2/region.middle.html"]
+        elif "RawTrace: Lane 3" in data["SeqStatus"]:
+            data["evidence"]=["rawTrace", "/rawTrace/html_plots_lane_3/region.middle.html"]
+        elif "RawTrace: Lane 4" in data["SeqStatus"]:
+            data["evidence"]=["rawTrace", "/rawTrace/html_plots_lane_4/region.middle.html"]
+        else:
+            data["evidence"]=["Auto Cal", "/autoCal/autoCal.html"]
         
     elif not mock and (data["bottomFail0"] > 0 or data["bottomFail1"] > 0):
         FailReason = "Bottom find Issue Detected"
@@ -674,6 +770,35 @@ def decisionLogic(data, mock):
         summary["Next Steps"].append(["Replace Pipette 2 and retry the run."])
         data["evidence"]=["Genexus Workflow", "/ValkyrieWorkflow/ValkyrieWorkflow_block.html"]
     
+    elif "Background-subtracted key traces test failed" in data["SeqStatus"]:
+        FailReason = "Swapped Nuc detected"
+        summary["Issues Detected"].append([FailReason])
+        for newReason in data["SeqStatus"].splitlines():
+            summary["Issues Detected"].append([newReason])        
+        summary["Next Steps"].append(["Nuc swap detected."])        
+        summary["Next Steps"].append(["Replace the cartridge and retry the run."])
+        data["evidence"]=["rawTrace", "/rawTrace/rawTrace_lane_3.html"]
+        
+    elif "Nuc swap or missing detected" in data["SeqStatus"]:
+        FailReason = "Swapped or Missing Nuc detected"
+        summary["Issues Detected"].append([FailReason])
+        for newReason in data["SeqStatus"].splitlines():
+            summary["Issues Detected"].append([newReason])        
+        summary["Next Steps"].append(["Swapped or missing NUC detected."])        
+        summary["Next Steps"].append(["Replace the cartridge and retry the run."])
+        data["evidence"]=["rawTrace", "/rawTrace/rawTrace_lane_3.html"]
+        
+    elif data["ChipCouplerFail"] > 0:
+        FailReason = "Chip Coupler Issues Detected"
+        summary["Issues Detected"].append([FailReason])
+        for lane in range(1,5):
+            if data["ChipCouplerFail"+str(lane)] > 0:
+                summary["Next Steps"].append(["No resistance detected on TEMPLATE PostTemplating SDS Wash "+str(lane)])
+        summary["Next Steps"].append(["The chip coupler is likely not making a good connection"])
+        summary["Next Steps"].append(["The most likely cause is a bad Chip Coupler"])
+        summary["Next Steps"].append(["Replace the chip coupler and retry the run."])
+        data["evidence"]=["Genexus Workflow", "/ValkyrieWorkflow/Workflow_VacuumLog.html"]
+        
     elif data["DebugErrors"]:
         FailReason="Debug log errors"
         data["evidence"]=["Experiment Errors", "/test_results/Experiment_Errors/results.html"]
@@ -682,6 +807,9 @@ def decisionLogic(data, mock):
             summary["Issues Detected"].append([error])
             for line in data["DebugErrorNextSteps"][i]:
                 summary["Next Steps"].append([line])
+    elif data["qc"]["Samples_Failed"] > 0:
+        FailReason="Failed Sample detected"        
+        FailedSampleLogic(data,summary)  
     else:
         if mock:
             FailReason="Mock Run Passed"
@@ -732,10 +860,11 @@ def execute(archive_path, output_path, archive_type):
 
     mock=("mock" in data["explog"]["Experiment Name"] or "Mock" in data["explog"]["Experiment Name"] or data["explog"]["Flows"]==100)
     
-    checkValkWf(data, archive_path)        
+    checkValkWf(data, archive_path)      
+    checkVacLog(data, archive_path)  
     checkRunAborted(data, archive_path)
     checkDebugLog(data,archive_path)
-    checkSequencing(data)
+    checkSequencing(data,archive_path, output_path)
 
     status="Passed"
     if data["IC"]["FailedReadRatios"] > 0:   # read ratio's < 1 problematic
@@ -761,6 +890,8 @@ def execute(archive_path, output_path, archive_type):
         img_dir = (data["evidence"][1].rsplit("/", 1))[0]
         # remove the links for files we are about to generate.  Otherwise we will just corrupt the evidence directory
         os.system("ln -s "+archive_path+ img_dir + "/* "+output_path+"/; rm "+output_path+"/results.html "+output_path+"/main.json "+output_path+"/output.json")
+        if "rawTrace" in img_dir:
+            os.system("ln -s "+archive_path+ img_dir.replace("/html_","/") + " "+output_path+"/../") 
 
     with open(os.path.join(output_path+"/output.json"), "w") as fp:
         json.dump(data,fp)

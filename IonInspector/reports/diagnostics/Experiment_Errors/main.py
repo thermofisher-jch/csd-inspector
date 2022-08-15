@@ -5,6 +5,7 @@ import os
 import re
 from collections import namedtuple
 from datetime import datetime
+import logging
 
 from reports.diagnostics.common.inspector_utils import (
     get_explog_path,
@@ -21,6 +22,7 @@ from reports.diagnostics.common.inspector_utils import (
 
 DEBUG_ERROR_KEYWORDS = ["PCR lid clamping failure"]
 
+logger = logging.getLogger(__name__)
 
 def get_error_lines_in_debug(archive_path, start_time, end_time):
     errors = namedtuple("DebugErrors", ["before", "during", "after", "has_errors"])
@@ -73,6 +75,11 @@ def execute(archive_path, output_path, archive_type):
         # get the explog info
         explog = read_explog(archive_path)
         exp_error_log = explog.get("ExperimentErrorLog", "")
+        if exp_error_log:
+            for loge in exp_error_log:
+                if loge.startswith(": flowTime="):
+                    #logger.warn("*********  removing " + loge)
+                    exp_error_log.remove(loge) 
 
         start_time = None
         if explog.get("Start Time", ""):
@@ -85,7 +92,7 @@ def execute(archive_path, output_path, archive_type):
         # read debug file
         debug_errors = get_error_lines_in_debug(archive_path, start_time, end_time)
 
-        if exp_error_log or debug_errors.has_errors:
+        if ( exp_error_log and len(exp_error_log) > 0 )or debug_errors.has_errors:
             with open(results_path, "w") as html_handle:
                 html_handle.write(
                     "<html><link rel=stylesheet href=some.css type=text/css>\n"

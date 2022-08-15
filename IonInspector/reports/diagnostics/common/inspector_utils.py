@@ -469,7 +469,7 @@ def run_used_chef(archive_path):
 
 
 
-def write_results_from_template(data_dict, output_dir, diagnostic_script_dir, fileName="results.html"):
+def write_results_from_template(data_dict, output_dir, diagnostic_script_dir, fileName="results.html", templateName=None):
     # Legacy diagnostics expect a single results.html file to be located in the same directory
     # as the main.py executable.  Allow this to remain the common convention for existing
     # diagnostics, while also allowing newer diagnostics to provide a full path to a template file
@@ -477,6 +477,8 @@ def write_results_from_template(data_dict, output_dir, diagnostic_script_dir, fi
     # select between alternative templates that are used for similar, but distinct use cases, such
     # as a template that displays one instance of a set of charts and another that offers tabs and
     # supports an arbitrary number of instances of the same set of charts.
+    if templateName==None:
+        templateName=fileName
     template_options = {
         "NAME": "UtilsDiagnostics",
         "DIRS": (diagnostic_script_dir,),
@@ -501,7 +503,7 @@ def write_results_from_template(data_dict, output_dir, diagnostic_script_dir, fi
     }
     try:
         template_engine = DjangoTemplates(template_options)
-        template = template_engine.get_template(fileName)
+        template = template_engine.get_template(templateName)
         result = template.render(data_dict)
         with open(os.path.join(output_dir, fileName), "w") as out:
             out.write(result.encode("UTF-8"))

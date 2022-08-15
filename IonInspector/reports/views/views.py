@@ -192,10 +192,14 @@ def report(request, pk):
     archive = Archive.objects.get(pk=pk)
     diagnostics = archive.diagnostics.order_by("name")
 
+    PST = pytz.timezone("US/Pacific")
     first_diagnostic = diagnostics.order_by("start_execute").first()
-    start_time = (
-        first_diagnostic.start_execute if first_diagnostic is not None else None
-    )
+    try:
+        start_time = (
+        first_diagnostic.start_execute.astimezone(PST).strftime("%d %b %Y, %I:%M %p %Z") if first_diagnostic is not None else None
+        )
+    except:
+        start_time=first_diagnostic.start_execute
 
     thumbnail_pdf_present = False
     full_pdf_present = False
@@ -217,7 +221,6 @@ def report(request, pk):
     relative_coverage_analysis_path = (
         "archive_files/" + str(pk) + "/coverageAnalysis/coverageAnalysis.html"
     )
-    PST = pytz.timezone("US/Pacific")
 
     ctx = dict(
         {
@@ -245,7 +248,8 @@ def report(request, pk):
                 os.path.join(settings.MEDIA_ROOT, relative_coverage_analysis_path)
             )
             else "",
-            "start_time": start_time.astimezone(PST).strftime("%d %b %Y, %I:%M %p %Z"),
+            "start_time": start_time,
+                
             "is_sequencer": json.dumps(archive.is_sequencer()),
         }
     )

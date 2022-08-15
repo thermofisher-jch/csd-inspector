@@ -171,7 +171,7 @@ def execute(archive_path, output_path, archive_type):
     if len(image_messages) > 0:
         if len(image_messages) > 1:
             messages.append(
-                "Could not find {} diagnostic images".format(str(len(image_messages)))
+                "Could not find {} diagnostic images {}".format(str(len(image_messages)),image_messages)
             )
         else:
             messages.extend(image_messages)

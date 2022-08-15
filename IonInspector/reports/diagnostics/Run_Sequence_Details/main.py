@@ -206,8 +206,11 @@ def execute(archive_path, output_path, archive_type):
             "disk_free_perc": disk_free_perc,
             "autocal_html" : "autoCal.html",
         }
+        rsltName="results.html"
+        if system_type != "Valkyrie":
+            rsltName="results_s5.html"
         write_results_from_template(
-            template_context, output_path, os.path.dirname(os.path.realpath(__file__))
+            template_context, output_path, os.path.dirname(os.path.realpath(__file__)), templateName=rsltName
         )
 
         return print_info(

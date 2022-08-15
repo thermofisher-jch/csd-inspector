@@ -43,6 +43,9 @@ postgresql-client \
 wait-for-it && \
 rm -rf /var/lib/apt/lists/*lz4
 
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+python-opencv
+
 # install R deps
 RUN Rscript -e "source('http://bioconductor.org/biocLite.R')" \
  && Rscript -e "library(BiocInstaller); biocLite('rhdf5')" \
