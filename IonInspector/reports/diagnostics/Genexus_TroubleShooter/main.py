@@ -490,15 +490,21 @@ def checkSequencing(data, archive_path, output_path):
     for lane in range(1,5):
         if data["explog"]["LanesActive"+str(lane)] == "yes":    
             imgArg=archive_path+"/rawTrace/plots_lane_"+str(lane)+"/keyBkgSub.middle.json"
-            BKQrc= image_tests.test_BKQ(imgArg)
-            rc += BKQrc
+            try:
+                BKQrc= image_tests.test_BKQ(imgArg)
+                rc += BKQrc
+            except:
+                logger.warn("exception in test_BKQ "+imgArg)
             
             NSSrc = ""
             imgArg=archive_path+"/NucStepSpatialV2/results.json"
-            NSSrc = image_tests.NucStepSize_test(imgArg,lane)
-            rc += NSSrc
-            if NSSrc != "" or BKQrc != "":
-                break
+            try:
+                NSSrc = image_tests.NucStepSize_test(imgArg,lane)
+                rc += NSSrc
+                if NSSrc != "" or BKQrc != "":
+                    break
+            except:
+                logger.warn("exception in NucStepSize_test "+imgArg+" Lane:"+str(lane))
     
     #     ValkWF_path =os.path.join(archive_path, "ValkyrieWorkflow")
     # if os.path.exists(ValkWF_path): 
@@ -528,13 +534,28 @@ def FailedSampleLogic(data,summary):
             continue
         item=data["IC"][name]
         if isinstance(item,dict) and "ratio" in item:
-            foundInline="Failed"
-            for ratio in item["ratio"]:
-                if item["ratio"][ratio] and item["ratio"][ratio] != "NA" and float(item["ratio"][ratio]) > 1.0:
-                    foundInline="Passed"
-            summary["Next Steps"].append([name + ": Inline Controls " + foundInline])
-            if foundInline=="Failed":
-                inlineControlRslt="Failed"
+            RatioOk=False
+            CountsOk=False
+            maxRatio=0
+            maxCount=0
+            for ritem in item["ratio"]:
+                if item["ratio"][ritem] and item["ratio"][ritem] != "NA" and float(item["ratio"][ritem]) > 1.0:
+                    RatioOk=True
+                    if(float(item["ratio"][ritem]) > maxRatio):
+                        maxRatio=float(item["ratio"][ritem])
+            for ritem in item["counts"]:
+                if item["counts"][ritem] and item["counts"][ritem] != "NA" and float(item["counts"][ritem]) > 100:
+                    CountsOk=True
+                    if(float(item["counts"][ritem]) > maxCount):
+                        maxCount=float(item["counts"][ritem])
+
+            foundInline="FAILED"
+            if RatioOk and CountsOk:
+                foundInline="PASSED"
+                inlineControlRslt="Failed  "
+            dispName=name.replace("_rawlib.basecaller.bam","")
+            #dispName.replace("_rawlib.basecaller.bam","")
+            summary["Next Steps"].append([dispName + ": Inline Controls " + foundInline + "   Counts: %.0f"%(maxCount)+" ratio: %.2f"%(maxRatio)])
                 
     summary["Next Steps"].append(["Inline Controls " + inlineControlRslt])
                  

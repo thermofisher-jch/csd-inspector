@@ -21,8 +21,8 @@ VERSION=$(shell grep "VERSION = \"" IonInspector/settings.py | sed 's/VERSION = 
 BLDSVR=vulcan.itw:5000/
 
 base:
-	/bin/bash -c "if [ \"`sudo docker images | grep ${INSPECTOR_BASE_VER}`\" == \"\" ]; then cd docker_base; if [ ! -e ${INSPECTOR_BASE_VER}_bionic.txz ]; then wget http://updates.itw/updates/software/external/${INSPECTOR_BASE_VER}_bionic.txz ; fi; sudo /usr/bin/docker load -i ${INSPECTOR_BASE_VER}_bionic.txz ; fi"
-	/bin/bash -c "if [ \"`sudo docker images | grep ${NGINX_BASE_VER}`\" == \"\" ]; then cd nginx/docker_base; if [ ! -e ${NGINX_BASE_VER}_bionic.txz ]; then wget http://updates.itw/updates/software/external/${NGINX_BASE_VER}_bionic.txz ; fi; sudo /usr/bin/docker load -i ${NGINX_BASE_VER}_bionic.txz ; fi"
+	/bin/bash -c "if [ \"`sudo docker images | grep ${INSPECTOR_BASE_VER}`\" == \"\" ]; then cd docker_base; if [ ! -e ${INSPECTOR_BASE_VER}_bionic.txz ]; then wget http://updates.itw/updates/software/external/${INSPECTOR_BASE_VER}_bionic.txz ; fi; sudo /usr/bin/docker load -i ${INSPECTOR_BASE_VER}_bionic.txz ; rm ${INSPECTOR_BASE_VER}_bionic.txz; fi"
+	/bin/bash -c "if [ \"`sudo docker images | grep ${NGINX_BASE_VER}`\" == \"\" ]; then cd nginx/docker_base; if [ ! -e ${NGINX_BASE_VER}_bionic.txz ]; then wget http://updates.itw/updates/software/external/${NGINX_BASE_VER}_bionic.txz ; fi; sudo /usr/bin/docker load -i ${NGINX_BASE_VER}_bionic.txz ; rm ${NGINX_BASE_VER}_bionic.txz; fi"
 
 
 build: base
