@@ -6,8 +6,8 @@ from django_tables2 import SingleTableMixin, RequestConfig
 
 from reports.filters import InstrumentTrackerListFilter
 from reports.forms import InstrumentModelForm
-from reports.models import Instrument, ValkyrieArchive
-from reports.tables import ValkyrieInstrumentArchiveTable
+from reports.models import Instrument, Archive
+from reports.tables import ArchiveTable
 
 
 class InstrumentDetailView(SingleTableMixin, FilterMixin, UpdateView):
@@ -19,7 +19,7 @@ class InstrumentDetailView(SingleTableMixin, FilterMixin, UpdateView):
 
     def get_table(self):
         filterset = self.get_filterset(self.get_filterset_class())
-        retval = ValkyrieInstrumentArchiveTable(filterset.qs.select_related())
+        retval = ArchiveTable(filterset.qs.select_related())
         request_config = RequestConfig(self.request, True)
         request_config.configure(retval)
         return retval
@@ -28,8 +28,7 @@ class InstrumentDetailView(SingleTableMixin, FilterMixin, UpdateView):
         kwargs = {
             "data": self.request.GET or None,
             "request": self.request,
-            "queryset": ValkyrieArchive.objects.with_tracker().filter(
-                instrument=self.kwargs["pk"]
+            "queryset": Archive.objects.with_serial_number().filter(
             ),
         }
         return clazz(**kwargs)

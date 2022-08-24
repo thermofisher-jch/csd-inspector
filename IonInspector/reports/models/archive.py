@@ -2,12 +2,13 @@ import os
 import shutil
 import logging
 import zipfile
+import json
 from subprocess import check_call, CalledProcessError
 
 from cached_property import cached_property
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
-from django.db import models
+from django.db import models, transaction
 from django.db.models import F, CharField, Value, ExpressionWrapper
 from django.db.models.functions import Concat
 from django.db.models.signals import pre_delete
@@ -25,9 +26,13 @@ from IonInspector.reports.utils import (
     ensure_all_diagnostics_namespace,
     ArchiveWorkspaceError,
 )
-from reports.utils import get_file_path
+from reports.utils import (
+    get_file_path,
+        Concat_WS,
+)
 from IonInspector.reports.values import (
     ARCHIVE_TYPES,
+    CHIP_TYPES,
     CATEGORY_LIBRARY_PREP,
     CATEGORY_SEQUENCING,
     CATEGORY_SAMPLE_PREP,
@@ -38,11 +43,16 @@ from IonInspector.reports.values import (
     OT_LOG,
     ION_CHEF,
     VALK,
+    DIAG,
     UNKNOWN_PLATFORM,
     TRI_STATE_SYMBOL_SELECT,
     RUN_REPORT_PDF,
     WELL_KNOWN_ARCHIVE,
     NOT_RUN_REPORT_LINK_TARGETS,
+    LANE_META_OBJECTS,
+    GENEXUS_LANE_ACTIVITY_DIAGNOSTIC_NAME,
+    BEAD_DENSITY_FILE_NAME,
+    DIAGNOSTICS_NAMESPACE_ROOT,
 )
 from IonInspector.reports.tags.chef import get_chef_tags
 from IonInspector.reports.tags.pgm import get_pgm_tags
@@ -53,6 +63,8 @@ from IonInspector.reports.tags.ot import get_ot_tags
 from IonInspector.reports.tags.valkyrie import get_valk_tags
 
 from .diagnostic import Diagnostic
+from .instrument import Instrument
+from numpy.ctypeslib import ct
 
 # check to see if the settings are configured
 if not settings.configured:
@@ -94,22 +106,6 @@ TEST_MANIFEST = {
         ("Purification_Run_Log", CATEGORY_SAMPLE_PREP),
         ("Purification_Logged_Errors", CATEGORY_SAMPLE_PREP),
         ("Purification_Run_Sequence_Details", CATEGORY_SAMPLE_PREP),
-        # ("Genexus_Library_Prep_Log", CATEGORY_LIBRARY_PREP),
-        # ("Genexus_Library_Details", CATEGORY_LIBRARY_PREP),
-        # ("Genexus_Vacuum_Log", CATEGORY_LIBRARY_PREP),
-        # ("Genexus_Reagent_Lot_Summary", CATEGORY_SEQUENCING),
-        # ("Genexus_QC_Status", CATEGORY_SEQUENCING),
-        # ("Genexus_Raw_Trace", CATEGORY_SEQUENCING),
-        # ("Genexus_Instrument_Status", CATEGORY_SEQUENCING),
-        # ("Genexus_Filter_Metrics", CATEGORY_SEQUENCING),
-        # ("Chip_Status", CATEGORY_SEQUENCING),
-        # ("Chip_Type", CATEGORY_SEQUENCING),
-        # ("Genexus_Test_Fragments", CATEGORY_SEQUENCING),
-        # # ("Pressure_And_Temperature", CATEGORY_SEQUENCING), #IO-413
-        # ("Barcode_Report", CATEGORY_SEQUENCING),
-        # ("Run_Sequence_Details", CATEGORY_SEQUENCING),
-        # ("Run_Type", CATEGORY_SEQUENCING),
-        # ("Genexus_Reagent_Lot_Summary", CATEGORY_SEQUENCING),
     ],
     S5: [
         ("Filter_Metrics", CATEGORY_SEQUENCING),
@@ -142,12 +138,14 @@ TEST_MANIFEST = {
         ("Chip_Status", CATEGORY_SEQUENCING),
         ("Chip_Type", CATEGORY_SEQUENCING),
         ("Genexus_Test_Fragments", CATEGORY_SEQUENCING),
-        # ("Pressure_And_Temperature", CATEGORY_SEQUENCING), #IO-413
         ("Experiment_Errors", CATEGORY_SEQUENCING),
         ("Barcode_Report", CATEGORY_SEQUENCING),
         ("Run_Sequence_Details", CATEGORY_SEQUENCING),
         ("Run_Type", CATEGORY_SEQUENCING),
         ("Genexus_Reagent_Lot_Summary", CATEGORY_SEQUENCING),
+        ("Genexus_TroubleShooter", CATEGORY_SEQUENCING),
+    ],
+    DIAG: [
         ("Genexus_TroubleShooter", CATEGORY_SEQUENCING),
     ],
     OT_LOG: [
@@ -170,43 +168,16 @@ TEST_MANIFEST = {
 }
 
 
-class ArchiveQuerySet(models.QuerySet):
-    def with_serial_number(self):
-        return self.annotate(
-            serial_number=ExpressionWrapper(
-                F("as_valkyrie__instrument__serial_number"),
-                output_field=CharField(max_length=255),
-            )
-        )
-
-    def with_taser_ticket_url(self):
-        return self.annotate(
-            taser_ticket_url=ExpressionWrapper(
-                Concat(
-                    Value("https://jira.amer.thermo.com/browse/FST-"),
-                    F("taser_ticket_number"),
-                ),
-                output_field=CharField(max_length=255),
-            )
-        )
-
-
-class ArchiveManager(models.Manager.from_queryset(ArchiveQuerySet)):
-    pass
-    # def get_queryset(self):
-    #     return ArchiveQuerySet(model=self.model, using=self._db, hints=self._hints)
-    #
-    # def with_serial_number(self):
-    #     return self.get_queryset().with_serial_number()
-    #
-    # def with_taser_ticket_url(self):
-    #     return self.get_queryset().with_taser_ticket_url()
+class ArchiveManager(models.Manager.from_queryset(models.QuerySet)):
+    
+    def get_queryset(self):
+        return QuerySet(model=self.model, using=self._db, hints=self._hints).annotate()
 
 
 class Archive(models.Model):
     """An archive sample"""
 
-    objects = ArchiveManager()
+#    objects = ArchiveManager()
 
     # user-provided label on upload
     identifier = models.CharField(max_length=255)
@@ -249,6 +220,20 @@ class Archive(models.Model):
     crc32_sum = models.CharField(
         max_length=6, unique=False, null=True, blank=False, db_index=False
     )
+    serial_number = models.CharField(
+        max_length=30, unique=False, null=False, default=u"", blank=False, db_index=False
+    )
+    instrumentId = models.IntegerField(null=True)
+
+    device_name = models.CharField(
+        max_length=60, unique=False, null=False, default=u"", blank=False, db_index=False
+    )
+
+    chip_type = models.CharField(
+        max_length=12, choices=CHIP_TYPES, unique=False, null=False, default=u"", blank=False, db_index=False
+    )
+
+    runId = models.IntegerField(null=True)
 
     # used to search the runs for tags
     search_tags = ArrayField(
@@ -258,6 +243,104 @@ class Archive(models.Model):
         unique=False,
         null=False,
     )
+    
+    @property
+    def TroubleShooter(self):
+        return self.Get_Property("TroubleShooter")   
+    
+    @property
+    def loading_per(self):
+        return self.Get_Property("loading_per")
+            
+    @property
+    def loading_usable(self):
+        return self.Get_Property("loading_usable")    
+
+    @property
+    def cf_stats(self):
+        return self.Get_Property("cf_stats")
+            
+    @property
+    def loading_density(self):
+        rc = ""
+        archive_path = os.path.dirname(self.doc_file.path)
+        if (self.archive_type == VALK or self.archive_type == S5 or self.archive_type == PROTON) and os.path.exists(os.path.join(archive_path,"explog.txt")):
+            tracker_namespace_root = os.path.join(
+                DIAGNOSTICS_NAMESPACE_ROOT, GENEXUS_LANE_ACTIVITY_DIAGNOSTIC_NAME
+            )
+            tracker_image_ref = os.path.join(tracker_namespace_root, BEAD_DENSITY_FILE_NAME)
+            rc = settings.MEDIA_URL + "archive_files/"+ str(self.id) + "/" + tracker_image_ref
+        return rc
+
+    @property
+    def taser_ticket_number_txt(self):
+        if self.taser_ticket_number and self.taser_ticket_number > 0:
+            return "FST-"+str(self.taser_ticket_number)
+        else:
+            return ""
+
+
+    def Get_TroubleShooter(self,archive_path):
+        rc=""
+        TS_json=os.path.join(os.path.join(os.path.join(archive_path,"test_results"),"Genexus_TroubleShooter"),"output.json")
+        if os.path.exists(TS_json):
+            with open(TS_json,"r")as f: 
+                TS_json_data=json.load(f)
+                if "FailReason" in TS_json_data:
+                    rc=TS_json_data["FailReason"]
+        elif os.path.exists(os.path.join(archive_path,"README")):
+            with open(os.path.join(archive_path,"README"),"r") as f:
+                rc=f.read()
+        return rc
+         
+    def Get_loading_per(self,archive_path):
+        rc=""
+        TS_json=os.path.join(os.path.join(archive_path,"True_loading"),"results.json")
+        if os.path.exists(TS_json):
+            with open(TS_json,"r")as f: 
+                TS_json_data=json.load(f)
+                rc="{:.0f}".format(TS_json_data["true"]["loadingPercent"][0])
+                # logger.warn("get_loading_per: "+rc)
+        return rc
+                
+    def Get_loading_usable(self,archive_path):
+        rc=""
+        TS_json=os.path.join(os.path.join(archive_path,"True_loading"),"results.json")
+        if os.path.exists(TS_json):
+            with open(TS_json,"r")as f: 
+                TS_json_data=json.load(f)
+                rc="{:.0f}".format(TS_json_data["true"]["loadingPercent"][0] * TS_json_data["true"]["usablePercent"][0]/100.0)
+                # logger.warn("get_loading_usable: "+rc)
+        return rc
+                
+    def Get_cf_stats(self,archive_path):
+        rc=""
+        summary_fn=archive_path+"/test_results/Genexus_Test_Fragments/summary.txt"
+        if os.path.exists(summary_fn):
+            with open(summary_fn,"r") as f: 
+                rc = f.read()
+        return rc
+        
+
+    def Get_Property(self, name):
+        Cache_txt=""
+        archive_path = os.path.dirname(self.doc_file.path)
+        Cache_File = os.path.join(archive_path,"cache_" + name + ".txt")
+        if os.path.exists(Cache_File):
+            with open(Cache_File,"r") as f:                    
+                Cache_txt=f.read()
+        else:
+            with open(Cache_File, "w+") as f:
+                f.write(Cache_txt)  #  only try once.   write out a empty file first in case of exception
+            try:
+                Cache_txt=getattr(self,"Get_"+name)(archive_path)
+            except Exception as e:
+                logger.exception(e)
+            if Cache_txt != "":
+                with open(Cache_File, "w+") as f:
+                    f.write(Cache_txt)
+        return Cache_txt
+
 
     # model relationships
     # diagnostics : Foreign Key from diagnostic class
@@ -276,15 +359,22 @@ class Archive(models.Model):
         # everything else needs the archive to be extracted
         archive_dir = os.path.dirname(self.doc_file.path)
         self.extract_archive()
+        platform = UNKNOWN_PLATFORM
 
         try:
-            explog = read_explog(archive_dir)
-            platform, _ = get_platform_and_systemtype(explog)
-
-            # do not return when it is undetermined.
-            # unknown platform is considered as error condition
-            if platform != UNKNOWN_PLATFORM:
-                return platform
+            if os.path.exists(os.path.join(archive_dir,"CSA/explog.txt")) and not os.path.exists(os.path.join(archive_dir,"explog.txt")):
+                os.system("ln -s "+os.path.join(archive_dir,"CSA/explog.txt")+" " + os.path.join(archive_dir,"explog.txt"))
+            if os.path.exists(os.path.join(archive_dir,"explog.txt")):
+                explog = read_explog(archive_dir)
+                platform, _ = get_platform_and_systemtype(explog)
+                #print("found platform "+platform+"\n")
+                if platform != UNKNOWN_PLATFORM:
+                    return platform
+            else:
+                #logger.warn("trying non-explog logic\n")
+                # check if it is a VALK_DIAG report..
+                if os.path.exists(os.path.join(archive_dir,"tslink.log")) and os.path.exists(os.path.join(archive_dir,"README")):
+                    return DIAG   
 
         except Exception as e:
             logger.exception(e)
@@ -295,7 +385,59 @@ class Archive(models.Model):
 
         # if we have gotten to this point then we really have no idea what kind of archive this is and this
         # should be considered an error condition
-        raise Exception("Cannot determine the archive type.")
+        #raise Exception("Cannot determine the archive type.")
+        return platform
+
+        
+
+    
+    # functions to run at create time.
+    def detect_at_create(self):
+        self.archive_type = self.detect_archive_type()
+        
+        self.serial_number=u""
+        archive_dir = os.path.dirname(self.doc_file.path)
+        self.extract_archive()
+        try:
+            if os.path.exists(os.path.join(archive_dir,"explog.txt")):
+                explog = read_explog(archive_dir)
+                self.serial_number = explog.get("Serial Number")
+                self.device_name = explog.get("DeviceName")
+                self.chip_type = explog.get("ChipVersion")
+                self.runId = int(explog.get("runName")[(len(self.device_name) + 1) :].split("-")[0])
+            else:
+                if os.path.exists(os.path.join(archive_dir,"tslink.log")):
+                    os.system("grep '\"serial\" : ' "+archive_dir+"/tslink.log | tail -n 1  > "+archive_dir+"/serial_number.txt")
+                    with open(archive_dir+"/serial_number.txt","r") as f:
+                        self.serial_number=f.read().replace("\"serial\" : \"","").replace("\",","").replace("\t","")
+                        
+                    os.system("grep hostname "+archive_dir+"/tslink.log | tail -n 1 > "+archive_dir+"/device_name.txt")
+                    with open(archive_dir+"/device_name.txt","r") as f:
+                        dn=f.read().replace("\t\"hostname\" : \"","").replace("\",","")
+                        
+        except Exception as e:
+            logger.exception(e)    
+
+        self.addInstrumetObject()
+
+    def addInstrumetObject(self):        
+        if self.serial_number != u'':
+            
+            with transaction.atomic():
+                try:
+                    instrument_result = Instrument.objects.get_or_create(
+                        serial_number=self.serial_number,
+                        defaults={
+                            "site": self.site,
+                            "instrument_name": self.device_name,
+                        },
+                    )
+                    if instrument_result[1]:
+                        print("Created a new object")
+                    instrument_obj = instrument_result[0]
+                    self.instrumentId = instrument_obj.id
+                except Exception as e:
+                    logger.exception(e)    
 
     def extract_archive(self):
         """
@@ -437,7 +579,7 @@ class Archive(models.Model):
                     report_pdf = None
                     break
         if report_pdf is not None:
-            logger.info(self.doc_file.path + " contained a run report PDF to symlink")
+            #logger.info(self.doc_file.path + " contained a run report PDF to symlink")
             try:
                 force_symlink(
                     report_pdf, os.path.join(self.archive_root, RUN_REPORT_PDF)
@@ -551,7 +693,7 @@ class Archive(models.Model):
             search_tags = get_proton_tags(self.archive_root)
         elif self.archive_type == S5:
             search_tags = get_s5_tags(self.archive_root)
-        elif self.archive_type == VALK:
+        elif self.archive_type == VALK and os.path.exists(os.path.join(self.archive_root,"explog.txt")):
             search_tags = get_valk_tags(self.archive_root)
         elif self.archive_type == PURE:
             search_tags = get_pure_tags(self.archive_root)

@@ -1,5 +1,5 @@
 # this dockerfile is used to build the django and celery containers.
-FROM ion-inspector-base-2022_08_15:bionic
+FROM ion-inspector-base-2022_08_19:bionic
 
 # setup variables
 ENV PROJECT_DIR /opt/inspector

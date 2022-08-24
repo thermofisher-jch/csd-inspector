@@ -193,9 +193,11 @@ class ValkyrieArchive(Archive):
 def on_archive_update(sender, instance, **_):
     if instance.archive_type == VALK:
         archive_dir = os.path.dirname(instance.doc_file.path)
-        explog = read_explog(archive_dir)
-        serial_number = explog.get("Serial Number", None)
-        device_name = explog.get("DeviceName", None)
+        explog=None
+        if os.path.exists(os.path.join(archive_dir,"explog.txt")):
+            explog = read_explog(archive_dir)
+        serial_number = instance.serial_number
+        device_name = instance.device_name
 
         try:
             valkyrie_archive = instance.as_valkyrie
@@ -219,20 +221,26 @@ def on_archive_update(sender, instance, **_):
         valkyrie_archive.is_known_good = instance.is_known_good
         valkyrie_archive.search_tags = instance.search_tags
 
-        run_started_at = explog.get("Start Time", None)
-        if not run_started_at is None:
-            valkyrie_archive.run_started_at = datetime.datetime.strptime(
-                run_started_at, "%m/%d/%Y %H:%M:%S"
+        valkyrie_archive.run_started_at="1996-04-4 10:10:10"
+        if explog != None:
+            run_started_at = explog.get("Start Time", None)
+            if not run_started_at is None:
+                valkyrie_archive.run_started_at = datetime.datetime.strptime(
+                    run_started_at, "%m/%d/%Y %H:%M:%S"
+                )
+            
+        valkyrie_archive.run_name=""
+        valkyrie_archive.run_number=0
+        if explog != None:
+            valkyrie_archive.run_name = explog.get("runName", "Unknown")
+            valkyrie_archive.run_number = int(
+                valkyrie_archive.run_name[(len(device_name) + 1) :].split("-")[0]
             )
-        valkyrie_archive.run_name = explog.get("runName", "Unknown")
-        valkyrie_archive.run_number = int(
-            valkyrie_archive.run_name[(len(device_name) + 1) :].split("-")[0]
-        )
         assay_types = dict()
         emphasis_mask = 0
         for lane_meta in LANE_META_OBJECTS:
             ii = lane_meta.index
-            if explog.get("LanesActive%s" % ii, "no") == "yes":
+            if explog != None and explog.get("LanesActive%s" % ii, "no") == "yes":
                 key = "lane%s_assay_type" % ii
                 lane_assay = explog.get("LanesAssay%s" % ii, None)
                 if not lane_assay is None:

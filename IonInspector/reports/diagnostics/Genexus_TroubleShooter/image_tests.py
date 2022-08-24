@@ -179,7 +179,7 @@ def test_rawTrace(archive_path, output_path):
     return message
 
 def test_BKQ(path_to_file):
-    lower_limit = -5
+    lower_limit = -10
     NucArray = ["T","C","A","G"]
     inlet = []
     middle = []

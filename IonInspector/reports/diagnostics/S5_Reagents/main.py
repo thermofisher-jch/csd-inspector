@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 
-import sys
+import os,sys
 from datetime import datetime, date
-
+import logging
 from reports.diagnostics.common.inspector_utils import *
+
+logger = logging.getLogger(__name__)
 
 
 def parse_start_time(start_time_string):
@@ -128,6 +130,19 @@ def execute(archive_path, output_path, archive_type):
 
             # html footer
             html_handle.write("</body></html>")
+
+        # convert the pdf to usable png and text files
+        if os.path.exists(archive_path+"/report.pdf"):
+            
+            cmd="mutool convert -o {}/report_.png {}/report.pdf 1".format(output_path,archive_path)
+            logger.warn(cmd)
+            os.system(cmd)
+            cmd="mutool convert -o {}/report_1.txt {}/report.pdf 1".format(output_path,archive_path)
+            logger.warn(cmd)
+            os.system(cmd)
+            cmd="mkdir {}/../Genexus_Lane_Activity; convert {}/report_1.png -crop 120x82+110+305 {}/../Genexus_Lane_Activity/Bead_density_1000.png".format(output_path,output_path,output_path)
+            logger.warn(cmd)
+            os.system(cmd)
 
         # determine if reagents were expired when the run was executed
         if run_date and cleaning_dict and wash_dict and sequencing_dict:

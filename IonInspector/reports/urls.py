@@ -20,13 +20,7 @@ urlpatterns = [
         views.InstrumentsListView.as_view(),
         name="instruments-list",
     ),
-    url(
-        r"^instruments/sn(?P<serial_number>.+)/$",
-        views.InstrumentDetailView.as_view(),
-        name="instrument-detail",
-    ),
-    url(
-        r"^instruments/(?P<pk>\d+)/$",
+    url("../reports/serial_number=(?P<serial_number>.+)$",
         views.InstrumentDetailView.as_view(),
         name="instrument-detail",
     ),

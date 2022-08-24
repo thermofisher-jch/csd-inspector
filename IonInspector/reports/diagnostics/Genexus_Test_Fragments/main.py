@@ -64,7 +64,10 @@ def execute(archive_path, output_path, archive_type):
         )
 
         cf_details = get_tf_details(tf_stats, basecaller_stats)
+        with open(output_path+"/summary.txt","w+") as f:
+            f.write(cf_details)
 
         return print_info(cf_details)
     else:
         return print_failed("Could not find CF-1 in TFStats.json!")
+        

@@ -67,6 +67,10 @@ class Instrument(models.Model):
     #     null=False,
     #     unique=False,
     # )
+    @property
+    def reports_link(self):
+            return "../reports/?serial_number="+self.serial_number
+
 
     class Meta:
         app_label = "reports"

@@ -932,5 +932,8 @@ def execute(archive_path, output_path, archive_type):
         rc=print_ok(data["FailReason"])
     else:
         rc=print_alert("       <b><u>***{}***</u></b>    See Results for more details".format(data["FailReason"]))
+    
+    with open(output_path+"/summary.txt", "w+") as f:
+        f.write(data["FailReason"])
         
     return rc

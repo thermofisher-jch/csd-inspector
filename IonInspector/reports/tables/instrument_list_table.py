@@ -5,26 +5,29 @@ from .width_attrs import width_attrs
 
 
 class InstrumentTable(tables.Table):
-    serial_number = tables.LinkColumn(
-        accessor=A("serial_number"),
+    serial_number = tables.TemplateColumn(
+        '<a href="../reports/?serial_number={{ record.serial_number }}">{{ record.serial_number }}</a>',
+        # accessor=A("serial_number"),
         orderable=True,
         attrs=width_attrs("20vw"),
-        viewname="instrument-detail",
-        args=[A("id")],
+        # viewname="instrument-detail",
+        # args=[A("id")],
     )
-    instrument_name = tables.LinkColumn(
-        accessor=A("instrument_name"),
+    instrument_name = tables.TemplateColumn(
+        '<a href="../reports/?serial_number={{ record.serial_number }}">{{ record.instrument_name }}</a>',
+    #     accessor=A("instrument_name"),
         orderable=True,
         attrs=width_attrs("20vw"),
-        viewname="instrument-detail",
-        args=[A("id")],
+    #     viewname="instrument-detail",
+    #     args=[A("id")],
     )
-    site = tables.LinkColumn(
-        accessor=A("site"),
+    site = tables.TemplateColumn(
+        '<a href="../reports/?serial_number={{ record.serial_number }}">{{ record.site }}</a>',
+    #     accessor=A("site"),
         orderable=True,
         attrs=width_attrs("40vw"),
-        viewname="instrument-detail",
-        args=[A("id")],
+    #     viewname="instrument-detail",
+    #     args=[A("id")],
     )
 
     class Meta:

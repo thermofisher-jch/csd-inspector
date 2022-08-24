@@ -64,7 +64,7 @@ def batch_upload(request):
                 archive, Archive.doc_file.field, relative_file_path
             )
             archive.save()
-            archive.archive_type = archive.detect_archive_type()
+            archive.detect_at_create()
             archive.save()
             archive.execute_diagnostics()
             success = True
@@ -86,6 +86,7 @@ def batch_upload(request):
                 "sha1_hash": archive.sha1_hash,
                 "md5_hash": archive.md5_hash,
                 "crc32_sum": archive.crc32_sum,
+                "serial_number": archive.serial_number,
             },
             safe=True,
         )

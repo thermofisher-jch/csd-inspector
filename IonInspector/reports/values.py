@@ -18,6 +18,7 @@ S5 = "S5"
 OT_LOG = "OT_Log"
 ION_CHEF = "Ion_Chef"
 VALK = "Valkyrie"
+DIAG = "Diagnostic"
 UNKNOWN_PLATFORM = "Unknown Platform"
 
 # Well known explog keys and values
@@ -32,9 +33,21 @@ ARCHIVE_TYPES = (
     (PURE, "Purification"),
     (S5, "S5"),
     (VALK, "Genexus"),
+    (DIAG, "Diagnostic"),
     (OT_LOG, "OT"),
     (ION_CHEF, "CHEF"),
 )
+
+CHIP_TYPES = (
+    ("GX5","GX5"),
+    ("GX7","GX7"),
+    ("GX9","GX9"),
+    ("530","530"),
+    ("540","540"),
+    ("541","541"),
+    ("550","550"),
+    ("560","560"),
+    )
 
 # Diagnostic states
 UNEXECUTED = "Unexecuted"
@@ -70,6 +83,7 @@ UPLOAD_TYPES = (
     (PURE, "Purification"),
     (S5, "S5"),
     (VALK, "Genexus"),
+    (DIAG, "Diagnostic"),
     (OT_LOG, "OT"),
     (ION_CHEF, "CHEF"),
 )
@@ -80,6 +94,7 @@ TEST_RUN_TYPES = (
     (PURE, "Purification"),
     (S5, "S5"),
     (VALK, "Genexus"),
+    (DIAG, "Diagnostic"),
     (OT_LOG, "OT"),
     (ION_CHEF, "CHEF"),
 )

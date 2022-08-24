@@ -88,12 +88,12 @@
             <span id="archive-is-known-good" class="disposition-badge"/>
         </div>
     </div>
-    {% if archive.as_valkyrie and archive.as_valkyrie.instrument.serial_number %}
+    {% if archive.serial_number %}
         <div class="row-fluid">
             <div class="offset6 span3">
-                <span id="archive-serial" data-value="{{ archive.as_valkyrie.instrument.serial_number }}">
-                    <a href="{% url 'instrument-detail' archive.as_valkyrie.instrument.id %}"
-                       target="_blank">Serial Number: {{ archive.as_valkyrie.instrument.serial_number }}</a>
+                <span id="archive-serial" data-value="{{ archive.serial_number }}">
+                    <a href=" ../../reports?serial_number={{archive.serial_number }}"
+                       target="_blank">Serial Number: {{ archive.serial_number }}</a>
                 </span>
             </div>
         </div>

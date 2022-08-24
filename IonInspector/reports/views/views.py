@@ -16,7 +16,7 @@ from reports.api import ArchiveResource
 from reports.forms import SingleArchiveUploadForm
 from reports.models import Archive
 from reports.tables import ArchiveTable
-from reports.values import PGM_RUN, CATEGORY_CHOICES, ARCHIVE_TYPES
+from reports.values import PGM_RUN, CATEGORY_CHOICES, ARCHIVE_TYPES, CHIP_TYPES
 from reports.utils import get_file_path, get_serialized_model, Unnest
 
 logger = logging.getLogger(__name__)
@@ -60,8 +60,7 @@ def upload(request):
         # save the file against since we will need an id in order to create the save path
         archive.doc_file = request.FILES["doc_file"]
         archive.save()
-
-        archive.archive_type = archive.detect_archive_type()
+        archive.detect_at_create()
         archive.save()
 
         try:
@@ -100,25 +99,35 @@ def reports(request):
     :return:
     """
     site_search = ""
+    runId_search = ""
     submitter_name_search = ""
     archive_type_search = ""
+    chip_type_search = ""
     identifier_search = ""
     taser_ticket_number_search = ""
     is_known_good_search = []
     date_start_search = ""
     date_end_search = ""
     tags_search = ""
+    serial_number_search = ""
+    device_name_search = ""
 
     archives = Archive.objects.order_by("time")
     if request.GET.get("site", ""):
         site_search = request.GET["site"]
         archives = archives.filter(site__icontains=site_search)
+    if request.GET.get("site", ""):
+        runId_search = request.GET["runId"]
+        archives = archives.filter(site__icontains=runId_search)
     if request.GET.get("submitter_name", ""):
         submitter_name_search = request.GET["submitter_name"]
         archives = archives.filter(submitter_name__icontains=submitter_name_search)
     if request.GET.get("archive_type", ""):
         archive_type_search = request.GET["archive_type"]
         archives = archives.filter(archive_type=archive_type_search)
+    if request.GET.get("chip_type", ""):
+        chip_type_search = request.GET["chip_type"]
+        archives = archives.filter(chip_type=chip_type_search)
     if request.GET.get("identifier", ""):
         identifier_search = request.GET["identifier"]
         archives = archives.filter(identifier__icontains=identifier_search)
@@ -134,22 +143,24 @@ def reports(request):
     if request.GET.get("is_known_good"):
         is_known_good_search = request.GET.getlist("is_known_good")
         archives = archives.filter(is_known_good__in=is_known_good_search)
+    if request.GET.get("serial_number", ""):
+        serial_number_search = request.GET["serial_number"]
+        archives = archives.filter(serial_number=serial_number_search)
+    if request.GET.get("device_name", ""):
+        device_name_search = request.GET["device_name"]
+        archives = archives.filter(device_name=device_name_search)
     if request.GET.get("date_start", ""):
         date_start_search = request.GET["date_start"]
-    if request.GET.get("date_end", ""):
-        date_end_search = request.GET["date_end"]
-
-    if date_start_search:
         date_start = date_parse(date_start_search)
         if date_start:
             archives = archives.filter(time__gt=date_start)
-
-    if date_end_search:
+    if request.GET.get("date_end", ""):
+        date_end_search = request.GET["date_end"]
         date_end = date_parse(date_end_search)
         if date_end:
             archives = archives.filter(time__lt=date_end)
 
-    table = ArchiveTable(archives.with_taser_ticket_url(), order_by="-time")
+    table = ArchiveTable(archives, order_by="-time")
     table.paginate(page=request.GET.get("page", 1), per_page=100)
     RequestConfig(request).configure(table)
 
@@ -163,9 +174,12 @@ def reports(request):
         {
             "archives": table,
             "archive_types": ARCHIVE_TYPES,
+            "chip_types": CHIP_TYPES,
             "site_search": site_search,
+            "runId_search": runId_search,
             "submitter_name_search": submitter_name_search,
             "archive_type_search": archive_type_search,
+            "chip_type_search": chip_type_search,
             "identifier_search": identifier_search,
             "taser_ticket_number_search": taser_ticket_number_search,
             "include_known_good": "selected=" if "T" in is_known_good_search else "",
@@ -175,6 +189,8 @@ def reports(request):
             "date_end_search": date_end_search,
             "tags_search": tags_search,
             "available_tags": available_tags,
+            "serial_number_search": serial_number_search,
+            "device_name_search": device_name_search,
             "template_name": "tables/reports.html",
         }
     )
@@ -189,8 +205,12 @@ def report(request, pk):
     :return:
     """
 
-    archive = Archive.objects.get(pk=pk)
-    diagnostics = archive.diagnostics.order_by("name")
+    try:
+        archive = Archive.objects.get(pk=pk)
+        diagnostics = archive.diagnostics.order_by("name")
+    except Exception as exc:
+        logger.exception("Error starting execute_diagnostics")
+        return
 
     PST = pytz.timezone("US/Pacific")
     first_diagnostic = diagnostics.order_by("start_execute").first()
