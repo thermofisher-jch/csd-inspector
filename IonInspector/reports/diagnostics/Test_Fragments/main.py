@@ -62,6 +62,9 @@ def execute(archive_path, output_path, archive_type):
             raise Exception(
                 "Not enough TF's reported in thumbnail. Review full chip PDF for possible TF reads."
             )
+        else:
+            with open(output_path+"/summary.txt","w+") as f:
+                f.write(" | ".join(rates))
 
         return print_info(" | ".join(rates))
     except Exception as exc:

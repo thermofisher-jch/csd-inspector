@@ -252,9 +252,9 @@ class Archive(models.Model):
     def loading_per(self):
         return self.Get_Property("loading_per")
             
-    @property
-    def loading_usable(self):
-        return self.Get_Property("loading_usable")    
+    # @property
+    # def loading_usable(self):
+    #     return self.Get_Property("loading_usable")    
 
     @property
     def cf_stats(self):
@@ -316,8 +316,12 @@ class Archive(models.Model):
     def Get_cf_stats(self,archive_path):
         rc=""
         summary_fn=archive_path+"/test_results/Genexus_Test_Fragments/summary.txt"
+        summary_fn_S5=archive_path+"/test_results/Test_Fragments/summary.txt"
         if os.path.exists(summary_fn):
             with open(summary_fn,"r") as f: 
+                rc = f.read()
+        elif os.path.exists(summary_fn_S5):
+            with open(summary_fn_S5,"r") as f: 
                 rc = f.read()
         return rc
         
@@ -345,7 +349,7 @@ class Archive(models.Model):
     # model relationships
     # diagnostics : Foreign Key from diagnostic class
 
-    def detect_archive_type(self):
+    def detect_archive_type(self, extract=True):
         """This will attempt to auto detect the archive type"""
 
         # if the base archive is a simple log or csv then this is a one touch
@@ -358,7 +362,8 @@ class Archive(models.Model):
 
         # everything else needs the archive to be extracted
         archive_dir = os.path.dirname(self.doc_file.path)
-        self.extract_archive()
+        if extract:
+            self.extract_archive()
         platform = UNKNOWN_PLATFORM
 
         try:
@@ -392,29 +397,43 @@ class Archive(models.Model):
 
     
     # functions to run at create time.
-    def detect_at_create(self):
-        self.archive_type = self.detect_archive_type()
+    def detect_at_create(self, extract=True):
+        self.archive_type = self.detect_archive_type(extract)
         
         self.serial_number=u""
         archive_dir = os.path.dirname(self.doc_file.path)
-        self.extract_archive()
+        if extract:
+            self.extract_archive()
         try:
             if os.path.exists(os.path.join(archive_dir,"explog.txt")):
+                # proton/S5/Genexus logic
                 explog = read_explog(archive_dir)
-                self.serial_number = explog.get("Serial Number")
-                self.device_name = explog.get("DeviceName")
-                self.chip_type = explog.get("ChipVersion")
+                self.serial_number = explog.get("Serial Number").rstrip('\n')
+                self.device_name = explog.get("DeviceName").rstrip('\n')
+                self.chip_type = explog.get("ChipVersion").rstrip('\n')
                 self.runId = int(explog.get("runName")[(len(self.device_name) + 1) :].split("-")[0])
+            elif os.path.exists(archive_dir+"/etc/opt/IonChef/config/instrument_serial.txt"):
+                # chef logic
+                os.system("grep Serial: " + archive_dir+"/etc/opt/IonChef/ICS/config/ionchef.config" + " > " + archive_dir+"/serial_number.txt")
+                with open(os.path.join(archive_dir,"serial_number.txt"),"r") as f:
+                    self.serial_number = f.read().replace("Serial:","").rstrip('\n')
+                os.system("grep InstrumentName: " + archive_dir+"/etc/opt/IonChef/ICS/config/ionchef.config" + " > " + archive_dir+"/device_name.txt")
+                with open(os.path.join(archive_dir,"device_name.txt"),"r") as f:
+                    self.device_name = f.read().replace("InstrumentName:","").rstrip('\n')
+                os.system("grep 'runcount = ' " + archive_dir+"/etc/opt/IonChef/IS/Config/runcount.ini" + " > " + archive_dir+"/runId.txt")
+                with open(os.path.join(archive_dir,"runId.txt"),"r") as f:
+                    self.runId = f.read().replace("runcount = ","").rstrip('\n')
             else:
+                # diagnostic CSA upload
                 if os.path.exists(os.path.join(archive_dir,"tslink.log")):
                     os.system("grep '\"serial\" : ' "+archive_dir+"/tslink.log | tail -n 1  > "+archive_dir+"/serial_number.txt")
                     with open(archive_dir+"/serial_number.txt","r") as f:
-                        self.serial_number=f.read().replace("\"serial\" : \"","").replace("\",","").replace("\t","")
+                        self.serial_number=f.read().replace("\"serial\" : \"","").replace("\",","").replace("\t","").rstrip('\n')
                         
                     os.system("grep hostname "+archive_dir+"/tslink.log | tail -n 1 > "+archive_dir+"/device_name.txt")
                     with open(archive_dir+"/device_name.txt","r") as f:
-                        dn=f.read().replace("\t\"hostname\" : \"","").replace("\",","")
-                        
+                        self.device_name=f.read().replace("\t\"hostname\" : \"","").replace("\",","").rstrip('\n')
+            
         except Exception as e:
             logger.exception(e)    
 

@@ -136,22 +136,22 @@ class ArchiveTable(tables.Table):
     )
     loading_percent = tables.LinkColumn(
         verbose_name="LoadingPercent",
-        attrs=width_attrs("60px"),
+        attrs=width_attrs("80px"),
         orderable=False,
         viewname="report",
         args=[A("id")],
         accessor=A("loading_per"),
         empty_values=(list(), None),
     )
-    loading_usable = tables.LinkColumn(
-        verbose_name="LoadingUsable",
-        attrs=width_attrs("60px"),
-        orderable=False,
-        viewname="report",
-        args=[A("id")],
-        accessor=A("loading_usable"),
-        empty_values=(list(), None),
-    )
+    # loading_usable = tables.LinkColumn(
+    #     verbose_name="LoadingUsable",
+    #     attrs=width_attrs("60px"),
+    #     orderable=False,
+    #     viewname="report",
+    #     args=[A("id")],
+    #     accessor=A("loading_usable"),
+    #     empty_values=(list(), None),
+    # )
     chip_type = tables.LinkColumn(
         verbose_name="Chip Type",
         attrs=width_attrs("60px"),
@@ -228,7 +228,7 @@ class ArchiveTable(tables.Table):
             "chip_type",
             "loading_density",
             "loading_percent",
-            "loading_usable",
+            # "loading_usable",
             "taser_ticket_number_txt",
             "identifier",
             "submitter_name",

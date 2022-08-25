@@ -152,7 +152,7 @@ def execute(archive_path, output_path, archive_type):
                     html_handle.write("</tbody></table>")
             return print_alert("Experiment errors found in explog or debug")
         else:
-            return print_ok("No experiment or debug errors found")
+            return print_ok("See results for details. (ok)")
 
     except Exception as exc:
         return handle_exception(exc, output_path)

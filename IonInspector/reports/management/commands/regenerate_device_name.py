@@ -24,7 +24,7 @@ class Command(BaseCommand):
         end = options["pks"] + start
         for archive in Archive.objects.order_by("-id")[start:end]:
             try:
-                archive.detect_at_create()
+                archive.detect_at_create(False)
                 archive.save()
                 print("Archive #{}: SN{} DN{} RN {} ID{}".format(archive.id, archive.serial_number, archive.device_name, archive.runId, archive.instrumentId))
             except Exception as e:

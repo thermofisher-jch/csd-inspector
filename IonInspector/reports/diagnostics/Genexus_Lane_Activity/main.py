@@ -119,10 +119,12 @@ def execute(archive_path, output_path, archive_type):
                             os.path.join(output_path, filename),
                         )
                     except IOError:
-                        image_messages.append("Could not find '{}'".format(filename))
+                        pass
+                        # image_messages.append("Could not find '{}'".format(filename))
     except FileNotFoundError as err:
-        logger.error(err.file_path)
-        image_messages.append("Could not find '{}'".format(err.file_path))
+        pass
+        #logger.error(err.file_path)
+        #image_messages.append("Could not find '{}'".format(err.file_path))
     finally:
         # copy bead density
         bead_image_path = os.path.join(output_path, BEAD_DENSITY_FILE_NAME)
@@ -137,9 +139,9 @@ def execute(archive_path, output_path, archive_type):
                     bead_messages.append("Could not find bead density image!")
         except IOError as err:
             bead_image_found = None
-            bead_messages.append(
-                "I/O Error accessing bead density image: " + err.message
-            )
+            # bead_messages.append(
+            #     "I/O Error accessing bead density image: " + err.message
+            # )
         if bead_image_found is None:
             os.symlink(NO_BEAD_IMAGE_FILE, bead_image_path)
         else:
@@ -168,13 +170,13 @@ def execute(archive_path, output_path, archive_type):
     ]
 
     # summary message and result code
-    if len(image_messages) > 0:
-        if len(image_messages) > 1:
-            messages.append(
-                "Could not find {} diagnostic images {}".format(str(len(image_messages)),image_messages)
-            )
-        else:
-            messages.extend(image_messages)
+    # if len(image_messages) > 0:
+    #     if len(image_messages) > 1:
+    #         messages.append(
+    #             "Could not find {} diagnostic images {}".format(str(len(image_messages)),image_messages)
+    #         )
+    #     else:
+    #         messages.extend(image_messages)
     message = "<br>".join(messages)
     if active_lanes <= 0 or len(bead_messages) > 0:
         return print_failed(message)
