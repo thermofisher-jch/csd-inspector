@@ -372,6 +372,10 @@ def checkSequencing(data, archive_path, output_path):
     upperAvgLimit=8192+400
     lowerAvgLimit=8192-400
     avgDiffLimit=160
+    avgDiffStart = 3
+    if data["explog"]["ChipVersion"] == "GX7":
+        avgDiffLimit = 250
+        avgDiffStart = 6
     lastAvg=0
     averageDoneOnce=False
 
@@ -454,7 +458,7 @@ def checkSequencing(data, archive_path, output_path):
                             if average > upperAvgLimit or average < lowerAvgLimit:
                                 rc += "array average is not within range  %.0f <= %.0f <= %.0f acq %d\n"%(lowerAvgLimit,average,upperAvgLimit,acq)
                                 averageDoneOnce=True
-                            elif acq > 2 and lastAvg > 0 and abs(average - lastAvg) > avgDiffLimit:
+                            elif acq > avgDiffStart and lastAvg > 0 and abs(average - lastAvg) > avgDiffLimit:
                                 rc += "array average difference %.0f > %.0f acq %d\n"%(abs(average-lastAvg),avgDiffLimit,acq)
                                 averageDoneOnce=True
                             lastAvg=average
