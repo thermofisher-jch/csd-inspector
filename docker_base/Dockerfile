@@ -15,11 +15,9 @@ python-dev \
 python-psycopg2 \
 r-base \
 r-cran-rjson \
-python-matplotlib \
 libpq-dev \
-python-lxml \
 python-bs4 \
-python-lzma \
+python-coverage \
 python-django \
 python-django-tastypie \
 python-django-tables2 \
@@ -28,24 +26,26 @@ python-django-crispy-forms \
 python-cached-property \
 python-dateutil \
 python-functools32 \
+python-lxml \
 python-lzma \
+python-matplotlib \
 python-magic \
 python-numpy \
+python-opencv \
 python-pandas \
 python-semver \
 python-skimage \
 python-scipy \
 python-raven \
 python-tblib \
-python-coverage \
 mupdf-tools \
 imagemagick \
 postgresql-client \
 wait-for-it && \
+apt-get autoremove -y && \
+apt-get purge -y && \
+apt-get clean -y && \
 rm -rf /var/lib/apt/lists/*lz4
-
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-python-opencv
 
 # install R deps
 RUN Rscript -e "source('http://bioconductor.org/biocLite.R')" \
