@@ -16,3 +16,5 @@ local_settings.py
 Pipfile.lock
 .vscode/
 .history/
+
+.odo
