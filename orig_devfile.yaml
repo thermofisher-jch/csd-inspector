@@ -1,0 +1,184 @@
+schemaVersion: 2.1.0
+metadata:
+  generateName: csd-inspector
+attributes:
+  persistVolumes: 'true'
+projects:
+  - name: csd-inspector
+    git:
+      remotes:
+        origin: 'ssh://git@github.com/thermofisher/csd-inspector.git'
+components:
+#   - id: ms-python/python/latest
+#     type: chePlugin
+#     alias: vscode-python
+#   - id: redhat/vscode-openshift-connector/latest
+#     type: chePlugin
+#     alias: vscode-oc
+#   - id: ms-vscode/vscode-github-pullrequest/latest
+#     type: chePlugin
+#     alias: vscode-gitpr
+#   - id: redhat/vscode-yaml/latest
+#     type: chePlugin
+#     alias: vscode-yaml
+#   - id: eclipse/che-machine-exec-plugin/latest
+#     type: chePlugin
+#     alias: che-exec
+  - name: django-svc
+    container:
+      image: 'docker.io/jheinnic/che-python-2.7:afdcd09'
+      cpuRequest: '0.25'
+      cpuLimit: '0.5'
+      memoryLimit: 1536M
+      memoryRequest: 1024M
+      mountSources: true
+      volumeMounts:
+        - name: venv
+          path: /home/user/.venv
+        - name: m2
+          path: /home/user/.m2
+        - name: local
+          path: /home/user/.local
+#       endpoints:
+#         - name: django
+#           targetPort: 7000
+#           attributes:
+#             protcol: http
+#             public: 'true'
+#             secure: 'false'
+#             discoverable: 'false'
+      env:
+        - value: /home/user
+          name: HOME
+        - value: dbowner
+          name: DATABASE_USERNAME
+        - value: abcd1234
+          name: DATABASE_PASSWORD
+        - value: postgres
+          name: DATABASE_DBNAME
+        - value: postgresql
+          name: DATABASE_HOST
+        - value: '5432'
+          name: DATABASE_PORT
+        - value: 'True'
+          name: DEBUG
+        - value: '*'
+          name: ALLOWED_HOSTS
+        - value: 4ThispocketIconic8lyP@rkedIns!de0utpublic
+          name: SECRET_KEY
+        - value: '${CHE_PROJECTS_ROOT}/csd-inspector/IonInspector;/home/user/.local/lib/python2.7/site-packages'
+          name: PYTHONPATH
+  - name: postgres-svc
+    container:
+      image: 'postgres:11.4-alpine'
+      cpuLimit: '0.3'
+      cpuRequest: '0.1'
+      memoryLimit: 1536M
+      memoryRequest: 1536M
+      mountSources: false
+      endpoints:
+        - name: postgresql
+          targetPort: 5432
+      volumeMounts:
+        - name: postgres-db
+          path: /var/lib/postgresql
+      env:
+        - value: postgresql
+          name: POSTGRES_USER
+        - value: abcd1234
+          name: POSTGRES_PASSWORD
+        - value: inspector
+          name: POSTGRES_DBNAME
+        - value: '5432'
+          name: POSTGRES_PORT
+  - name: venv
+    volume: {}
+  - name: m2
+    volume: {}
+  - name: local
+    volume: {}
+  - name: postgres-db
+    volume: {} 
+commands:
+  - id: maven-build
+    exec:
+      component: django-svc
+      commandLine: "mvn clean install"
+      workingDir: ${CHE_PROJECTS_ROOT}/console-java-simple
+  - id: maven-build-and-run
+    exec:
+      component: django-svc
+      commandLine: "mvn clean install && java -jar ./target/*.jar"
+      workingDir: ${CHE_PROJECTS_ROOT}/console-java-simple
+  - id: upgrade-pip
+    exec:
+      component: django-svc
+      commandLine: 'python -m pip install --upgrade pip'
+      workingDir: '${HOME}'
+  - id: install-virtualenv
+    exec:
+      component: django-svc
+      commandLine: 'python -m pip install --user virtualenv'
+      workingDir: '${HOME}'
+  - id: create-virtualenv
+    exec:
+      component: django-svc
+      commandLine: 'virtualenv ~/.venv'
+      workingDir: '${HOME}'
+  - id: install-dependencies
+    exec:
+      workingDir: '${CHE_PROJECTS_ROOT}/csd-inspector'
+      commandLine: '. ${HOME}/.venv/bin/activate && pip install -r requirements.txt'
+      component: django-svc
+  - id: bootstrap-project
+    composite:
+      commands:
+        - upgrade-pip
+        - install-virtualenv
+        - create-virtualenv
+        - install-dependencies
+  - id: migrate
+    exec:
+      workingDir: '${CHE_PROJECTS_ROOT}/csd-inspector'
+      commandLine: '. ${HOME}/.venv/bin/activate && python manage.py migrate'
+      component: django-svc
+  - id: make-migrations-1
+    exec:
+      workingDir: '${CHE_PROJECTS_ROOT}/csd-inspector'
+      commandLine: '. ${HOME}/.venv/bin/activate && python manage.py makemigrations'
+      component: django-svc
+  - id: run-server
+    exec:
+      workingDir: '${CHE_PROJECTS_ROOT}/csd-inspector'
+      commandLine: '. ${HOME}/.venv/bin/activate && export DEBUG_MODE=False && python manage.py runserver 0.0.0.0:7000'
+      component: django-svc
+  - id: run-server-in-debug-mode
+    exec:
+      workingDir: '${CHE_PROJECTS_ROOT}/csd-inspector'
+      commandLine: '. ${HOME}/.venv/bin/activate && export DEBUG_MODE=True && python -m pydebug --wait-for-client --listen 5678 manage.py runserver 0.0.0.0:7000 --noreload --nothreading'
+      component: django-svc
+# events:
+#   preStart:
+#     - upgrade-pip
+#     - install-virtualenv
+#     - create-virtualenv
+#   - id: debug
+#     vscode-tasks:
+#       referenceContent: |
+#         { 
+#           "version": "0.2.0", 
+#           "configurations": [
+#           {
+#             "name": "Python: Remote Attach",
+#             "type": "python",
+#             "request": "attach",
+#             "port": 5678,
+#             "host": "0.0.0.0",
+#             "pathMappings": [
+#               {
+#                   "localRoot": "${workspaceFolder}/OldCanary",
+#                   "remoteRoot": "${workspaceFolder}/OldCanary"
+#               }
+#             ]
+#           }]
+#         }
