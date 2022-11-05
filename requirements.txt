@@ -55,7 +55,7 @@ pyliblzma==0.5.3
 pyparsing==2.2.0
 pytest==3.3.2
 python-dateutil==2.6.1
-python-magic==0.4.16
+python-magic==0.4.17
 python-memcached==1.53
 python-mimeparse==0.1.4
 pytz==2018.3
